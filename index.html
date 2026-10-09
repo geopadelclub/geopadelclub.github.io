@@ -1,0 +1,2904 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Geopadel · Club Management App</title>
+    <meta name="theme-color" content="#0a2540">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="application-name" content="Geopadel">
+    <link rel="icon"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23c6f135' stroke='%230a2540' stroke-width='3'/%3E%3Cpath d='M6 17c10 4 26 4 36 0M6 31c10-4 26-4 36 0' fill='none' stroke='%230a2540' stroke-width='3'/%3E%3C/svg%3E">
+
+    <!-- Supabase JS Client SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --gp-navy: #0a2540;
+            --gp-navy-light: #14385c;
+            --gp-navy-dark: #061729;
+            --gp-lime: #c6f135;
+            --gp-lime-hover: #b2db2d;
+            --gp-blue: #2563eb;
+            --gp-blue-hover: #1d4ed8;
+            --bg-body: #f4f6fa;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+            --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.08);
+            --shadow-lg: 0 12px 32px rgba(10, 37, 64, 0.12);
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-full: 9999px;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            font-family: var(--font-sans);
+        }
+
+        body {
+            background: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.4;
+        }
+
+        /* --- LOGIN VIEW --- */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            background: linear-gradient(145deg, var(--gp-navy-dark) 0%, var(--gp-navy) 60%, var(--gp-navy-light) 100%);
+        }
+
+        .login-card {
+            background: #ffffff;
+            padding: 40px 32px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 420px;
+            border-top: 6px solid var(--gp-lime);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-card .gp-brand {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .login-card .gp-wordmark {
+            color: var(--gp-navy);
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: .12em;
+        }
+
+        .login-card .gp-wordmark b {
+            color: #5f7f00;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            background: #ffffff;
+            color: var(--text-main);
+            transition: border-color 0.15s, box-shadow 0.15s;
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--gp-navy);
+            box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.12);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--gp-navy);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.15s, transform 0.1s;
+            box-shadow: 0 4px 12px rgba(10, 37, 64, 0.2);
+        }
+
+        .btn-submit:hover {
+            background: var(--gp-navy-light);
+        }
+
+        .btn-submit:active {
+            transform: scale(0.98);
+        }
+
+        #msgLogin {
+            margin-top: 16px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .msg-error {
+            color: #ef4444;
+        }
+
+        .msg-success {
+            color: #10b981;
+        }
+
+        /* --- MAIN LAYOUT & HEADER --- */
+        #adminView {
+            display: none;
+        }
+
+        header {
+            background: var(--gp-navy);
+            color: white;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--gp-lime);
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .gp-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .gp-wordmark {
+            font-weight: 900;
+            letter-spacing: .16em;
+            font-size: 20px;
+            color: #fff;
+        }
+
+        .gp-wordmark b {
+            color: var(--gp-lime);
+        }
+
+        .user-info {
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .user-info strong {
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .btn-logout {
+            background: rgba(255, 255, 255, .12);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 12px;
+            transition: background 0.15s;
+        }
+
+        .btn-logout:hover {
+            background: #ef4444;
+        }
+
+        /* --- BOTTOM APP NAVBAR (DESKTOP & MOBILE RESPONSIVE) --- */
+        .top-navbar {
+            position: fixed;
+            left: 50%;
+            bottom: 16px;
+            transform: translateX(-50%);
+            width: min(560px, calc(100% - 24px));
+            background: rgba(10, 37, 64, .96);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-full);
+            padding: 6px;
+            gap: 6px;
+            box-shadow: var(--shadow-lg);
+            z-index: 200;
+            display: flex;
+        }
+
+        .nav-tab {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            padding: 8px 4px;
+            border-radius: var(--radius-full);
+            font-size: 11px;
+            font-weight: 800;
+            color: #9fb3c8;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .nav-tab .ni {
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .nav-tab:hover {
+            color: #ffffff;
+        }
+
+        .nav-tab.active {
+            background: var(--gp-lime);
+            color: var(--gp-navy);
+            box-shadow: 0 4px 12px rgba(198, 241, 53, 0.3);
+        }
+
+        .container-fluid {
+            padding: 20px;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding-bottom: 100px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        /* --- CARD CONTAINERS --- */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 24px;
+        }
+
+        .card h3 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--gp-navy);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* --- CONTROL BAR (RESERVAS) --- */
+        .playtomic-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 12px 18px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .search-box-container {
+            display: flex;
+            align-items: center;
+            background: #f1f5f9;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 8px 14px;
+            width: 280px;
+        }
+
+        .search-box-container input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 14px;
+            width: 100%;
+            margin-left: 8px;
+            color: var(--text-main);
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        .date-nav-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-playtomic-nav {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            color: var(--text-main);
+            transition: background 0.15s;
+        }
+
+        .btn-playtomic-nav:hover {
+            background: #e2e8f0;
+        }
+
+        .date-picker-input {
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--gp-navy);
+            cursor: pointer;
+            background: #ffffff;
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        .btn-crear-partido {
+            background: var(--gp-navy);
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(10, 37, 64, 0.18);
+            transition: background 0.15s, transform 0.1s;
+        }
+
+        .btn-crear-partido:hover {
+            background: var(--gp-navy-light);
+        }
+
+        .btn-crear-partido:active {
+            transform: scale(0.97);
+        }
+
+        /* --- EXPANDED PLAYTOMIC GRID (CUADRANTE MAS AMPLIO Y CLARO) --- */
+        .grid-playtomic-wrapper {
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            overflow-x: auto;
+            position: relative;
+            border: 1.5px solid var(--border-color);
+        }
+
+        .playtomic-grid {
+            display: grid;
+            grid-template-columns: 75px repeat(9, minmax(210px, 1fr));
+            min-width: 1960px;
+            position: relative;
+        }
+
+        .grid-header-pista {
+            background: #ffffff;
+            padding: 14px 10px;
+            text-align: center;
+            font-weight: 900;
+            font-size: 14px;
+            color: var(--gp-navy);
+            border-bottom: 3px solid var(--gp-navy);
+            border-right: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            letter-spacing: 0.03em;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+        }
+
+        .grid-header-corner {
+            background: #ffffff;
+            border-bottom: 3px solid var(--gp-navy);
+            border-right: 2px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            left: 0;
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .col-time-axis {
+            position: sticky;
+            left: 0;
+            background: #ffffff;
+            z-index: 20;
+            border-right: 2px solid #cbd5e1;
+            box-shadow: 2px 0 6px rgba(0, 0, 0, 0.04);
+        }
+
+        .time-slot-label-00 {
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 900;
+            color: var(--gp-navy);
+            border-top: 2px solid #94a3b8;
+            background: #f8fafc;
+        }
+
+        .time-slot-label-30 {
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            border-top: 1px dashed #cbd5e1;
+            background: #ffffff;
+        }
+
+        .time-slot-label-blocked {
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+            color: #94a3b8;
+            background: #f1f5f9;
+            border-top: 1px solid #cbd5e1;
+        }
+
+        .court-column {
+            position: relative;
+            border-right: 1px solid var(--border-color);
+            background: #ffffff;
+        }
+
+        .slot-cell-00 {
+            height: 30px;
+            border-top: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+
+        .slot-cell-30 {
+            height: 30px;
+            border-top: 1px dashed #cbd5e1;
+            background-color: #fafbfc;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+
+        .slot-cell-00:hover,
+        .slot-cell-30:hover {
+            background-color: #e0f2fe !important;
+        }
+
+        .slot-cell-blocked {
+            height: 30px;
+            border-top: 1px solid #e2e8f0;
+            background: repeating-linear-gradient(135deg, #f8fafc, #f8fafc 8px, #f1f5f9 8px, #f1f5f9 16px);
+            cursor: pointer;
+            box-sizing: border-box;
+            opacity: 0.75;
+        }
+
+        .slot-cell-blocked:hover {
+            opacity: 1;
+            background-color: #fef3c7 !important;
+        }
+
+        /* --- RED TIME LINE --- */
+        .time-badge-now {
+            position: absolute;
+            left: 4px;
+            background: #ef4444;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 900;
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            z-index: 35;
+            box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+            pointer-events: none;
+        }
+
+        .court-line-now {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #ef4444;
+            z-index: 35;
+            pointer-events: none;
+            box-shadow: 0 0 6px rgba(239, 68, 68, 0.7);
+        }
+
+        .court-line-now::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: -4px;
+            width: 10px;
+            height: 10px;
+            background: #ef4444;
+            border-radius: 50%;
+            border: 2px solid #ffffff;
+        }
+
+        /* --- RESERVA CARDS --- */
+        .reserva-card {
+            position: absolute;
+            left: 4px;
+            right: 4px;
+            border-radius: 10px;
+            padding: 8px 10px;
+            cursor: grab;
+            user-select: none;
+            box-shadow: 0 3px 8px rgba(15, 23, 42, 0.15);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 10;
+            transition: transform 0.08s, box-shadow 0.15s;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+        }
+
+        .reserva-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.22);
+        }
+
+        .reserva-card:active {
+            cursor: grabbing;
+            opacity: 0.9;
+        }
+
+        .reserva-card.dragging-touch {
+            opacity: 0.8;
+            transform: scale(1.03);
+            z-index: 1000;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-normal-striped {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: #ffffff;
+        }
+
+        .card-normal-solid {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: #ffffff;
+        }
+
+        .card-pena-striped {
+            background: linear-gradient(135deg, #6b21a8 0%, #9333ea 100%);
+            color: #ffffff;
+        }
+
+        .card-torneo-striped {
+            background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+            color: #ffffff;
+        }
+
+        .badge-sin-pagar {
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            font-weight: 900;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            letter-spacing: 0.02em;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .badge-pagado {
+            background: #10b981;
+            color: white;
+            font-size: 10px;
+            font-weight: 900;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .pagos-dots-container {
+            display: flex;
+            gap: 3px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .pago-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            color: white;
+            font-size: 8px;
+            font-weight: 900;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            line-height: 1;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .pago-dot.pagado {
+            background: #10b981;
+        }
+
+        .pago-dot.pendiente {
+            background: #ef4444;
+        }
+
+        .reserva-title {
+            font-size: 13px;
+            font-weight: 900;
+            line-height: 1.15;
+            word-break: break-word;
+            margin-top: 3px;
+            letter-spacing: -0.01em;
+        }
+
+        .reserva-time {
+            font-size: 11px;
+            font-weight: 800;
+            opacity: 0.95;
+            letter-spacing: 0.02em;
+        }
+
+        .badge-occupancy-floating {
+            position: fixed;
+            bottom: 84px;
+            right: 24px;
+            background: var(--gp-navy);
+            color: white;
+            border-radius: var(--radius-md);
+            padding: 10px 18px;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            gap: 16px;
+            box-shadow: var(--shadow-lg);
+            z-index: 100;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .badge-occupancy-floating span b {
+            color: var(--gp-lime);
+        }
+
+        /* --- TPV BAR SECTION --- */
+        .mesas-bar {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .mesas-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .btn-mesa {
+            padding: 10px 22px;
+            border: 1.5px solid var(--border-color);
+            background: #ffffff;
+            color: var(--text-main);
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 14px;
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+
+        .btn-mesa.activa {
+            background: var(--gp-navy);
+            color: white;
+            border-color: var(--gp-navy);
+            box-shadow: 0 4px 12px rgba(10, 37, 64, 0.2);
+        }
+
+        .badge-total {
+            background: #ef4444;
+            color: white;
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: var(--radius-full);
+            margin-left: 6px;
+        }
+
+        .tpv-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .tpv-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .tpv-catalog-header {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .btn-cat-filter {
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .btn-cat-filter.active {
+            background: var(--gp-navy);
+            color: #ffffff;
+            border-color: var(--gp-navy);
+        }
+
+        .catalog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px;
+        }
+
+        .btn-product {
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            padding: 16px 12px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            text-align: center;
+            font-weight: 800;
+            font-size: 14px;
+            color: var(--text-main);
+            transition: all 0.15s;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 85px;
+        }
+
+        .btn-product:hover {
+            border-color: var(--gp-navy);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-product:active {
+            transform: scale(0.97);
+        }
+
+        .btn-product span {
+            display: block;
+            color: var(--gp-blue);
+            font-size: 14px;
+            font-weight: 900;
+            margin-top: 6px;
+        }
+
+        .ticket-box {
+            background: #f8fafc;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 360px;
+        }
+
+        .ticket-items {
+            list-style: none;
+            max-height: 260px;
+            overflow-y: auto;
+            margin-bottom: 16px;
+        }
+
+        .ticket-items li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            color: var(--text-main);
+        }
+
+        .ticket-items li:hover {
+            color: #ef4444;
+        }
+
+        .ticket-total {
+            font-size: 22px;
+            font-weight: 900;
+            text-align: right;
+            margin-bottom: 16px;
+            color: var(--gp-navy);
+        }
+
+        .pay-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-pay {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 800;
+            font-size: 15px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.15s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-pay:active {
+            transform: scale(0.97);
+        }
+
+        .btn-cash {
+            background: #10b981;
+        }
+
+        .btn-card {
+            background: var(--gp-blue);
+        }
+
+        /* --- FICHAJES HORARIO --- */
+        .fichaje-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .btn-fichar {
+            flex: 1;
+            padding: 26px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 20px;
+            font-weight: 900;
+            cursor: pointer;
+            color: white;
+            transition: transform 0.12s, box-shadow 0.15s;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-fichar:active {
+            transform: scale(0.97);
+        }
+
+        .btn-entrada {
+            background: #10b981;
+        }
+
+        .btn-salida {
+            background: #f97316;
+        }
+
+        /* --- TABLAS & FORMULARIOS --- */
+        .form-inline {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .form-inline label {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .form-inline input,
+        .form-inline select {
+            padding: 10px 12px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            color: var(--text-main);
+            background: #ffffff;
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        .btn-add {
+            background: var(--gp-navy);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 14px;
+            transition: background 0.15s, transform 0.1s;
+        }
+
+        .btn-add:hover {
+            background: var(--gp-navy-light);
+        }
+
+        .btn-add:active {
+            transform: scale(0.97);
+        }
+
+        .pistas-checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            background: white;
+            border: 1.5px solid var(--border-color);
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            max-height: 140px;
+            overflow-y: auto;
+        }
+
+        .pistas-checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .pistas-checkbox-item input {
+            width: auto !important;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .tabla-productos {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
+        .tabla-productos th,
+        .tabla-productos td {
+            border: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 14px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .tabla-productos th {
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        .btn-del-prod {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .btn-del-prod:hover {
+            background: #dc2626;
+        }
+
+        .btn-edit-prod {
+            background: var(--gp-navy);
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-right: 4px;
+            transition: background 0.15s;
+        }
+
+        .btn-edit-prod:hover {
+            background: var(--gp-navy-light);
+        }
+
+        /* --- MODAL DESIGN --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+
+        .modal-card-double {
+            background: white;
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 960px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+            overflow: hidden;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal-header-bar {
+            padding: 18px 24px;
+            background: var(--gp-navy);
+            border-bottom: 3px solid var(--gp-lime);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header-bar h4 {
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .gp-modal-brand {
+            color: var(--gp-lime);
+            letter-spacing: .14em;
+            font-weight: 900;
+        }
+
+        .modal-double-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            .modal-double-body {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .modal-section-box {
+            background: #f8fafc;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 20px;
+        }
+
+        .modal-section-box h5 {
+            font-size: 15px;
+            color: var(--gp-navy);
+            margin-bottom: 14px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 800;
+        }
+
+        .modal-section-box label {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-muted);
+            display: block;
+            margin-top: 12px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .modal-section-box input,
+        .modal-section-box select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            background: #ffffff;
+            color: var(--text-main);
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        .jugadores-split-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 12px;
+            max-height: 340px;
+            overflow-y: auto;
+        }
+
+        .card-jugador-item {
+            background: white;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .card-jugador-item.estado-efectivo {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+
+        .card-jugador-item.estado-tarjeta {
+            border-color: var(--gp-blue);
+            background: #eff6ff;
+        }
+
+        .jugador-info-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--gp-navy);
+        }
+
+        .jugador-info-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .btn-pay-toggle {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            border: none;
+            cursor: pointer;
+            color: white;
+            transition: transform 0.1s;
+        }
+
+        .btn-pay-toggle:active {
+            transform: scale(0.96);
+        }
+
+        .btn-pay-efectivo {
+            background: #10b981;
+        }
+
+        .btn-pay-tarjeta {
+            background: var(--gp-blue);
+        }
+
+        .btn-pay-reset {
+            background: #94a3b8;
+        }
+
+        .modal-footer-bar {
+            padding: 16px 24px;
+            background: #f1f5f9;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        /* --- CIERRES CAJA --- */
+        .cierre-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 14px;
+            margin-top: 6px;
+        }
+
+        .cierre-grid label {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            text-transform: uppercase;
+        }
+
+        .cierre-grid input {
+            padding: 10px 12px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 16px;
+            font-weight: 800;
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        .cierre-grid input[readonly] {
+            background: #f1f5f9;
+            color: var(--gp-navy);
+        }
+
+        .cierre-resumen {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 24px;
+            font-size: 14px;
+            color: var(--text-muted);
+            margin: 16px 0;
+            font-weight: 700;
+        }
+
+        #gpSync {
+            position: fixed;
+            left: 20px;
+            bottom: 84px;
+            background: var(--gp-navy);
+            color: var(--gp-lime);
+            font-size: 12px;
+            font-weight: 900;
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+            z-index: 150;
+            opacity: 0;
+            transition: opacity .2s;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 10px 14px;
+            }
+
+            .container-fluid {
+                padding: 12px;
+                padding-bottom: 90px;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .playtomic-header-bar {
+                padding: 10px;
+            }
+
+            .search-box-container {
+                width: 100%;
+            }
+
+            .date-nav-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <symbol id="gp-mark" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="22" fill="#c6f135" stroke="#0a2540" stroke-width="3" />
+            <path d="M6 17c10 4 26 4 36 0M6 31c10-4 26-4 36 0" fill="none" stroke="#0a2540" stroke-width="3"
+                stroke-linecap="round" />
+        </symbol>
+    </svg>
+
+    <datalist id="dlClientesNombres"></datalist>
+    <datalist id="dlClientesTelefonos"></datalist>
+
+    <!-- LOGIN VIEW -->
+    <div id="loginView" class="login-container">
+        <div class="login-card">
+            <div class="gp-brand">
+                <svg width="48" height="48" aria-hidden="true">
+                    <use href="#gp-mark" />
+                </svg>
+                <span class="gp-wordmark">GEO<b>PADEL</b></span>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="usuario">Usuario</label>
+                    <input type="text" id="usuario" placeholder="Ej. Javi" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" placeholder="••••••••" required
+                        autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-submit" id="btnEntrar">Entrar al Panel</button>
+            </form>
+            <div id="msgLogin"></div>
+        </div>
+    </div>
+
+    <!-- MAIN ADMIN PANEL -->
+    <div id="adminView">
+        <header>
+            <div class="gp-brand">
+                <svg width="32" height="32" aria-hidden="true">
+                    <use href="#gp-mark" />
+                </svg>
+                <span class="gp-wordmark">GEO<b>PADEL</b></span>
+            </div>
+            <div class="user-info">
+                <span><strong id="nombreEmpleado">...</strong><span id="rolEmpleado" style="display:none"></span></span>
+                <button class="btn-logout" onclick="cerrarSesion()">Salir</button>
+            </div>
+        </header>
+
+        <!-- BOTTOM RESPONSIVE APP BAR -->
+        <nav class="top-navbar">
+            <div id="nav-reservas" class="nav-tab active" onclick="cambiarPestana('reservas')"><span
+                    class="ni">🎾</span>Reservas</div>
+            <div id="nav-tpv" class="nav-tab" onclick="cambiarPestana('tpv')"><span class="ni">🍺</span>Bar</div>
+            <div id="nav-fichajes" class="nav-tab" onclick="cambiarPestana('fichajes')"><span
+                    class="ni">⏱️</span>Horario</div>
+            <div id="nav-caja" class="nav-tab" onclick="cambiarPestana('caja')"><span class="ni">📊</span>Caja</div>
+        </nav>
+
+        <div class="container-fluid">
+
+            <!-- TAB 1: RESERVAS -->
+            <div id="tab-reservas" class="tab-content active">
+
+                <div class="playtomic-header-bar">
+                    <div class="search-box-container">
+                        🔍 <input type="text" id="inputBuscarReserva" placeholder="Buscar cliente..."
+                            oninput="filtrarReservas()">
+                    </div>
+
+                    <div class="date-nav-group">
+                        <button class="btn-playtomic-nav" onclick="irAFechaHoy()">Hoy</button>
+                        <button class="btn-playtomic-nav" onclick="cambiarFechaDias(-1)">‹</button>
+                        <input type="date" id="fechaCuadrante" class="date-picker-input" onchange="cargarReservasHoy()">
+                        <button class="btn-playtomic-nav" onclick="cambiarFechaDias(1)">›</button>
+                    </div>
+
+                    <button class="btn-crear-partido" onclick="abrirModalNuevaReserva()">
+                        <span>+</span> Crear Reserva
+                    </button>
+                </div>
+
+                <div class="grid-playtomic-wrapper">
+                    <div id="playtomicGrid" class="playtomic-grid"></div>
+                </div>
+
+                <div class="badge-occupancy-floating">
+                    <span>Ocupación <b id="statOcupacion">0%</b></span>
+                    <span>|</span>
+                    <span>Reservas <b id="statNumReservas">0</b></span>
+                </div>
+
+            </div>
+
+            <!-- TAB 2: BAR / TPV -->
+            <div id="tab-tpv" class="tab-content">
+                <div class="card">
+                    <h3>🍺 Bar & TPV (Mesas en Tiempo Real)</h3>
+                    <div id="selectorMesas" class="mesas-bar"></div>
+                    <div class="tpv-grid">
+                        <div>
+                            <div class="tpv-catalog-header">
+                                <button class="btn-cat-filter active"
+                                    onclick="filtrarCatTPV('Todos', this)">Todos</button>
+                                <button class="btn-cat-filter" onclick="filtrarCatTPV('Bebidas', this)">🥤
+                                    Bebidas</button>
+                                <button class="btn-cat-filter" onclick="filtrarCatTPV('Comida', this)">🌭
+                                    Comida</button>
+                                <button class="btn-cat-filter" onclick="filtrarCatTPV('Tienda', this)">🎾
+                                    Tienda</button>
+                                <button class="btn-cat-filter" onclick="filtrarCatTPV('Pista', this)">🎟️
+                                    Pistas</button>
+                            </div>
+                            <span id="nombreMesaActiva" style="display:none"></span>
+                            <div id="catalogGrid" class="catalog-grid">Cargando catálogo...</div>
+                        </div>
+                        <div class="ticket-box">
+                            <div>
+                                <h4
+                                    style="margin-bottom:12px; border-bottom:2px solid var(--border-color); padding-bottom:8px; font-weight:800; font-size:16px;">
+                                    Cuenta Activa: <span id="tituloTicketMesa" style="color:var(--gp-navy)">Mesa
+                                        1</span>
+                                </h4>
+                                <ul id="ticketItems" class="ticket-items"></ul>
+                            </div>
+                            <div>
+                                <div class="ticket-total">Total: <span id="ticketTotal">0.00</span> €</div>
+                                <div class="pay-buttons">
+                                    <button class="btn-pay btn-cash" onclick="cobrarMesaActiva('Efectivo')">💵
+                                        Efectivo</button>
+                                    <button class="btn-pay btn-card" onclick="cobrarMesaActiva('Tarjeta')">💳
+                                        Tarjeta</button>
+                                </div>
+                                <div id="msgVenta"
+                                    style="margin-top:10px; font-size:13px; font-weight:800; text-align:center;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: FICHAJES / HORARIO -->
+            <div id="tab-fichajes" class="tab-content">
+                <div class="card" style="max-width: 700px; margin: 0 auto;">
+                    <div style="text-align: center;">
+                        <h3>⏱️ Control Horario de Empleados</h3>
+                        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 10px;">Fichaje en tiempo
+                            real registrado en sistema</p>
+                        <div class="fichaje-buttons"
+                            style="flex-direction: column; max-width: 400px; margin: 20px auto 0 auto;">
+                            <button class="btn-fichar btn-entrada" onclick="fichar('Entrada')">🟢 Entrada</button>
+                            <button class="btn-fichar btn-salida" onclick="fichar('Salida')">🔴 Salida</button>
+                        </div>
+                        <div id="msgFichaje"
+                            style="margin-top:15px; font-weight:800; text-align: center; font-size: 15px;"></div>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1.5px solid var(--border-color); margin: 24px 0;">
+
+                    <h3>📋 Tus Últimos 30 Fichajes</h3>
+                    <div style="overflow-x:auto;">
+                        <table class="tabla-productos">
+                            <thead>
+                                <tr>
+                                    <th>Fecha y Hora</th>
+                                    <th>Tipo de Fichaje</th>
+                                    <th>Empleado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaFichajesBody">
+                                <tr>
+                                    <td colspan="3" style="text-align:center; color:#94a3b8;">Cargando fichajes...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: CAJA Y GESTION DEL CATALOGO -->
+            <div id="tab-caja" class="tab-content">
+                <div class="card">
+                    <h3>📊 Resumen de Caja del Día</h3>
+                    <div style="display: flex; gap: 16px; margin-top: 16px; flex-wrap: wrap;">
+                        <div
+                            style="flex:1; background:#ecfdf5; border:1.5px solid #10b981; padding:18px; border-radius:var(--radius-md); text-align:center;">
+                            <span
+                                style="font-size:12px; color:#065f46; font-weight:800; text-transform:uppercase;">Efectivo
+                                en Cajón</span>
+                            <h2 id="cajaEfectivo" style="color:#047857; font-size: 26px; margin-top: 4px;">0.00 €</h2>
+                        </div>
+                        <div
+                            style="flex:1; background:#eff6ff; border:1.5px solid var(--gp-blue); padding:18px; border-radius:var(--radius-md); text-align:center;">
+                            <span
+                                style="font-size:12px; color:#1e40af; font-weight:800; text-transform:uppercase;">Total
+                                Datáfono</span>
+                            <h2 id="cajaTarjeta" style="color:#1d4ed8; font-size: 26px; margin-top: 4px;">0.00 €</h2>
+                        </div>
+                        <div
+                            style="flex:1; background:#f8fafc; border:1.5px solid var(--border-color); padding:18px; border-radius:var(--radius-md); text-align:center;">
+                            <span
+                                style="font-size:12px; color:var(--text-muted); font-weight:800; text-transform:uppercase;">Total
+                                General</span>
+                            <h2 id="cajaTotal" style="color:var(--gp-navy); font-size: 26px; margin-top: 4px;">0.00 €
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔒 Arqueo y Cierre de Caja</h3>
+                    <div class="cierre-grid">
+                        <label>Billetes (€)<input type="number" id="cjBilletes" step="0.01" min="0"
+                                oninput="calcCierre()"></label>
+                        <label>Monedas (€)<input type="number" id="cjMonedas" step="0.01" min="0"
+                                oninput="calcCierre()"></label>
+                        <label>Efectivo contado<input type="text" id="cjEfectivo" readonly value="0.00 €"></label>
+                        <label>Datáfono (€)<input type="number" id="cjDatafono" step="0.01" min="0"
+                                oninput="calcCierre()"></label>
+                    </div>
+                    <div id="cjResumen" class="cierre-resumen"></div>
+                    <button class="btn-add" onclick="cerrarCajaHoy()">🔒 Confirmar Cierre de Caja</button>
+                    <div id="msgCierre" style="margin-top:10px; font-size:14px; font-weight:800;"></div>
+                </div>
+
+                <div class="card">
+                    <h3>📋 Historial de Cierres de Caja</h3>
+                    <div style="overflow-x:auto">
+                        <table class="tabla-productos">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Efectivo Sis.</th>
+                                    <th>Datáfono Sis.</th>
+                                    <th>Total</th>
+                                    <th>Dif. Efectivo</th>
+                                    <th>Dif. Datáfono</th>
+                                    <th>Cerrado Por</th>
+                                </tr>
+                            </thead>
+                            <tbody id="histCajaBody">
+                                <tr>
+                                    <td colspan="7" style="text-align:center;color:#94a3b8">—</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎾 Configuración de Tarifas de Pista (90 min)</h3>
+                    <div class="form-inline" style="margin-top:12px">
+                        <label>Entre semana mañana <input type="number" id="tarSemMan" step="0.5" min="0"></label>
+                        <label>Entre semana tarde <input type="number" id="tarSemTar" step="0.5" min="0"></label>
+                        <label>Fin de semana <input type="number" id="tarFinde" step="0.5" min="0"></label>
+                        <button class="btn-add" onclick="guardarTarifasUI()">Guardar Tarifas</button>
+                    </div>
+                    <div id="msgTarifas" style="margin-top:10px; font-size:13px; font-weight:800;"></div>
+                </div>
+
+                <!-- EDITABLE SHOP & BAR CATALOG MANAGEMENT -->
+                <div class="card">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
+                        <h3>🛍️ Edición y Gestión del Catálogo de la Tienda / Bar</h3>
+                        <button class="btn-add" onclick="abrirModalNuevoProducto()"
+                            style="background: var(--gp-blue);">+ Nuevo Artículo</button>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+                        <input type="text" id="buscarProdGestion" placeholder="🔍 Buscar producto por nombre..."
+                            oninput="filtrarGestionCatalogo()"
+                            style="padding: 9px 12px; border: 1.5px solid var(--border-color); border-radius: var(--radius-sm); font-size: 14px; flex: 1; min-width: 220px;">
+                        <select id="catFilterGestion" onchange="filtrarGestionCatalogo()"
+                            style="padding: 9px 12px; border: 1.5px solid var(--border-color); border-radius: var(--radius-sm); font-size: 14px;">
+                            <option value="Todos">Todas las Categorías</option>
+                            <option value="Bebidas">🥤 Bebidas</option>
+                            <option value="Comida">🌭 Comida</option>
+                            <option value="Tienda">🎾 Tienda / Material</option>
+                            <option value="Pista">🎟️ Pista</option>
+                        </select>
+                    </div>
+
+                    <table class="tabla-productos">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Precio (€)</th>
+                                <th>Categoría</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaProductosBody">
+                            <tr>
+                                <td colspan="5" style="text-align:center; color:#94a3b8;">Cargando catálogo...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="gpSync">⚡ Sincronizado en tiempo real</div>
+
+    <!-- MODAL RESERVAS -->
+    <div id="modalReserva" class="modal-overlay">
+        <div class="modal-card-double">
+            <div class="modal-header-bar">
+                <h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="modalTitulo">Gestionar Reserva</span></h4>
+                <button onclick="cerrarModal()"
+                    style="background:transparent; border:none; color:white; font-size:20px; cursor:pointer; font-weight:bold;">✕</button>
+            </div>
+
+            <div class="modal-double-body">
+                <div class="modal-section-box">
+                    <h5>Reserva</h5>
+                    <input type="hidden" id="modalReservaId">
+
+                    <label>Cliente</label>
+                    <input type="text" id="modalCliente" list="dlClientesNombres"
+                        placeholder="Escribe o selecciona cliente..." oninput="autocompletarClientePorNombre()">
+
+                    <label>Teléfono</label>
+                    <input type="tel" id="modalTelefono" list="dlClientesTelefonos"
+                        placeholder="Escribe o selecciona teléfono..." oninput="autocompletarClientePorTelefono()">
+
+                    <label>Pistas</label>
+                    <div id="modalPistasContainer" class="pistas-checkbox-grid"></div>
+
+                    <label>Tipo de Reserva</label>
+                    <select id="modalTipoReserva" onchange="alCambiarTipo()">
+                        <option value="Normal">🎾 Normal</option>
+                        <option value="Pena">👥 Peña (Recurrente)</option>
+                        <option value="Entrenamiento">🎓 Entrenamiento</option>
+                        <option value="Torneo">🏆 Torneo (Horario Ampliado)</option>
+                    </select>
+
+                    <label>Fecha</label>
+                    <input type="date" id="modalFecha" onchange="recalcularPrecioSugerido(false)">
+
+                    <label>Hora Inicio</label>
+                    <input type="time" id="modalHora" step="1800" value="17:00"
+                        onchange="recalcularPrecioSugerido(false)">
+
+                    <label id="lblDur">Duración</label>
+                    <select id="modalDuracion" onchange="recalcularPrecioSugerido()">
+                        <option value="30">30 minutos (0.5 h)</option>
+                        <option value="60">60 minutos (1.0 h)</option>
+                        <option value="90" selected>90 minutos (1.5 h)</option>
+                        <option value="120">120 minutos (2.0 h)</option>
+                        <option value="150">150 minutos (2.5 h)</option>
+                        <option value="180">180 minutos (3.0 h)</option>
+                        <option value="210">210 minutos (3.5 h)</option>
+                        <option value="240">240 minutos (4.0 h)</option>
+                        <option value="270">270 minutos (4.5 h)</option>
+                        <option value="300">300 minutos (5.0 h)</option>
+                    </select>
+
+                    <div id="boxTorneoDur" style="display:none">
+                        <label>Duración Torneo (Horas)</label>
+                        <input type="number" id="modalDuracionHoras" min="0.5" max="168" step="0.5" value="8"
+                            oninput="recalcularPrecioSugerido()">
+                    </div>
+
+                    <div id="boxRepetir" style="display:none">
+                        <label>🔁 Repetir Peña (Semanas Consecutivas)</label>
+                        <input type="number" id="modalRepetir" min="1" max="52" value="12">
+                    </div>
+
+                    <label>Número de Jugadores</label>
+                    <select id="modalNumJugadores" onchange="actualizarVistasJugadoresSplit()">
+                        <option value="1">1 Jugador</option>
+                        <option value="2">2 Jugadores</option>
+                        <option value="3">3 Jugadores</option>
+                        <option value="4" selected>4 Jugadores</option>
+                        <option value="5">5 Jugadores</option>
+                        <option value="6">6 Jugadores</option>
+                        <option value="7">7 Jugadores</option>
+                        <option value="8">8 Jugadores</option>
+                        <option value="9">9 Jugadores</option>
+                        <option value="10">10 Jugadores</option>
+                        <option value="11">11 Jugadores</option>
+                        <option value="12">12 Jugadores</option>
+                        <option value="13">13 Jugadores</option>
+                        <option value="14">14 Jugadores</option>
+                        <option value="15">15 Jugadores</option>
+                        <option value="16">16 Jugadores</option>
+                    </select>
+
+                    <label>Precio Total Pista (€)</label>
+                    <input type="number" id="modalPrecio" value="26.00" step="0.50"
+                        oninput="actualizarVistasJugadoresSplit()">
+                </div>
+
+                <div class="modal-section-box">
+                    <h5>
+                        Cobro Dividido
+                        <span id="badgePrecioUnitario"
+                            style="font-size:13px; color:var(--gp-blue); font-weight:800;">6.50 € / pers</span>
+                    </h5>
+
+                    <div id="splitJugadoresContainer" class="jugadores-split-grid"></div>
+
+                    <div style="margin-top:18px; padding-top:14px; border-top:1px dashed #cbd5e1; text-align:center;">
+                        <span style="font-size:13px; color:var(--text-muted); font-weight:bold;">Estado Global:</span>
+                        <span id="badgeEstadoPagoGlobal" style="margin-left:6px;" class="badge-sin-pagar">⚡ Sin
+                            pagar</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer-bar">
+                <button onclick="confirmarGuardarReserva()" class="btn-add">💾 Guardar Reserva</button>
+                <button id="btnEliminarSerie" onclick="confirmarEliminarSerie()" class="btn-add"
+                    style="background:#b91c1c; display:none;">🗑️ Eliminar serie</button>
+                <button id="btnEliminarReserva" onclick="confirmarEliminarReserva()" class="btn-add"
+                    style="background:#ef4444; display:none;">🗑️ Eliminar</button>
+                <button onclick="cerrarModal()" class="btn-add" style="background:#94a3b8;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR / CREAR PRODUCTO -->
+    <div id="modalProducto" class="modal-overlay">
+        <div class="modal-card-double" style="max-width: 500px;">
+            <div class="modal-header-bar">
+                <h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="modalProductoTitulo">Editar Artículo</span>
+                </h4>
+                <button onclick="cerrarModalProducto()"
+                    style="background:transparent; border:none; color:white; font-size:20px; cursor:pointer; font-weight:bold;">✕</button>
+            </div>
+            <div style="padding: 24px;">
+                <input type="hidden" id="modalProdId">
+                <div class="form-group">
+                    <label for="modalProdNombre">Nombre del Artículo</label>
+                    <input type="text" id="modalProdNombre" placeholder="Ej. Bote de Bolas" required>
+                </div>
+                <div class="form-group">
+                    <label for="modalProdPrecio">Precio (€)</label>
+                    <input type="number" id="modalProdPrecio" step="0.01" min="0" placeholder="6.00" required>
+                </div>
+                <div class="form-group">
+                    <label for="modalProdCat">Categoría</label>
+                    <select id="modalProdCat">
+                        <option value="Bebidas">🥤 Bebidas</option>
+                        <option value="Comida">🌭 Comida</option>
+                        <option value="Tienda">🎾 Tienda / Material</option>
+                        <option value="Pista">🎟️ Pista</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="modalProdEstado">Estado</label>
+                    <select id="modalProdEstado">
+                        <option value="Activo">🟢 Activo</option>
+                        <option value="Inactivo">🟠 Inactivo</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer-bar">
+                <button onclick="guardarProductoModal()" class="btn-add" style="background: var(--gp-blue);">💾 Guardar
+                    Artículo</button>
+                <button onclick="cerrarModalProducto()" class="btn-add" style="background: #94a3b8;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==============================================================================
+        // INITIALIZATION & SUPABASE REALTIME CLIENT
+        // ==============================================================================
+        const SUPABASE_URL = "https://gprpyxeamjmvmqtkjvtn.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwcnB5eGVhbWptdm1xdGtqdnRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1NjE3MzQsImV4cCI6MjEwNzEzNzczNH0.GeGAmqywLM7HsfUIGj9i6f50vhf_ijh9CWc-Y-DdANA";
+
+        // Correct initialization avoiding identifier collision
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const listaPistas = ["1 PADEL MASTER", "Pista 2", "Pista 3", "Pista 4", "Pista 5", "Pista 6", "Pista 7", "Pista 8", "Pista 9"];
+
+        // Time constants
+        const APERT_MIN = 8 * 60;              // Grid starts at 08:00
+        const bloqueDescansoInicio = 14 * 60;  // Break start 14:00
+        const bloqueDescansoFin = 17 * 60;     // Break end 17:00
+        const cierreMin = 24 * 60;             // Closing 24:00
+
+        let horaInicioGrid = 8, horaFinGrid = 23.5;
+
+        let usuarioSesion = null;
+        let datosLocales = { productos: [], clientes: [], reservas: [], tarifas: {}, caja: { totalEfectivo: 0, totalTarjeta: 0, totalGeneral: 0 } };
+        let reservaEnEdicion = null;
+        let dragGrabOffsetY = 0;
+
+        const listaMesas = ["Suelto", "Mesa 1", "Mesa 2", "Mesa 3", "Mesa 4", "Mesa 5", "Mesa 6", "Barra"];
+        let mesaSeleccionada = "Mesa 1";
+        let cuentasMesas = {};
+        listaMesas.forEach(m => cuentasMesas[m] = []);
+
+        let categoriaTPVFiltro = "Todos";
+
+        const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+        function fechaLocalISO(d = new Date()) {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        function sumarDiasISO(fechaISO, dias) {
+            const [y, m, d] = fechaISO.split('-').map(Number);
+            const date = new Date(Date.UTC(y, m - 1, d + dias, 12, 0, 0));
+            return date.toISOString().split('T')[0];
+        }
+
+        function timeToMin(tStr) {
+            const parts = String(tStr || '0:0').split(':');
+            return (parseInt(parts[0], 10) || 0) * 60 + (parseInt(parts[1], 10) || 0);
+        }
+
+        function minToTimeStr(min) {
+            const h = Math.floor(min / 60), m = min % 60;
+            return `${h < 10 ? '0' + h : h}:${m < 10 ? '0' + m : m}`;
+        }
+
+        function esCerrado(min) {
+            return min < (9 * 60) || (min >= bloqueDescansoInicio && min < bloqueDescansoFin) || min >= (23 * 60 + 30);
+        }
+
+        function esFranjaBloqueada(iniMin, finMin, tipoReserva = "Normal") {
+            if (tipoReserva === "Torneo") {
+                if (iniMin < (8 * 60) || finMin > (24 * 60)) return true;
+                return false;
+            } else {
+                if (iniMin < (9 * 60) || finMin > (23 * 60 + 30)) return true;
+                if (iniMin < bloqueDescansoFin && finMin > bloqueDescansoInicio) return true;
+                return false;
+            }
+        }
+
+        async function generarSHA256(texto) {
+            const msgUint8 = new TextEncoder().encode(texto);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+            return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        function comprobarSesion() {
+            const sesionGuardada = sessionStorage.getItem('usuarioSesion');
+            let ses = null; try { ses = JSON.parse(sesionGuardada || 'null'); } catch (e) { }
+            if (ses && ses.nombre) {
+                usuarioSesion = ses;
+                mostrarPanelAdmin();
+            } else {
+                mostrarLogin();
+            }
+        }
+
+        function mostrarLogin() {
+            document.getElementById('loginView').style.display = 'flex';
+            document.getElementById('adminView').style.display = 'none';
+        }
+
+        function mostrarPanelAdmin() {
+            document.getElementById('loginView').style.display = 'none';
+            document.getElementById('adminView').style.display = 'block';
+            document.getElementById('nombreEmpleado').innerText = usuarioSesion.nombre;
+            document.getElementById('rolEmpleado').innerText = usuarioSesion.rol || 'Trabajador';
+
+            inicializarFechaHoy();
+            pobladorPistasModal();
+            renderSelectorMesas();
+            iniciarSuscripcionRealtime();
+            cargarDatosGlobales();
+        }
+
+        function cerrarSesion() {
+            sessionStorage.removeItem('usuarioSesion');
+            usuarioSesion = null;
+            mostrarLogin();
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const user = document.getElementById('usuario').value.trim();
+            const pass = document.getElementById('password').value;
+            const msgDiv = document.getElementById('msgLogin');
+            const btn = document.getElementById('btnEntrar');
+
+            btn.disabled = true; btn.innerText = "Verificando...";
+            msgDiv.className = ''; msgDiv.innerText = 'Conectando...';
+
+            try {
+                const passHash = await generarSHA256(pass);
+                const { data, error } = await supabaseClient.from('usuarios').select('*').ilike('usuario', user).eq('estado', 'Activo').single();
+
+                if (data && (data.password_hash === passHash || !data.password_hash)) {
+                    msgDiv.className = 'msg-success'; msgDiv.innerText = '¡Bienvenido!';
+                    usuarioSesion = { id: data.id, user: data.usuario, nombre: data.nombre, rol: data.rol };
+                    sessionStorage.setItem('usuarioSesion', JSON.stringify(usuarioSesion));
+                    setTimeout(() => { btn.disabled = false; btn.innerText = "Entrar al Panel"; mostrarPanelAdmin(); }, 300);
+                } else {
+                    msgDiv.className = 'msg-error'; msgDiv.innerText = 'Credenciales incorrectas';
+                    btn.disabled = false; btn.innerText = "Entrar al Panel";
+                }
+            } catch (err) {
+                msgDiv.className = 'msg-error'; msgDiv.innerText = 'Error de autenticación';
+                btn.disabled = false; btn.innerText = "Entrar al Panel";
+            }
+        });
+
+        // ==============================================================================
+        // SUPABASE REALTIME WEBSOCKET SUBSCRIPTIONS
+        // ==============================================================================
+        function iniciarSuscripcionRealtime() {
+            supabaseClient.channel('geopadel-realtime')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'reservas' }, () => cargarReservasHoy())
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'mesas_bar' }, () => cargarMesasBar())
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'ventas' }, () => cargarCajaHoy())
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'productos' }, () => cargarProductos())
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'tarifas' }, () => cargarTarifas())
+                .subscribe((status) => {
+                    if (status === 'SUBSCRIBED') mostrarFlashSync();
+                });
+        }
+
+        function mostrarFlashSync() {
+            const el = document.getElementById('gpSync');
+            el.style.opacity = 1;
+            setTimeout(() => { el.style.opacity = 0; }, 1500);
+        }
+
+        async function cargarDatosGlobales() {
+            await Promise.all([cargarClientes(), cargarProductos(), cargarTarifas(), cargarMesasBar(), cargarReservasHoy(), cargarCajaHoy()]);
+        }
+
+        async function cargarClientes() {
+            const { data } = await supabaseClient.from('clientes').select('*');
+            datosLocales.clientes = data || [];
+            dibujarClientesDatalist(datosLocales.clientes);
+        }
+
+        async function cargarProductos() {
+            const { data } = await supabaseClient.from('productos').select('*').neq('estado', 'Eliminado').order('nombre');
+            datosLocales.productos = data || [];
+            dibujarCatalogo(datosLocales.productos);
+        }
+
+        async function cargarTarifas() {
+            const { data } = await supabaseClient.from('tarifas').select('*');
+            const tf = {};
+            (data || []).forEach(t => {
+                if (t.franja === 'Entre semana mañana') tf.semanaManana = t.precio_90min;
+                if (t.franja === 'Entre semana tarde') tf.semanaTarde = t.precio_90min;
+                if (t.franja === 'Fin de semana') tf.finde = t.precio_90min;
+            });
+            datosLocales.tarifas = tf;
+            dibujarTarifas(tf);
+        }
+
+        async function cargarMesasBar() {
+            const { data } = await supabaseClient.from('mesas_bar').select('*');
+            if (data) {
+                data.forEach(row => {
+                    cuentasMesas[row.mesa] = row.items || [];
+                });
+                renderSelectorMesas();
+            }
+        }
+
+        async function cargarReservasHoy() {
+            const iso = document.getElementById('fechaCuadrante').value || fechaLocalISO();
+            const { data } = await supabaseClient.from('reservas').select('*').eq('fecha', iso).neq('estado', 'Cancelada');
+
+            datosLocales.reservas = (data || []).map(r => ({
+                id: r.id,
+                cliente: r.cliente,
+                telefono: r.telefono,
+                fecha: r.fecha,
+                horaInicio: r.hora_inicio.slice(0, 5),
+                duracionMin: r.duracion_min,
+                pista: r.pista,
+                estado: r.estado,
+                pagoEstado: r.pago_estado,
+                tipoReserva: r.tipo_reserva,
+                numJugadores: r.jugadores,
+                pagosJugadores: r.pagos_jugadores,
+                precio: r.precio,
+                empleado: r.empleado,
+                serie: r.serie
+            }));
+
+            renderizarCuadrantePlaytomic(datosLocales.reservas);
+        }
+
+        async function cargarCajaHoy() {
+            const iso = document.getElementById('fechaCuadrante').value || fechaLocalISO();
+            const { data } = await supabaseClient.from('ventas').select('importe, metodo_pago').gte('fecha_hora', `${iso}T00:00:00`).lte('fecha_hora', `${iso}T23:59:59`);
+            let ef = 0, ta = 0;
+            (data || []).forEach(v => {
+                if (v.metodo_pago === 'Efectivo') ef += Number(v.importe);
+                if (v.metodo_pago === 'Tarjeta') ta += Number(v.importe);
+            });
+            datosLocales.caja = { totalEfectivo: ef, totalTarjeta: ta, totalGeneral: ef + ta };
+            dibujarCaja(datosLocales.caja);
+            calcCierre();
+        }
+
+        function cambiarPestana(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            document.getElementById(`nav-${tabName}`).classList.add('active');
+            document.title = 'Geopadel · ' + ({ reservas: 'Reservas', tpv: 'TPV Bar', fichajes: 'Control Horario', caja: 'Caja y Catálogo' }[tabName] || 'Panel');
+            if (tabName === 'caja') cargarHistorialCaja();
+        }
+
+        function inicializarFechaHoy() {
+            document.getElementById('fechaCuadrante').value = fechaLocalISO();
+        }
+
+        function irAFechaHoy() {
+            inicializarFechaHoy();
+            cargarReservasHoy();
+            cargarCajaHoy();
+        }
+
+        function cambiarFechaDias(offset) {
+            const inputF = document.getElementById('fechaCuadrante');
+            inputF.value = sumarDiasISO(inputF.value || fechaLocalISO(), offset);
+            cargarReservasHoy();
+            cargarCajaHoy();
+        }
+
+        function pobladorPistasModal(pistasSeleccionadas = []) {
+            const container = document.getElementById('modalPistasContainer');
+            container.innerHTML = "";
+            listaPistas.forEach(p => {
+                const label = document.createElement('label');
+                label.className = 'pistas-checkbox-item';
+                const isChecked = pistasSeleccionadas.length === 0 ? (p === "1 PADEL MASTER") : pistasSeleccionadas.includes(p);
+                label.innerHTML = `<input type="checkbox" name="chkPistasModal" value="${p}" ${isChecked ? 'checked' : ''}><span>${p}</span>`;
+                container.appendChild(label);
+            });
+        }
+
+        function obtenerPistasSeleccionadasModal() {
+            return Array.from(document.querySelectorAll('input[name="chkPistasModal"]:checked')).map(c => c.value);
+        }
+
+        function dibujarClientesDatalist(clientes) {
+            const dlNom = document.getElementById('dlClientesNombres'), dlTel = document.getElementById('dlClientesTelefonos');
+            if (!dlNom || !dlTel) return;
+            dlNom.innerHTML = ""; dlTel.innerHTML = "";
+            (clientes || []).forEach(c => {
+                if (c.nombre) dlNom.appendChild(new Option(c.telefono ? `Tel: ${c.telefono}` : '', c.nombre));
+                if (c.telefono) dlTel.appendChild(new Option(c.nombre || '', c.telefono));
+            });
+        }
+
+        function autocompletarClientePorNombre() {
+            const nomVal = document.getElementById('modalCliente').value.trim().toLowerCase();
+            const match = (datosLocales.clientes || []).find(c => String(c.nombre).trim().toLowerCase() === nomVal);
+            if (match && match.telefono) document.getElementById('modalTelefono').value = match.telefono;
+        }
+
+        function autocompletarClientePorTelefono() {
+            const telVal = document.getElementById('modalTelefono').value.trim();
+            const match = (datosLocales.clientes || []).find(c => String(c.telefono).trim() === telVal);
+            if (match && match.nombre) document.getElementById('modalCliente').value = match.nombre;
+        }
+
+        // ==============================================================================
+        // GRID RENDERER WITH EXPANDED TRACKS AND RED CURRENT TIME LINE
+        // ==============================================================================
+        function renderizarCuadrantePlaytomic(reservas) {
+            const grid = document.getElementById('playtomicGrid');
+            let rIni = APERT_MIN, rFin = cierreMin;
+
+            reservas.forEach(r => {
+                const a = timeToMin(r.horaInicio), b = a + (parseInt(r.duracionMin, 10) || 90);
+                if (a < rIni) rIni = a;
+                if (b > rFin) rFin = b;
+            });
+
+            horaInicioGrid = Math.floor(rIni / 60);
+            horaFinGrid = (Math.ceil(rFin / 30) * 30 - 30) / 60;
+            grid.innerHTML = "";
+
+            // Corner
+            const corner = document.createElement('div');
+            corner.className = 'grid-header-corner';
+            corner.innerHTML = '<svg width="28" height="28" style="display:block;margin:8px auto"><use href="#gp-mark"/></svg>';
+            grid.appendChild(corner);
+
+            // Court Headers
+            listaPistas.forEach(pista => {
+                const hp = document.createElement('div');
+                hp.className = 'grid-header-pista';
+                hp.innerText = pista;
+                grid.appendChild(hp);
+            });
+
+            // Time Axis Column
+            const colTime = document.createElement('div');
+            colTime.className = 'col-time-axis';
+
+            for (let min = horaInicioGrid * 60; min <= horaFinGrid * 60; min += 30) {
+                const timeLabel = document.createElement('div');
+                const esBloqueado = esCerrado(min);
+
+                if (esBloqueado) {
+                    timeLabel.className = 'time-slot-label-blocked';
+                    timeLabel.innerText = minToTimeStr(min);
+                } else {
+                    const esHoraEnPunto = (min % 60 === 0);
+                    timeLabel.className = esHoraEnPunto ? 'time-slot-label-00' : 'time-slot-label-30';
+                    timeLabel.innerText = minToTimeStr(min);
+                }
+                colTime.appendChild(timeLabel);
+            }
+
+            // RED CURRENT TIME LINE CALCULATIONS
+            const esHoy = (document.getElementById('fechaCuadrante').value === fechaLocalISO());
+            let topPxAhora = -1;
+
+            if (esHoy) {
+                const ah = new Date();
+                const minAhora = ah.getHours() * 60 + ah.getMinutes();
+                const minGridIni = horaInicioGrid * 60;
+                const minGridFin = horaFinGrid * 60 + 30;
+
+                if (minAhora >= minGridIni && minAhora <= minGridFin) {
+                    topPxAhora = minAhora - minGridIni;
+                    const horaActualStr = `${String(ah.getHours()).padStart(2, '0')}:${String(ah.getMinutes()).padStart(2, '0')}`;
+
+                    const badgeNow = document.createElement('div');
+                    badgeNow.className = 'time-badge-now';
+                    badgeNow.style.top = `${topPxAhora - 8}px`;
+                    badgeNow.innerText = horaActualStr;
+                    colTime.appendChild(badgeNow);
+                }
+            }
+
+            grid.appendChild(colTime);
+
+            // Court Columns
+            const filtro = (document.getElementById('inputBuscarReserva').value || '').toLowerCase();
+            let totalReservasPista = 0;
+
+            listaPistas.forEach(pista => {
+                const colPista = document.createElement('div');
+                colPista.className = 'court-column';
+                colPista.dataset.pista = pista;
+
+                for (let min = horaInicioGrid * 60; min <= horaFinGrid * 60; min += 30) {
+                    const slotCell = document.createElement('div');
+                    const esBloqueado = esCerrado(min);
+
+                    if (esBloqueado) {
+                        slotCell.className = 'slot-cell-blocked';
+                        slotCell.onclick = () => abrirModalNuevaReserva([pista], minToTimeStr(min), 'Torneo');
+                    } else {
+                        const esHoraEnPunto = (min % 60 === 0);
+                        slotCell.className = esHoraEnPunto ? 'slot-cell-00' : 'slot-cell-30';
+                        slotCell.onclick = () => abrirModalNuevaReserva([pista], minToTimeStr(min));
+                    }
+                    colPista.appendChild(slotCell);
+                }
+
+                // Append Red Time Line across courts
+                if (topPxAhora >= 0) {
+                    const lineNow = document.createElement('div');
+                    lineNow.className = 'court-line-now';
+                    lineNow.style.top = `${topPxAhora}px`;
+                    colPista.appendChild(lineNow);
+                }
+
+                colPista.ondragover = (e) => e.preventDefault();
+                colPista.ondrop = (e) => {
+                    e.preventDefault();
+                    const idRes = e.dataTransfer.getData('text/plain');
+                    const colRect = colPista.getBoundingClientRect();
+                    const cardTopY = e.clientY - colRect.top - dragGrabOffsetY;
+
+                    const minDesdeInicio = Math.round(cardTopY / 30) * 30;
+                    let minTotalNuevo = (horaInicioGrid * 60) + minDesdeInicio;
+                    minTotalNuevo = Math.max(horaInicioGrid * 60, Math.min(horaFinGrid * 60 - 30, minTotalNuevo));
+
+                    moverReservaAccion(idRes, minToTimeStr(minTotalNuevo), pista);
+                };
+
+                const reservasPista = reservas.filter(r => r.pista === pista);
+                reservasPista.forEach(r => {
+                    if (filtro && !r.cliente.toLowerCase().includes(filtro)) return;
+                    totalReservasPista++;
+
+                    const card = document.createElement('div');
+                    const iniMin = timeToMin(r.horaInicio);
+                    const dur = parseInt(r.duracionMin, 10) || 90;
+
+                    const topPx = iniMin - (horaInicioGrid * 60);
+                    const heightPx = dur - 2;
+
+                    let estiloTipo = 'card-normal-striped';
+                    if (r.tipoReserva === 'Pena') estiloTipo = 'card-pena-striped';
+                    if (r.tipoReserva === 'Torneo') estiloTipo = 'card-torneo-striped';
+                    if (r.pagoEstado === 'Pagado') estiloTipo = 'card-normal-solid';
+
+                    card.className = `reserva-card ${estiloTipo}`;
+                    card.style.top = `${topPx}px`;
+                    card.style.height = `${heightPx}px`;
+                    card.draggable = r.tipoReserva !== 'Torneo';
+
+                    const finHoraStr = minToTimeStr(iniMin + dur);
+                    const badgePagoHtml = r.pagoEstado === 'Sin pagar' ? `<div class="badge-sin-pagar">Sin pagar</div>` : `<div class="badge-pagado">✓ Pagado</div>`;
+
+                    const nJug = parseInt(r.numJugadores, 10) || 4;
+                    const arrPagos = (r.pagosJugadores || "").split(",");
+                    while (arrPagos.length < nJug) arrPagos.push("0");
+
+                    let dotsHtml = '<div class="pagos-dots-container">';
+                    for (let idx = 0; idx < nJug; idx++) {
+                        const pago = arrPagos[idx];
+                        const esPagado = (pago !== "0" && pago !== "" && pago !== undefined);
+                        dotsHtml += `<span class="pago-dot ${esPagado ? 'pagado' : 'pendiente'}">${esPagado ? '✓' : '✕'}</span>`;
+                    }
+                    dotsHtml += '</div>';
+
+                    card.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center;">${badgePagoHtml}${dotsHtml}</div>
+                        <div class="reserva-title">${r.serie ? '🔁 ' : ''}${esc(r.cliente)}</div>
+                        <div class="reserva-time">${r.horaInicio} - ${finHoraStr}</div>
+                    `;
+
+                    card.onclick = (e) => { e.stopPropagation(); abrirModalEditarReserva(r); };
+                    card.ondragstart = (e) => {
+                        const cardRect = card.getBoundingClientRect();
+                        dragGrabOffsetY = e.clientY - cardRect.top;
+                        e.dataTransfer.setData('text/plain', r.id);
+                    };
+
+                    colPista.appendChild(card);
+                });
+
+                grid.appendChild(colPista);
+            });
+
+            const ventanas = [[9 * 60, 14 * 60], [17 * 60, 23.5 * 60]];
+            const minDisp = listaPistas.length * ventanas.reduce((s, [a, b]) => s + (b - a), 0);
+            let minOcup = 0;
+            reservas.forEach(r => { const a = timeToMin(r.horaInicio), b = a + (parseInt(r.duracionMin, 10) || 90); ventanas.forEach(([v1, v2]) => { minOcup += Math.max(0, Math.min(b, v2) - Math.max(a, v1)); }); });
+            const porcentaje = Math.min(100, Math.round(minOcup / minDisp * 100)) || 0;
+            document.getElementById('statOcupacion').innerText = `${porcentaje}%`;
+            document.getElementById('statNumReservas').innerText = totalReservasPista;
+        }
+
+        // Live Red Line Refresh timer
+        setInterval(() => {
+            if (!document.hidden && document.getElementById('fechaCuadrante').value === fechaLocalISO()) {
+                renderizarCuadrantePlaytomic(datosLocales.reservas || []);
+            }
+        }, 30000);
+
+        async function moverReservaAccion(idRes, nuevaHora, nuevaPista) {
+            const target = datosLocales.reservas.find(r => String(r.id) === String(idRes));
+            if (!target) return;
+
+            const durMin = parseInt(target.duracionMin, 10) || 90;
+            const iniMin = timeToMin(nuevaHora);
+            if (esFranjaBloqueada(iniMin, iniMin + durMin, target.tipoReserva)) {
+                alert("Horario no permitido para este tipo de reserva.");
+                return;
+            }
+
+            const { error } = await supabaseClient.from('reservas').update({ hora_inicio: nuevaHora, pista: nuevaPista, updated_at: new Date() }).eq('id', idRes);
+            if (error) alert("Error al mover la reserva: " + error.message);
+        }
+
+        function filtrarReservas() {
+            renderizarCuadrantePlaytomic(datosLocales.reservas || []);
+        }
+
+        function esFinde(iso) { const [y, m, d] = iso.split('-').map(Number); const w = new Date(y, m - 1, d, 12).getDay(); return w === 0 || w === 6; }
+
+        function precioSugerido() {
+            const t = datosLocales.tarifas || { semanaManana: 20, semanaTarde: 26, finde: 26 };
+            const iso = document.getElementById('modalFecha').value || document.getElementById('fechaCuadrante').value;
+            const hora = document.getElementById('modalHora').value || '17:00';
+            const base = esFinde(iso) ? t.finde : (timeToMin(hora) < bloqueDescansoInicio ? t.semanaManana : t.semanaTarde);
+            const tor = document.getElementById('modalTipoReserva').value === 'Torneo';
+            const dur = tor ? (parseFloat(document.getElementById('modalDuracionHoras').value) || 0) * 60 : (parseInt(document.getElementById('modalDuracion').value, 10) || 90);
+            return (dur / 90) * base;
+        }
+
+        function recalcularPrecioSugerido(forzar = true) {
+            if (!forzar && document.getElementById('modalReservaId').value) return;
+            document.getElementById('modalPrecio').value = precioSugerido().toFixed(2);
+            actualizarVistasJugadoresSplit();
+        }
+
+        function alCambiarTipo() {
+            const t = document.getElementById('modalTipoReserva').value, nueva = !document.getElementById('modalReservaId').value, tor = t === 'Torneo';
+            document.getElementById('boxTorneoDur').style.display = tor ? 'block' : 'none';
+            document.getElementById('lblDur').style.display = document.getElementById('modalDuracion').style.display = tor ? 'none' : 'block';
+            document.getElementById('boxRepetir').style.display = (t === 'Pena' && nueva) ? 'block' : 'none';
+            recalcularPrecioSugerido(nueva);
+        }
+
+        function abrirModalNuevaReserva(pistas = ["1 PADEL MASTER"], hora = "17:00", tipo = "Normal") {
+            reservaEnEdicion = { id: "", cliente: "", telefono: "", pista: pistas[0] || "1 PADEL MASTER", horaInicio: hora, duracionMin: 90, tipoReserva: tipo, pagoEstado: "Sin pagar", numJugadores: 4, pagosJugadores: "0,0,0,0", precio: 26.00 };
+            document.getElementById('modalTitulo').innerText = "Nueva Reserva";
+            document.getElementById('modalReservaId').value = "";
+            document.getElementById('modalCliente').value = "";
+            document.getElementById('modalTelefono').value = "";
+            pobladorPistasModal(pistas);
+            document.getElementById('modalHora').value = hora;
+            document.getElementById('modalDuracion').value = "90";
+            document.getElementById('modalTipoReserva').value = tipo;
+            document.getElementById('modalFecha').value = document.getElementById('fechaCuadrante').value;
+            document.getElementById('modalRepetir').value = 12;
+            document.getElementById('btnEliminarSerie').style.display = 'none';
+            document.getElementById('btnEliminarReserva').style.display = "none";
+            alCambiarTipo();
+            document.getElementById('modalNumJugadores').value = "4";
+            document.getElementById('modalPrecio').value = precioSugerido().toFixed(2);
+            actualizarVistasJugadoresSplit();
+            document.getElementById('modalReserva').style.display = "flex";
+        }
+
+        function abrirModalEditarReserva(res) {
+            reservaEnEdicion = { ...res };
+            const nJug = parseInt(res.numJugadores, 10) || 4;
+            if (!reservaEnEdicion.pagosJugadores) reservaEnEdicion.pagosJugadores = Array(nJug).fill("0").join(",");
+
+            document.getElementById('modalTitulo').innerText = `${res.pista} · ${res.horaInicio}`;
+            document.getElementById('modalReservaId').value = res.id;
+            document.getElementById('modalCliente').value = res.cliente;
+            document.getElementById('modalTelefono').value = res.telefono || '';
+            pobladorPistasModal([res.pista]);
+            document.getElementById('modalHora').value = res.horaInicio;
+            document.getElementById('modalDuracion').value = String(res.duracionMin);
+            document.getElementById('modalDuracionHoras').value = res.duracionMin / 60;
+            document.getElementById('modalTipoReserva').value = res.tipoReserva || "Normal";
+            document.getElementById('modalFecha').value = res.fecha;
+            document.getElementById('btnEliminarSerie').style.display = res.serie ? 'block' : 'none';
+            document.getElementById('btnEliminarReserva').style.display = "block";
+            alCambiarTipo();
+            document.getElementById('modalNumJugadores').value = String(nJug);
+            document.getElementById('modalPrecio').value = parseFloat(res.precio || 26.00).toFixed(2);
+            actualizarVistasJugadoresSplit();
+            document.getElementById('modalReserva').style.display = "flex";
+        }
+
+        function actualizarVistasJugadoresSplit() {
+            if (!reservaEnEdicion) return;
+            const nJug = parseInt(document.getElementById('modalNumJugadores').value, 10) || 4;
+            reservaEnEdicion.numJugadores = nJug;
+            const precioTotal = parseFloat(document.getElementById('modalPrecio').value) || 26.00;
+            const precioUnitario = (precioTotal / nJug).toFixed(2);
+            document.getElementById('badgePrecioUnitario').innerText = `${precioUnitario} € / pers`;
+
+            const arrPagos = (reservaEnEdicion.pagosJugadores || "").split(",");
+            while (arrPagos.length < nJug) arrPagos.push("0");
+            reservaEnEdicion.pagosJugadores = arrPagos.slice(0, nJug).join(",");
+
+            const container = document.getElementById('splitJugadoresContainer');
+            container.innerHTML = "";
+            let pagadosContador = 0;
+
+            for (let j = 1; j <= nJug; j++) {
+                const metodoActual = arrPagos[j - 1] || "0";
+                const esPagado = (metodoActual === "Efectivo" || metodoActual === "Tarjeta");
+                if (esPagado) pagadosContador++;
+
+                const cardJ = document.createElement('div');
+                cardJ.className = `card-jugador-item ${metodoActual === 'Efectivo' ? 'estado-efectivo' : (metodoActual === 'Tarjeta' ? 'estado-tarjeta' : '')}`;
+                cardJ.innerHTML = `
+                    <div>
+                        <div class="jugador-info-title">Jugador ${j}</div>
+                        <div class="jugador-info-sub">${esPagado ? `✓ Pagado (${metodoActual})` : '⚡ Pendiente'} (${precioUnitario} €)</div>
+                    </div>
+                    <div style="display:flex; gap:4px;">
+                        <button onclick="cambiarPagoJugador(${j}, 'Efectivo')" class="btn-pay-toggle btn-pay-efectivo">💵 Efectivo</button>
+                        <button onclick="cambiarPagoJugador(${j}, 'Tarjeta')" class="btn-pay-toggle btn-pay-tarjeta">💳 Tarjeta</button>
+                        ${esPagado ? `<button onclick="cambiarPagoJugador(${j}, '0')" class="btn-pay-toggle btn-pay-reset">✕</button>` : ''}
+                    </div>
+                `;
+                container.appendChild(cardJ);
+            }
+
+            if (!reservaEnEdicion.id) container.querySelectorAll('button').forEach(b => { b.disabled = true; b.style.opacity = '.4'; });
+            const badgeGlobal = document.getElementById('badgeEstadoPagoGlobal');
+            if (pagadosContador >= nJug) {
+                badgeGlobal.className = "badge-pagado"; badgeGlobal.innerText = "🟢 Totalmente Pagado";
+            } else {
+                badgeGlobal.className = "badge-sin-pagar"; badgeGlobal.innerText = `⚡ Pendiente (${pagadosContador}/${nJug} pagados)`;
+            }
+        }
+
+        async function cambiarPagoJugador(numJugador, nuevoMetodo) {
+            if (!reservaEnEdicion || !reservaEnEdicion.id) return;
+            const { data, error } = await supabaseClient.rpc('cobrar_jugador_atomic', {
+                p_reserva_id: reservaEnEdicion.id,
+                p_num_jugador: numJugador,
+                p_metodo_pago: nuevoMetodo,
+                p_empleado: usuarioSesion ? (usuarioSesion.user || usuarioSesion.nombre) : 'Sistema'
+            });
+            if (error) alert("Error al registrar pago: " + error.message);
+            else {
+                reservaEnEdicion.pagosJugadores = data.pagos;
+                reservaEnEdicion.pagoEstado = data.pago_estado;
+                actualizarVistasJugadoresSplit();
+            }
+        }
+
+        function cerrarModal() { document.getElementById('modalReserva').style.display = "none"; }
+
+        // ==============================================================================
+        // RECURRENT PEÑA RESERVATIONS WITH CONFLICT CHECKING
+        // ==============================================================================
+        async function confirmarGuardarReserva() {
+            const cliente = document.getElementById('modalCliente').value.trim();
+            if (!cliente) return alert("Ingresa el nombre del cliente");
+
+            const pistasSel = obtenerPistasSeleccionadasModal();
+            if (pistasSel.length === 0) return alert("Selecciona al menos una pista");
+
+            const tipo = document.getElementById('modalTipoReserva').value;
+            const esTorneo = tipo === 'Torneo';
+            const horaInicio = document.getElementById('modalHora').value;
+            const iso = document.getElementById('modalFecha').value;
+
+            const duracionMin = esTorneo
+                ? Math.round((parseFloat(document.getElementById('modalDuracionHoras').value) || 0) * 2) * 30
+                : (parseInt(document.getElementById('modalDuracion').value, 10) || 90);
+
+            const iniMin = timeToMin(horaInicio);
+            if (esFranjaBloqueada(iniMin, iniMin + duracionMin, tipo)) {
+                return alert("Horario no permitido para este tipo de reserva.");
+            }
+
+            const telefono = document.getElementById('modalTelefono').value.trim();
+            const numJugadores = parseInt(document.getElementById('modalNumJugadores').value, 10) || 4;
+            const importe = parseFloat(document.getElementById('modalPrecio').value) || 0;
+            const idExistente = document.getElementById('modalReservaId').value;
+            const repetirSemanas = (tipo === 'Pena' && !idExistente) ? Math.min(52, Math.max(1, parseInt(document.getElementById('modalRepetir').value, 10) || 1)) : 1;
+
+            // Save/Update Customer
+            await supabaseClient.from('clientes').upsert({ nombre: cliente, telefono }, { onConflict: 'nombre' });
+
+            const payloadBase = {
+                cliente,
+                telefono,
+                hora_inicio: horaInicio,
+                duracion_min: duracionMin,
+                tipo_reserva: tipo,
+                jugadores: numJugadores,
+                precio: importe,
+                empleado: usuarioSesion ? (usuarioSesion.user || usuarioSesion.nombre) : 'Sistema'
+            };
+
+            // IF EDITING EXISTING SINGLE RESERVATION
+            if (idExistente) {
+                await supabaseClient.from('reservas').update({ ...payloadBase, fecha: iso, pista: pistasSel[0] }).eq('id', idExistente);
+                cerrarModal();
+                return;
+            }
+
+            // IF CREATING NEW RESERVATION (SINGLE OR RECURRENT PEÑA)
+            const isoFin = sumarDiasISO(iso, (repetirSemanas - 1) * 7);
+
+            const { data: ocupadas, error: errConsulta } = await supabaseClient
+                .from('reservas')
+                .select('pista, fecha, hora_inicio, duracion_min, cliente')
+                .in('pista', pistasSel)
+                .gte('fecha', iso)
+                .lte('fecha', isoFin)
+                .neq('estado', 'Cancelada');
+
+            if (errConsulta) {
+                return alert("Error al verificar disponibilidad: " + errConsulta.message);
+            }
+
+            const proposedRows = [];
+            const serieId = repetirSemanas > 1 ? ("S_" + Date.now().toString(36)) : "";
+
+            for (let w = 0; w < repetirSemanas; w++) {
+                const fechaSemana = sumarDiasISO(iso, w * 7);
+
+                for (const p of pistasSel) {
+                    const propIni = timeToMin(horaInicio);
+                    const propFin = propIni + duracionMin;
+
+                    const conflicto = (ocupadas || []).find(r => {
+                        if (r.pista !== p || r.fecha !== fechaSemana) return false;
+                        const rIni = timeToMin(r.hora_inicio);
+                        const rFin = rIni + (parseInt(r.duracion_min, 10) || 90);
+                        return (propIni < rFin && propFin > rIni);
+                    });
+
+                    if (conflicto) {
+                        return alert(`¡No se puede crear la peña! La pista '${p}' ya está ocupada el día ${fechaSemana} (${conflicto.hora_inicio}) por ${conflicto.cliente}.`);
+                    }
+
+                    proposedRows.push({
+                        ...payloadBase,
+                        pista: p,
+                        fecha: fechaSemana,
+                        serie: serieId,
+                        pago_estado: 'Sin pagar',
+                        pagos_jugadores: Array(numJugadores).fill('0').join(',')
+                    });
+                }
+            }
+
+            const { error: errInsert } = await supabaseClient.from('reservas').insert(proposedRows);
+            if (errInsert) alert("Error al guardar la reserva: " + errInsert.message);
+            else cerrarModal();
+        }
+
+        async function confirmarEliminarSerie() {
+            const id = document.getElementById('modalReservaId').value; if (!id) return;
+            if (!confirm("¿Eliminar esta reserva y todas las siguientes de la serie?")) return;
+            cerrarModal();
+            await supabaseClient.rpc('eliminar_reserva_con_devolucion', { p_reserva_id: id, p_alcance: 'serie', p_empleado: usuarioSesion.user });
+        }
+
+        async function confirmarEliminarReserva() {
+            const id = document.getElementById('modalReservaId').value; if (!id) return;
+            if (!confirm("¿Eliminar esta reserva? Se devolverán los pagos registrados.")) return;
+            cerrarModal();
+            await supabaseClient.rpc('eliminar_reserva_con_devolucion', { p_reserva_id: id, p_alcance: 'unica', p_empleado: usuarioSesion.user });
+        }
+
+        // ==============================================================================
+        // BAR & TPV EN TIEMPO REAL
+        // ==============================================================================
+        function renderSelectorMesas() {
+            const nav = document.getElementById('selectorMesas'); if (!nav) return;
+            nav.innerHTML = "";
+            listaMesas.forEach(m => {
+                const items = cuentasMesas[m] || [];
+                const totalMesa = items.reduce((sum, item) => sum + item.precio, 0);
+                const btn = document.createElement('button');
+                btn.className = `btn-mesa ${m === mesaSeleccionada ? 'activa' : ''}`;
+                btn.innerHTML = `${m} ${totalMesa > 0 ? `<span class="badge-total">${totalMesa.toFixed(2)}€</span>` : ''}`;
+                btn.onclick = () => { mesaSeleccionada = m; renderSelectorMesas(); };
+                nav.appendChild(btn);
+            });
+            renderTicketMesaActiva();
+        }
+
+        function renderTicketMesaActiva() {
+            const list = document.getElementById('ticketItems'), totalSpan = document.getElementById('ticketTotal');
+            if (!list) return;
+            document.getElementById('tituloTicketMesa').innerText = mesaSeleccionada;
+            list.innerHTML = "";
+            let total = 0;
+            (cuentasMesas[mesaSeleccionada] || []).forEach((item, index) => {
+                total += item.precio;
+                const li = document.createElement('li');
+                li.onclick = () => quitarDelTicket(index);
+                li.innerHTML = `<span>${esc(item.nombre)}</span> <span>${item.precio.toFixed(2)} € ✕</span>`;
+                list.appendChild(li);
+            });
+            totalSpan.innerText = total.toFixed(2);
+        }
+
+        function filtrarCatTPV(cat, btn) {
+            categoriaTPVFiltro = cat;
+            document.querySelectorAll('.btn-cat-filter').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            dibujarCatalogo(datosLocales.productos);
+        }
+
+        async function agregarAlTicket(prod) {
+            cuentasMesas[mesaSeleccionada] = cuentasMesas[mesaSeleccionada] || [];
+            cuentasMesas[mesaSeleccionada].push(prod);
+            renderSelectorMesas();
+            await supabaseClient.from('mesas_bar').upsert({ mesa: mesaSeleccionada, items: cuentasMesas[mesaSeleccionada] }, { onConflict: 'mesa' });
+        }
+
+        async function quitarDelTicket(index) {
+            cuentasMesas[mesaSeleccionada].splice(index, 1);
+            renderSelectorMesas();
+            await supabaseClient.from('mesas_bar').upsert({ mesa: mesaSeleccionada, items: cuentasMesas[mesaSeleccionada] }, { onConflict: 'mesa' });
+        }
+
+        async function cobrarMesaActiva(metodoPago) {
+            const items = cuentasMesas[mesaSeleccionada] || [];
+            if (items.length === 0) return;
+            const total = items.reduce((s, i) => s + i.precio, 0);
+
+            await supabaseClient.from('ventas').insert({ tipo: 'Bar', concepto: `${mesaSeleccionada}: ${items.map(i => i.nombre).join(', ')}`, importe: total, metodo_pago: metodoPago, empleado: usuarioSesion ? (usuarioSesion.user || usuarioSesion.nombre) : 'Sistema' });
+            cuentasMesas[mesaSeleccionada] = [];
+            await supabaseClient.from('mesas_bar').upsert({ mesa: mesaSeleccionada, items: [] }, { onConflict: 'mesa' });
+            renderSelectorMesas();
+            document.getElementById('msgVenta').style.color = '#10b981';
+            document.getElementById('msgVenta').innerText = `✓ Cobrado ${total.toFixed(2)} € (${metodoPago})`;
+        }
+
+        function dibujarCatalogo(productos) {
+            const grid = document.getElementById('catalogGrid');
+            if (grid) {
+                grid.innerHTML = "";
+                const prodsFiltrados = (productos || []).filter(p => p.estado !== 'Eliminado' && p.estado !== 'Inactivo' && (categoriaTPVFiltro === 'Todos' || p.categoria === categoriaTPVFiltro));
+                prodsFiltrados.forEach(p => {
+                    const btn = document.createElement('div');
+                    btn.className = 'btn-product';
+                    btn.innerHTML = `${esc(p.nombre)} <span>${parseFloat(p.precio).toFixed(2)} €</span>`;
+                    btn.onclick = () => agregarAlTicket({ id: p.id, nombre: p.nombre, precio: parseFloat(p.precio) });
+                    grid.appendChild(btn);
+                });
+            }
+            filtrarGestionCatalogo();
+        }
+
+        // ==============================================================================
+        // EDITABLE CATALOG MANAGEMENT (PRODUCTOS / TIENDA)
+        // ==============================================================================
+        function filtrarGestionCatalogo() {
+            const tbody = document.getElementById('tablaProductosBody');
+            if (!tbody) return;
+
+            const q = (document.getElementById('buscarProdGestion')?.value || '').toLowerCase();
+            const cat = document.getElementById('catFilterGestion')?.value || 'Todos';
+
+            const prods = (datosLocales.productos || []).filter(p => {
+                if (p.estado === 'Eliminado') return false;
+                if (cat !== 'Todos' && p.categoria !== cat) return false;
+                if (q && !p.nombre.toLowerCase().includes(q)) return false;
+                return true;
+            });
+
+            tbody.innerHTML = "";
+            if (prods.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No se encontraron artículos</td></tr>`;
+                return;
+            }
+
+            prods.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><b>${esc(p.nombre)}</b></td>
+                    <td><b>${parseFloat(p.precio).toFixed(2)} €</b></td>
+                    <td>${esc(p.categoria)}</td>
+                    <td><span style="color: ${p.estado === 'Activo' ? '#10b981' : '#f59e0b'}; font-weight:800;">${p.estado === 'Activo' ? '🟢 Activo' : '🟠 Inactivo'}</span></td>
+                    <td>
+                        <button class="btn-edit-prod" onclick="abrirModalEditarProducto(${p.id})">✏️ Editar</button>
+                        <button class="btn-del-prod" onclick="eliminarProductoCat(${p.id})">🗑️ Eliminar</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function abrirModalNuevoProducto() {
+            document.getElementById('modalProductoTitulo').innerText = "Nuevo Artículo";
+            document.getElementById('modalProdId').value = "";
+            document.getElementById('modalProdNombre').value = "";
+            document.getElementById('modalProdPrecio').value = "";
+            document.getElementById('modalProdCat').value = "Bebidas";
+            document.getElementById('modalProdEstado').value = "Activo";
+            document.getElementById('modalProducto').style.display = "flex";
+        }
+
+        function abrirModalEditarProducto(id) {
+            const p = (datosLocales.productos || []).find(x => x.id === id);
+            if (!p) return;
+            document.getElementById('modalProductoTitulo').innerText = "Editar Artículo";
+            document.getElementById('modalProdId').value = p.id;
+            document.getElementById('modalProdNombre').value = p.nombre;
+            document.getElementById('modalProdPrecio').value = p.precio;
+            document.getElementById('modalProdCat').value = p.categoria;
+            document.getElementById('modalProdEstado').value = p.estado || "Activo";
+            document.getElementById('modalProducto').style.display = "flex";
+        }
+
+        function cerrarModalProducto() {
+            document.getElementById('modalProducto').style.display = "none";
+        }
+
+        async function guardarProductoModal() {
+            const id = document.getElementById('modalProdId').value;
+            const nombre = document.getElementById('modalProdNombre').value.trim();
+            const precio = parseFloat(document.getElementById('modalProdPrecio').value);
+            const categoria = document.getElementById('modalProdCat').value;
+            const estado = document.getElementById('modalProdEstado').value;
+
+            if (!nombre || isNaN(precio) || precio < 0) {
+                return alert("Revisa el nombre y el precio del artículo.");
+            }
+
+            if (id) {
+                await supabaseClient.from('productos').update({ nombre, precio, categoria, estado }).eq('id', id);
+            } else {
+                await supabaseClient.from('productos').insert({ nombre, precio, categoria, estado });
+            }
+
+            cerrarModalProducto();
+        }
+
+        async function eliminarProductoCat(idProd) {
+            if (confirm("¿Deseas eliminar este artículo del catálogo?")) {
+                await supabaseClient.from('productos').update({ estado: 'Eliminado' }).eq('id', idProd);
+            }
+        }
+
+        // ==============================================================================
+        // FICHAJES, CAJA Y TARIFAS
+        // ==============================================================================
+        async function fichar(tipo) {
+            const msg = document.getElementById('msgFichaje');
+            const { error } = await supabaseClient.from('fichajes').insert({ empleado: usuarioSesion.user, tipo });
+            if (error) {
+                msg.style.color = '#ef4444';
+                msg.innerText = "Error: " + error.message;
+            } else {
+                msg.style.color = '#10b981';
+                msg.innerText = `✓ Fichaje de ${tipo} registrado correctamente`;
+                cargarMisFichajes();
+            }
+        }
+
+        async function cargarMisFichajes() {
+            const tbody = document.getElementById('tablaFichajesBody');
+            if (!tbody || !usuarioSesion) return;
+
+            const { data, error } = await supabaseClient
+                .from('fichajes')
+                .select('*')
+                .eq('empleado', usuarioSesion.user)
+                .order('created_at', { ascending: false })
+                .limit(30);
+
+            if (error) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#ef4444;">Error al cargar fichajes: ${error.message}</td></tr>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8;">No hay registros de fichajes aún</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = data.map(f => {
+                const fechaObj = new Date(f.created_at || f.fecha_hora);
+                const fechaFormateada = isNaN(fechaObj.getTime()) ? (f.created_at || f.fecha_hora || '-') : fechaObj.toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'medium' });
+                const esEntrada = f.tipo === 'Entrada';
+                const badge = esEntrada
+                    ? `<span style="background:#ecfdf5; color:#047857; padding:4px 10px; border-radius:var(--radius-sm); font-weight:800; font-size:12px; border:1px solid #10b981;">🟢 Entrada</span>`
+                    : `<span style="background:#fff7ed; color:#c2410c; padding:4px 10px; border-radius:var(--radius-sm); font-weight:800; font-size:12px; border:1px solid #f97316;">🔴 Salida</span>`;
+
+                return `<tr>
+            <td><b>${fechaFormateada}</b></td>
+            <td>${badge}</td>
+            <td><b>${esc(f.empleado)}</b></td>
+        </tr>`;
+            }).join('');
+        }
+
+        function dibujarCaja(caja) {
+            document.getElementById('cajaEfectivo').innerText = (caja.totalEfectivo || 0).toFixed(2) + " €";
+            document.getElementById('cajaTarjeta').innerText = (caja.totalTarjeta || 0).toFixed(2) + " €";
+            document.getElementById('cajaTotal').innerText = (caja.totalGeneral || 0).toFixed(2) + " €";
+        }
+
+        function calcCierre() {
+            const v = id => parseFloat(document.getElementById(id).value) || 0, c = datosLocales.caja || {};
+            const ef = Math.round((v('cjBilletes') + v('cjMonedas')) * 100) / 100, dE = ef - (c.totalEfectivo || 0), dD = v('cjDatafono') - (c.totalTarjeta || 0);
+            const f = n => `<b style="color:${Math.abs(n) < 0.005 ? '#10b981' : '#ef4444'}">${n > 0 ? '+' : ''}${n.toFixed(2)} €</b>`;
+            document.getElementById('cjEfectivo').value = ef.toFixed(2) + ' €';
+            document.getElementById('cjResumen').innerHTML = `<span>Efectivo en sistema ${(c.totalEfectivo || 0).toFixed(2)} € · ${f(dE)}</span><span>Datáfono en sistema ${(c.totalTarjeta || 0).toFixed(2)} € · ${f(dD)}</span>`;
+        }
+
+        async function cerrarCajaHoy() {
+            const bil = parseFloat(document.getElementById('cjBilletes').value) || 0, mon = parseFloat(document.getElementById('cjMonedas').value) || 0, dat = parseFloat(document.getElementById('cjDatafono').value) || 0;
+            const ef = bil + mon, c = datosLocales.caja;
+            await supabaseClient.from('cierres').insert({
+                fecha: document.getElementById('fechaCuadrante').value, efectivo_sistema: c.totalEfectivo, tarjeta: c.totalTarjeta, total: c.totalGeneral,
+                billetes: bil, monedas: mon, efectivo_contado: ef, datafono_contado: dat, dif_efectivo: ef - c.totalEfectivo, dif_datafono: dat - c.totalTarjeta, cerrado_por: usuarioSesion.user
+            });
+            document.getElementById('msgCierre').style.color = '#10b981'; document.getElementById('msgCierre').innerText = '✓ Caja cerrada correctamente';
+            cargarHistorialCaja();
+        }
+
+        async function cargarHistorialCaja() {
+            const { data } = await supabaseClient.from('cierres').select('*').order('fecha', { ascending: false }).limit(60);
+            const tb = document.getElementById('histCajaBody');
+            tb.innerHTML = (data || []).map(d => `<tr><td><b>${d.fecha}</b></td><td>${d.efectivo_sistema} €</td><td>${d.tarjeta} €</td><td><b>${d.total} €</b></td><td>${d.dif_efectivo} €</td><td>${d.dif_datafono} €</td><td>🔒 ${esc(d.cerrado_por)}</td></tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:#94a3b8">—</td></tr>';
+        }
+
+        function dibujarTarifas(t) {
+            if (!t) return;
+            if (t.semanaManana) document.getElementById('tarSemMan').value = t.semanaManana;
+            if (t.semanaTarde) document.getElementById('tarSemTar').value = t.semanaTarde;
+            if (t.finde) document.getElementById('tarFinde').value = t.finde;
+        }
+
+        async function guardarTarifasUI() {
+            await supabaseClient.from('tarifas').upsert([
+                { franja: 'Entre semana mañana', precio_90min: parseFloat(document.getElementById('tarSemMan').value) },
+                { franja: 'Entre semana tarde', precio_90min: parseFloat(document.getElementById('tarSemTar').value) },
+                { franja: 'Fin de semana', precio_90min: parseFloat(document.getElementById('tarFinde').value) }
+            ], { onConflict: 'franja' });
+            document.getElementById('msgTarifas').style.color = '#10b981'; document.getElementById('msgTarifas').innerText = "✓ Tarifas actualizadas";
+        }
+
+        window.addEventListener('DOMContentLoaded', comprobarSesion);
+    </script>
+</body>
+
+</html>
