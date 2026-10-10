@@ -1,4 +1,4 @@
-const VERSION = 'geopadel-v2';
+const VERSION = 'geopadelapp';
 const NUCLEO = ['./', 'index.html', 'styles.css', 'app.js', 'manifest.webmanifest', 'Geopadel.png'];
 const OPCIONAL = ['assets/remixicon/remixicon.css', 'assets/remixicon/remixicon.woff2', 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'];
 
