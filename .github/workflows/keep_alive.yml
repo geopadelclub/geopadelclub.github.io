@@ -2,7 +2,6 @@ name: Keep Supabase Alive
 
 on:
   schedule:
-    # Se ejecuta a las 08:00 UTC cada 4 días
     - cron: '0 8 */4 * *'
   workflow_dispatch:
 
@@ -11,13 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Realizar petición REST a Supabase
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X GET "$SUPABASE_URL/rest/v1/" \
-            -H "apikey: $SUPABASE_ANON_KEY" \
-            -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+          URL="https://gprpyxeamjmvmqtkjvtn.supabase.co"
+          KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwcnB5eGVhbWptdm1xdGtqdnRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1NjE3MzQsImV4cCI6MjEwNzEzNzczNH0.GeGAmqywLM7HsfUIGj9i6f50vhf_ijh9CWc-Y-DdANA"
+          
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X GET "$URL/rest/v1/" \
+            -H "apikey: $KEY" \
+            -H "Authorization: Bearer $KEY")
           
           echo "Respuesta HTTP: $STATUS"
           if [ "$STATUS" -eq 200 ]; then
