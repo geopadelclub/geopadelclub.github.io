@@ -1,5 +1,5 @@
 const VERSION = 'geopadel-v2';
-const NUCLEO = ['./', 'index.html', 'styles.css', 'app.js', 'manifest.webmanifest', 'logo.png', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png'];
+const NUCLEO = ['./', 'index.html', 'styles.css', 'app.js', 'manifest.webmanifest', 'Geopadel.png'];
 const OPCIONAL = ['assets/remixicon/remixicon.css', 'assets/remixicon/remixicon.woff2', 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'];
 
 self.addEventListener('install', e => {

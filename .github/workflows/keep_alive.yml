@@ -1,0 +1,25 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    # Se ejecuta a las 08:00 UTC cada 4 días
+    - cron: '0 8 */4 * *'
+  workflow_dispatch:
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Realizar petición REST a Supabase
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/productos?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+          
+          echo "Respuesta HTTP: $STATUS"
+          if [ "$STATUS" -eq 200 ] || [ "$STATUS" -eq 206 ]; then
+            echo "Supabase está activo y responde correctamente."
+          else
+            echo "Error o estado inesperado: $STATUS"
+            exit 1
+          fi
