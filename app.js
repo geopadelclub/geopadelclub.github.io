@@ -321,7 +321,7 @@ document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('act
 document.querySelectorAll('.nav-tab').forEach(el => { el.classList.remove('active'); el.removeAttribute('aria-current'); });
 $(`tab-${tabName}`).classList.add('active');
 const nav = $(`nav-${tabName}`); nav.classList.add('active'); nav.setAttribute('aria-current', 'page');
-document.title = 'Geopadel · ' + ({ reservas: 'Reservas', tpv: 'TPV Bar', fichajes: 'Control Horario', caja: 'Caja y Catálogo' }[tabName] || 'Panel');
+document.title = 'Geopadel · ' + ({ reservas: 'Reservas', tpv: 'Tienda', fichajes: 'Fichaje', caja: 'Caja y Catálogo' }[tabName] || 'Panel');
 if (usuarioSesion) {
 if (tabName === 'caja') { cargarHistorialCaja(); cargarCajaHoy(); }
 if (tabName === 'fichajes') cargarMisFichajes();
