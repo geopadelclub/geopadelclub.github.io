@@ -15,7 +15,9 @@ const cierreMin = 24 * 60;
 let horaInicioGrid = 8, horaFinGrid = 23.5;
 let usuarioSesion = null;
 let datosLocales = { productos: [], clientes: [], reservas: [], tarifas: {}, caja: { totalEfectivo: 0, totalTarjeta: 0, totalGeneral: 0 } };
-const TARIFAS_DEFECTO = { semanaManana: 20, semanaTarde: 26, finde: 26 };
+const TARIFAS_DEFECTO = { semanaManana: { 90: 20 }, semanaTarde: { 90: 26 }, finde: { 90: 26 } };
+const TARIFAS_IDS = { semanaManana: ['tarSemMan60', 'tarSemMan', 'tarSemMan120'], semanaTarde: ['tarSemTar60', 'tarSemTar', 'tarSemTar120'], finde: ['tarFinde60', 'tarFinde', 'tarFinde120'] };
+const TARIFAS_FRANJAS = { semanaManana: 'Entre semana mañana', semanaTarde: 'Entre semana tarde', finde: 'Fin de semana' };
 let reservaEnEdicion = null;
 let dragGrabOffsetY = 0;
 let suprimirClick = false;
@@ -253,10 +255,10 @@ async function cargarTarifas() {
 const { data, error } = await supabaseClient.from('tarifas').select('*');
 if (error) { console.error(error); return; }
 const tf = {};
+const num = v => (v === null || v === undefined || v === '') ? null : Number(v);
 (data || []).forEach(t => {
-if (t.franja === 'Entre semana mañana') tf.semanaManana = Number(t.precio_90min);
-if (t.franja === 'Entre semana tarde') tf.semanaTarde = Number(t.precio_90min);
-if (t.franja === 'Fin de semana') tf.finde = Number(t.precio_90min);
+const k = Object.keys(TARIFAS_FRANJAS).find(x => TARIFAS_FRANJAS[x] === t.franja);
+if (k) tf[k] = { 60: num(t.precio_60min), 90: Number(t.precio_90min), 120: num(t.precio_120min) };
 });
 datosLocales.tarifas = tf;
 dibujarTarifas({ ...TARIFAS_DEFECTO, ...tf });
@@ -290,9 +292,11 @@ pagosJugadores: r.pagos_jugadores,
 precio: r.precio,
 empleado: r.empleado,
 serie: r.serie,
-notas: r.notas || ''
+notas: r.notas || '',
+origen: r.origen || 'trabajador'
 }));
 renderizarCuadrantePlaytomic(datosLocales.reservas);
+cargarTotalPendientes();
 }
 let reqCaja = 0;
 async function cargarCajaHoy() {
@@ -456,13 +460,15 @@ if (r.tipoReserva === 'Torneo') estiloTipo = 'card-torneo-striped';
 if (r.tipoReserva === 'Entrenamiento') estiloTipo = 'card-entreno-striped';
 if (totalPagado) estiloTipo = 'card-normal-solid';
 const tieneNota = !!String(r.notas || '').trim();
-card.className = `reserva-card ${estiloTipo}${heightPx < 100 ? ' compact' : ''}${tieneNota ? ' has-nota' : ''}`;
+const pendiente = r.estado === 'Pendiente';
+card.className = `reserva-card ${estiloTipo}${heightPx < 100 ? ' compact' : ''}${tieneNota ? ' has-nota' : ''}${pendiente ? ' pendiente' : ''}`;
 card.style.top = `${topPx}px`;
 card.style.height = `${heightPx}px`;
 card.draggable = r.tipoReserva !== 'Torneo';
 card.dataset.id = r.id;
 card.dataset.tipo = r.tipoReserva || 'Normal';
-const badge = totalPagado ? `<div class="badge-pagado"><i class="ri-check-line" aria-hidden="true"></i>Pagado</div>`
+card.dataset.estado = r.estado || '';
+const badge = pendiente ? `<div class="badge-pendiente"><i class="ri-hourglass-line" aria-hidden="true"></i>Pendiente</div>` : totalPagado ? `<div class="badge-pagado"><i class="ri-check-line" aria-hidden="true"></i>Pagado</div>`
 : (pagados > 0 ? `<div class="badge-parcial">Parcial ${pagados}/${nJug}</div>` : `<div class="badge-sin-pagar">Sin pagar</div>`);
 let dots = '<div class="pagos-dots-container">';
 for (let i = 0; i < nJug; i++) {
@@ -472,7 +478,7 @@ dots += `<span class="pago-dot ${ok ? 'pagado' : 'pendiente'}">${ok ? '<i class=
 dots += '</div>';
 card.innerHTML = `
 <div class="reserva-top">${badge}${dots}</div>
-<div class="reserva-title">${r.serie ? '<i class="ri-repeat-line" aria-hidden="true"></i>' : ''}${esc(r.cliente)}</div>
+<div class="reserva-title">${r.origen === 'web' ? '<i class="ri-global-line" aria-hidden="true" title="Reserva hecha desde la web"></i>' : ''}${r.serie ? '<i class="ri-repeat-line" aria-hidden="true"></i>' : ''}${esc(r.cliente)}</div>
 ${tieneNota && heightPx >= 150 ? `<div class="reserva-nota-txt">${esc(r.notas)}</div>` : ''}
 <div class="reserva-time"><span>${esc(r.horaInicio)} - ${minToTimeStr(iniMin + dur)}</span>${tieneNota ? '<span class="nota-flag"><i class="ri-sticky-note-fill" aria-hidden="true"></i>Nota</span>' : ''}</div>`;
 card.title = `${r.cliente} · ${r.horaInicio}-${minToTimeStr(iniMin + dur)}${tieneNota ? '\nNota: ' + r.notas : ''}`;
@@ -491,6 +497,7 @@ ventanas.forEach(([v1, v2]) => { minOcup += Math.max(0, Math.min(b, v2) - Math.m
 });
 $('statOcupacion').innerText = `${Math.min(100, Math.round(minOcup / minDisp * 100)) || 0}%`;
 $('statNumReservas').innerText = totalReservasPista;
+actualizarChipPendientes();
 if (scrollAhoraPendiente && wrapper.clientHeight > 0) {
 scrollAhoraPendiente = false;
 if (topPxAhora >= 0) wrapper.scrollTop = Math.max(0, topPxAhora - 90);
@@ -629,10 +636,11 @@ function precioSugerido() {
 const t = { ...TARIFAS_DEFECTO, ...(datosLocales.tarifas || {}) };
 const iso = $('modalFecha').value || $('fechaCuadrante').value || fechaLocalISO();
 const hora = $('modalHora').value || '17:00';
-const base = esFinde(iso) ? t.finde : (timeToMin(hora) < bloqueDescansoInicio ? t.semanaManana : t.semanaTarde);
+const franja = esFinde(iso) ? t.finde : (timeToMin(hora) < bloqueDescansoInicio ? t.semanaManana : t.semanaTarde);
 const tor = $('modalTipoReserva').value === 'Torneo';
 const dur = tor ? (parseFloat($('modalDuracionHoras').value) || 0) * 60 : (parseInt($('modalDuracion').value, 10) || 90);
-return (dur / 90) * base;
+const exacto = franja[dur];
+return exacto !== null && exacto !== undefined ? exacto : (dur / 90) * franja[90];
 }
 function recalcularPrecioSugerido(forzar = true) {
 if (!forzar && $('modalReservaId').value) return;
@@ -678,6 +686,8 @@ $('modalFecha').value = $('fechaCuadrante').value || fechaLocalISO();
 $('modalRepetir').value = 12;
 $('btnEliminarSerie').style.display = 'none';
 $('btnEliminarReserva').style.display = "none";
+$('btnResetCodigoWeb').style.display = 'none';
+$('btnConfirmarPendiente').style.display = 'none';
 $('modalNumJugadores').value = "4";
 alCambiarTipo();
 $('modalPrecio').value = precioSugerido().toFixed(2);
@@ -705,6 +715,8 @@ $('modalTipoReserva').value = res.tipoReserva || "Normal";
 $('modalFecha').value = res.fecha;
 $('btnEliminarSerie').style.display = res.serie ? 'inline-block' : 'none';
 $('btnEliminarReserva').style.display = "inline-block";
+$('btnResetCodigoWeb').style.display = res.telefono ? 'inline-block' : 'none';
+$('btnConfirmarPendiente').style.display = res.estado === 'Pendiente' ? 'inline-block' : 'none';
 alCambiarTipo();
 $('modalNumJugadores').value = String(nJug);
 $('modalPrecio').value = parseFloat(res.precio || 0).toFixed(2);
@@ -777,6 +789,23 @@ reservaEnEdicion.pagoEstado = data.pago_estado;
 actualizarVistasJugadoresSplit();
 }
 function cerrarModal() { cerrarOverlay('modalReserva'); }
+async function resetearCodigoWeb() {
+const tel = $('modalTelefono').value.trim();
+if (!tel) return toast('Este cliente no tiene teléfono', 'warn');
+if (!confirm('¿Restablecer el código web de este cliente? Tendrá que crear uno nuevo en su próxima reserva.')) return;
+const btn = $('btnResetCodigoWeb');
+setBusy(btn, true, '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Restableciendo...');
+try {
+const { data, error } = await supabaseClient.rpc('gp_resetear_codigo_cliente', { p_telefono: tel });
+if (error) throw error;
+if (!data || !data.ok) return toast('No tienes permiso para hacerlo', 'err');
+toast('Código web restablecido');
+} catch (err) {
+toast('No se pudo restablecer: ' + (err.message || err), 'err');
+} finally {
+setBusy(btn, false);
+}
+}
 async function guardarClienteSilencioso(nombre, telefono) {
 const row = { nombre };
 if (telefono) row.telefono = telefono;
@@ -865,6 +894,58 @@ const msgErr = String(err.message || err);
 toast(/notas/i.test(msgErr)
 ? "Falta la columna «notas» en Supabase. Ejecuta migracion_notas.sql en el SQL Editor."
 : "Error al guardar la reserva: " + msgErr, 'err');
+} finally {
+setBusy(btn, false);
+}
+}
+let totalPendientes = 0;
+function actualizarChipPendientes() {
+const chip = $('chipPendientes'), n = $('statPendientes');
+if (!chip || !n) return;
+n.innerText = totalPendientes;
+chip.classList.toggle('hay', totalPendientes > 0);
+}
+async function cargarTotalPendientes() {
+const { count, error } = await supabaseClient.from('reservas')
+.select('id', { count: 'exact', head: true })
+.eq('estado', 'Pendiente').gte('fecha', fechaLocalISO());
+if (error) { console.error(error); return; }
+totalPendientes = count || 0;
+actualizarChipPendientes();
+}
+async function irAPrimeraPendiente() {
+const { data, error } = await supabaseClient.from('reservas')
+.select('id, fecha, hora_inicio')
+.eq('estado', 'Pendiente').gte('fecha', fechaLocalISO())
+.order('fecha').order('hora_inicio').limit(1);
+if (error) return toast('No se pudieron consultar las pendientes: ' + error.message, 'err');
+if (!data || !data.length) return toast('No hay reservas pendientes de confirmar');
+const p = data[0];
+cambiarPestana('reservas');
+$('fechaCuadrante').value = p.fecha;
+scrollAhoraPendiente = false;
+await cargarReservasHoy();
+const card = document.querySelector(`.reserva-card[data-id="${CSS.escape(String(p.id))}"]`);
+if (card) {
+const wrapper = $('gridWrapper');
+wrapper.scrollTop = Math.max(0, card.offsetTop - 80);
+card.scrollIntoView({ block: 'nearest', inline: 'center' });
+}
+}
+async function confirmarReservaPendiente() {
+const id = $('modalReservaId').value; if (!id) return;
+const btn = $('btnConfirmarPendiente');
+setBusy(btn, true, '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Confirmando...');
+try {
+const { error } = await supabaseClient.from('reservas')
+.update({ estado: 'Confirmada', empleado: nombreUsuario(), updated_at: new Date().toISOString() })
+.eq('id', id).eq('estado', 'Pendiente');
+if (error) throw error;
+toast('Reserva confirmada');
+cerrarModal();
+cargarReservasHoy();
+} catch (err) {
+toast('No se pudo confirmar: ' + (err.message || err), 'err');
 } finally {
 setBusy(btn, false);
 }
@@ -1184,23 +1265,30 @@ tb.innerHTML = (data || []).map(d => `<tr>
 }
 function dibujarTarifas(t) {
 if (!t) return;
-if (t.semanaManana != null) $('tarSemMan').value = t.semanaManana;
-if (t.semanaTarde != null) $('tarSemTar').value = t.semanaTarde;
-if (t.finde != null) $('tarFinde').value = t.finde;
+Object.entries(TARIFAS_IDS).forEach(([k, ids]) => {
+const f = t[k];
+if (!f) return;
+$(ids[0]).value = f[60] ?? '';
+$(ids[1]).value = f[90] ?? '';
+$(ids[2]).value = f[120] ?? '';
+});
 }
 async function guardarTarifasUI() {
 const msg = $('msgTarifas'), btn = $('btnGuardarTarifas');
-const vals = ['tarSemMan', 'tarSemTar', 'tarFinde'].map(id => parseFloat($(id).value));
-if (vals.some(v => isNaN(v) || v < 0)) { msg.style.color = 'var(--red)'; msg.innerText = 'Introduce tres tarifas válidas (≥ 0)'; return; }
+const opcional = id => { const v = $(id).value.trim(); return v === '' ? null : parseFloat(v); };
+const filas = [], nuevas = {};
+for (const [k, ids] of Object.entries(TARIFAS_IDS)) {
+const p60 = opcional(ids[0]), p90 = parseFloat($(ids[1]).value), p120 = opcional(ids[2]);
+const malo = v => v !== null && (isNaN(v) || v < 0);
+if (isNaN(p90) || p90 < 0 || malo(p60) || malo(p120)) { msg.style.color = 'var(--red)'; msg.innerText = 'Revisa las tarifas: el precio de 90 min es obligatorio y ninguno puede ser negativo'; return; }
+filas.push({ franja: TARIFAS_FRANJAS[k], precio_60min: p60, precio_90min: p90, precio_120min: p120 });
+nuevas[k] = { 60: p60, 90: p90, 120: p120 };
+}
 setBusy(btn, true, '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Guardando...');
-const { error } = await supabaseClient.from('tarifas').upsert([
-{ franja: 'Entre semana mañana', precio_90min: vals[0] },
-{ franja: 'Entre semana tarde', precio_90min: vals[1] },
-{ franja: 'Fin de semana', precio_90min: vals[2] }
-], { onConflict: 'franja' });
+const { error } = await supabaseClient.from('tarifas').upsert(filas, { onConflict: 'franja' });
 setBusy(btn, false);
 if (error) { msg.style.color = 'var(--red)'; msg.innerText = 'No se pudieron guardar: ' + error.message; return; }
-datosLocales.tarifas = { semanaManana: vals[0], semanaTarde: vals[1], finde: vals[2] };
+datosLocales.tarifas = nuevas;
 msg.style.color = 'var(--green)'; msg.innerText = "Tarifas actualizadas";
 setTimeout(() => { msg.innerText = ''; }, 4000);
 }
