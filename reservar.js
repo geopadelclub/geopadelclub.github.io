@@ -169,6 +169,19 @@ $('cardDatos').hidden = true;
 dibujarDuraciones();
 dibujarHuecos();
 });
+const ANTELACION_MIN = 120;
+const HORA_CORTE_MANANA = 9 * 60;
+function horaReservable(fechaISO, hora) {
+const [y, m, d] = fechaISO.split('-').map(Number);
+const mins = minutos(hora);
+const inicio = new Date(y, m - 1, d, Math.floor(mins / 60), mins % 60);
+const ahora = new Date();
+if (mins < HORA_CORTE_MANANA) return ahora < new Date(y, m - 1, d, 0, 0);
+return inicio.getTime() - ahora.getTime() >= ANTELACION_MIN * 60000;
+}
+function textoAntelacion() {
+return 'Las reservas se hacen con 2 horas de antelación como mínimo. Las horas anteriores a las 9:00 solo se pueden reservar hasta las 00:00 del día anterior.';
+}
 async function cargarHuecos() {
 const cont = $('clSlots');
 const fecha = sel.fecha;
@@ -188,12 +201,15 @@ cont.innerHTML = '<p class="cl-empty">No se pudo cargar la disponibilidad. <butt
 }
 function dibujarHuecos() {
 const cont = $('clSlots');
-const lista = slotsDia
+const libres = slotsDia
 .map(s => ({ hora: s.hora, op: (s.opciones || []).find(o => o.dur === sel.dur) }))
 .filter(x => x.op);
+const lista = libres.filter(x => horaReservable(sel.fecha, x.hora));
 if (sel.hora && !lista.some(x => x.hora === sel.hora)) { sel.hora = null; $('cardDatos').hidden = true; }
 if (!lista.length) {
-cont.innerHTML = `<p class="cl-empty">No quedan huecos de ${esc(duracionTxt(sel.dur))} este día. Prueba otro día o duración.</p>`;
+cont.innerHTML = libres.length
+? `<p class="cl-empty">${esc(textoAntelacion())} Para reservar con menos antelación, llama al club.</p>`
+: `<p class="cl-empty">No quedan huecos de ${esc(duracionTxt(sel.dur))} este día. Prueba otro día o duración.</p>`;
 return;
 }
 cont.innerHTML = lista.map(x =>
@@ -267,6 +283,11 @@ mostrarBloques();
 }
 async function confirmarReserva() {
 if (!sel.hora) return toast('Elige una hora', 'warn');
+if (!horaReservable(sel.fecha, sel.hora)) {
+toast(textoAntelacion() + ' Llama al club.', 'err');
+sel.hora = null; $('cardDatos').hidden = true; dibujarHuecos();
+return;
+}
 let nombre = flujo.nombre, codigo = flujo.codigo;
 if (flujo.fase === 'nuevo') {
 nombre = $('clNombre').value.trim().replace(/\s+/g, ' ');
@@ -294,7 +315,16 @@ flujo.nombre = r.reserva.nombre;
 flujo.codigo = codigo;
 cuenta = { ident: flujo.tel, codigo, nombre: r.reserva.nombre };
 mostrarExito(r.reserva);
-} catch (err) { errorRed(err); } finally { setBusy(btn, false); }
+} catch (err) {
+const m = String((err && err.message) || '');
+if (/antelacion_insuficiente/i.test(m)) {
+toast(textoAntelacion() + ' Llama al club.', 'err');
+sel.hora = null; $('cardDatos').hidden = true; cargarHuecos();
+} else if (err && err.code === '23P01') {
+toast(textoError({ error: 'sin_disponibilidad' }), 'err');
+sel.hora = null; $('cardDatos').hidden = true; cargarHuecos();
+} else errorRed(err);
+} finally { setBusy(btn, false); }
 }
 function mostrarExito(rv) {
 $('cardDatos').hidden = true;
@@ -392,6 +422,7 @@ toast('Reserva cancelada');
 await cargarMisReservas(cuenta.ident, cuenta.codigo);
 } catch (err) { errorRed(err); setBusy(b, false); }
 });
+setInterval(() => { if (!document.hidden && sel.fecha && $('tab-reservar').classList.contains('active')) dibujarHuecos(); }, 60000);
 window.addEventListener('online', estadoRed);
 window.addEventListener('offline', estadoRed);
 document.addEventListener('visibilitychange', () => {

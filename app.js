@@ -157,6 +157,9 @@ $('nombreEmpleado').innerText = usuarioSesion.nombre;
 $('rolEmpleado').innerText = usuarioSesion.rol || 'Trabajador';
 inicializarFechaHoy();
 pobladorPistasModal();
+iniciarFormDeuda();
+iniciarFormLimpieza();
+if (typeof aplicarPermisosCopia === 'function') aplicarPermisosCopia();
 renderSelectorMesas();
 iniciarSuscripcionRealtime();
 cargarDatosGlobales();
@@ -208,16 +211,21 @@ reservas: debounce(() => cargarReservasHoy(), 250),
 mesas: debounce(() => cargarMesasBar(), 250),
 ventas: debounce(() => cargarCajaHoy(), 400),
 productos: debounce(() => cargarProductos(), 300),
-tarifas: debounce(() => cargarTarifas(), 300)
+tarifas: debounce(() => cargarTarifas(), 300),
+deudas: debounce(() => cargarDeudas(), 300),
+limpiezas: debounce(() => cargarLimpiezas(false), 300)
 };
 function iniciarSuscripcionRealtime() {
 if (canalRealtime) { supabaseClient.removeChannel(canalRealtime); canalRealtime = null; }
 canalRealtime = supabaseClient.channel('geopadel-realtime')
 .on('postgres_changes', { event: '*', schema: 'public', table: 'reservas' }, refrescar.reservas)
+.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reservas' }, avisarNuevaReservaWeb)
 .on('postgres_changes', { event: '*', schema: 'public', table: 'mesas_bar' }, refrescar.mesas)
 .on('postgres_changes', { event: '*', schema: 'public', table: 'ventas' }, refrescar.ventas)
 .on('postgres_changes', { event: '*', schema: 'public', table: 'productos' }, refrescar.productos)
 .on('postgres_changes', { event: '*', schema: 'public', table: 'tarifas' }, refrescar.tarifas)
+.on('postgres_changes', { event: '*', schema: 'public', table: 'deudas' }, refrescar.deudas)
+.on('postgres_changes', { event: '*', schema: 'public', table: 'limpiezas' }, refrescar.limpiezas)
 .subscribe((status) => {
 if (status === 'SUBSCRIBED') {
 mostrarFlashSync();
@@ -226,6 +234,25 @@ if (canalConError) { canalConError = false; cargarDatosGlobales(); }
 canalConError = true;
 }
 });
+}
+function pitar() {
+try {
+const AC = window.AudioContext || window.webkitAudioContext;
+if (!AC) return;
+const ctx = new AC(), o = ctx.createOscillator(), g = ctx.createGain();
+o.connect(g); g.connect(ctx.destination);
+o.frequency.value = 880;
+g.gain.setValueAtTime(0.15, ctx.currentTime);
+g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+o.start(); o.stop(ctx.currentTime + 0.6);
+} catch (e) { }
+}
+function avisarNuevaReservaWeb(p) {
+const r = p && p.new;
+if (!r || r.origen !== 'web' || r.estado !== 'Pendiente') return;
+toast(`Nueva reserva web: ${r.cliente || ''} · ${fechaBonita(r.fecha)} ${String(r.hora_inicio || '').slice(0, 5)}`, 'warn', 9000);
+pitar();
+try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) { }
 }
 function mostrarFlashSync() {
 const el = $('gpSync');
@@ -237,7 +264,7 @@ window.addEventListener('online', () => { estadoRed(); if (usuarioSesion) cargar
 window.addEventListener('offline', estadoRed);
 document.addEventListener('visibilitychange', () => { if (!document.hidden && usuarioSesion && navigator.onLine) cargarDatosGlobales(); });
 async function cargarDatosGlobales() {
-await Promise.all([cargarClientes(), cargarProductos(), cargarTarifas(), cargarMesasBar(), cargarReservasHoy(), cargarCajaHoy()]);
+await Promise.all([cargarClientes(), cargarProductos(), cargarTarifas(), cargarMesasBar(), cargarReservasHoy(), cargarCajaHoy(), cargarDeudas()]);
 }
 async function cargarClientes() {
 const { data, error } = await supabaseClient.from('clientes').select('*').limit(5000);
@@ -321,8 +348,10 @@ document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('act
 document.querySelectorAll('.nav-tab').forEach(el => { el.classList.remove('active'); el.removeAttribute('aria-current'); });
 $(`tab-${tabName}`).classList.add('active');
 const nav = $(`nav-${tabName}`); nav.classList.add('active'); nav.setAttribute('aria-current', 'page');
-document.title = 'Geopadel · ' + ({ reservas: 'Reservas', tpv: 'Tienda', fichajes: 'Fichaje', caja: 'Caja y Catálogo' }[tabName] || 'Panel');
+document.title = 'Geopadel · ' + ({ reservas: 'Reservas', tpv: 'Tienda', fichajes: 'Fichaje', caja: 'Caja y Catálogo', deudas: 'Deudas', limpieza: 'Limpieza' }[tabName] || 'Panel');
 if (usuarioSesion) {
+if (tabName === 'deudas') cargarDeudas();
+if (tabName === 'limpieza') entrarPestanaLimpieza();
 if (tabName === 'caja') { cargarHistorialCaja(); cargarCajaHoy(); }
 if (tabName === 'fichajes') cargarMisFichajes();
 if (tabName === 'tpv') cargarMesasBar();
@@ -628,7 +657,7 @@ toast(`Reserva movida a ${nuevaPista} · ${nuevaHora}`);
 cargarReservasHoy();
 } catch (err) {
 console.error(err);
-toast("Error al mover la reserva: " + (err.message || err), 'err');
+toast(err && err.code === '23P01' ? `No se puede mover: ${nuevaPista} ya está ocupada en ese horario` : "Error al mover la reserva: " + (err.message || err), 'err');
 }
 }
 function esFinde(iso) { const [y, m, d] = iso.split('-').map(Number); const w = new Date(y, m - 1, d, 12).getDay(); return w === 0 || w === 6; }
@@ -809,6 +838,9 @@ setBusy(btn, false);
 async function guardarClienteSilencioso(nombre, telefono) {
 const row = { nombre };
 if (telefono) row.telefono = telefono;
+const prev = (datosLocales.clientes || []).find(c => String(c.nombre).trim().toLowerCase() === nombre.toLowerCase());
+if (prev && telefono && prev.telefono && String(prev.telefono).trim() !== telefono &&
+!confirm(`Ya existe un cliente llamado «${nombre}» con el teléfono ${prev.telefono}. ¿Cambiarlo por ${telefono}?\nSi cancelas, su ficha de cliente no se modifica (la reserva sí se guarda).`)) return;
 const { error } = await supabaseClient.from('clientes').upsert(row, { onConflict: 'nombre' });
 if (error) { console.warn('No se pudo guardar el cliente', error.message); return; }
 const ex = datosLocales.clientes.find(c => String(c.nombre).toLowerCase() === nombre.toLowerCase());
@@ -890,6 +922,7 @@ cerrarModal();
 cargarReservasHoy();
 } catch (err) {
 console.error(err);
+if (err && err.code === '23P01') { toast('Esa pista ya está ocupada en ese horario (alguien acaba de reservarla).', 'err'); cargarReservasHoy(); return; }
 const msgErr = String(err.message || err);
 toast(/notas/i.test(msgErr)
 ? "Falta la columna «notas» en Supabase. Ejecuta migracion_notas.sql en el SQL Editor."
@@ -1009,9 +1042,15 @@ document.querySelectorAll('#catTPVBotones .btn-cat-filter').forEach(x => x.class
 b.classList.add('active');
 dibujarCatalogo(datosLocales.productos);
 });
-function mutarMesa(mesa, fn) {
+const faltaFuncion = err => !!err && (err.code === 'PGRST202' || err.code === '42883' || /could not find the function|does not exist/i.test(String(err.message || '')));
+function mutarMesa(mesa, fn, rpcNombre, rpcArgs) {
 colaMesas = colaMesas.then(async () => {
 try {
+if (rpcNombre) {
+const r = await supabaseClient.rpc(rpcNombre, rpcArgs);
+if (!r.error) { cuentasMesas[mesa] = Array.isArray(r.data) ? r.data : []; renderSelectorMesas(); return; }
+if (!faltaFuncion(r.error)) throw r.error;
+}
 const { data, error } = await supabaseClient.from('mesas_bar').select('items').eq('mesa', mesa).maybeSingle();
 if (error) throw error;
 const items = fn(Array.isArray(data?.items) ? [...data.items] : []);
@@ -1031,7 +1070,7 @@ function agregarAlTicket(prod) {
 const mesa = mesaSeleccionada;
 cuentasMesas[mesa] = [...(cuentasMesas[mesa] || []), prod];
 renderSelectorMesas();
-return mutarMesa(mesa, items => { items.push(prod); return items; });
+return mutarMesa(mesa, items => { items.push(prod); return items; }, 'mesa_agregar', { p_mesa: mesa, p_item: prod });
 }
 function quitarDelTicket(index) {
 const mesa = mesaSeleccionada;
@@ -1043,7 +1082,7 @@ return mutarMesa(mesa, items => {
 let i = items[index] && items[index].nombre === item.nombre ? index : items.findIndex(x => x.nombre === item.nombre && x.precio === item.precio);
 if (i >= 0) items.splice(i, 1);
 return items;
-});
+}, 'mesa_quitar', { p_mesa: mesa, p_index: index, p_nombre: item.nombre, p_precio: Number(item.precio) || 0 });
 }
 async function cobrarMesaActiva(metodoPago) {
 if (cobrando) return;
@@ -1054,6 +1093,18 @@ const msg = $('msgVenta');
 const mesa = mesaSeleccionada;
 try {
 await colaMesas;
+const rc = await supabaseClient.rpc('cobrar_mesa', { p_mesa: mesa, p_metodo: metodoPago, p_empleado: nombreUsuario() });
+if (!rc.error) {
+cuentasMesas[mesa] = [];
+renderSelectorMesas();
+if (!rc.data || !rc.data.ok) { msg.style.color = 'var(--muted)'; msg.innerText = 'La cuenta está vacía'; return; }
+msg.style.color = 'var(--green)';
+msg.innerText = `Cobrado ${eur(rc.data.total)} (${metodoPago})`;
+setTimeout(() => { if (msg.innerText.startsWith('Cobrado')) msg.innerText = ''; }, 5000);
+cargarCajaHoy();
+return;
+}
+if (!faltaFuncion(rc.error)) throw rc.error;
 const { data, error } = await supabaseClient.from('mesas_bar').select('items').eq('mesa', mesa).maybeSingle();
 if (error) throw error;
 const items = Array.isArray(data?.items) ? data.items : [];
@@ -1386,14 +1437,15 @@ setBusy(btn, false);
 window.addEventListener('afterprint', () => { const a = $('printArea'); if (a) a.innerHTML = ''; });
 document.addEventListener('keydown', e => {
 if (e.key !== 'Escape') return;
-if ($('modalProducto').classList.contains('open')) cerrarModalProducto();
+if ($('modalAvisoLimpieza').classList.contains('open')) cerrarAvisoLimpieza();
+else if ($('modalProducto').classList.contains('open')) cerrarModalProducto();
 else if ($('modalReserva').classList.contains('open')) cerrarModal();
 });
 document.querySelectorAll('.modal-overlay').forEach(ov => {
 let abajoEnFondo = false;
 ov.addEventListener('mousedown', e => { abajoEnFondo = e.target === ov; });
 ov.addEventListener('mouseup', e => {
-if (abajoEnFondo && e.target === ov) { if (ov.id === 'modalProducto') cerrarModalProducto(); else cerrarModal(); }
+if (abajoEnFondo && e.target === ov) { if (ov.id === 'modalProducto') cerrarModalProducto(); else if (ov.id === 'modalAvisoLimpieza') cerrarAvisoLimpieza(); else cerrarModal(); }
 abajoEnFondo = false;
 });
 });

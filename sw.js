@@ -1,12 +1,10 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
-const VERSION = 'geopadelappv1';
-const NUCLEO = ['./', 'index.html', 'panel.html', 'styles.css', 'app.js', 'manifest.webmanifest', 'Geopadel.png'];
-const OPCIONAL = ['reservar.html', 'reservar.css', 'reservar.js', 'foto-club.jpg', 'assets/remixicon/remixicon.css', 'assets/remixicon/remixicon.woff2', 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'];
+const VERSION = 'geopadelappv3';
+const ARCHIVOS = ['./', 'index.html', 'panel.html', 'styles.css', 'app.js', 'gestion.js', 'copia.js', 'manifest.webmanifest', 'Geopadel.png', 'reservar.html', 'reservar.css', 'reservar.js', 'foto-club.jpg', 'assets/remixicon/remixicon.css', 'assets/remixicon/remixicon.woff2', 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'];
 self.addEventListener('install', e => {
 e.waitUntil((async () => {
 const cache = await caches.open(VERSION);
-await cache.addAll(NUCLEO);
-await Promise.allSettled(OPCIONAL.map(u => cache.add(u)));
+await Promise.allSettled(ARCHIVOS.map(u => cache.add(u)));
 await self.skipWaiting();
 })());
 });
@@ -17,6 +15,9 @@ await Promise.all(claves.filter(k => k !== VERSION).map(k => caches.delete(k)));
 await self.clients.claim();
 })());
 });
+function conTiempo(promesa, ms) {
+return Promise.race([promesa, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
+}
 self.addEventListener('fetch', e => {
 const req = e.request;
 if (req.method !== 'GET') return;
@@ -26,19 +27,28 @@ const esLibreria = url.hostname === 'cdn.jsdelivr.net';
 if (!mismoOrigen && !esLibreria) return;
 e.respondWith((async () => {
 const cache = await caches.open(VERSION);
-const enCache = await cache.match(req, { ignoreSearch: mismoOrigen });
+if (esLibreria) {
+const enCache = await cache.match(req);
 const red = fetch(req).then(resp => {
 if (resp && (resp.ok || resp.type === 'opaque')) cache.put(req, resp.clone());
 return resp;
 }).catch(() => null);
 if (enCache) { e.waitUntil(red); return enCache; }
-const resp = await red;
-if (resp) return resp;
+return (await red) || Response.error();
+}
+try {
+const resp = await conTiempo(fetch(req, { cache: 'no-cache' }), 6000);
+if (resp && resp.ok) cache.put(req, resp.clone());
+return resp;
+} catch (err) {
+const enCache = await cache.match(req, { ignoreSearch: true });
+if (enCache) return enCache;
 if (req.mode === 'navigate') {
 const pagina = url.pathname.endsWith('/reservar.html') ? 'reservar.html'
 : url.pathname.endsWith('/panel.html') ? 'panel.html' : 'index.html';
 return (await cache.match(pagina)) || (await cache.match('index.html')) || Response.error();
 }
 return Response.error();
+}
 })());
 });
