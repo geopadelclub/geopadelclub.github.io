@@ -11,7 +11,7 @@ productos: { etiqueta: 'Catálogo', orden: ['nombre', 'id'] },
 tarifas: { etiqueta: 'Tarifas', orden: ['franja'] }
 };
 const COL_PRIVADAS = /codigo|hash|pass|salt|token|secret/i;
-const ROLES_SIN_EXPORTAR = [];
+const ROLES_SIN_EXPORTAR = ['Trabajador'];
 const CLAVE_ULTIMA_COPIA = 'gp-ultima-copia';
 function aplicarPermisosCopia() {
 const permitido = !(usuarioSesion && ROLES_SIN_EXPORTAR.includes(usuarioSesion.rol));
@@ -22,7 +22,7 @@ mostrarUltimaCopia();
 }
 async function obtenerTabla(nombre) {
 const cfg = COPIA_TABLAS[nombre];
-const intentos = [cfg.orden, cfg.orden.slice(0, 1), []];
+const intentos = [cfg.orden, cfg.orden.slice(0, 1)];
 let ultimoError = null;
 for (const orden of intentos) {
 const filas = [];
@@ -46,7 +46,7 @@ if (typeof v === 'number') return String(v).replace('.', ',');
 if (typeof v === 'boolean') return v ? 'Sí' : 'No';
 if (typeof v === 'object') v = JSON.stringify(v);
 v = String(v);
-if (/^[=+@\t\r]/.test(v) || (v[0] === '-' && isNaN(Number(v)))) v = "'" + v;
+if (/^[=@\t\r]/.test(v) || (/^[+-]/.test(v) && !/^[+-]?[\d\s().,-]+$/.test(v))) v = "'" + v;
 return /[";\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
 }
 function aCSV(filas) {

@@ -1,6 +1,4 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
-const SUPABASE_URL = "https://gprpyxeamjmvmqtkjvtn.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwcnB5eGVhbWptdm1xdGtqdnRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1NjE3MzQsImV4cCI6MjEwNzEzNzczNH0.GeGAmqywLM7HsfUIGj9i6f50vhf_ijh9CWc-Y-DdANA";
 const sb = (window.supabase && window.supabase.createClient)
 ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } })
 : null;
@@ -169,7 +167,7 @@ $('cardDatos').hidden = true;
 dibujarDuraciones();
 dibujarHuecos();
 });
-const ANTELACION_MIN = 120;
+const ANTELACION_MIN_DEFECTO = 120;
 const HORA_CORTE_MANANA = 9 * 60;
 function horaReservable(fechaISO, hora) {
 const [y, m, d] = fechaISO.split('-').map(Number);
@@ -177,7 +175,7 @@ const mins = minutos(hora);
 const inicio = new Date(y, m - 1, d, Math.floor(mins / 60), mins % 60);
 const ahora = new Date();
 if (mins < HORA_CORTE_MANANA) return ahora < new Date(y, m - 1, d, 0, 0);
-return inicio.getTime() - ahora.getTime() >= ANTELACION_MIN * 60000;
+return inicio.getTime() - ahora.getTime() >= (cfg.anticipacion_min || ANTELACION_MIN_DEFECTO) * 60000;
 }
 function textoAntelacion() {
 return 'Las reservas se hacen con 2 horas de antelación como mínimo. Las horas anteriores a las 9:00 solo se pueden reservar hasta las 00:00 del día anterior.';
@@ -444,3 +442,4 @@ dibujarDias();
 dibujarDuraciones();
 seleccionarDia(fechaLocalISO());
 });
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => { }));

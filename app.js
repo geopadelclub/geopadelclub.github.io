@@ -1,6 +1,4 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
-const SUPABASE_URL = "https://gprpyxeamjmvmqtkjvtn.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwcnB5eGVhbWptdm1xdGtqdnRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1NjE3MzQsImV4cCI6MjEwNzEzNzczNH0.GeGAmqywLM7HsfUIGj9i6f50vhf_ijh9CWc-Y-DdANA";
 const DOMINIO_LOGIN = '@geopadel.app';
 const supabaseClient = (window.supabase && window.supabase.createClient)
 ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -235,16 +233,17 @@ canalConError = true;
 }
 });
 }
+let audioCtx = null;
 function pitar() {
 try {
-const AC = window.AudioContext || window.webkitAudioContext;
-if (!AC) return;
-const ctx = new AC(), o = ctx.createOscillator(), g = ctx.createGain();
-o.connect(g); g.connect(ctx.destination);
-o.frequency.value = 880;
-g.gain.setValueAtTime(0.15, ctx.currentTime);
-g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
-o.start(); o.stop(ctx.currentTime + 0.6);
+const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+audioCtx = audioCtx || new AC();
+if (audioCtx.state === 'suspended') audioCtx.resume();
+const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+o.connect(g); g.connect(audioCtx.destination); o.frequency.value = 880;
+g.gain.setValueAtTime(0.15, audioCtx.currentTime);
+g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+o.start(); o.stop(audioCtx.currentTime + 0.6);
 } catch (e) { }
 }
 function avisarNuevaReservaWeb(p) {
@@ -267,7 +266,7 @@ async function cargarDatosGlobales() {
 await Promise.all([cargarClientes(), cargarProductos(), cargarTarifas(), cargarMesasBar(), cargarReservasHoy(), cargarCajaHoy(), cargarDeudas()]);
 }
 async function cargarClientes() {
-const { data, error } = await supabaseClient.from('clientes').select('*').limit(5000);
+const { data, error } = await supabaseClient.from('clientes').select('nombre, telefono').limit(5000);
 if (error) { console.error(error); return; }
 datosLocales.clientes = data || [];
 dibujarClientesDatalist(datosLocales.clientes);
@@ -875,7 +874,7 @@ const btn = $('btnGuardarReserva');
 setBusy(btn, true, '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Guardando...');
 try {
 const payloadBase = {
-cliente, telefono, hora_inicio: horaInicio, duracion_min: duracionMin, tipo_reserva: tipo,
+cliente, telefono: telefono || null, hora_inicio: horaInicio, duracion_min: duracionMin, tipo_reserva: tipo,
 jugadores: numJugadores, precio: importe, empleado: nombreUsuario()
 };
 if (idExistente) {
