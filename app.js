@@ -450,7 +450,7 @@ horaFinGrid = (Math.ceil(rFin / 30) * 30 - 30) / 60;
 const frag = document.createDocumentFragment();
 const corner = document.createElement('div');
 corner.className = 'grid-header-corner';
-corner.innerHTML = '<img class="gp-logo-corner" src="./Geopadel.png" alt="" draggable="false">';
+corner.innerHTML = '<img class="gp-logo-corner" src="./Geopadel.webp" alt="" draggable="false" width="150" height="150">';
 frag.appendChild(corner);
 listaPistas.forEach(pista => {
 const hp = document.createElement('div');
@@ -1500,7 +1500,7 @@ return `<div class="pp-col">${rejilla}${bloques}</div>`;
 const fecha = fechaBonita(iso);
 return `<section class="pp-page">
 <div class="pp-head">
-<img src="./Geopadel.png" alt="Geopadel">
+<img src="./Geopadel.webp" alt="Geopadel" width="150" height="150">
 <div class="pp-title"><h1>${esc(fecha.charAt(0).toUpperCase() + fecha.slice(1))}</h1><p>Cuadrante de reservas · ${minToTimeStr(mIni)} – ${minToTimeStr(mFin)}</p></div>
 <div class="pp-meta">${meta}</div>
 </div>
