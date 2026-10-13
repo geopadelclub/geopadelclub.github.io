@@ -96,6 +96,32 @@ if (mq.addEventListener) mq.addEventListener('change', seguir);
 } catch (e) { }
 }
 let intentosFallidos = 0, bloqueoHasta = 0;
+let tsLoginId = null, tsLoginToken = '';
+function iniciarTurnstileLogin() {
+if (!TURNSTILE_SITEKEY || tsLoginId !== null) return;
+const box = $('cfLogin');
+if (!box) return;
+const pintar = () => {
+if (tsLoginId !== null || !window.turnstile) return;
+tsLoginId = window.turnstile.render('#cfLogin', {
+sitekey: TURNSTILE_SITEKEY,
+callback: t => { tsLoginToken = t; },
+'expired-callback': () => { tsLoginToken = ''; },
+'error-callback': () => { tsLoginToken = ''; }
+});
+};
+if (window.turnstile) pintar();
+else {
+const s = document.createElement('script');
+s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+s.async = true; s.onload = pintar;
+document.head.appendChild(s);
+}
+}
+function reiniciarTurnstileLogin() {
+tsLoginToken = '';
+if (window.turnstile && tsLoginId !== null) { try { window.turnstile.reset(tsLoginId); } catch (e) { } }
+}
 async function cargarPerfil(authUser) {
 const { data, error } = await supabaseClient.from('usuarios')
 .select('id, usuario, nombre, rol')
@@ -132,6 +158,8 @@ if (evento === 'SIGNED_OUT' && usuarioSesion) { usuarioSesion = null; mostrarLog
 function mostrarLogin() {
 $('loginView').style.display = 'flex';
 $('adminView').style.display = 'none';
+iniciarTurnstileLogin();
+reiniciarTurnstileLogin();
 }
 function mostrarPanelAdmin() {
 if (!supabaseClient) { mostrarLogin(); $('msgLogin').className = 'msg-error'; $('msgLogin').innerText = 'No se pudo cargar la librería de base de datos. Revisa tu conexión y recarga.'; return; }
@@ -162,15 +190,21 @@ return;
 const user = $('usuario').value.trim().toLowerCase().replace(/\s+/g, '');
 const pass = $('password').value;
 if (!user || !pass) { msgDiv.className = 'msg-error'; msgDiv.innerText = 'Introduce usuario y contraseña'; return; }
+if (TURNSTILE_SITEKEY && !tsLoginToken) { msgDiv.className = 'msg-error'; msgDiv.innerText = 'Completa la verificación anti-spam'; return; }
 btn.disabled = true; btn.innerText = "Verificando...";
 msgDiv.className = ''; msgDiv.innerText = 'Conectando...';
 try {
-const { data, error } = await supabaseClient.auth.signInWithPassword({ email: user + DOMINIO_LOGIN, password: pass });
+const { data, error } = await supabaseClient.auth.signInWithPassword({
+email: user + DOMINIO_LOGIN, password: pass,
+options: { captchaToken: tsLoginToken }
+});
 if (error) {
-if (error.status === 400 || /invalid login/i.test(error.message || '')) {
+if (error.code === 'captcha_failed' || /captcha/i.test(error.message || '')) {
+msgDiv.className = 'msg-error'; msgDiv.innerText = 'No se pudo verificar el anti-spam. Inténtalo de nuevo.';
+} else if (error.status === 400 || /invalid login/i.test(error.message || '')) {
 intentosFallidos++;
 if (intentosFallidos >= 5) { bloqueoHasta = Date.now() + 30000; intentosFallidos = 0; }
-msgDiv.className = 'msg-error'; msgDiv.innerText = 'Credenciales incorrectas';
+msgDiv.className = 'msg-error'; msgDiv.innerText = /not confirmed/i.test(error.message || '') ? 'Este usuario no está confirmado. Contacta con el administrador.' : 'Credenciales incorrectas';
 } else throw error;
 } else {
 const perfil = await cargarPerfil(data.user);
@@ -181,6 +215,7 @@ msgDiv.className = 'msg-error'; msgDiv.innerText = 'Usuario inactivo o sin perfi
 intentosFallidos = 0;
 usuarioSesion = perfil;
 marcarInicioSesion();
+reiniciarTurnstileLogin();
 msgDiv.className = 'msg-success'; msgDiv.innerText = '¡Bienvenido!';
 setTimeout(() => { btn.disabled = false; btn.innerText = "Entrar al Panel"; mostrarPanelAdmin(); }, 250);
 return;
@@ -190,6 +225,7 @@ return;
 console.error(err);
 msgDiv.className = 'msg-error'; msgDiv.innerText = 'Error de conexión. Inténtalo de nuevo.';
 }
+reiniciarTurnstileLogin();
 btn.disabled = false; btn.innerText = "Entrar al Panel";
 });
 const refrescar = {
