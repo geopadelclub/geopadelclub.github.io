@@ -173,6 +173,7 @@ iniciarFormDeuda();
 iniciarFormLimpieza();
 if (typeof aplicarPermisosCopia === 'function') aplicarPermisosCopia();
 if (typeof aplicarPermisosInformes === 'function') aplicarPermisosInformes();
+if (typeof aplicarPermisosFichajes === 'function') aplicarPermisosFichajes();
 renderSelectorMesas();
 iniciarSuscripcionRealtime();
 cargarDatosGlobales();
@@ -387,7 +388,7 @@ if (tabName === 'deudas') cargarDeudas();
 if (tabName === 'informes' && typeof entrarInformes === 'function') entrarInformes();
 if (tabName === 'limpieza') entrarPestanaLimpieza();
 if (tabName === 'caja') { cargarHistorialCaja(); cargarCajaHoy(); }
-if (tabName === 'fichajes') cargarMisFichajes();
+if (tabName === 'fichajes') { cargarMisFichajes(); if (typeof entrarFichajes === 'function') entrarFichajes(); }
 if (tabName === 'tpv') cargarMesasBar();
 if (tabName === 'reservas') { scrollAhoraPendiente = true; renderizarCuadrantePlaytomic(datosLocales.reservas || []); }
 }

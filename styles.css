@@ -57,3 +57,19 @@
 .reserva-time{font-size:clamp(12px,.4vw + 8px,15px);}
 .badge-sin-pagar,.badge-pagado,.badge-parcial,.badge-pendiente,.nota-flag{font-size:12px;}
 .pago-dot{width:19px;height:19px;font-size:11px;}
+
+.fx-page{color:#111;background:#fff;font-size:9.5pt;break-after:page;page-break-after:always;}
+.fx-page:last-child{break-after:auto;page-break-after:auto;}
+.fx-head{display:flex;align-items:center;gap:5mm;border-bottom:.7mm solid #111;padding-bottom:2mm;margin-bottom:3mm;}
+.fx-head img{height:12mm;width:auto;}
+.fx-head h1{font-size:16pt;line-height:1.1;}
+.fx-head p{font-size:10pt;font-weight:700;margin-top:.8mm;}
+.fx-meta{margin-left:auto;text-align:right;font-size:9pt;font-weight:700;line-height:1.35;}
+.fx-page h2{font-size:11pt;margin:3.5mm 0 1.5mm;}
+.fx-table{width:100%;border-collapse:collapse;font-size:9pt;}
+.fx-table th,.fx-table td{border:.3mm solid #444;padding:1mm 1.5mm;text-align:left;vertical-align:top;}
+.fx-table th{background:#e9eeea;}
+.fx-table tr{break-inside:avoid;page-break-inside:avoid;}
+.fx-nota{font-size:8pt;margin-top:2.5mm;color:#333;line-height:1.35;}
+.fx-firmas{display:flex;gap:20mm;margin-top:14mm;break-inside:avoid;}
+.fx-firmas div{flex:1;border-top:.3mm solid #111;padding-top:1.5mm;text-align:center;font-size:9pt;font-weight:700;}
