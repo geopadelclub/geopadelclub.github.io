@@ -1454,48 +1454,64 @@ if (p === 'Efectivo' || p === 'Tarjeta' || (p && p !== '0')) pagados++;
 }
 return { n, pagados, total: pagados >= n };
 }
-function htmlPaginaImpresion(iso, nombreFranja, meta, reservas, segIni, segFin) {
-const span = segFin - segIni;
-const pctHora = 100 / (span / 60), pctMedia = 100 / (span / 30);
-let etiquetas = '';
-for (let m = Math.ceil(segIni / 60) * 60; m < segFin; m += 60) {
-etiquetas += `<span style="left:${((m - segIni) / span * 100).toFixed(3)}%">${minToTimeStr(m)}</span>`;
-}
-const filas = listaPistas.map(pista => {
+const PP_PESO_CERRADO = 0.45;
+const PP_ALTO_CUERPO_MM = 162;
+function htmlPaginaImpresion(iso, reservas, meta) {
+let mIni = 9 * 60, mFin = 23 * 60 + 30;
+reservas.forEach(r => {
+const a = timeToMin(r.horaInicio), b = a + (parseInt(r.duracionMin, 10) || 90);
+if (a < mIni) mIni = Math.floor(a / 30) * 30;
+if (b > mFin) mFin = Math.ceil(b / 30) * 30;
+});
+const slots = [];
+for (let m = mIni; m < mFin; m += 30) { const c = esCerrado(m); slots.push({ m, cerrado: c, w: c ? PP_PESO_CERRADO : 1 }); }
+const total = slots.reduce((t, s) => t + s.w, 0);
+const pos = min => { let p = 0; slots.forEach(s => { p += s.w * Math.min(1, Math.max(0, (min - s.m) / 30)); }); return p / total * 100; };
+const bandas = [];
+slots.forEach(s => {
+const u = bandas[bandas.length - 1];
+if (s.cerrado && u && u.cerrado) { u.w += s.w; u.fin = s.m + 30; }
+else bandas.push({ ini: s.m, fin: s.m + 30, w: s.w, cerrado: s.cerrado });
+});
+const claseBanda = x => x.cerrado ? 'c' : (x.ini % 60 === 0 ? 'h' : 'm');
+const eje = bandas.map(x => `<div class="pp-b ${claseBanda(x)}" style="flex:${x.w} 1 0">${x.cerrado ? minToTimeStr(x.ini) + '-' + minToTimeStr(x.fin) : minToTimeStr(x.ini)}</div>`).join('');
+const rejilla = bandas.map(x => `<div class="pp-b ${claseBanda(x)}" style="flex:${x.w} 1 0"></div>`).join('');
+const cabeceras = listaPistas.map(p => `<div class="pp-th">${esc(p)}</div>`).join('');
+const columnas = listaPistas.map(pista => {
 const bloques = reservas.filter(r => r.pista === pista).map(r => {
-const a0 = timeToMin(r.horaInicio), b0 = a0 + (parseInt(r.duracionMin, 10) || 90);
-const a = Math.max(a0, segIni), b = Math.min(b0, segFin);
-if (b <= a) return '';
+const a = timeToMin(r.horaInicio), dur = parseInt(r.duracionMin, 10) || 90, b = a + dur;
+const top = pos(a), alto = pos(b) - top;
+const mm = alto / 100 * PP_ALTO_CUERPO_MM;
 const pg = estadoPagoReserva(r);
-const pagoTxt = pg.total ? '✔ Pagado' : (pg.pagados > 0 ? `Pagan ${pg.pagados}/${pg.n}` : 'Sin pagar');
+const pendiente = r.estado === 'Pendiente';
+const pagoTxt = pendiente ? 'Pendiente' : (pg.total ? '✔ Pagado' : (pg.pagados > 0 ? `Pagan ${pg.pagados}/${pg.n}` : 'Sin pagar'));
 const claseTipo = PP_TIPO_CLASE[r.tipoReserva] || '';
 let cls = 'pp-res ' + claseTipo;
 if (pg.total && !claseTipo) cls += ' pagado';
-if (a0 < segIni) cls += ' clip-l';
-if (b0 > segFin) cls += ' clip-r';
-const mini = (b - a) / span * 254 < 40;
-if (mini) cls += ' pp-mini';
-const tipo = r.tipoReserva && r.tipoReserva !== 'Normal' ? ` · ${r.tipoReserva === 'Pena' ? 'Peña' : esc(r.tipoReserva)}` : '';
+if (pendiente) cls += ' pend';
 const nota = String(r.notas || '').replace(/\s+/g, ' ').trim();
-return `<div class="${cls}" style="left:${((a - segIni) / span * 100).toFixed(3)}%;width:${((b - a) / span * 100).toFixed(3)}%">
+if (nota) cls += ' nota';
+cls += mm < 8 ? ' pp-xs' : (mm < 14 ? ' pp-s' : '');
+const tipo = r.tipoReserva && r.tipoReserva !== 'Normal' ? ` · ${r.tipoReserva === 'Pena' ? 'Peña' : esc(r.tipoReserva)}` : '';
+const rango = `${minToTimeStr(a)}–${minToTimeStr(b)}`;
+const detalle = mm >= 14 ? `<div class="pp-sub">${pagoTxt}${tipo}</div>` : '';
+const notaHtml = nota && mm >= 20 ? `<div class="pp-note">✎ ${esc(nota)}</div>` : '';
+return `<div class="${cls}" style="top:${top.toFixed(3)}%;height:${alto.toFixed(3)}%">
 <div class="pp-name">${r.serie ? '↻ ' : ''}${esc(r.cliente)}</div>
-<div class="pp-sub">${minToTimeStr(a0)}–${minToTimeStr(b0)}${mini ? '' : ` · ${pagoTxt}${tipo}`}</div>
-${nota ? `<div class="pp-note">✎ ${esc(nota)}</div>` : ''}
-</div>`;
+<div class="pp-time">${rango}</div>${detalle}${notaHtml}</div>`;
 }).join('');
-return `<div class="pp-row"><div class="pp-court">${esc(pista)}</div>
-<div class="pp-tl pp-line" style="background-size:${pctHora}% 100%, ${pctMedia}% 100%">${bloques}</div></div>`;
+return `<div class="pp-col">${rejilla}${bloques}</div>`;
 }).join('');
 const fecha = fechaBonita(iso);
 return `<section class="pp-page">
 <div class="pp-head">
 <img src="./Geopadel.png" alt="Geopadel">
-<div class="pp-title"><h1>${esc(fecha.charAt(0).toUpperCase() + fecha.slice(1))}</h1><p>${nombreFranja} · ${minToTimeStr(segIni)} – ${minToTimeStr(segFin)}</p></div>
+<div class="pp-title"><h1>${esc(fecha.charAt(0).toUpperCase() + fecha.slice(1))}</h1><p>Cuadrante de reservas · ${minToTimeStr(mIni)} – ${minToTimeStr(mFin)}</p></div>
 <div class="pp-meta">${meta}</div>
 </div>
-<div class="pp-grid">
-<div class="pp-hours"><div class="pp-court">Pista / Hora</div><div class="pp-tl">${etiquetas}</div></div>
-${filas}
+<div class="pp-grid" style="--pp-n:${listaPistas.length}">
+<div class="pp-cols"><div class="pp-th">Hora</div>${cabeceras}</div>
+<div class="pp-body"><div class="pp-axis">${eje}</div>${columnas}</div>
 </div>
 </section>`;
 }
@@ -1507,24 +1523,10 @@ await cargarReservasHoy();
 const iso = $('fechaCuadrante').value || fechaLocalISO();
 const reservas = (datosLocales.reservas || []).filter(r => r.fecha === iso);
 if (!reservas.length) { toast('No hay reservas este día para imprimir', 'warn'); return; }
-let mIni = 9 * 60, tFin = 23 * 60 + 30;
-reservas.forEach(r => {
-const a = timeToMin(r.horaInicio), b = a + (parseInt(r.duracionMin, 10) || 90);
-if (a < mIni) mIni = Math.floor(a / 60) * 60;
-if (b > tFin) tFin = Math.ceil(b / 30) * 30;
-});
-const franjas = [
-{ nombre: 'Mañana', ini: mIni, fin: bloqueDescansoInicio },
-{ nombre: 'Mediodía', ini: bloqueDescansoInicio, fin: bloqueDescansoFin },
-{ nombre: 'Tarde', ini: bloqueDescansoFin, fin: tFin }
-].filter(f => reservas.some(r => {
-const a = timeToMin(r.horaInicio), b = a + (parseInt(r.duracionMin, 10) || 90);
-return a < f.fin && b > f.ini;
-}));
 const impreso = new Date().toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' });
 const meta = `Reservas del día: ${reservas.length} · Ocupación ${$('statOcupacion').innerText}<br>Impreso: ${esc(impreso)}`;
 const area = $('printArea');
-area.innerHTML = franjas.map(f => htmlPaginaImpresion(iso, f.nombre, meta, reservas, f.ini, f.fin)).join('');
+area.innerHTML = htmlPaginaImpresion(iso, reservas, meta);
 await Promise.all(Array.from(area.querySelectorAll('img')).map(im => im.complete ? null : new Promise(res => { im.onload = im.onerror = res; })));
 window.print();
 } catch (err) {
@@ -1550,27 +1552,6 @@ abajoEnFondo = false;
 });
 });
 window.addEventListener('DOMContentLoaded', () => { iniciarTema(); estadoRed(); comprobarSesion(); });
-let promptInstalacion = null;
-const btnInstalar = () => document.getElementById('btnInstalar');
-const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-const yaInstalada = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-window.addEventListener('beforeinstallprompt', e => {
-e.preventDefault();
-promptInstalacion = e;
-if (btnInstalar()) btnInstalar().classList.add('visible');
-});
-window.addEventListener('appinstalled', () => {
-promptInstalacion = null;
-if (btnInstalar()) btnInstalar().classList.remove('visible');
-});
-async function instalarApp() {
-if (!promptInstalacion) { toast('En Safari pulsa Compartir y elige «Añadir a pantalla de inicio»', 'ok', 7000); return; }
-promptInstalacion.prompt();
-await promptInstalacion.userChoice;
-promptInstalacion = null;
-if (btnInstalar()) btnInstalar().classList.remove('visible');
-}
-if (esIOS && !yaInstalada() && btnInstalar()) btnInstalar().classList.add('visible');
 if ('serviceWorker' in navigator) {
 window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => { }));
 }

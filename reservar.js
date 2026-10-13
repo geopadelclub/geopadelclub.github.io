@@ -488,4 +488,22 @@ dibujarDias();
 dibujarDuraciones();
 seleccionarDia(fechaLocalISO());
 });
+let promptInstalacion = null;
+const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const yaInstalada = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const mostrarInstalar = on => $('btnInstalar').classList.toggle('visible', on);
+window.addEventListener('beforeinstallprompt', e => {
+e.preventDefault();
+promptInstalacion = e;
+mostrarInstalar(true);
+});
+window.addEventListener('appinstalled', () => { promptInstalacion = null; mostrarInstalar(false); });
+$('btnInstalar').addEventListener('click', async () => {
+if (!promptInstalacion) { toast('En Safari pulsa Compartir y elige «Añadir a pantalla de inicio»', 'ok', 7000); return; }
+promptInstalacion.prompt();
+await promptInstalacion.userChoice;
+promptInstalacion = null;
+mostrarInstalar(false);
+});
+if (esIOS && !yaInstalada()) mostrarInstalar(true);
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => { }));
