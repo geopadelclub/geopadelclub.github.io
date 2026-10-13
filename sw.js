@@ -1,6 +1,6 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 const VERSION = 'geopadel-66f82526c1';
-const ARCHIVOS = ['./', 'index.html', 'panel.html', 'styles.css', 'config.js', 'app.js', 'gestion.js', 'copia.js', 'manifest.webmanifest', 'Geopadel.png', 'fondo.jpg', 'reservar.html', 'reservar.css', 'reservar.js', 'foto-club.jpg', 'assets/remixicon/remixicon.css', 'assets/remixicon/remixicon.woff2', 'utils.js', 'informes.js', 'privacidad.html', 'manifest-reservar.webmanifest', 'assets/supabase.min.js']; self.addEventListener('install', e => {
+const ARCHIVOS = ['./', 'index.html', 'panel.html', 'styles.css', 'config.js', 'app.js', 'gestion.js', 'copia.js', 'manifest.webmanifest', 'Geopadel.png', 'fondo.jpg', 'reservar.html', 'reservar.css', 'reservar.js', 'assets/remixicon/remixicon.css', 'assets/remixicon/remixicon.woff2', 'utils.js', 'informes.js', 'privacidad.html', 'manifest-reservar.webmanifest', 'assets/supabase.min.js']; self.addEventListener('install', e => {
 e.waitUntil((async () => {
 const cache = await caches.open(VERSION);
 await Promise.allSettled(ARCHIVOS.map(u => cache.add(u)));
