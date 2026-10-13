@@ -3,7 +3,7 @@
   "short_name": "Geopadel",
   "description": "Reserva tu pista de pádel en Geopadel.",
   "lang": "es",
-  "start_url": "reservar",
+  "start_url": "/reservar",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
