@@ -476,11 +476,6 @@ const minAhora = ah.getHours() * 60 + ah.getMinutes();
 const minGridIni = horaInicioGrid * 60, minGridFin = horaFinGrid * 60 + 30;
 if (minAhora >= minGridIni && minAhora <= minGridFin) {
 topPxAhora = (minAhora - minGridIni) * ppm;
-const badge = document.createElement('div');
-badge.className = 'time-badge-now';
-badge.style.top = `${topPxAhora - 8}px`;
-badge.textContent = minToTimeStr(minAhora);
-colTime.appendChild(badge);
 }
 }
 frag.appendChild(colTime);
