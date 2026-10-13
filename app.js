@@ -1,4 +1,5 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
+const $ = id => document.getElementById(id);
 const DOMINIO_LOGIN = '@geopadel.app';
 const SESION_MAX_MS = 18 * 3600 * 1000;
 const CLAVE_SESION_INI = 'gp-sesion-ini';
