@@ -28,8 +28,8 @@ if (c && c.nombre) $('deudaNombre').value = c.nombre;
 async function cargarDeudas() {
 const tb = $('deudasBody');
 if (!tb || !supabaseClient) return;
-const { data, error } = await supabaseClient.from('deudas').select('*')
-.order('fecha', { ascending: false }).order('hora', { ascending: false }).limit(3000);
+const { data, error } = await leerTodo(() => supabaseClient.from('deudas').select('*')
+.order('fecha', { ascending: false }).order('hora', { ascending: false }).order('id', { ascending: false }));
 if (error) {
 console.error(error);
 tb.innerHTML = `<tr><td colspan="6" class="tabla-empty" style="color:var(--red)">${esc(esErrorTabla(error) ? MSG_FALTA_TABLA('deudas') : 'Error al cargar deudas: ' + error.message)}</td></tr>`;
@@ -176,7 +176,7 @@ limpiezas = data || [];
 const u = await supabaseClient.from('limpiezas_ultimas').select('*');
 if (!u.error) limpUltimas = u.data || [];
 else {
-const t = await supabaseClient.from('limpiezas').select('*').order('fecha_hora', { ascending: false }).limit(5000);
+const t = await leerTodo(() => supabaseClient.from('limpiezas').select('*').order('fecha_hora', { ascending: false }).order('id', { ascending: false }));
 limpUltimas = t.data || limpiezas;
 }
 dibujarLimpieza();

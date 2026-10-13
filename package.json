@@ -1,0 +1,5 @@
+{
+  "name": "geopadel-web",
+  "private": true,
+  "scripts": { "build": "node bump-sw.js" }
+}

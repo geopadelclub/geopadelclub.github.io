@@ -2,37 +2,13 @@
 const sb = (window.supabase && window.supabase.createClient)
 ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } })
 : null;
-const $ = id => document.getElementById(id);
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const eur = n => (Number(n) || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
 const SPIN = '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>';
-let cfg = { dias_max: 30, cancelar_horas: 24, max_futuras: 4, duraciones: [60, 90, 120] };
+let cfg = { dias_max: 30, cancelar_horas: 24, max_futuras: 4, duraciones: [60, 90, 120], anticipacion_min: 120 };
 const sel = { fecha: null, dur: 90, hora: null, precio: 0 };
 const flujo = { fase: 'tel', tel: '', codigo: '', nombre: '' };
 let cuenta = null;
 let slotsDia = [];
 let reqHuecos = 0;
-function toast(msg, tipo = 'ok', ms = 3500) {
-const box = $('toasts');
-const el = document.createElement('div');
-el.className = 'toast ' + (tipo === 'ok' ? '' : tipo);
-el.textContent = msg;
-box.appendChild(el);
-const dur = tipo === 'err' ? Math.max(ms, 6000) : ms;
-setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 260); }, dur);
-}
-function setBusy(btn, on, txt) {
-if (!btn) return;
-if (on) { btn.dataset.txt = btn.innerHTML; btn.disabled = true; if (txt) btn.innerHTML = txt; }
-else { btn.disabled = false; if (btn.dataset.txt) btn.innerHTML = btn.dataset.txt; }
-}
-function fechaLocalISO(d = new Date()) {
-return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-function sumarDiasISO(iso, dias) {
-const [y, m, d] = iso.split('-').map(Number);
-return new Date(Date.UTC(y, m - 1, d + dias, 12, 0, 0)).toISOString().split('T')[0];
-}
 function fechaDesdeISO(iso) {
 const [y, m, d] = iso.split('-').map(Number);
 return new Date(y, m - 1, d, 12);
@@ -73,7 +49,39 @@ const seguir = e => { let g = null; try { g = localStorage.getItem('gp-theme'); 
 if (mq.addEventListener) mq.addEventListener('change', seguir);
 } catch (e) { }
 }
-function estadoRed() { $('bannerOffline').classList.toggle('show', !navigator.onLine); }
+async function llamarEdge(accion, args) {
+const r = await fetch(SUPABASE_URL + '/functions/v1/reservar-web', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY },
+body: JSON.stringify({ accion, ...args })
+});
+let j = null;
+try { j = await r.json(); } catch (e) { }
+if (!j) throw new Error('Respuesta no válida (' + r.status + ')');
+if (j.error === 'db') { const e = new Error(j.message || 'Error de base de datos'); e.code = j.code; throw e; }
+return j;
+}
+let tsId = null, tsToken = '';
+function iniciarTurnstile() {
+if (!TURNSTILE_SITEKEY || tsId !== null) return;
+const box = $('cfTurnstile');
+box.hidden = false;
+const pintar = () => {
+if (tsId !== null || !window.turnstile) return;
+tsId = window.turnstile.render('#cfTurnstile', { sitekey: TURNSTILE_SITEKEY, callback: t => { tsToken = t; }, 'expired-callback': () => { tsToken = ''; }, 'error-callback': () => { tsToken = ''; } });
+};
+if (window.turnstile) pintar();
+else {
+const s = document.createElement('script');
+s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+s.async = true; s.onload = pintar;
+document.head.appendChild(s);
+}
+}
+function reiniciarTurnstile() {
+tsToken = '';
+if (window.turnstile && tsId !== null) { try { window.turnstile.reset(tsId); } catch (e) { } }
+}
 async function rpc(fn, args) {
 if (!sb) throw new Error('Sin conexión con la base de datos');
 const { data, error } = await sb.rpc(fn, args || {});
@@ -110,6 +118,11 @@ case 'limite_reservas': return `Ya tienes ${r.max} reservas pendientes. Cancela 
 case 'no_encontrada': return 'No se ha encontrado la reserva.';
 case 'ambiguo': return 'Hay varios clientes con ese nombre. Entra con tu teléfono.';
 case 'faltan_datos': return 'Rellena todos los campos.';
+case 'captcha': return 'No hemos podido verificar que eres una persona. Inténtalo de nuevo.';
+case 'demasiadas_solicitudes': return 'Demasiados intentos desde tu conexión. Espera unos minutos o llama al club.';
+case 'consentimiento': return 'Debes aceptar la política de privacidad para crear tu código.';
+case 'cliente_existente': return 'Ya hay un cliente del club con esos datos. Llama al club y te activamos el acceso web.';
+case 'deuda_pendiente': return 'Tienes un pago pendiente con el club. Llama al club para resolverlo y poder borrar tus datos.';
 case 'no_cancelable': return motivoTexto(r.motivo);
 default: return 'No se pudo completar la acción. Inténtalo de nuevo.';
 }
@@ -167,18 +180,15 @@ $('cardDatos').hidden = true;
 dibujarDuraciones();
 dibujarHuecos();
 });
-const ANTELACION_MIN_DEFECTO = 120;
-const HORA_CORTE_MANANA = 9 * 60;
+const antMin = () => Number.isFinite(Number(cfg.anticipacion_min)) ? Number(cfg.anticipacion_min) : 120;
 function horaReservable(fechaISO, hora) {
 const [y, m, d] = fechaISO.split('-').map(Number);
 const mins = minutos(hora);
 const inicio = new Date(y, m - 1, d, Math.floor(mins / 60), mins % 60);
-const ahora = new Date();
-if (mins < HORA_CORTE_MANANA) return ahora < new Date(y, m - 1, d, 0, 0);
-return inicio.getTime() - ahora.getTime() >= (cfg.anticipacion_min || ANTELACION_MIN_DEFECTO) * 60000;
+return inicio.getTime() - Date.now() >= antMin() * 60000;
 }
 function textoAntelacion() {
-return 'Las reservas se hacen con 2 horas de antelación como mínimo. Las horas anteriores a las 9:00 solo se pueden reservar hasta las 00:00 del día anterior.';
+return `Las reservas se hacen con ${duracionTxt(antMin())} de antelación como mínimo.`;
 }
 async function cargarHuecos() {
 const cont = $('clSlots');
@@ -240,6 +250,7 @@ $('bloqueExistente').hidden = f !== 'existente';
 $('bloqueNuevo').hidden = f !== 'nuevo';
 $('bloqueConfirmar').hidden = !(f === 'nuevo' || f === 'listo');
 $('clHola').hidden = f !== 'listo';
+if (!$('bloqueConfirmar').hidden) iniciarTurnstile();
 if (f === 'listo') $('clHola').innerHTML = `<i class="ri-user-line" aria-hidden="true"></i>Hola, <b>${esc(flujo.nombre)}</b>`;
 }
 function resetFlujo() {
@@ -247,6 +258,7 @@ flujo.fase = 'tel';
 flujo.codigo = '';
 flujo.nombre = '';
 ['clCodigoEx', 'clNombre', 'clCodigoNew', 'clCodigoNew2'].forEach(id => { $(id).value = ''; });
+$('clConsent').checked = false;
 mostrarBloques();
 }
 $('clTel').addEventListener('input', () => { if (flujo.fase !== 'tel') resetFlujo(); });
@@ -256,7 +268,7 @@ if (!telefonoValido(tel)) return toast('Revisa el teléfono', 'warn');
 const btn = $('btnTel');
 setBusy(btn, true, SPIN + 'Comprobando...');
 try {
-const r = await rpc('web_estado_telefono', { p_telefono: tel });
+const r = await llamarEdge('estado', { p_telefono: tel });
 if (!r || !r.ok) return toast(textoError(r), 'warn');
 flujo.tel = tel;
 flujo.fase = r.con_codigo ? 'existente' : 'nuevo';
@@ -293,19 +305,22 @@ const c1 = $('clCodigoNew').value.trim(), c2 = $('clCodigoNew2').value.trim();
 if (nombre.split(' ').length < 2) return toast('Escribe tu nombre y apellidos', 'warn');
 if (c1.length < 4) return toast('El código debe tener al menos 4 caracteres', 'warn');
 if (c1 !== c2) return toast('Los códigos no coinciden', 'warn');
+if (!$('clConsent').checked) return toast('Debes aceptar la política de privacidad', 'warn');
 codigo = c1;
 }
+if (TURNSTILE_SITEKEY && !tsToken) return toast('Completa la verificación anti-spam', 'warn');
 const btn = $('btnConfirmar');
 setBusy(btn, true, SPIN + 'Reservando...');
 try {
-const r = await rpc('web_reservar', {
+const r = await llamarEdge('reservar', {
 p_telefono: flujo.tel, p_nombre: nombre, p_codigo: codigo,
-p_fecha: sel.fecha, p_hora: sel.hora, p_duracion: sel.dur
+p_fecha: sel.fecha, p_hora: sel.hora, p_duracion: sel.dur,
+turnstile: tsToken, consentimiento: flujo.fase === 'nuevo' && $('clConsent').checked
 });
 if (!r || !r.ok) {
 toast(textoError(r), 'err');
 if (r && (r.error === 'sin_disponibilidad' || r.error === 'hora_pasada')) { sel.hora = null; $('cardDatos').hidden = true; cargarHuecos(); }
-if (r && (r.error === 'codigo_incorrecto' || r.error === 'bloqueado')) resetFlujo();
+if (r && (r.error === 'codigo_incorrecto' || r.error === 'bloqueado' || r.error === 'cliente_existente')) resetFlujo();
 return;
 }
 flujo.fase = 'listo';
@@ -322,9 +337,11 @@ sel.hora = null; $('cardDatos').hidden = true; cargarHuecos();
 toast(textoError({ error: 'sin_disponibilidad' }), 'err');
 sel.hora = null; $('cardDatos').hidden = true; cargarHuecos();
 } else errorRed(err);
-} finally { setBusy(btn, false); }
+} finally { setBusy(btn, false); reiniciarTurnstile(); }
 }
+let ultimaReserva = null;
 function mostrarExito(rv) {
+ultimaReserva = rv;
 $('cardDatos').hidden = true;
 $('okDetalle').innerHTML =
 `<div><i class="ri-calendar-event-line" aria-hidden="true"></i>${esc(fechaBonita(rv.fecha))}</div>` +
@@ -347,6 +364,20 @@ e.preventDefault();
 const b = [$('btnTel'), $('btnEntrar'), $('btnConfirmar')].find(x => x.offsetParent !== null);
 if (b) b.click();
 });
+function icsTexto(s) { return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n'); }
+function icsFecha(iso, min) { const [y, m, d] = iso.split('-'); return `${y}${m}${d}T${String(Math.floor(min / 60)).padStart(2, '0')}${String(min % 60).padStart(2, '0')}00`; }
+function descargarICS(rv) {
+const ini = minutos(rv.hora), fin = ini + rv.duracion;
+const sello = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+const lineas = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Geopadel//Reservas//ES', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'BEGIN:VEVENT',
+`UID:${rv.id || Date.now()}-${rv.fecha}-${rv.hora}@geopadel`, `DTSTAMP:${sello}`,
+`DTSTART:${icsFecha(rv.fecha, ini)}`, `DTEND:${icsFecha(rv.fecha, fin)}`,
+`SUMMARY:${icsTexto('Pádel en Geopadel · ' + rv.pista)}`, `LOCATION:${icsTexto('Geopadel · ' + rv.pista)}`,
+`DESCRIPTION:${icsTexto('Reserva pendiente de confirmación del club. Se paga en el club.')}`,
+'BEGIN:VALARM', 'TRIGGER:-PT60M', 'ACTION:DISPLAY', 'DESCRIPTION:Pádel en 1 hora', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'];
+descargarBlob(new Blob([lineas.join('\r\n')], { type: 'text/calendar;charset=utf-8' }), 'reserva-geopadel.ics');
+}
+$('btnICS').addEventListener('click', () => { if (ultimaReserva) descargarICS(ultimaReserva); });
 $('btnOtra').addEventListener('click', () => {
 $('cardOk').hidden = true;
 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -408,6 +439,20 @@ $('misCodigo').value = '';
 $('msgMis').innerText = '';
 mostrarMis(false);
 });
+$('btnBorrarDatos').addEventListener('click', async () => {
+if (!cuenta) return;
+if (!confirm('Se borrarán tu nombre, teléfono y código, y se cancelarán tus reservas futuras. No se puede deshacer. ¿Continuar?')) return;
+const btn = $('btnBorrarDatos');
+setBusy(btn, true, 'Borrando...');
+try {
+const r = await rpc('web_borrar_mis_datos', { p_ident: cuenta.ident, p_codigo: cuenta.codigo });
+if (!r || !r.ok) { toast(textoError(r), 'err'); return; }
+cuenta = null;
+$('misIdent').value = ''; $('misCodigo').value = ''; $('msgMis').innerText = '';
+mostrarMis(false);
+toast('Tus datos se han borrado');
+} catch (err) { errorRed(err); } finally { setBusy(btn, false); }
+});
 $('misLista').addEventListener('click', async e => {
 const b = e.target.closest('button[data-cancelar]');
 if (!b || !cuenta) return;
@@ -438,6 +483,7 @@ const c = await rpc('web_config');
 if (c && Array.isArray(c.duraciones)) cfg = { ...cfg, ...c };
 } catch (err) { console.error(err); }
 if (!cfg.duraciones.includes(sel.dur)) sel.dur = cfg.duraciones[0];
+$('txtIntroReserva').textContent = `Elige día, duración y hora. Se paga en el club. Reserva con ${duracionTxt(antMin())} de antelación; con menos, llama al club.`;
 dibujarDias();
 dibujarDuraciones();
 seleccionarDia(fechaLocalISO());

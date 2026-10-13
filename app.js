@@ -1,8 +1,10 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 const DOMINIO_LOGIN = '@geopadel.app';
+const SESION_MAX_MS = 18 * 3600 * 1000;
+const CLAVE_SESION_INI = 'gp-sesion-ini';
 const supabaseClient = (window.supabase && window.supabase.createClient)
 ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-auth: { storage: window.sessionStorage, persistSession: true, autoRefreshToken: true }
+auth: { storage: window.localStorage, persistSession: true, autoRefreshToken: true }
 })
 : null;
 const listaPistas = ["1 PADEL MASTER", "Pista 2", "Pista 3", "Pista 4", "Pista 5", "Pista 6", "Pista 7", "Pista 8", "Pista 9"];
@@ -30,35 +32,17 @@ let categoriaTPVFiltro = "Todos";
 let colaMesas = Promise.resolve();
 let cobrando = false;
 let ultimoFichaje = null;
-const $ = id => document.getElementById(id);
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const eur = n => (Number(n) || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
-const redondear2 = n => Math.round((Number(n) || 0) * 100) / 100;
 const nombreUsuario = () => usuarioSesion ? (usuarioSesion.user || usuarioSesion.nombre) : 'Sistema';
+const esAdmin = () => !!usuarioSesion && usuarioSesion.rol !== 'Trabajador';
+function marcarInicioSesion() { try { localStorage.setItem(CLAVE_SESION_INI, String(Date.now())); } catch (e) { } }
+function sesionCaducada() {
+let ini = 0;
+try { ini = parseInt(localStorage.getItem(CLAVE_SESION_INI), 10) || 0; } catch (e) { }
+return !!ini && Date.now() - ini > SESION_MAX_MS;
+}
 function debounce(fn, ms) {
 let t;
 return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
-}
-function toast(msg, tipo = 'ok', ms = 3500) {
-const box = $('toasts');
-const el = document.createElement('div');
-el.className = 'toast ' + (tipo === 'ok' ? '' : tipo);
-el.textContent = msg;
-box.appendChild(el);
-const dur = tipo === 'err' ? Math.max(ms, 6000) : ms;
-setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 260); }, dur);
-}
-function setBusy(btn, on, txt) {
-if (!btn) return;
-if (on) { btn.dataset.txt = btn.innerHTML; btn.disabled = true; if (txt) btn.innerHTML = txt; }
-else { btn.disabled = false; if (btn.dataset.txt) btn.innerHTML = btn.dataset.txt; }
-}
-function fechaLocalISO(d = new Date()) {
-return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-function sumarDiasISO(fechaISO, dias) {
-const [y, m, d] = fechaISO.split('-').map(Number);
-return new Date(Date.UTC(y, m - 1, d + dias, 12, 0, 0)).toISOString().split('T')[0];
 }
 function rangoDiaISO(iso) {
 const [y, m, d] = iso.split('-').map(Number);
@@ -123,8 +107,9 @@ async function comprobarSesion() {
 if (!supabaseClient) { mostrarLogin(); return; }
 const { data } = await supabaseClient.auth.getSession();
 if (data && data.session) {
+if (sesionCaducada()) { await supabaseClient.auth.signOut(); try { localStorage.removeItem(CLAVE_SESION_INI); } catch (e) { } mostrarLogin(); toast('La sesión ha caducado. Vuelve a entrar.', 'warn'); return; }
 const perfil = await cargarPerfil(data.session.user);
-if (perfil) { usuarioSesion = perfil; mostrarPanelAdmin(); return; }
+if (perfil) { usuarioSesion = perfil; if (!localStorage.getItem(CLAVE_SESION_INI)) marcarInicioSesion(); mostrarPanelAdmin(); return; }
 await supabaseClient.auth.signOut();
 }
 mostrarLogin();
@@ -132,6 +117,7 @@ mostrarLogin();
 async function cerrarSesion() {
 if (canalRealtime) { supabaseClient.removeChannel(canalRealtime); canalRealtime = null; }
 await supabaseClient.auth.signOut();
+try { localStorage.removeItem(CLAVE_SESION_INI); } catch (e) { }
 usuarioSesion = null;
 $('password').value = '';
 $('msgLogin').innerText = '';
@@ -158,6 +144,7 @@ pobladorPistasModal();
 iniciarFormDeuda();
 iniciarFormLimpieza();
 if (typeof aplicarPermisosCopia === 'function') aplicarPermisosCopia();
+if (typeof aplicarPermisosInformes === 'function') aplicarPermisosInformes();
 renderSelectorMesas();
 iniciarSuscripcionRealtime();
 cargarDatosGlobales();
@@ -193,6 +180,7 @@ msgDiv.className = 'msg-error'; msgDiv.innerText = 'Usuario inactivo o sin perfi
 } else {
 intentosFallidos = 0;
 usuarioSesion = perfil;
+marcarInicioSesion();
 msgDiv.className = 'msg-success'; msgDiv.innerText = '¡Bienvenido!';
 setTimeout(() => { btn.disabled = false; btn.innerText = "Entrar al Panel"; mostrarPanelAdmin(); }, 250);
 return;
@@ -258,15 +246,18 @@ const el = $('gpSync');
 el.style.opacity = 1;
 setTimeout(() => { el.style.opacity = 0; }, 1500);
 }
-function estadoRed() { $('bannerOffline').classList.toggle('show', !navigator.onLine); }
 window.addEventListener('online', () => { estadoRed(); if (usuarioSesion) cargarDatosGlobales(); });
 window.addEventListener('offline', estadoRed);
-document.addEventListener('visibilitychange', () => { if (!document.hidden && usuarioSesion && navigator.onLine) cargarDatosGlobales(); });
+document.addEventListener('visibilitychange', () => {
+if (document.hidden || !usuarioSesion) return;
+if (sesionCaducada()) { cerrarSesion(); toast('La sesión ha caducado. Vuelve a entrar.', 'warn'); return; }
+if (navigator.onLine) cargarDatosGlobales();
+});
 async function cargarDatosGlobales() {
 await Promise.all([cargarClientes(), cargarProductos(), cargarTarifas(), cargarMesasBar(), cargarReservasHoy(), cargarCajaHoy(), cargarDeudas()]);
 }
 async function cargarClientes() {
-const { data, error } = await supabaseClient.from('clientes').select('nombre, telefono').limit(5000);
+const { data, error } = await leerTodo(() => supabaseClient.from('clientes').select('nombre, telefono').order('nombre'));
 if (error) { console.error(error); return; }
 datosLocales.clientes = data || [];
 dibujarClientesDatalist(datosLocales.clientes);
@@ -328,15 +319,22 @@ let reqCaja = 0;
 async function cargarCajaHoy() {
 const iso = $('fechaCuadrante').value || fechaLocalISO();
 const miReq = ++reqCaja;
+let ef = 0, ta = 0;
+const r = await supabaseClient.rpc('caja_dia', { p_fecha: iso });
+if (miReq !== reqCaja) return;
+if (!r.error && r.data && r.data.ok) {
+ef = Number(r.data.efectivo) || 0; ta = Number(r.data.tarjeta) || 0;
+} else {
+if (r.error) console.warn('caja_dia no disponible, se suma en el navegador:', r.error.message);
 const [ini, fin] = rangoDiaISO(iso);
-const { data, error } = await supabaseClient.from('ventas').select('importe, metodo_pago').gte('fecha_hora', ini).lt('fecha_hora', fin).limit(10000);
+const { data, error } = await leerTodo(() => supabaseClient.from('ventas').select('id, importe, metodo_pago').gte('fecha_hora', ini).lt('fecha_hora', fin).order('id'));
 if (miReq !== reqCaja) return;
 if (error) { console.error(error); toast('No se pudo cargar la caja', 'err'); return; }
-let ef = 0, ta = 0;
-(data || []).forEach(v => {
+data.forEach(v => {
 if (v.metodo_pago === 'Efectivo') ef += Number(v.importe) || 0;
 if (v.metodo_pago === 'Tarjeta') ta += Number(v.importe) || 0;
 });
+}
 ef = redondear2(ef); ta = redondear2(ta);
 datosLocales.caja = { totalEfectivo: ef, totalTarjeta: ta, totalGeneral: redondear2(ef + ta) };
 dibujarCaja(datosLocales.caja);
@@ -347,9 +345,10 @@ document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('act
 document.querySelectorAll('.nav-tab').forEach(el => { el.classList.remove('active'); el.removeAttribute('aria-current'); });
 $(`tab-${tabName}`).classList.add('active');
 const nav = $(`nav-${tabName}`); nav.classList.add('active'); nav.setAttribute('aria-current', 'page');
-document.title = 'Geopadel · ' + ({ reservas: 'Reservas', tpv: 'Tienda', fichajes: 'Fichaje', caja: 'Caja y Catálogo', deudas: 'Deudas', limpieza: 'Limpieza' }[tabName] || 'Panel');
+document.title = 'Geopadel · ' + ({ reservas: 'Reservas', tpv: 'Tienda', fichajes: 'Fichaje', caja: 'Caja y Catálogo', deudas: 'Deudas', limpieza: 'Limpieza', informes: 'Informes' }[tabName] || 'Panel');
 if (usuarioSesion) {
 if (tabName === 'deudas') cargarDeudas();
+if (tabName === 'informes' && typeof entrarInformes === 'function') entrarInformes();
 if (tabName === 'limpieza') entrarPestanaLimpieza();
 if (tabName === 'caja') { cargarHistorialCaja(); cargarCajaHoy(); }
 if (tabName === 'fichajes') cargarMisFichajes();
@@ -687,14 +686,40 @@ const sel = $('modalNumJugadores');
 for (let i = 1; i <= 16; i++) sel.appendChild(new Option(i === 1 ? '1 jugador' : `${i} jugadores`, i));
 sel.value = '4';
 })();
+const pilaFoco = [];
+const FOCABLE = 'a[href],button:not([disabled]),input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 function abrirOverlay(id) {
-$(id).classList.add('open');
+const ov = $(id);
+if (!ov.classList.contains('open')) pilaFoco.push(document.activeElement);
+ov.setAttribute('tabindex', '-1');
+ov.classList.add('open');
 document.body.style.overflow = 'hidden';
+setTimeout(() => {
+if (ov.contains(document.activeElement)) return;
+const f = Array.from(ov.querySelectorAll(FOCABLE)).find(e => e.offsetParent !== null);
+(f || ov).focus();
+}, 0);
 }
 function cerrarOverlay(id) {
-$(id).classList.remove('open');
+const ov = $(id);
+const estaba = ov.classList.contains('open');
+ov.classList.remove('open');
 if (!document.querySelector('.modal-overlay.open')) document.body.style.overflow = '';
+if (estaba) {
+const prev = pilaFoco.pop();
+if (prev && prev.focus && document.contains(prev)) prev.focus();
 }
+}
+document.addEventListener('keydown', e => {
+if (e.key !== 'Tab') return;
+const ov = Array.from(document.querySelectorAll('.modal-overlay.open')).pop();
+if (!ov) return;
+const f = Array.from(ov.querySelectorAll(FOCABLE)).filter(x => x.offsetParent !== null);
+if (!f.length) { e.preventDefault(); ov.focus(); return; }
+const primero = f[0], ultimo = f[f.length - 1], dentro = ov.contains(document.activeElement);
+if (e.shiftKey && (!dentro || document.activeElement === primero || document.activeElement === ov)) { e.preventDefault(); ultimo.focus(); }
+else if (!e.shiftKey && (!dentro || document.activeElement === ultimo)) { e.preventDefault(); primero.focus(); }
+});
 function abrirModalNuevaReserva(pistas = ["1 PADEL MASTER"], hora = "17:00", tipo = "Normal") {
 if (!Array.isArray(pistas)) pistas = ["1 PADEL MASTER"];
 if (typeof hora !== 'string') hora = "17:00";
@@ -715,6 +740,7 @@ $('modalRepetir').value = 12;
 $('btnEliminarSerie').style.display = 'none';
 $('btnEliminarReserva').style.display = "none";
 $('btnResetCodigoWeb').style.display = 'none';
+$('btnBorrarCliente').style.display = 'none';
 $('btnConfirmarPendiente').style.display = 'none';
 $('modalNumJugadores').value = "4";
 alCambiarTipo();
@@ -744,6 +770,7 @@ $('modalFecha').value = res.fecha;
 $('btnEliminarSerie').style.display = res.serie ? 'inline-block' : 'none';
 $('btnEliminarReserva').style.display = "inline-block";
 $('btnResetCodigoWeb').style.display = res.telefono ? 'inline-block' : 'none';
+$('btnBorrarCliente').style.display = esAdmin() && res.cliente ? 'inline-block' : 'none';
 $('btnConfirmarPendiente').style.display = res.estado === 'Pendiente' ? 'inline-block' : 'none';
 alCambiarTipo();
 $('modalNumJugadores').value = String(nJug);
@@ -820,19 +847,40 @@ function cerrarModal() { cerrarOverlay('modalReserva'); }
 async function resetearCodigoWeb() {
 const tel = $('modalTelefono').value.trim();
 if (!tel) return toast('Este cliente no tiene teléfono', 'warn');
-if (!confirm('¿Restablecer el código web de este cliente? Tendrá que crear uno nuevo en su próxima reserva.')) return;
+if (!confirm('¿Restablecer el código web de este cliente y habilitarle el acceso web? Tendrá que crear uno nuevo en su próxima reserva. Hazlo solo si has comprobado que es él.')) return;
 const btn = $('btnResetCodigoWeb');
 setBusy(btn, true, '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Restableciendo...');
 try {
 const { data, error } = await supabaseClient.rpc('gp_resetear_codigo_cliente', { p_telefono: tel });
 if (error) throw error;
 if (!data || !data.ok) return toast('No tienes permiso para hacerlo', 'err');
-toast('Código web restablecido');
+const h = await supabaseClient.rpc('gp_habilitar_acceso_web', { p_telefono: tel });
+if (h.error || !h.data || !h.data.ok) console.warn('No se pudo habilitar el acceso web', h.error);
+toast('Código web restablecido y acceso web habilitado');
 } catch (err) {
 toast('No se pudo restablecer: ' + (err.message || err), 'err');
 } finally {
 setBusy(btn, false);
 }
+}
+async function borrarDatosCliente() {
+if (!esAdmin()) return toast('Solo un administrador puede borrar datos de clientes', 'err');
+const nombre = $('modalCliente').value.trim();
+if (!nombre) return toast('Escribe el nombre del cliente', 'warn');
+if (!confirm(`¿Borrar los datos personales de «${nombre}»?\n\nSe elimina su ficha y se quita su nombre y teléfono de reservas y deudas (los importes se conservan sin datos personales). Se cancelan sus reservas futuras sin cobros. No se puede deshacer.`)) return;
+const btn = $('btnBorrarCliente');
+setBusy(btn, true, '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Borrando...');
+try {
+const { data, error } = await supabaseClient.rpc('gp_borrar_cliente', { p_nombre: nombre });
+if (error) throw error;
+if (!data || !data.ok) {
+const t = { deuda_pendiente: 'Tiene deudas pendientes. Resuélvelas antes de borrar sus datos.', reservas_pagadas: 'Tiene reservas futuras con cobros. Devuelve o elimina esas reservas antes.', no_encontrado: 'No hay ninguna ficha de cliente con ese nombre.', sin_permiso: 'No tienes permiso para hacerlo.' };
+return toast(t[data && data.error] || 'No se pudo borrar', 'err');
+}
+toast('Datos del cliente borrados');
+cerrarModal();
+cargarClientes(); cargarReservasHoy(); cargarDeudas();
+} catch (err) { toast('No se pudo borrar: ' + (err.message || err), 'err'); } finally { setBusy(btn, false); }
 }
 async function guardarClienteSilencioso(nombre, telefono) {
 const row = { nombre };
@@ -1286,17 +1334,15 @@ setBusy(btn, true, '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>C
 try {
 await cargarCajaHoy();
 const c = datosLocales.caja, ef = redondear2(bil + mon);
-const { data: ya, error: eCons } = await supabaseClient.from('cierres').select('fecha').eq('fecha', fecha).limit(1);
-if (eCons) throw eCons;
-if (ya && ya.length && !confirm(`Ya existe un cierre de caja para el ${fecha}. ¿Registrar otro igualmente?`)) return;
 const dE = redondear2(ef - c.totalEfectivo), dD = redondear2(dat - c.totalTarjeta);
 if ((Math.abs(dE) >= 0.005 || Math.abs(dD) >= 0.005) && !confirm(`Hay descuadre (efectivo ${dE.toFixed(2)} €, datáfono ${dD.toFixed(2)} €). ¿Cerrar caja de todos modos?`)) return;
-const { error } = await supabaseClient.from('cierres').insert({
-fecha, efectivo_sistema: c.totalEfectivo, tarjeta: c.totalTarjeta, total: c.totalGeneral,
-billetes: bil, monedas: mon, efectivo_contado: ef, datafono_contado: dat,
-dif_efectivo: dE, dif_datafono: dD, cerrado_por: usuarioSesion.user
-});
+const { data, error } = await supabaseClient.rpc('cerrar_caja', { p_fecha: fecha, p_billetes: bil, p_monedas: mon, p_datafono: dat });
 if (error) throw error;
+if (!data || !data.ok) {
+const t = { ya_cerrada: `La caja del ${fecha} ya está cerrada. Solo un administrador puede reabrirla desde el historial.`, fecha_futura: 'No se puede cerrar la caja de un día futuro.', importe_negativo: 'Los importes no pueden ser negativos.', sin_permiso: 'No tienes permiso para cerrar la caja.' };
+msg.style.color = 'var(--red)'; msg.innerText = t[data && data.error] || 'No se pudo cerrar la caja.';
+return;
+}
 msg.style.color = 'var(--green)'; msg.innerText = 'Caja cerrada correctamente';
 cargarHistorialCaja();
 } catch (err) {
@@ -1306,13 +1352,32 @@ msg.style.color = 'var(--red)'; msg.innerText = 'No se pudo cerrar la caja: ' + 
 async function cargarHistorialCaja() {
 const tb = $('histCajaBody');
 const { data, error } = await supabaseClient.from('cierres').select('*').order('fecha', { ascending: false }).limit(60);
-if (error) { tb.innerHTML = `<tr><td colspan="7" class="tabla-empty" style="color:var(--red)">Error: ${esc(error.message)}</td></tr>`; return; }
+if (error) { tb.innerHTML = `<tr><td colspan="8" class="tabla-empty" style="color:var(--red)">Error: ${esc(error.message)}</td></tr>`; return; }
 const dif = n => { const x = Number(n) || 0; return `<b class="${Math.abs(x) < 0.005 ? 'dif-ok' : 'dif-ko'}">${x > 0 ? '+' : ''}${eur(x)}</b>`; };
+const adm = esAdmin();
 tb.innerHTML = (data || []).map(d => `<tr>
 <td><b>${esc(d.fecha)}</b></td><td>${eur(d.efectivo_sistema)}</td><td>${eur(d.tarjeta)}</td>
 <td><b>${eur(d.total)}</b></td><td>${dif(d.dif_efectivo)}</td><td>${dif(d.dif_datafono)}</td>
-<td><i class="ri-lock-line" aria-hidden="true"></i>${esc(d.cerrado_por)}</td></tr>`).join('') || '<tr><td colspan="7" class="tabla-empty">—</td></tr>';
+<td><i class="ri-lock-line" aria-hidden="true"></i>${esc(d.cerrado_por)}</td>
+<td>${adm ? `<button type="button" class="btn-add gray" data-reabrir="${esc(d.fecha)}"><i class="ri-lock-unlock-line" aria-hidden="true"></i>Reabrir</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="8" class="tabla-empty">—</td></tr>';
 }
+async function reabrirCierre(fecha, btn) {
+if (!esAdmin()) return toast('Solo un administrador puede reabrir una caja', 'err');
+const motivo = (prompt(`Motivo para reabrir la caja del ${fecha} (queda registrado):`) || '').trim();
+if (motivo.length < 5) return toast('Escribe un motivo de al menos 5 caracteres', 'warn');
+setBusy(btn, true);
+try {
+const { data, error } = await supabaseClient.rpc('reabrir_cierre', { p_fecha: fecha, p_motivo: motivo });
+if (error) throw error;
+if (!data || !data.ok) return toast(data && data.error === 'sin_permiso' ? 'No tienes permiso para reabrir cajas' : 'No se pudo reabrir la caja', 'err');
+toast('Caja reabierta. Ya se puede volver a cerrar.');
+cargarHistorialCaja();
+} catch (err) { toast('No se pudo reabrir: ' + (err.message || err), 'err'); } finally { setBusy(btn, false); }
+}
+$('histCajaBody').addEventListener('click', e => {
+const b = e.target.closest('button[data-reabrir]');
+if (b) reabrirCierre(b.dataset.reabrir, b);
+});
 function dibujarTarifas(t) {
 if (!t) return;
 Object.entries(TARIFAS_IDS).forEach(([k, ids]) => {

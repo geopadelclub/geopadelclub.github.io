@@ -56,15 +56,6 @@ const lineas = [cols.map(celdaCSV).join(';')];
 filas.forEach(f => lineas.push(cols.map(c => celdaCSV(f[c])).join(';')));
 return lineas.join('\r\n');
 }
-function descargarBlob(blob, nombre) {
-const url = URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = url; a.download = nombre;
-document.body.appendChild(a);
-a.click();
-a.remove();
-setTimeout(() => URL.revokeObjectURL(url), 10000);
-}
 function sello() {
 const d = new Date(), p = n => String(n).padStart(2, '0');
 return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
