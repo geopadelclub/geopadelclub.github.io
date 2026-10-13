@@ -33,7 +33,8 @@ let colaMesas = Promise.resolve();
 let cobrando = false;
 let ultimoFichaje = null;
 const nombreUsuario = () => usuarioSesion ? (usuarioSesion.user || usuarioSesion.nombre) : 'Sistema';
-const esAdmin = () => !!usuarioSesion && usuarioSesion.rol !== 'Trabajador';
+const ROLES_ADMIN = ['Trabajador', 'Jefa'];
+const esAdmin = () => !!usuarioSesion && ROLES_ADMIN.includes(String(usuarioSesion.rol || '').trim().toLowerCase());
 function marcarInicioSesion() { try { localStorage.setItem(CLAVE_SESION_INI, String(Date.now())); } catch (e) { } }
 function sesionCaducada() {
 let ini = 0;

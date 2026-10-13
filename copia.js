@@ -11,10 +11,9 @@ productos: { etiqueta: 'Catálogo', orden: ['nombre', 'id'] },
 tarifas: { etiqueta: 'Tarifas', orden: ['franja'] }
 };
 const COL_PRIVADAS = /codigo|hash|pass|salt|token|secret/i;
-const ROLES_SIN_EXPORTAR = ['Trabajador'];
 const CLAVE_ULTIMA_COPIA = 'gp-ultima-copia';
 function aplicarPermisosCopia() {
-const permitido = !(usuarioSesion && ROLES_SIN_EXPORTAR.includes(usuarioSesion.rol));
+const permitido = typeof esAdmin === 'function' && esAdmin();
 const card = $('cardCopia');
 if (card) card.hidden = !permitido;
 document.querySelectorAll('[data-exp]').forEach(b => { if (!b.closest('#cardCopia')) b.hidden = !permitido; });
@@ -80,7 +79,6 @@ toast(m, 'err');
 if (msg) { msg.style.color = 'var(--red)'; msg.innerText = m; }
 } finally { setBusy(btn, false); }
 }
-/* ---- ZIP sin compresión (formato estándar, se abre en cualquier sistema) ---- */
 const TABLA_CRC = (() => {
 const t = new Uint32Array(256);
 for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; }
