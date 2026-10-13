@@ -3,7 +3,7 @@
     "short_name": "Geopadel",
     "description": "Gestión de reservas, bar, horarios y caja del club Geopadel.",
     "lang": "es",
-    "start_url": "panel.html",
+    "start_url": "panel",
     "scope": "./",
     "display": "standalone",
     "background_color": "#fcfdfc",
