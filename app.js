@@ -33,7 +33,7 @@ let colaMesas = Promise.resolve();
 let cobrando = false;
 let ultimoFichaje = null;
 const nombreUsuario = () => usuarioSesion ? (usuarioSesion.user || usuarioSesion.nombre) : 'Sistema';
-const ROLES_ADMIN = ['Trabajador', 'Jefa'];
+const ROLES_ADMIN = ['trabajador', 'jefa'];
 const esAdmin = () => !!usuarioSesion && ROLES_ADMIN.includes(String(usuarioSesion.rol || '').trim().toLowerCase());
 function marcarInicioSesion() { try { localStorage.setItem(CLAVE_SESION_INI, String(Date.now())); } catch (e) { } }
 function sesionCaducada() {
@@ -862,19 +862,22 @@ if (b && !b.disabled) cambiarPagoJugador(parseInt(b.dataset.j, 10), b.dataset.m,
 async function cambiarPagoJugador(numJugador, nuevoMetodo, btn) {
 if (!reservaEnEdicion || !reservaEnEdicion.id) return;
 document.querySelectorAll('#splitJugadoresContainer button').forEach(x => x.disabled = true);
+try {
 const { data, error } = await supabaseClient.rpc('cobrar_jugador_atomic', {
 p_reserva_id: reservaEnEdicion.id,
 p_num_jugador: numJugador,
 p_metodo_pago: nuevoMetodo,
 p_empleado: nombreUsuario()
 });
-if (error) {
-toast("Error al registrar el pago: " + error.message, 'err');
-} else if (data) {
+if (error) toast("Error al registrar el pago: " + error.message, 'err');
+else if (data && data.success === false) toast(data.message === 'sin_permiso' ? 'No tienes permiso para registrar cobros' : (data.message || 'No se pudo registrar el pago'), 'err');
+else if (data && data.pagos !== undefined) {
 reservaEnEdicion.pagosJugadores = data.pagos;
 reservaEnEdicion.pagoEstado = data.pago_estado;
 }
+} finally {
 actualizarVistasJugadoresSplit();
+}
 }
 function cerrarModal() { cerrarOverlay('modalReserva'); }
 async function resetearCodigoWeb() {
@@ -960,6 +963,10 @@ jugadores: numJugadores, precio: importe, empleado: nombreUsuario()
 };
 if (idExistente) {
 if (pistasSel.length !== 1) return toast("Al editar una reserva selecciona una única pista", 'warn');
+const hayPagos = String(reservaEnEdicion.pagosJugadores || '').split(',').some(p => p === 'Efectivo' || p === 'Tarjeta');
+if (hayPagos && (Math.abs(importe - (parseFloat(reservaEnEdicion.precio) || 0)) > 0.004 || numJugadores !== reservaEnEdicion.numJugadoresOrig)) {
+return toast('Esta reserva tiene cobros. Quita antes los pagos para cambiar el precio, la duración o los jugadores.', 'err');
+}
 const conf = await buscarConflicto({ pistas: pistasSel, fechas: [iso], iniMin, dur: duracionMin, excluirId: idExistente });
 if (conf) return toast(`La pista '${pistasSel[0]}' ya está ocupada a las ${String(conf.hora_inicio).slice(0, 5)} por ${conf.cliente}`, 'err');
 const upd = { ...payloadBase, fecha: iso, pista: pistasSel[0], updated_at: new Date().toISOString() };
@@ -1067,8 +1074,9 @@ async function eliminarReservaRPC(alcance) {
 const id = $('modalReservaId').value; if (!id) return;
 const msg = alcance === 'serie' ? "¿Eliminar esta reserva y todas las siguientes de la serie?" : "¿Eliminar esta reserva? Se devolverán los pagos registrados.";
 if (!confirm(msg)) return;
-const { error } = await supabaseClient.rpc('eliminar_reserva_con_devolucion', { p_reserva_id: id, p_alcance: alcance, p_empleado: nombreUsuario() });
+const { data, error } = await supabaseClient.rpc('eliminar_reserva_con_devolucion', { p_reserva_id: id, p_alcance: alcance, p_empleado: nombreUsuario() });
 if (error) return toast("No se pudo eliminar: " + error.message, 'err');
+if (!data || data.success === false) return toast(data && data.message === 'sin_permiso' ? 'No tienes permiso para eliminar reservas' : ((data && data.message) || 'No se pudo eliminar la reserva'), 'err');
 cerrarModal();
 toast(alcance === 'serie' ? "Serie eliminada" : "Reserva eliminada");
 cargarReservasHoy(); cargarCajaHoy();
@@ -1350,13 +1358,33 @@ $('cajaTotal').innerText = eur(caja.totalGeneral);
 const iso = $('fechaCuadrante').value || fechaLocalISO();
 $('cajaFechaTxt').innerText = fechaBonita(iso);
 }
+const FONDO_CAJA = 100;
+function calcularCierre(bil, mon, efSistema) {
+const efContado = redondear2(bil + mon);
+const dejarBilletes = Math.max(0, redondear2(FONDO_CAJA - mon));
+const sobreBruto = redondear2(bil - dejarBilletes);
+const esperado = redondear2(efSistema + FONDO_CAJA);
+return {
+efContado,
+dejarBilletes,
+sobre: Math.max(0, sobreBruto),
+faltaFondo: sobreBruto < 0 ? redondear2(-sobreBruto) : 0,
+esperado,
+dE: redondear2(efContado - esperado)
+};
+}
 function calcCierre() {
 const v = id => parseFloat($(id).value) || 0, c = datosLocales.caja || {};
-const ef = redondear2(v('cjBilletes') + v('cjMonedas'));
-const dE = redondear2(ef - (c.totalEfectivo || 0)), dD = redondear2(v('cjDatafono') - (c.totalTarjeta || 0));
+const r = calcularCierre(v('cjBilletes'), v('cjMonedas'), c.totalEfectivo || 0);
+const dD = redondear2(v('cjDatafono') - (c.totalTarjeta || 0));
 const f = n => `<b class="${Math.abs(n) < 0.005 ? 'dif-ok' : 'dif-ko'}">${n > 0 ? '+' : ''}${eur(n)}</b>`;
-$('cjEfectivo').value = eur(ef);
-$('cjResumen').innerHTML = `<span>Efectivo en sistema ${eur(c.totalEfectivo)} · ${f(dE)}</span><span>Datáfono en sistema ${eur(c.totalTarjeta)} · ${f(dD)}</span>`;
+$('cjEfectivo').value = eur(r.efContado);
+$('cjResumen').innerHTML =
+`<span>Efectivo esperado (sistema ${eur(c.totalEfectivo)} + fondo ${eur(FONDO_CAJA)}) ${eur(r.esperado)} · ${f(r.dE)}</span>` +
+`<span>Datáfono en sistema ${eur(c.totalTarjeta)} · ${f(dD)}</span>` +
+(r.faltaFondo > 0
+? `<span class="dif-ko">No hay billetes suficientes para dejar ${eur(FONDO_CAJA)}: faltan ${eur(r.faltaFondo)}</span>`
+: `<span><b>Guardar en el sobre: ${eur(r.sobre)}</b> (se quedan en caja ${eur(FONDO_CAJA)}: ${eur(parseFloat($('cjMonedas').value) || 0)} en monedas + ${eur(r.dejarBilletes)} en billetes)</span>`);
 }
 async function cerrarCajaHoy() {
 const btn = $('btnCerrarCaja'), msg = $('msgCierre');
@@ -1366,8 +1394,10 @@ const fecha = $('fechaCuadrante').value || fechaLocalISO();
 setBusy(btn, true, '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Cerrando...');
 try {
 await cargarCajaHoy();
-const c = datosLocales.caja, ef = redondear2(bil + mon);
-const dE = redondear2(ef - c.totalEfectivo), dD = redondear2(dat - c.totalTarjeta);
+const c = datosLocales.caja;
+const r = calcularCierre(bil, mon, c.totalEfectivo);
+const dE = r.dE, dD = redondear2(dat - c.totalTarjeta);
+if (r.faltaFondo > 0 && !confirm(`No hay billetes suficientes para dejar ${FONDO_CAJA} € en caja (faltan ${r.faltaFondo.toFixed(2)} €). ¿Cerrar igualmente?`)) return;
 if ((Math.abs(dE) >= 0.005 || Math.abs(dD) >= 0.005) && !confirm(`Hay descuadre (efectivo ${dE.toFixed(2)} €, datáfono ${dD.toFixed(2)} €). ¿Cerrar caja de todos modos?`)) return;
 const { data, error } = await supabaseClient.rpc('cerrar_caja', { p_fecha: fecha, p_billetes: bil, p_monedas: mon, p_datafono: dat });
 if (error) throw error;
@@ -1376,7 +1406,7 @@ const t = { ya_cerrada: `La caja del ${fecha} ya está cerrada. Solo un administ
 msg.style.color = 'var(--red)'; msg.innerText = t[data && data.error] || 'No se pudo cerrar la caja.';
 return;
 }
-msg.style.color = 'var(--green)'; msg.innerText = 'Caja cerrada correctamente';
+msg.style.color = 'var(--green)'; msg.innerText = `Caja cerrada. Guarda ${eur(r.sobre)} en el sobre y deja ${eur(FONDO_CAJA)} en caja.`;
 cargarHistorialCaja();
 } catch (err) {
 msg.style.color = 'var(--red)'; msg.innerText = 'No se pudo cerrar la caja: ' + (err.message || err);

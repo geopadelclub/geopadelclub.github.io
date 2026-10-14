@@ -1,10 +1,7 @@
 User-agent: *
 Allow: /
-Disallow: /panel
 Disallow: /copia.js
 Disallow: /informes.js
-Disallow: /utils.js
 Disallow: /gestion.js
-Disallow: /config.js
 Disallow: /bump-sw.js
 Sitemap: https://geopadelclub.github.io/sitemap.xml

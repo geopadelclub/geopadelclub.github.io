@@ -1,21 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://geopadelclub.github.io/</loc>
-    <lastmod>2026-10-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.00</priority>
-  </url>
-  <url>
-    <loc>https://geopadelclub.github.io/reservar</loc>
-    <lastmod>2026-10-13</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://geopadelclub.github.io/privacidad</loc>
-    <lastmod>2026-10-13</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.30</priority>
-  </url>
+  <url><loc>https://geopadelclub.github.io/</loc><lastmod>2026-10-14</lastmod></url>
+  <url><loc>https://geopadelclub.github.io/reservar</loc><lastmod>2026-10-14</lastmod></url>
+  <url><loc>https://geopadelclub.github.io/privacidad</loc><lastmod>2026-10-13</lastmod></url>
 </urlset>
