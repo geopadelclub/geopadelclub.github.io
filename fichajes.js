@@ -203,6 +203,11 @@ console.error(e);
 toast('No se pudo preparar la impresión: ' + (e.message || e), 'err');
 } finally { setBusy(btn, false); }
 }
+async function fxAplicarContrato() {
+if (typeof contratoJornadaDiaria !== 'function') return;
+const j = await contratoJornadaDiaria();
+if (j && $('fxJornada')) $('fxJornada').value = j;
+}
 async function entrarFichajes() {
 aplicarPermisosFichajes();
 if (!$('fxDesde').value) {
@@ -212,6 +217,7 @@ let j = null;
 try { j = parseFloat(localStorage.getItem(FX_CLAVE_JORNADA)); } catch (e) { }
 $('fxJornada').value = j > 0 ? j : FX_JORNADA_DEFECTO;
 }
+await fxAplicarContrato();
 if (esAdmin() && !fxEmpleadosListos) await fxCargarEmpleados();
 fxGenerar();
 }

@@ -173,7 +173,6 @@ pobladorPistasModal();
 iniciarFormDeuda();
 iniciarFormLimpieza();
 if (typeof aplicarPermisosCopia === 'function') aplicarPermisosCopia();
-if (typeof aplicarPermisosInformes === 'function') aplicarPermisosInformes();
 if (typeof aplicarPermisosFichajes === 'function') aplicarPermisosFichajes();
 renderSelectorMesas();
 iniciarSuscripcionRealtime();
@@ -383,14 +382,14 @@ document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('act
 document.querySelectorAll('.nav-tab').forEach(el => { el.classList.remove('active'); el.removeAttribute('aria-current'); });
 $(`tab-${tabName}`).classList.add('active');
 const nav = $(`nav-${tabName}`); nav.classList.add('active'); nav.setAttribute('aria-current', 'page');
-document.title = 'Geopadel · ' + ({ reservas: 'Reservas', tpv: 'Tienda', fichajes: 'Fichaje', caja: 'Caja y Catálogo', deudas: 'Deudas', limpieza: 'Limpieza', informes: 'Informes' }[tabName] || 'Panel');
+document.title = 'Geopadel · ' + ({ reservas: 'Reservas', tienda: 'Tienda', fichajes: 'Fichaje', caja: 'Caja', deudas: 'Deudas', limpieza: 'Limpieza', ajustes: 'Ajustes' }[tabName] || 'Panel');
 if (usuarioSesion) {
 if (tabName === 'deudas') cargarDeudas();
-if (tabName === 'informes' && typeof entrarInformes === 'function') entrarInformes();
+if (tabName === 'tienda') { cargarMesasBar(); if (typeof entrarEscaparate === 'function') entrarEscaparate(); }
+if (tabName === 'ajustes' && typeof entrarAjustes === 'function') entrarAjustes();
 if (tabName === 'limpieza') entrarPestanaLimpieza();
 if (tabName === 'caja') { cargarHistorialCaja(); cargarCajaHoy(); }
-if (tabName === 'fichajes') { cargarMisFichajes(); if (typeof entrarFichajes === 'function') entrarFichajes(); }
-if (tabName === 'tpv') cargarMesasBar();
+if (tabName === 'fichajes') { cargarMisFichajes(); if (typeof entrarContrato === 'function') entrarContrato(); if (typeof entrarFichajes === 'function') entrarFichajes(); }
 if (tabName === 'reservas') { scrollAhoraPendiente = true; renderizarCuadrantePlaytomic(datosLocales.reservas || []); }
 }
 }
@@ -772,8 +771,6 @@ $('modalFecha').value = $('fechaCuadrante').value || fechaLocalISO();
 $('modalRepetir').value = 12;
 $('btnEliminarSerie').style.display = 'none';
 $('btnEliminarReserva').style.display = "none";
-$('btnResetCodigoWeb').style.display = 'none';
-$('btnBorrarCliente').style.display = 'none';
 $('btnConfirmarPendiente').style.display = 'none';
 $('modalNumJugadores').value = "4";
 alCambiarTipo();
@@ -802,8 +799,6 @@ $('modalTipoReserva').value = res.tipoReserva || "Normal";
 $('modalFecha').value = res.fecha;
 $('btnEliminarSerie').style.display = res.serie ? 'inline-block' : 'none';
 $('btnEliminarReserva').style.display = "inline-block";
-$('btnResetCodigoWeb').style.display = res.telefono ? 'inline-block' : 'none';
-$('btnBorrarCliente').style.display = esAdmin() && res.cliente ? 'inline-block' : 'none';
 $('btnConfirmarPendiente').style.display = res.estado === 'Pendiente' ? 'inline-block' : 'none';
 alCambiarTipo();
 $('modalNumJugadores').value = String(nJug);
@@ -880,44 +875,6 @@ actualizarVistasJugadoresSplit();
 }
 }
 function cerrarModal() { cerrarOverlay('modalReserva'); }
-async function resetearCodigoWeb() {
-const tel = $('modalTelefono').value.trim();
-if (!tel) return toast('Este cliente no tiene teléfono', 'warn');
-if (!confirm('¿Restablecer el código web de este cliente y habilitarle el acceso web? Tendrá que crear uno nuevo en su próxima reserva. Hazlo solo si has comprobado que es él.')) return;
-const btn = $('btnResetCodigoWeb');
-setBusy(btn, true, '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Restableciendo...');
-try {
-const { data, error } = await supabaseClient.rpc('gp_resetear_codigo_cliente', { p_telefono: tel });
-if (error) throw error;
-if (!data || !data.ok) return toast('No tienes permiso para hacerlo', 'err');
-const h = await supabaseClient.rpc('gp_habilitar_acceso_web', { p_telefono: tel });
-if (h.error || !h.data || !h.data.ok) console.warn('No se pudo habilitar el acceso web', h.error);
-toast('Código web restablecido y acceso web habilitado');
-} catch (err) {
-toast('No se pudo restablecer: ' + (err.message || err), 'err');
-} finally {
-setBusy(btn, false);
-}
-}
-async function borrarDatosCliente() {
-if (!esAdmin()) return toast('Solo un administrador puede borrar datos de clientes', 'err');
-const nombre = $('modalCliente').value.trim();
-if (!nombre) return toast('Escribe el nombre del cliente', 'warn');
-if (!confirm(`¿Borrar los datos personales de «${nombre}»?\n\nSe elimina su ficha y se quita su nombre y teléfono de reservas y deudas (los importes se conservan sin datos personales). Se cancelan sus reservas futuras sin cobros. No se puede deshacer.`)) return;
-const btn = $('btnBorrarCliente');
-setBusy(btn, true, '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Borrando...');
-try {
-const { data, error } = await supabaseClient.rpc('gp_borrar_cliente', { p_nombre: nombre });
-if (error) throw error;
-if (!data || !data.ok) {
-const t = { deuda_pendiente: 'Tiene deudas pendientes. Resuélvelas antes de borrar sus datos.', reservas_pagadas: 'Tiene reservas futuras con cobros. Devuelve o elimina esas reservas antes.', no_encontrado: 'No hay ninguna ficha de cliente con ese nombre.', sin_permiso: 'No tienes permiso para hacerlo.' };
-return toast(t[data && data.error] || 'No se pudo borrar', 'err');
-}
-toast('Datos del cliente borrados');
-cerrarModal();
-cargarClientes(); cargarReservasHoy(); cargarDeudas();
-} catch (err) { toast('No se pudo borrar: ' + (err.message || err), 'err'); } finally { setBusy(btn, false); }
-}
 async function guardarClienteSilencioso(nombre, telefono) {
 const row = { nombre };
 if (telefono) row.telefono = telefono;
@@ -1316,6 +1273,7 @@ cargarProductos();
 }
 async function fichar(tipo, btn) {
 const msg = $('msgFichaje');
+if (typeof asegurarContrato === 'function' && !(await asegurarContrato())) { msg.style.color = 'var(--orange-text)'; msg.innerText = 'Para fichar necesitas indicar tu contrato.'; return; }
 if (ultimoFichaje && ultimoFichaje.tipo === tipo) {
 if (!confirm(`Tu último fichaje ya fue de ${tipo}. ¿Registrar otra ${tipo} igualmente?`)) return;
 }
@@ -1568,13 +1526,15 @@ document.addEventListener('keydown', e => {
 if (e.key !== 'Escape') return;
 if ($('modalAvisoLimpieza').classList.contains('open')) cerrarAvisoLimpieza();
 else if ($('modalProducto').classList.contains('open')) cerrarModalProducto();
+else if ($('modalArticulo').classList.contains('open')) cerrarModalArticulo();
+else if ($('modalContrato').classList.contains('open')) cerrarContrato(false);
 else if ($('modalReserva').classList.contains('open')) cerrarModal();
 });
 document.querySelectorAll('.modal-overlay').forEach(ov => {
 let abajoEnFondo = false;
 ov.addEventListener('mousedown', e => { abajoEnFondo = e.target === ov; });
 ov.addEventListener('mouseup', e => {
-if (abajoEnFondo && e.target === ov) { if (ov.id === 'modalProducto') cerrarModalProducto(); else if (ov.id === 'modalAvisoLimpieza') cerrarAvisoLimpieza(); else cerrarModal(); }
+if (abajoEnFondo && e.target === ov) { if (ov.id === 'modalArticulo' || ov.id === 'modalContrato') { } else if (ov.id === 'modalProducto') cerrarModalProducto(); else if (ov.id === 'modalAvisoLimpieza') cerrarAvisoLimpieza(); else cerrarModal(); }
 abajoEnFondo = false;
 });
 });
