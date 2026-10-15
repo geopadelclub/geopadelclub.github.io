@@ -34,6 +34,7 @@ let cobrando = false;
 let ultimoFichaje = null;
 const nombreUsuario = () => usuarioSesion ? (usuarioSesion.user || usuarioSesion.nombre) : 'Sistema';
 const ROLES_ADMIN = ['trabajador', 'jefa'];
+const esJefa = () => !!usuarioSesion && String(usuarioSesion.rol || '').trim().toLowerCase() === 'jefa';
 const esAdmin = () => !!usuarioSesion && ROLES_ADMIN.includes(String(usuarioSesion.rol || '').trim().toLowerCase());
 function marcarInicioSesion() { try { localStorage.setItem(CLAVE_SESION_INI, String(Date.now())); } catch (e) { } }
 function sesionCaducada() {
@@ -177,7 +178,7 @@ if (typeof aplicarPermisosFichajes === 'function') aplicarPermisosFichajes();
 renderSelectorMesas();
 iniciarSuscripcionRealtime();
 cargarDatosGlobales();
-cargarMisFichajes();
+if (!esJefa()) cargarMisFichajes();
 }
 $('loginForm').addEventListener('submit', async function (e) {
 e.preventDefault();
@@ -389,7 +390,7 @@ if (tabName === 'tienda') { cargarMesasBar(); if (typeof entrarEscaparate === 'f
 if (tabName === 'ajustes' && typeof entrarAjustes === 'function') entrarAjustes();
 if (tabName === 'limpieza') entrarPestanaLimpieza();
 if (tabName === 'caja') { cargarHistorialCaja(); cargarCajaHoy(); }
-if (tabName === 'fichajes') { cargarMisFichajes(); if (typeof entrarContrato === 'function') entrarContrato(); if (typeof entrarFichajes === 'function') entrarFichajes(); }
+if (tabName === 'fichajes') { if (!esJefa()) { cargarMisFichajes(); if (typeof entrarContrato === 'function') entrarContrato(); } if (typeof entrarFichajes === 'function') entrarFichajes(); }
 if (tabName === 'reservas') { scrollAhoraPendiente = true; renderizarCuadrantePlaytomic(datosLocales.reservas || []); }
 }
 }
@@ -1273,6 +1274,7 @@ cargarProductos();
 }
 async function fichar(tipo, btn) {
 const msg = $('msgFichaje');
+if (esJefa()) return;
 if (typeof asegurarContrato === 'function' && !(await asegurarContrato())) { msg.style.color = 'var(--orange-text)'; msg.innerText = 'Para fichar necesitas indicar tu contrato.'; return; }
 if (ultimoFichaje && ultimoFichaje.tipo === tipo) {
 if (!confirm(`Tu último fichaje ya fue de ${tipo}. ¿Registrar otra ${tipo} igualmente?`)) return;

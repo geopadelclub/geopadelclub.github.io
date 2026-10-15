@@ -34,6 +34,16 @@ const dias = CT_DIAS.filter(([k]) => c.horario && c.horario[k] && c.horario[k].o
 return dias ? Math.round(Number(c.horas_semanales) / dias * 100) / 100 : null;
 } catch (e) { return null; }
 }
+function ctJornadaDeContrato(c, fecha) {
+if (!c) return null;
+const h = c.horario || {};
+const act = CT_DIAS.filter(([k]) => h[k] && h[k].on).length;
+if (!act) return null;
+const [y, m, d] = fecha.split('-').map(Number);
+const k = CT_DIAS[(new Date(y, m - 1, d, 12).getDay() + 6) % 7][0];
+if (!(h[k] && h[k].on)) return 0;
+return Math.round(Number(c.horas_semanales) / act * 60);
+}
 function ctResumenHtml(c) {
 if (!c) return '<p class="limp-leyenda" style="color:var(--orange-text);font-weight:700"><i class="ri-error-warning-line" aria-hidden="true"></i>Aún no has indicado tu contrato. Se te pedirá al fichar por primera vez.</p>';
 const filas = CT_DIAS.map(([k, n]) => {
@@ -153,6 +163,7 @@ err(esErrorTabla(ex) ? 'Falta crear la tabla «contratos_jornada». Ejecuta migr
 } finally { setBusy(btn, false); }
 }
 async function asegurarContrato() {
+if (typeof esJefa === 'function' && esJefa()) return true;
 let c;
 try { c = await cargarContrato(false); }
 catch (e) { console.error(e); return true; }
@@ -160,7 +171,7 @@ if (c) return true;
 if (!(await abrirContrato(true))) return false;
 return new Promise(res => { ctResolver = res; });
 }
-function entrarContrato() { dibujarContratoResumen(); }
+function entrarContrato() { if (typeof esJefa === 'function' && esJefa()) return; dibujarContratoResumen(); }
 $('btnEditarContrato').addEventListener('click', () => abrirContrato(false));
 $('btnGuardarContrato').addEventListener('click', guardarContrato);
 $('btnCancelarContrato').addEventListener('click', () => cerrarContrato(false));

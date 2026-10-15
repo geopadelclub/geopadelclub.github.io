@@ -1,9 +1,8 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 const FX_MAX_TRAMO_MIN = 16 * 60;
-const FX_CLAVE_JORNADA = 'gp-jornada-h';
-const FX_JORNADA_DEFECTO = 8;
 let fxEmpleados = {};
 let fxEmpleadosListos = false;
+let fxJefas = new Set();
 const fxPad = n => String(n).padStart(2, '0');
 const fxHM = min => `${Math.floor(min / 60)}:${fxPad(min % 60)}`;
 const fxDec = min => (min / 60).toFixed(2).replace('.', ',');
@@ -20,25 +19,27 @@ if (tipo === 'mes') return [`${y}-${fxPad(m)}-01`, hoy];
 return [fechaLocalISO(new Date(y, m - 2, 1)), fechaLocalISO(new Date(y, m - 1, 0))];
 }
 function aplicarPermisosFichajes() {
-const adm = typeof esAdmin === 'function' && esAdmin();
+const jefa = typeof esJefa === 'function' && esJefa();
 const box = $('fxEmpleadoBox');
-if (box) box.style.display = adm ? '' : 'none';
+if (box) box.style.display = jefa ? '' : 'none';
+[['cardFichar', jefa], ['cardContrato', jefa]].forEach(([id, ocultar]) => { const e = $(id); if (e) e.style.display = ocultar ? 'none' : ''; });
 }
 async function fxCargarEmpleados() {
 const sel = $('fxEmpleado');
 try {
-const { data, error } = await supabaseClient.from('usuarios').select('usuario, nombre, estado').order('nombre');
+const { data, error } = await supabaseClient.from('usuarios').select('usuario, nombre, estado, rol').order('nombre');
 if (error) throw error;
 fxEmpleados = {};
-(data || []).forEach(u => { if (u.usuario) fxEmpleados[u.usuario] = u.nombre || u.usuario; });
+fxJefas = new Set();
+(data || []).forEach(u => { if (u.usuario) { fxEmpleados[u.usuario] = u.nombre || u.usuario; if (String(u.rol || '').trim().toLowerCase() === 'jefa') fxJefas.add(u.usuario); } });
 const actual = sel.value;
-sel.innerHTML = '<option value="">Todos los empleados</option>' + (data || []).filter(u => u.usuario)
+sel.innerHTML = '<option value="">Todos los empleados</option>' + (data || []).filter(u => u.usuario && !fxJefas.has(u.usuario))
 .map(u => `<option value="${esc(u.usuario)}">${esc(u.nombre || u.usuario)}${u.estado && u.estado !== 'Activo' ? ' (inactivo)' : ''}</option>`).join('');
 sel.value = actual;
 fxEmpleadosListos = true;
 } catch (err) { console.error(err); }
 }
-function fxCalcular(filas, desde, hasta, jornadaMin) {
+function fxCalcular(filas, desde, hasta, jornadaDe) {
 const porEmp = {}, mapa = {}, ahora = Date.now();
 filas.forEach(f => { (porEmp[f.empleado] = porEmp[f.empleado] || []).push(f); });
 const dia = (emp, t) => { const fecha = fechaLocalISO(t), k = emp + '|' + fecha; return mapa[k] || (mapa[k] = { emp, fecha, tramos: [], incid: [], enCurso: false }); };
@@ -74,14 +75,17 @@ for (let i = 1; i < d.tramos.length; i++) {
 const p = d.tramos[i - 1], c = d.tramos[i];
 if (fechaLocalISO(p.fin) === fechaLocalISO(c.ini)) d.pausa += Math.max(0, Math.round((c.ini - p.fin) / 60000));
 }
-d.ord = Math.min(d.total, jornadaMin);
-d.extra = Math.max(0, d.total - jornadaMin);
+const j = jornadaDe(d.emp, d.fecha);
+d.jorn = isFinite(j.min) ? j.min : 0; d.sinContrato = !j.contrato;
+d.ord = Math.min(d.total, j.min);
+d.extra = Math.max(0, d.total - j.min);
 });
 dias.sort((a, b) => fxNombre(a.emp).localeCompare(fxNombre(b.emp), 'es') || a.fecha.localeCompare(b.fecha));
 const meses = {};
 dias.forEach(d => {
 const k = d.emp + '|' + d.fecha.slice(0, 7);
-const m = meses[k] || (meses[k] = { emp: d.emp, mes: d.fecha.slice(0, 7), dias: 0, total: 0, ord: 0, extra: 0, pausa: 0, incid: 0 });
+const m = meses[k] || (meses[k] = { emp: d.emp, mes: d.fecha.slice(0, 7), dias: 0, total: 0, ord: 0, extra: 0, pausa: 0, incid: 0, sinContrato: false });
+if (d.sinContrato) m.sinContrato = true;
 if (d.tramos.length) m.dias++;
 m.total += d.total; m.ord += d.ord; m.extra += d.extra; m.pausa += d.pausa; m.incid += d.incid.length;
 });
@@ -90,6 +94,7 @@ return { dias, meses: listaMeses };
 }
 const fxTramosTxt = d => d.tramos.map(t => `${fxHora(t.ini)}–${fxHora(t.fin)}${fechaLocalISO(t.fin) !== fechaLocalISO(t.ini) ? ' (+1 día)' : ''}`).join(' · ') + (d.enCurso ? (d.tramos.length ? ' · ' : '') + 'en curso' : '');
 const fxMin = m => m ? fxHM(m) + ' h' : '—';
+const fxJornadaTxt = d => d.jorn ? fxHM(d.jorn) + ' h' + (d.sinContrato ? ' *' : '') : (d.sinContrato ? '— *' : 'Libranza');
 function fxTabla(cab, filas, clase, vacio) {
 const t = `<table class="${clase}"><thead><tr>${cab.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${filas.length ? filas.join('') : `<tr><td colspan="${cab.length}" class="tabla-empty">${esc(vacio)}</td></tr>`}</tbody></table>`;
 return clase === 'fx-table' ? t : `<div class="table-wrap">${t}</div>`;
@@ -97,15 +102,15 @@ return clase === 'fx-table' ? t : `<div class="table-wrap">${t}</div>`;
 function fxFilasDia(dias, pantalla) {
 return dias.map(d => {
 const inc = d.incid.length ? (pantalla ? `<span class="limp-ko">${esc(d.incid.join(' · '))}</span>` : esc(d.incid.join(' · '))) : (d.enCurso ? 'En curso' : '');
-return `<tr><td><b>${esc(fxNombre(d.emp))}</b></td><td>${esc(fxDiaSemana(d.fecha))} ${esc(fxFecha(d.fecha))}</td><td>${esc(fxTramosTxt(d))}</td><td>${esc(fxMin(d.pausa))}</td><td><b>${esc(fxMin(d.total))}</b></td><td>${esc(fxMin(d.ord))}</td><td>${esc(fxMin(d.extra))}</td><td>${inc || '—'}</td></tr>`;
+return `<tr><td><b>${esc(fxNombre(d.emp))}</b></td><td>${esc(fxDiaSemana(d.fecha))} ${esc(fxFecha(d.fecha))}</td><td>${esc(fxTramosTxt(d))}</td><td>${esc(fxMin(d.pausa))}</td><td>${esc(fxJornadaTxt(d))}</td><td><b>${esc(fxMin(d.total))}</b></td><td>${esc(fxMin(d.ord))}</td><td>${esc(fxMin(d.extra))}</td><td>${inc || '—'}</td></tr>`;
 });
 }
 function fxFilasMes(meses) {
-return meses.map(m => `<tr><td><b>${esc(fxNombre(m.emp))}</b></td><td>${esc(fxMesTxt(m.mes))}</td><td>${m.dias}</td><td><b>${esc(fxMin(m.total))}</b></td><td>${esc(fxMin(m.ord))}</td><td>${esc(fxMin(m.extra))}</td><td>${m.incid || '—'}</td></tr>`);
+return meses.map(m => `<tr><td><b>${esc(fxNombre(m.emp))}</b>${m.sinContrato ? ' *' : ''}</td><td>${esc(fxMesTxt(m.mes))}</td><td>${m.dias}</td><td><b>${esc(fxMin(m.total))}</b></td><td>${esc(fxMin(m.ord))}</td><td>${esc(fxMin(m.extra))}</td><td>${m.incid || '—'}</td></tr>`);
 }
-const FX_CAB_DIA = ['Empleado', 'Fecha', 'Tramos (entrada–salida)', 'Pausas', 'Horas trabajadas', 'Ordinarias', 'Exceso s/ jornada', 'Incidencias'];
+const FX_CAB_DIA = ['Empleado', 'Fecha', 'Tramos (entrada–salida)', 'Pausas', 'Jornada del día', 'Horas trabajadas', 'Ordinarias', 'Exceso s/ jornada', 'Incidencias'];
 const FX_CAB_MES = ['Empleado', 'Mes', 'Días trabajados', 'Horas trabajadas', 'Ordinarias', 'Exceso s/ jornada', 'Incidencias'];
-function fxDibujar(r, p) {
+function fxDibujar(r) {
 const tot = r.dias.reduce((s, d) => ({ t: s.t + d.total, o: s.o + d.ord, e: s.e + d.extra, i: s.i + d.incid.length, n: s.n + (d.tramos.length ? 1 : 0) }), { t: 0, o: 0, e: 0, i: 0, n: 0 });
 $('fxContenido').innerHTML = `
 <div class="card"><div class="kpi-row">
@@ -117,7 +122,17 @@ $('fxContenido').innerHTML = `
 <div class="card"><h3><i class="ri-calendar-2-line" aria-hidden="true"></i>Resumen por mes</h3>${fxTabla(FX_CAB_MES, fxFilasMes(r.meses), 'tabla-productos', 'Sin fichajes en este periodo')}
 <p class="limp-leyenda" style="margin-top:12px">Los meses solo suman los días incluidos en el periodo elegido.</p></div>
 <div class="card"><h3><i class="ri-list-check-2" aria-hidden="true"></i>Detalle por día</h3>${fxTabla(FX_CAB_DIA, fxFilasDia(r.dias, true), 'tabla-productos', 'Sin fichajes en este periodo')}
-<p class="limp-leyenda" style="margin-top:12px">Horas netas = suma de cada tramo Entrada→Salida. Las pausas son el tiempo entre una Salida y la siguiente Entrada del mismo día y no se cuentan como trabajadas. «Exceso s/ jornada» = horas que superan los ${esc(String(p.jornadaH).replace('.', ','))} h/día indicadas; que sean horas extraordinarias legalmente depende de tu convenio y contrato. Una incidencia es una Entrada sin Salida (o al revés): conviene revisarla.</p></div>`;
+<p class="limp-leyenda" style="margin-top:12px">Horas netas = suma de cada tramo Entrada→Salida. Las pausas son el tiempo entre una Salida y la siguiente Entrada del mismo día y no se cuentan como trabajadas. «Jornada del día» sale del contrato de cada trabajador (horas semanales ÷ días de trabajo; los días de libranza tienen jornada 0). «Exceso s/ jornada» = horas que superan esa jornada; que sean horas extraordinarias legalmente depende del convenio y del contrato. ${r.sinContrato.length ? `<b>*</b> Sin contrato indicado (${esc(r.sinContrato.map(fxNombre).join(', '))}): no se puede calcular el exceso hasta que lo indiquen.` : ''} Una incidencia es una Entrada sin Salida (o al revés): conviene revisarla.</p></div>`;
+}
+async function fxCargarContratos(emps) {
+const out = {};
+if (!emps.length) return out;
+try {
+const { data, error } = await leerTodo(() => supabaseClient.from('contratos_jornada').select('*').in('usuario', emps).order('vigente_desde', { ascending: false }).order('created_at', { ascending: false }));
+if (error) throw error;
+(data || []).forEach(c => { (out[c.usuario] = out[c.usuario] || []).push(c); });
+} catch (e) { console.error('contratos', e); }
+return out;
 }
 async function fxGenerar() {
 const msg = $('fxMsg'), btn = $('fxVer');
@@ -125,12 +140,9 @@ const err = t => { msg.style.color = 'var(--red)'; msg.innerText = t; return fal
 const desde = $('fxDesde').value, hasta = $('fxHasta').value;
 if (!desde || !hasta || hasta < desde) return err('Revisa las fechas');
 if (sumarDiasISO(desde, 366) < hasta) return err('El rango máximo es de un año');
-const jornadaH = parseFloat(String($('fxJornada').value).replace(',', '.'));
-if (!(jornadaH > 0 && jornadaH <= 24)) return err('Indica una jornada diaria válida (horas)');
-try { localStorage.setItem(FX_CLAVE_JORNADA, String(jornadaH)); } catch (e) { }
-const adm = esAdmin();
-const emp = adm ? $('fxEmpleado').value : (usuarioSesion && usuarioSesion.user);
-if (!adm && !emp) return err('No se pudo identificar al empleado');
+const jefa = esJefa();
+const emp = jefa ? $('fxEmpleado').value : (usuarioSesion && usuarioSesion.user);
+if (!jefa && !emp) return err('No se pudo identificar al empleado');
 setBusy(btn, true, '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Calculando...');
 msg.innerText = '';
 try {
@@ -141,9 +153,22 @@ if (emp) q = q.eq('empleado', emp);
 return q;
 });
 if (error) throw error;
-const res = fxCalcular(data || [], desde, hasta, Math.round(jornadaH * 60));
-window.fxUltimo = { res, desde, hasta, emp, jornadaH, generado: new Date() };
-fxDibujar(res, { jornadaH });
+const filas = (data || []).filter(x => !fxJefas.has(x.empleado));
+const contratos = await fxCargarContratos(Array.from(new Set(filas.map(x => x.empleado))));
+const sin = new Set();
+const jornadaDe = (e, fecha) => {
+const cs = contratos[e] || [];
+let c = null;
+for (const x of cs) { if ((x.vigente_desde || '0000-00-00') <= fecha) { c = x; break; } }
+if (!c && cs.length) c = cs[cs.length - 1];
+const m = c && typeof ctJornadaDeContrato === 'function' ? ctJornadaDeContrato(c, fecha) : null;
+if (m === null) { sin.add(e); return { min: Infinity, contrato: false }; }
+return { min: m, contrato: true };
+};
+const res = fxCalcular(filas, desde, hasta, jornadaDe);
+res.sinContrato = Array.from(sin).filter(e => res.dias.some(d => d.emp === e));
+window.fxUltimo = { res, desde, hasta, emp, generado: new Date() };
+fxDibujar(res);
 msg.style.color = 'var(--muted)';
 msg.innerText = `Generado ${new Date().toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}`;
 return true;
@@ -164,9 +189,9 @@ if (!(await fxGenerar())) return;
 const u = window.fxUltimo, r = u.res;
 if (!r.dias.length) return toast('No hay fichajes en este periodo', 'warn');
 const f = a => a.map(fxCelda).join(';');
-const l = [f(['REGISTRO DE JORNADA · GEOPADEL']), f(['Periodo', `${fxFecha(u.desde)} a ${fxFecha(u.hasta)}`]), f(['Jornada diaria de referencia (h)', String(u.jornadaH).replace('.', ',')]), f(['Generado', u.generado.toLocaleString('es-ES')]), '',
-f(['DETALLE POR DÍA']), f(['Empleado', 'Fecha', 'Tramos', 'Pausas (h:mm)', 'Horas trabajadas (h:mm)', 'Horas trabajadas (decimal)', 'Ordinarias (h:mm)', 'Exceso s/ jornada (h:mm)', 'Incidencias'])];
-r.dias.forEach(d => l.push(f([fxNombre(d.emp), fxFecha(d.fecha), fxTramosTxt(d), fxHM(d.pausa), fxHM(d.total), fxDec(d.total), fxHM(d.ord), fxHM(d.extra), d.incid.join(' | ')])));
+const l = [f(['REGISTRO DE JORNADA · GEOPADEL']), f(['Periodo', `${fxFecha(u.desde)} a ${fxFecha(u.hasta)}`]), f(['Criterio', 'Jornada del día según el contrato de cada trabajador (horas semanales / días de trabajo; libranza = 0). * = sin contrato']), f(['Generado', u.generado.toLocaleString('es-ES')]), '',
+f(['DETALLE POR DÍA']), f(['Empleado', 'Fecha', 'Tramos', 'Pausas (h:mm)', 'Jornada del día (h:mm)', 'Horas trabajadas (h:mm)', 'Horas trabajadas (decimal)', 'Ordinarias (h:mm)', 'Exceso s/ jornada (h:mm)', 'Incidencias'])];
+r.dias.forEach(d => l.push(f([fxNombre(d.emp), fxFecha(d.fecha), fxTramosTxt(d), fxHM(d.pausa), fxHM(d.jorn) + (d.sinContrato ? ' *' : ''), fxHM(d.total), fxDec(d.total), fxHM(d.ord), fxHM(d.extra), d.incid.join(' | ')])));
 l.push('', f(['RESUMEN POR MES']), f(['Empleado', 'Mes', 'Días trabajados', 'Horas trabajadas (h:mm)', 'Horas trabajadas (decimal)', 'Ordinarias (h:mm)', 'Exceso s/ jornada (h:mm)', 'Incidencias']));
 r.meses.forEach(m => l.push(f([fxNombre(m.emp), fxMesTxt(m.mes), m.dias, fxHM(m.total), fxDec(m.total), fxHM(m.ord), fxHM(m.extra), m.incid])));
 const quien = u.emp ? u.emp : 'todos';
@@ -183,7 +208,7 @@ return `<section class="fx-page">
 <div class="fx-meta">Geopadel<br>Impreso: ${esc(u.generado.toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' }))}</div></div>
 <h2>Resumen por mes</h2>${fxTabla(cabM, fxFilasMes(meses).map(quitar), 'fx-table', 'Sin fichajes')}
 <h2>Detalle por día</h2>${fxTabla(cabD, fxFilasDia(dias, false).map(quitar), 'fx-table', 'Sin fichajes')}
-<p class="fx-nota">Horas netas = suma de tramos Entrada→Salida; las pausas no se cuentan. Exceso sobre una jornada de referencia de ${esc(String(u.jornadaH).replace('.', ','))} h/día. Registro diario de jornada (art. 34.9 del Estatuto de los Trabajadores); los registros se conservan 4 años.</p>
+<p class="fx-nota">Horas netas = suma de tramos Entrada→Salida; las pausas no se cuentan. Exceso sobre la jornada del día según el contrato del trabajador${u.res.sinContrato.includes(emp) ? ` (* sin contrato indicado: no se calcula exceso)` : ''}. Registro diario de jornada (art. 34.9 del Estatuto de los Trabajadores); los registros se conservan 4 años.</p>
 <div class="fx-firmas"><div>Firma del trabajador</div><div>Firma de la empresa</div></div></section>`;
 }
 async function fxImprimir() {
@@ -203,21 +228,13 @@ console.error(e);
 toast('No se pudo preparar la impresión: ' + (e.message || e), 'err');
 } finally { setBusy(btn, false); }
 }
-async function fxAplicarContrato() {
-if (typeof contratoJornadaDiaria !== 'function') return;
-const j = await contratoJornadaDiaria();
-if (j && $('fxJornada')) $('fxJornada').value = j;
-}
+function fxAplicarContrato() { if (!esJefa() && $('fxDesde').value) fxGenerar(); }
 async function entrarFichajes() {
 aplicarPermisosFichajes();
 if (!$('fxDesde').value) {
 const [d, h] = fxRango('mes');
 $('fxDesde').value = d; $('fxHasta').value = h;
-let j = null;
-try { j = parseFloat(localStorage.getItem(FX_CLAVE_JORNADA)); } catch (e) { }
-$('fxJornada').value = j > 0 ? j : FX_JORNADA_DEFECTO;
 }
-await fxAplicarContrato();
 if (esAdmin() && !fxEmpleadosListos) await fxCargarEmpleados();
 fxGenerar();
 }
