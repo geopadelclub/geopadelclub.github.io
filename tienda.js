@@ -57,7 +57,7 @@ function canvasABlob(canvas, tipo, calidad) {
 return new Promise(res => canvas.toBlob(b => res(b), tipo, calidad));
 }
 async function imagenAWebP(file) {
-if (!/^image\
+if (!file || !/^image\//.test(file.type)) throw new Error('El archivo seleccionado no es una imagen válida');
 if (file.size > 25 * 1024 * 1024) throw new Error('La imagen pesa demasiado (máximo 25 MB)');
 let origen, w, h;
 try {
