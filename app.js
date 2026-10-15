@@ -11,8 +11,9 @@ const listaPistas = ["1 PADEL MASTER", "Pista 2", "Pista 3", "Pista 4", "Pista 5
 const APERT_MIN = 8 * 60;
 const bloqueDescansoInicio = 14 * 60;
 const bloqueDescansoFin = 17 * 60;
-const cierreMin = 24 * 60;
-let horaInicioGrid = 8, horaFinGrid = 23.5;
+const CIERRE_MIN = 22 * 60;
+const cierreMin = CIERRE_MIN;
+let horaInicioGrid = 8, horaFinGrid = 21.5;
 let usuarioSesion = null;
 let datosLocales = { productos: [], clientes: [], reservas: [], tarifas: {}, caja: { totalEfectivo: 0, totalTarjeta: 0, totalGeneral: 0 } };
 const TARIFAS_DEFECTO = { semanaManana: { 90: 20 }, semanaTarde: { 90: 26 }, finde: { 90: 26 } };
@@ -35,7 +36,7 @@ let ultimoFichaje = null;
 const nombreUsuario = () => usuarioSesion ? (usuarioSesion.user || usuarioSesion.nombre) : 'Sistema';
 const ROLES_ADMIN = ['trabajador', 'jefa'];
 const esJefa = () => !!usuarioSesion && String(usuarioSesion.rol || '').trim().toLowerCase() === 'jefa';
-const esAdmin = () => !!usuarioSesion && ROLES_ADMIN.includes(String(usuarioSesion.rol || '').trim().toLowerCase());
+const esPersonal = () => !!usuarioSesion && ROLES_ADMIN.includes(String(usuarioSesion.rol || '').trim().toLowerCase());
 function marcarInicioSesion() { try { localStorage.setItem(CLAVE_SESION_INI, String(Date.now())); } catch (e) { } }
 function sesionCaducada() {
 let ini = 0;
@@ -50,10 +51,6 @@ function rangoDiaISO(iso) {
 const [y, m, d] = iso.split('-').map(Number);
 return [new Date(y, m - 1, d, 0, 0, 0).toISOString(), new Date(y, m - 1, d + 1, 0, 0, 0).toISOString()];
 }
-function fechaBonita(iso) {
-const [y, m, d] = iso.split('-').map(Number);
-return new Date(y, m - 1, d).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-}
 function timeToMin(tStr) {
 const parts = String(tStr || '0:0').split(':');
 return (parseInt(parts[0], 10) || 0) * 60 + (parseInt(parts[1], 10) || 0);
@@ -63,11 +60,11 @@ const h = Math.floor(min / 60), m = min % 60;
 return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 }
 function esCerrado(min) {
-return min < (9 * 60) || (min >= bloqueDescansoInicio && min < bloqueDescansoFin) || min >= (23 * 60 + 30);
+return min < (9 * 60) || (min >= bloqueDescansoInicio && min < bloqueDescansoFin) || min >= CIERRE_MIN;
 }
 function esFranjaBloqueada(iniMin, finMin, tipoReserva = "Normal") {
 if (tipoReserva === "Torneo") return iniMin < (8 * 60) || finMin > (24 * 60);
-if (iniMin < (9 * 60) || finMin > (23 * 60 + 30)) return true;
+if (iniMin < (9 * 60) || finMin > CIERRE_MIN) return true;
 if (iniMin < bloqueDescansoFin && finMin > bloqueDescansoInicio) return true;
 return false;
 }
@@ -76,27 +73,6 @@ const v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue
 return (v || 30) / 30;
 }
 const FILTRO_NO_CANCELADA = 'estado.is.null,estado.neq.Cancelada';
-function aplicarTema(t, guardar = true) {
-document.documentElement.setAttribute('data-theme', t);
-if (guardar) { try { localStorage.setItem('gp-theme', t); } catch (e) { } }
-$('metaTheme').setAttribute('content', t === 'dark' ? '#364650' : '#fcfdfc');
-document.querySelectorAll('.theme-toggle').forEach(b => {
-b.innerHTML = t === 'dark' ? '<i class="ri-sun-line" aria-hidden="true"></i>' : '<i class="ri-moon-line" aria-hidden="true"></i>';
-b.setAttribute('aria-label', t === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
-b.title = t === 'dark' ? 'Modo claro' : 'Modo oscuro';
-});
-}
-function alternarTema() {
-aplicarTema(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-}
-function iniciarTema() {
-aplicarTema(document.documentElement.getAttribute('data-theme') || 'light', false);
-try {
-const mq = window.matchMedia('(prefers-color-scheme: dark)');
-const seguir = e => { let g = null; try { g = localStorage.getItem('gp-theme'); } catch (x) { } if (!g) aplicarTema(e.matches ? 'dark' : 'light', false); };
-if (mq.addEventListener) mq.addEventListener('change', seguir);
-} catch (e) { }
-}
 let intentosFallidos = 0, bloqueoHasta = 0;
 let tsLoginId = null, tsLoginToken = '';
 function iniciarTurnstileLogin() {
@@ -295,19 +271,18 @@ async function cargarDatosGlobales() {
 await Promise.all([cargarClientes(), cargarProductos(), cargarTarifas(), cargarMesasBar(), cargarReservasHoy(), cargarCajaHoy(), cargarDeudas()]);
 }
 async function cargarClientes() {
-const { data, error } = await leerTodo(() => supabaseClient.from('clientes').select('nombre, telefono').order('nombre'));
+const { data, error } = await conReintento(() => leerTodo(() => supabaseClient.from('clientes').select('nombre, telefono').order('nombre')));
 if (error) { console.error(error); return; }
 datosLocales.clientes = data || [];
-dibujarClientesDatalist(datosLocales.clientes);
 }
 async function cargarProductos() {
-const { data, error } = await supabaseClient.from('productos').select('*').neq('estado', 'Eliminado').order('nombre');
+const { data, error } = await conReintento(() => supabaseClient.from('productos').select('*').neq('estado', 'Eliminado').order('nombre'));
 if (error) { console.error(error); toast('No se pudo cargar el catálogo', 'err'); return; }
 datosLocales.productos = data || [];
 dibujarCatalogo(datosLocales.productos);
 }
 async function cargarTarifas() {
-const { data, error } = await supabaseClient.from('tarifas').select('*');
+const { data, error } = await conReintento(() => supabaseClient.from('tarifas').select('*'));
 if (error) { console.error(error); return; }
 const tf = {};
 const num = v => (v === null || v === undefined || v === '') ? null : Number(v);
@@ -319,7 +294,7 @@ datosLocales.tarifas = tf;
 dibujarTarifas({ ...TARIFAS_DEFECTO, ...tf });
 }
 async function cargarMesasBar() {
-const { data, error } = await supabaseClient.from('mesas_bar').select('*');
+const { data, error } = await conReintento(() => supabaseClient.from('mesas_bar').select('*'));
 if (error) { console.error(error); return; }
 (data || []).forEach(row => { cuentasMesas[row.mesa] = Array.isArray(row.items) ? row.items : []; });
 renderSelectorMesas();
@@ -328,7 +303,7 @@ let reqReservas = 0;
 async function cargarReservasHoy() {
 const iso = $('fechaCuadrante').value || fechaLocalISO();
 const miReq = ++reqReservas;
-const { data, error } = await supabaseClient.from('reservas').select('*').eq('fecha', iso).or(FILTRO_NO_CANCELADA);
+const { data, error } = await conReintento(() => supabaseClient.from('reservas').select('*').eq('fecha', iso).or(FILTRO_NO_CANCELADA));
 if (miReq !== reqReservas) return;
 if (error) { console.error(error); toast('No se pudieron cargar las reservas', 'err'); return; }
 datosLocales.reservas = (data || []).map(r => ({
@@ -417,24 +392,7 @@ container.appendChild(label);
 function obtenerPistasSeleccionadasModal() {
 return Array.from(document.querySelectorAll('input[name="chkPistasModal"]:checked')).map(c => c.value);
 }
-function dibujarClientesDatalist(clientes) {
-const dlNom = $('dlClientesNombres'), dlTel = $('dlClientesTelefonos');
-dlNom.innerHTML = ""; dlTel.innerHTML = "";
-(clientes || []).forEach(c => {
-if (c.nombre) dlNom.appendChild(new Option(c.telefono ? `Tel: ${c.telefono}` : '', c.nombre));
-if (c.telefono) dlTel.appendChild(new Option(c.nombre || '', c.telefono));
-});
-}
-function autocompletarClientePorNombre() {
-const v = $('modalCliente').value.trim().toLowerCase();
-const match = (datosLocales.clientes || []).find(c => String(c.nombre).trim().toLowerCase() === v);
-if (match && match.telefono) $('modalTelefono').value = match.telefono;
-}
-function autocompletarClientePorTelefono() {
-const v = $('modalTelefono').value.trim();
-const match = (datosLocales.clientes || []).find(c => String(c.telefono).trim() === v);
-if (match && match.nombre) $('modalCliente').value = match.nombre;
-}
+enlazarBuscadorCliente($('modalCliente'), $('modalTelefono'));
 function renderizarCuadrantePlaytomic(reservas) {
 const grid = $('playtomicGrid');
 if (!grid) return;
@@ -548,7 +506,7 @@ frag.appendChild(colPista);
 });
 grid.innerHTML = "";
 grid.appendChild(frag);
-const ventanas = [[9 * 60, 14 * 60], [17 * 60, 23.5 * 60]];
+const ventanas = [[9 * 60, 14 * 60], [17 * 60, CIERRE_MIN]];
 const minDisp = listaPistas.length * ventanas.reduce((s, [a, b]) => s + (b - a), 0);
 let minOcup = 0;
 reservas.forEach(r => {
@@ -658,11 +616,12 @@ return Math.max(horaInicioGrid * 60, Math.min(horaFinGrid * 60, m));
 }
 async function buscarConflicto({ pistas, fechas, iniMin, dur, excluirId }) {
 const orden = [...fechas].sort();
-const { data, error } = await supabaseClient.from('reservas')
+const { data, error } = await leerTodo(() => supabaseClient.from('reservas')
 .select('id, pista, fecha, hora_inicio, duracion_min, cliente')
 .in('pista', pistas)
 .gte('fecha', orden[0]).lte('fecha', orden[orden.length - 1])
-.or(FILTRO_NO_CANCELADA);
+.or(FILTRO_NO_CANCELADA)
+.order('id'));
 if (error) throw error;
 const set = new Set(fechas), fin = iniMin + dur;
 return (data || []).find(r => {
@@ -880,13 +839,12 @@ async function guardarClienteSilencioso(nombre, telefono) {
 const row = { nombre };
 if (telefono) row.telefono = telefono;
 const prev = (datosLocales.clientes || []).find(c => String(c.nombre).trim().toLowerCase() === nombre.toLowerCase());
-if (prev && telefono && prev.telefono && String(prev.telefono).trim() !== telefono &&
+if (prev && telefono && prev.telefono && normalizarTelefono(prev.telefono) !== telefono &&
 !confirm(`Ya existe un cliente llamado «${nombre}» con el teléfono ${prev.telefono}. ¿Cambiarlo por ${telefono}?\nSi cancelas, su ficha de cliente no se modifica (la reserva sí se guarda).`)) return;
 const { error } = await supabaseClient.from('clientes').upsert(row, { onConflict: 'nombre' });
 if (error) { console.warn('No se pudo guardar el cliente', error.message); return; }
 const ex = datosLocales.clientes.find(c => String(c.nombre).toLowerCase() === nombre.toLowerCase());
 if (ex) { if (telefono) ex.telefono = telefono; } else datosLocales.clientes.push(row);
-dibujarClientesDatalist(datosLocales.clientes);
 }
 async function confirmarGuardarReserva() {
 const cliente = $('modalCliente').value.trim();
@@ -898,8 +856,8 @@ const esTorneo = tipo === 'Torneo';
 const horaInicio = $('modalHora').value;
 const iso = $('modalFecha').value;
 if (!horaInicio || !iso) return toast("Indica fecha y hora de inicio", 'warn');
-const telefono = $('modalTelefono').value.trim();
-if (telefono && !/^[+\d][\d\s-]{5,19}$/.test(telefono)) return toast("El teléfono no parece válido", 'warn');
+const telefono = normalizarTelefono($('modalTelefono').value);
+if ($('modalTelefono').value.trim() && !telefonoValido($('modalTelefono').value)) return toast("El teléfono no parece válido (mínimo 9 cifras)", 'warn');
 const duracionMin = esTorneo
 ? Math.round((parseFloat($('modalDuracionHoras').value) || 0) * 2) * 30
 : (parseInt($('modalDuracion').value, 10) || 90);
@@ -1377,7 +1335,7 @@ const tb = $('histCajaBody');
 const { data, error } = await supabaseClient.from('cierres').select('*').order('fecha', { ascending: false }).limit(60);
 if (error) { tb.innerHTML = `<tr><td colspan="8" class="tabla-empty" style="color:var(--red)">Error: ${esc(error.message)}</td></tr>`; return; }
 const dif = n => { const x = Number(n) || 0; return `<b class="${Math.abs(x) < 0.005 ? 'dif-ok' : 'dif-ko'}">${x > 0 ? '+' : ''}${eur(x)}</b>`; };
-const adm = esAdmin();
+const adm = esPersonal();
 tb.innerHTML = (data || []).map(d => `<tr>
 <td><b>${esc(d.fecha)}</b></td><td>${eur(d.efectivo_sistema)}</td><td>${eur(d.tarjeta)}</td>
 <td><b>${eur(d.total)}</b></td><td>${dif(d.dif_efectivo)}</td><td>${dif(d.dif_datafono)}</td>
@@ -1385,7 +1343,7 @@ tb.innerHTML = (data || []).map(d => `<tr>
 <td>${adm ? `<button type="button" class="btn-add gray" data-reabrir="${esc(d.fecha)}"><i class="ri-lock-unlock-line" aria-hidden="true"></i>Reabrir</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="8" class="tabla-empty">—</td></tr>';
 }
 async function reabrirCierre(fecha, btn) {
-if (!esAdmin()) return toast('Solo un administrador puede reabrir una caja', 'err');
+if (!esPersonal()) return toast('Solo un administrador puede reabrir una caja', 'err');
 const motivo = (prompt(`Motivo para reabrir la caja del ${fecha} (queda registrado):`) || '').trim();
 if (motivo.length < 5) return toast('Escribe un motivo de al menos 5 caracteres', 'warn');
 setBusy(btn, true);
@@ -1444,7 +1402,7 @@ return { n, pagados, total: pagados >= n };
 const PP_PESO_CERRADO = 0.45;
 const PP_ALTO_CUERPO_MM = 162;
 function htmlPaginaImpresion(iso, reservas, meta) {
-let mIni = 9 * 60, mFin = 23 * 60 + 30;
+let mIni = 9 * 60, mFin = CIERRE_MIN;
 reservas.forEach(r => {
 const a = timeToMin(r.horaInicio), b = a + (parseInt(r.duracionMin, 10) || 90);
 if (a < mIni) mIni = Math.floor(a / 30) * 30;

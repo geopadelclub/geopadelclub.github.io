@@ -13,10 +13,7 @@ function fechaDesdeISO(iso) {
 const [y, m, d] = iso.split('-').map(Number);
 return new Date(y, m - 1, d, 12);
 }
-function fechaBonita(iso) {
-const t = fechaDesdeISO(iso).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-return t.charAt(0).toUpperCase() + t.slice(1);
-}
+const fechaWeb = iso => fechaBonita(iso, true);
 function minutos(h) {
 const [a, b] = String(h).split(':').map(Number);
 return (a || 0) * 60 + (b || 0);
@@ -27,27 +24,6 @@ return `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padS
 function duracionTxt(d) {
 const h = Math.floor(d / 60), m = d % 60;
 return h ? (m ? `${h} h ${m} min` : `${h} h`) : `${m} min`;
-}
-function telefonoValido(t) {
-const digitos = t.replace(/\D/g, '');
-return /^[+\d][\d\s().-]*$/.test(t) && digitos.length >= 9 && digitos.length <= 15;
-}
-function aplicarTema(t, guardar = true) {
-document.documentElement.setAttribute('data-theme', t);
-if (guardar) { try { localStorage.setItem('gp-theme', t); } catch (e) { } }
-$('metaTheme').setAttribute('content', t === 'dark' ? '#364650' : '#fcfdfc');
-const b = $('btnTema');
-b.innerHTML = t === 'dark' ? '<i class="ri-sun-line" aria-hidden="true"></i>' : '<i class="ri-moon-line" aria-hidden="true"></i>';
-b.setAttribute('aria-label', t === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
-}
-function iniciarTema() {
-aplicarTema(document.documentElement.getAttribute('data-theme') || 'light', false);
-$('btnTema').addEventListener('click', () => aplicarTema(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
-try {
-const mq = window.matchMedia('(prefers-color-scheme: dark)');
-const seguir = e => { let g = null; try { g = localStorage.getItem('gp-theme'); } catch (x) { } if (!g) aplicarTema(e.matches ? 'dark' : 'light', false); };
-if (mq.addEventListener) mq.addEventListener('change', seguir);
-} catch (e) { }
 }
 async function llamarEdge(accion, args) {
 const r = await fetch(SUPABASE_URL + '/functions/v1/reservar-web', {
@@ -82,9 +58,11 @@ function reiniciarTurnstile() {
 tsToken = '';
 if (window.turnstile && tsId !== null) { try { window.turnstile.reset(tsId); } catch (e) { } }
 }
+const RPC_LECTURA = ['web_config', 'web_disponibilidad', 'web_identificar', 'web_mis_reservas'];
 async function rpc(fn, args) {
 if (!sb) throw new Error('Sin conexión con la base de datos');
-const { data, error } = await sb.rpc(fn, args || {});
+const llamar = () => sb.rpc(fn, args || {});
+const { data, error } = RPC_LECTURA.includes(fn) ? await conReintento(llamar) : await llamar();
 if (error) throw error;
 return data;
 }
@@ -236,7 +214,7 @@ mostrarDatos();
 function mostrarDatos() {
 $('cardOk').hidden = true;
 $('clResumen').innerHTML =
-`<span><i class="ri-calendar-event-line" aria-hidden="true"></i>${esc(fechaBonita(sel.fecha))}</span>` +
+`<span><i class="ri-calendar-event-line" aria-hidden="true"></i>${esc(fechaWeb(sel.fecha))}</span>` +
 `<span><i class="ri-time-line" aria-hidden="true"></i>${esc(sel.hora)} – ${horaStr(minutos(sel.hora) + sel.dur)}</span>` +
 `<span><i class="ri-money-euro-circle-line" aria-hidden="true"></i>${eur(sel.precio)}</span>`;
 mostrarBloques();
@@ -264,12 +242,12 @@ mostrarBloques();
 }
 $('clTel').addEventListener('input', () => { if (flujo.fase !== 'tel') resetFlujo(); });
 async function continuarTelefono() {
-const tel = $('clTel').value.trim();
-if (!telefonoValido(tel)) return toast('Revisa el teléfono', 'warn');
+if (!telefonoValido($('clTel').value)) return toast('Revisa el teléfono (mínimo 9 cifras)', 'warn');
+const tel = normalizarTelefono($('clTel').value);
 const btn = $('btnTel');
 setBusy(btn, true, SPIN + 'Comprobando...');
 try {
-const r = await llamarEdge('estado', { p_telefono: tel });
+const r = await conReintento(() => llamarEdge('estado', { p_telefono: tel }));
 if (!r || !r.ok) return toast(textoError(r), 'warn');
 flujo.tel = tel;
 flujo.fase = r.con_codigo ? 'existente' : 'nuevo';
@@ -345,7 +323,7 @@ function mostrarExito(rv) {
 ultimaReserva = rv;
 $('cardDatos').hidden = true;
 $('okDetalle').innerHTML =
-`<div><i class="ri-calendar-event-line" aria-hidden="true"></i>${esc(fechaBonita(rv.fecha))}</div>` +
+`<div><i class="ri-calendar-event-line" aria-hidden="true"></i>${esc(fechaWeb(rv.fecha))}</div>` +
 `<div><i class="ri-time-line" aria-hidden="true"></i>${esc(rv.hora)} – ${horaStr(minutos(rv.hora) + rv.duracion)} (${esc(duracionTxt(rv.duracion))})</div>` +
 `<div><i class="ri-map-pin-line" aria-hidden="true"></i>${esc(rv.pista)}</div>` +
 `<div><i class="ri-money-euro-circle-line" aria-hidden="true"></i>${eur(rv.precio)} · se paga en el club</div>` +
@@ -402,7 +380,7 @@ const estado = x.estado === 'Pendiente'
 const accion = x.motivo
 ? `<p class="cl-hint">${esc(motivoTexto(x.motivo))}</p>`
 : `<button type="button" class="btn-add danger" data-cancelar="${esc(x.id)}"><i class="ri-delete-bin-line" aria-hidden="true"></i>Cancelar reserva</button>`;
-return `<article class="cl-res"><div class="cl-res-top"><b>${esc(fechaBonita(x.fecha))}</b>${estado}${tipo}</div>` +
+return `<article class="cl-res"><div class="cl-res-top"><b>${esc(fechaWeb(x.fecha))}</b>${estado}${tipo}</div>` +
 `<div class="cl-res-info"><span><i class="ri-time-line" aria-hidden="true"></i>${esc(x.hora)} – ${fin}</span>` +
 `<span><i class="ri-map-pin-line" aria-hidden="true"></i>${esc(x.pista)}</span>` +
 `<span><i class="ri-money-euro-circle-line" aria-hidden="true"></i>${eur(x.precio)}</span></div>${accion}</article>`;
@@ -429,7 +407,9 @@ mostrarMis(true);
 }
 $('formMis').addEventListener('submit', e => {
 e.preventDefault();
-const ident = $('misIdent').value.trim(), codigo = $('misCodigo').value.trim();
+let ident = $('misIdent').value.trim();
+const codigo = $('misCodigo').value.trim();
+if (ident && /^[+\d\s().-]+$/.test(ident)) ident = normalizarTelefono(ident);
 if (!ident || !codigo) return toast('Escribe tu teléfono o nombre y tu código', 'warn');
 cargarMisReservas(ident, codigo);
 });
@@ -474,6 +454,7 @@ if (!document.hidden && navigator.onLine && sel.fecha && $('tab-reservar').class
 });
 window.addEventListener('DOMContentLoaded', async () => {
 iniciarTema();
+$('btnTema').addEventListener('click', alternarTema);
 estadoRed();
 if (!sb) {
 $('clSlots').innerHTML = '<p class="cl-empty">No se pudo cargar el sistema de reservas. Revisa tu conexión y recarga la página.</p>';

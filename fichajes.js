@@ -235,7 +235,7 @@ if (!$('fxDesde').value) {
 const [d, h] = fxRango('mes');
 $('fxDesde').value = d; $('fxHasta').value = h;
 }
-if (esAdmin() && !fxEmpleadosListos) await fxCargarEmpleados();
+if (esPersonal() && !fxEmpleadosListos) await fxCargarEmpleados();
 fxGenerar();
 }
 $('fxVer').addEventListener('click', fxGenerar);

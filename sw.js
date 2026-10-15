@@ -1,5 +1,5 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
-const VERSION = 'geopadel-43fa57a509';
+const VERSION = 'geopadel-3c34e3a86a';
 const ARCHIVOS = ['./', 'index.html', 'panel.html', 'styles.css', 'config.js', 'app.js', 'gestion.js', 'copia.js', 'manifest.webmanifest', 'Geopadel.webp', 'Geopadel-512.webp', 'fondo.webp', 'reservar.html', 'reservar.css', 'reservar.js', 'assets/remixicon/remixicon.css', 'assets/remixicon/remixicon.woff2', 'utils.js', 'fichajes.js', 'contrato.js', 'tienda.js', 'ajustes.js', 'reservar-tienda.js', 'privacidad.html', 'manifest-reservar.webmanifest', 'assets/supabase.min.js']; self.addEventListener('install', e => {
 e.waitUntil((async () => {
 const cache = await caches.open(VERSION);
@@ -43,9 +43,10 @@ return resp;
 const enCache = await cache.match(req, { ignoreSearch: true });
 if (enCache) return enCache;
 if (req.mode === 'navigate') {
-const pagina = url.pathname.endsWith('/reservar.html') ? 'reservar.html'
-: url.pathname.endsWith('/panel.html') ? 'panel.html'
-: url.pathname.endsWith('/privacidad.html') ? 'privacidad.html' : 'index.html';
+const ruta = url.pathname.replace(/\/+$/, '').replace(/\.html$/, '');
+const pagina = ruta.endsWith('/reservar') ? 'reservar.html'
+: ruta.endsWith('/panel') ? 'panel.html'
+: ruta.endsWith('/privacidad') ? 'privacidad.html' : 'index.html';
 return (await cache.match(pagina)) || (await cache.match('index.html')) || Response.error();
 }
 return Response.error();

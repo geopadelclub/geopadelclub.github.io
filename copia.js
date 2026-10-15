@@ -15,7 +15,7 @@ contratos_jornada: { etiqueta: 'Contratos de jornada', orden: ['created_at', 'id
 const COL_PRIVADAS = /codigo|hash|pass|salt|token|secret/i;
 const CLAVE_ULTIMA_COPIA = 'gp-ultima-copia';
 function aplicarPermisosCopia() {
-const permitido = typeof esAdmin === 'function' && esAdmin();
+const permitido = typeof esPersonal === 'function' && esPersonal();
 const card = $('cardCopia');
 if (card) card.hidden = !permitido;
 document.querySelectorAll('[data-exp]').forEach(b => { if (!b.closest('#cardCopia')) b.hidden = !permitido; });

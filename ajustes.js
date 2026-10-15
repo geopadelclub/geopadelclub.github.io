@@ -57,7 +57,7 @@ toast('No se pudo habilitar: ' + (err.message || err), 'err');
 } finally { setBusy(btn, false); }
 }
 async function cliBorrarDatos(c, btn) {
-if (!esAdmin()) return toast('Solo un administrador puede borrar datos de clientes', 'err');
+if (!esPersonal()) return toast('Solo un administrador puede borrar datos de clientes', 'err');
 if (!confirm(`¿Borrar los datos personales de «${c.nombre}»?\n\nSe elimina su ficha y se quita su nombre y teléfono de reservas y deudas (los importes se conservan sin datos personales). Se cancelan sus reservas futuras sin cobros. No se puede deshacer.`)) return;
 setBusy(btn, true, CLI_SPIN + 'Borrando...');
 try {

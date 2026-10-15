@@ -15,21 +15,12 @@ function iniciarFormDeuda() {
 $('deudaFecha').value = fechaLocalISO();
 $('deudaHora').value = '';
 }
-function autocompletarDeudaPorNombre() {
-const v = $('deudaNombre').value.trim().toLowerCase();
-const c = (datosLocales.clientes || []).find(x => String(x.nombre).trim().toLowerCase() === v);
-if (c && c.telefono) $('deudaTelefono').value = c.telefono;
-}
-function autocompletarDeudaPorTelefono() {
-const v = $('deudaTelefono').value.trim();
-const c = (datosLocales.clientes || []).find(x => String(x.telefono).trim() === v);
-if (c && c.nombre) $('deudaNombre').value = c.nombre;
-}
+enlazarBuscadorCliente($('deudaNombre'), $('deudaTelefono'));
 async function cargarDeudas() {
 const tb = $('deudasBody');
 if (!tb || !supabaseClient) return;
-const { data, error } = await leerTodo(() => supabaseClient.from('deudas').select('*')
-.order('fecha', { ascending: false }).order('hora', { ascending: false }).order('id', { ascending: false }));
+const { data, error } = await conReintento(() => leerTodo(() => supabaseClient.from('deudas').select('*')
+.order('fecha', { ascending: false }).order('hora', { ascending: false }).order('id', { ascending: false })));
 if (error) {
 console.error(error);
 tb.innerHTML = `<tr><td colspan="6" class="tabla-empty" style="color:var(--red)">${esc(esErrorTabla(error) ? MSG_FALTA_TABLA('deudas') : 'Error al cargar deudas: ' + error.message)}</td></tr>`;
@@ -74,12 +65,12 @@ e.preventDefault();
 const msg = $('msgDeuda'), btn = $('btnAddDeuda');
 const err = t => { msg.style.color = 'var(--red)'; msg.innerText = t; };
 const nombre = $('deudaNombre').value.trim();
-const telefono = $('deudaTelefono').value.trim();
+const telefono = normalizarTelefono($('deudaTelefono').value);
 const fecha = $('deudaFecha').value;
 const hora = $('deudaHora').value;
 const importe = parseFloat($('deudaImporte').value);
 if (!nombre) return err('Escribe el nombre');
-if (telefono && !/^[+\d][\d\s-]{5,19}$/.test(telefono)) return err('El teléfono no parece válido');
+if ($('deudaTelefono').value.trim() && !telefonoValido($('deudaTelefono').value)) return err('El teléfono no parece válido (mínimo 9 cifras)');
 if (!fecha || !hora) return err('Indica el día y la hora');
 if (isNaN(importe) || importe <= 0) return err('Indica el dinero que debe (mayor que 0)');
 setBusy(btn, true, '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Guardando...');
