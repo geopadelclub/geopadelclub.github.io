@@ -61,7 +61,7 @@ if (!esPersonal()) return toast('Solo un administrador puede borrar datos de cli
 if (!confirm(`¿Borrar los datos personales de «${c.nombre}»?\n\nSe elimina su ficha y se quita su nombre y teléfono de reservas y deudas (los importes se conservan sin datos personales). Se cancelan sus reservas futuras sin cobros. No se puede deshacer.`)) return;
 setBusy(btn, true, CLI_SPIN + 'Borrando...');
 try {
-const { data, error } = await supabaseClient.rpc('gp_borrar_cliente', { p_nombre: c.nombre });
+const { data, error } = await supabaseClient.rpc('gp_borrar_cliente', { p_id: c.id });
 if (error) throw error;
 if (!data || !data.ok) {
 const t = { deuda_pendiente: 'Tiene deudas pendientes. Resuélvelas antes de borrar sus datos.', reservas_pagadas: 'Tiene reservas futuras con cobros. Devuelve o elimina esas reservas antes.', no_encontrado: 'No hay ninguna ficha de cliente con ese nombre.', sin_permiso: 'No tienes permiso para hacerlo.' };

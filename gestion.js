@@ -105,10 +105,16 @@ cargarDeudas();
 async function eliminarDeuda(id) {
 const d = deudas.find(x => String(x.id) === String(id));
 if (!d) return;
-if (!confirm(`¿Eliminar la deuda de ${d.nombre} (${eur(d.importe)})? Esta acción no se puede deshacer.`)) return;
-const { error } = await supabaseClient.from('deudas').delete().eq('id', id);
-if (error) return toast('No se pudo eliminar la deuda: ' + error.message, 'err');
-toast('Deuda eliminada');
+if (!confirm(`¿Anular la deuda de ${d.nombre} (${eur(d.importe)})?`)) return;
+const empleado = (typeof usuarioActual !== 'undefined' && usuarioActual.nombre) ? usuarioActual.nombre : 'Sistema';
+const { data, error } = await supabaseClient.rpc('anular_deuda', { 
+p_deuda_id: id, 
+p_empleado: empleado 
+});
+if (error || (data && !data.ok)) {
+return toast('No se pudo anular la deuda: ' + (error?.message || data?.error), 'err');
+}
+toast('Deuda anulada');
 cargarDeudas();
 }
 let limpiezas = [], limpUltimas = [];
