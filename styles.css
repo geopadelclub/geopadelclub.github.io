@@ -3341,7 +3341,8 @@ tr.deuda-resuelta td {
     box-shadow: 0 0 0 4px var(--primary) !important;
 }
 
-.court-column.drag-over, .slot:focus-visible {
+.court-column.drag-over,
+.slot:focus-visible {
     outline: 2px dashed var(--primary) !important;
     background-color: var(--slot-hover) !important;
 }
