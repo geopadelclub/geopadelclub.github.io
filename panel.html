@@ -1,2 +1,765 @@
 <!-- © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. -->
-<!DOCTYPE html><html lang="es" data-theme="light"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="robots" content="noindex, nofollow"><meta name="description" content="Gestión de reservas, bar, horarios y caja del club Geopadel"><title>Geopadel · Gestión del club</title><meta name="theme-color" content="#fcfdfc" id="metaTheme"><meta name="color-scheme" content="light dark"><meta name="application-name" content="Geopadel"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Geopadel"><meta name="apple-mobile-web-app-status-bar-style" content="default"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/webp" href="Geopadel.webp"><link rel="icon" type="image/webp" sizes="192x192" href="./Geopadel.webp"><link rel="apple-touch-icon" href="./Geopadel.webp"><script> (function () { try { var t = localStorage.getItem('gp-theme'); if (t !== 'dark' && t !== 'light') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; document.documentElement.setAttribute('data-theme', t); var m = document.getElementById('metaTheme'); if (m) m.setAttribute('content', t === 'dark' ? '#364650' : '#fcfdfc'); } catch (e) { } })(); </script><link rel="stylesheet" href="assets/remixicon/remixicon.css"><link rel="stylesheet" href="styles.css"><script defer src="assets/supabase.min.js"></script><script defer src="config.js"></script><script defer src="utils.js"></script><script defer src="app.js"></script><script defer src="gestion.js"></script><script defer src="copia.js"></script><script defer src="fichajes.js"></script><script defer src="contrato.js"></script><script defer src="tienda.js"></script><script defer src="ajustes.js"></script></head><body><div id="bannerOffline" role="alert"><i class="ri-wifi-off-line" aria-hidden="true"></i>Sin conexión · los cambios no se guardarán hasta que vuelva internet</div><div id="toasts" role="status" aria-live="polite"></div><div id="loginView" class="login-container"><button type="button" class="theme-toggle" onclick="alternarTema()" aria-label="Cambiar tema"><i class="ri-moon-line" aria-hidden="true"></i></button><div class="login-card"><div class="gp-brand"><img class="gp-logo" src="./Geopadel.webp" alt="Geopadel" draggable="false" width="150" height="150"></div><form id="loginForm" novalidate><div class="form-group"><label for="usuario">Usuario</label><input type="text" id="usuario" placeholder="Ej. Javi" required autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"></div><div id="cfLogin" style="margin:8px 0 12px;min-height:65px"></div><div class="form-group"><label for="password">Contraseña</label><input type="password" id="password" placeholder="••••••••" required autocomplete="new-password"></div><button type="submit" class="btn-submit" id="btnEntrar">Entrar al Panel</button></form><div id="msgLogin" aria-live="polite"></div></div></div><div id="adminView"><header class="app-header"><div class="gp-brand"><img class="gp-logo" src="./Geopadel.webp" alt="Geopadel" draggable="false" width="150" height="150"></div><div class="user-info"><span><strong id="nombreEmpleado">...</strong><span id="rolEmpleado" class="sr-only"></span></span><button type="button" class="theme-toggle" onclick="alternarTema()" aria-label="Cambiar tema"><i class="ri-moon-line" aria-hidden="true"></i></button><button type="button" class="btn-logout" onclick="cerrarSesion()">Salir</button></div></header><nav class="app-nav" aria-label="Secciones"><button type="button" id="nav-reservas" class="nav-tab active" data-tab="reservas"><span class="ni"><i class="ri-calendar-event-line" aria-hidden="true"></i></span>Reservas</button><button type="button" id="nav-tienda" class="nav-tab" data-tab="tienda"><span class="ni"><i class="ri-shopping-bag-3-line" aria-hidden="true"></i></span>Tienda</button><button type="button" id="nav-fichajes" class="nav-tab" data-tab="fichajes"><span class="ni"><i class="ri-time-line" aria-hidden="true"></i></span>Fichaje</button><button type="button" id="nav-deudas" class="nav-tab" data-tab="deudas"><span class="ni"><i class="ri-wallet-3-line" aria-hidden="true"></i></span>Deudas</button><button type="button" id="nav-limpieza" class="nav-tab" data-tab="limpieza"><span class="ni"><i class="ri-brush-line" aria-hidden="true"></i></span>Limpieza</button><button type="button" id="nav-caja" class="nav-tab" data-tab="caja"><span class="ni"><i class="ri-bar-chart-box-line" aria-hidden="true"></i></span>Caja</button><button type="button" id="nav-ajustes" class="nav-tab" data-tab="ajustes"><span class="ni"><i class="ri-settings-3-line" aria-hidden="true"></i></span>Ajustes</button></nav><main class="container-fluid"><section id="tab-reservas" class="tab-content active"><div class="playtomic-header-bar"><button type="button" id="btnImprimir" class="btn-imprimir" onclick="imprimirDia()" title="Imprimir las reservas del día (A4 horizontal)"><i class="ri-printer-line" aria-hidden="true"></i><span>Imprimir día</span></button><div class="date-nav-group"><button type="button" class="btn-playtomic-nav" onclick="irAFechaHoy()">Hoy</button><button type="button" class="btn-playtomic-nav" onclick="cambiarFechaDias(-1)" aria-label="Día anterior"><i class="ri-arrow-left-s-line" aria-hidden="true"></i></button><input type="date" id="fechaCuadrante" class="date-picker-input" aria-label="Fecha" onchange="alCambiarFecha()"><button type="button" class="btn-playtomic-nav" onclick="cambiarFechaDias(1)" aria-label="Día siguiente"><i class="ri-arrow-right-s-line" aria-hidden="true"></i></button></div><div class="stats-chips"><span class="chip">Ocupación <b id="statOcupacion">0%</b></span><span class="chip">Reservas <b id="statNumReservas">0</b></span><button type="button" id="chipPendientes" class="chip chip-pendientes" onclick="irAPrimeraPendiente()" title="Ir a la primera reserva pendiente de confirmar">Pendientes <b id="statPendientes">0</b></button></div><button type="button" class="btn-crear-partido" onclick="abrirModalNuevaReserva()" aria-label="Crear reserva"><span class="plus"><i class="ri-add-line" aria-hidden="true"></i></span><span class="txt">Crear Reserva</span></button></div><div id="gridWrapper" class="grid-playtomic-wrapper"><div id="playtomicGrid" class="playtomic-grid"></div></div></section><section id="tab-tienda" class="tab-content"><div id="tab-tpv"><div class="card"><h3><i class="ri-goblet-line" aria-hidden="true"></i>Bar</h3><div id="selectorMesas" class="mesas-bar"></div><div class="tpv-grid"><div><div class="tpv-tools"><input type="search" id="buscarTPV" class="toolbar-input" placeholder="Buscar producto..." oninput="dibujarCatalogo(datosLocales.productos)"></div><div class="tpv-tools"><div class="tpv-catalog-header" id="catTPVBotones"><button type="button" class="btn-cat-filter active" data-cat="Todos">Todos</button><button type="button" class="btn-cat-filter" data-cat="Bebidas"><i class="ri-cup-line" aria-hidden="true"></i>Bebidas</button><button type="button" class="btn-cat-filter" data-cat="Comida"><i class="ri-restaurant-line" aria-hidden="true"></i>Comida</button><button type="button" class="btn-cat-filter" data-cat="Tienda"><i class="ri-shopping-bag-3-line" aria-hidden="true"></i>Tienda</button><button type="button" class="btn-cat-filter" data-cat="Pista"><i class="ri-ticket-line" aria-hidden="true"></i>Pistas</button></div></div><div id="catalogGrid" class="catalog-grid">Cargando catálogo...</div></div><div class="ticket-box"><div><h4>Cuenta activa: <span id="tituloTicketMesa">Mesa 1</span></h4><ul id="ticketItems" class="ticket-items"></ul></div><div><div class="ticket-total">Total: <span id="ticketTotal">0,00 €</span></div><div class="pay-buttons"><button type="button" id="btnCobrarEfectivo" class="btn-pay btn-cash" onclick="cobrarMesaActiva('Efectivo')"><i class="ri-money-euro-circle-line" aria-hidden="true"></i>Efectivo</button><button type="button" id="btnCobrarTarjeta" class="btn-pay btn-card" onclick="cobrarMesaActiva('Tarjeta')"><i class="ri-bank-card-line" aria-hidden="true"></i>Tarjeta</button></div><div id="msgVenta" class="msg-inline" style="text-align:center"></div></div></div></div></div></div><div class="card"><div class="card-head"><h3><i class="ri-shopping-bag-3-line" aria-hidden="true"></i>Escaparate de la tienda</h3><button type="button" class="btn-add blue" id="btnNuevoArticulo"><i class="ri-add-line" aria-hidden="true"></i>Nuevo artículo</button></div><p class="limp-leyenda">Lo que ven los clientes en la pestaña «Tienda» de la web de reservas. Se compra en el club; aquí solo se muestra. Usa las flechas para cambiar el orden.</p><p id="escaparateResumen" class="limp-leyenda" style="font-weight:700"></p><div class="table-wrap"><table class="tabla-productos" style="min-width:720px"><thead><tr><th>Foto</th><th>Artículo</th><th>Precio</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="escaparateBody"><tr><td colspan="5" class="tabla-empty">Cargando escaparate...</td></tr></tbody></table></div></div></section><section id="tab-fichajes" class="tab-content"><div class="card card-narrow" id="cardFichar"><div style="text-align:center"><h3 style="justify-content:center"><i class="ri-time-line" aria-hidden="true"></i>Control de Fichaje</h3><p id="estadoFichaje" style="margin-top:10px;font-size:14px;font-weight:700;color:var(--muted)"></p><div class="fichaje-buttons"><button type="button" class="btn-fichar btn-entrada" onclick="fichar('Entrada', this)"><i class="ri-login-box-line" aria-hidden="true"></i>Entrada</button><button type="button" class="btn-fichar btn-salida" onclick="fichar('Salida', this)"><i class="ri-logout-box-line" aria-hidden="true"></i>Salida</button></div><div id="msgFichaje" class="msg-inline" style="font-size:15px"></div><p class="limp-leyenda" style="margin-top:8px">Si sales a comer o haces una pausa no retribuida, ficha <b>Salida</b> y, al volver, <b>Entrada</b>: así la pausa queda registrada y no cuenta como trabajada.</p></div><hr style="border:0;border-top:1.5px solid var(--border);margin:24px 0"><h3><i class="ri-file-list-3-line" aria-hidden="true"></i>Tus últimos 30 fichajes</h3><div class="table-wrap"><table class="tabla-productos" style="min-width:420px"><thead><tr><th>Fecha y hora</th><th>Tipo</th><th>Empleado</th></tr></thead><tbody id="tablaFichajesBody"><tr><td colspan="3" class="tabla-empty">Cargando fichajes...</td></tr></tbody></table></div></div><div class="card card-narrow" id="cardContrato"><div class="card-head"><h3><i class="ri-file-user-line" aria-hidden="true"></i>Mi contrato</h3><button type="button" class="btn-add blue" id="btnEditarContrato"><i class="ri-edit-line" aria-hidden="true"></i>Indicar / modificar</button></div><div id="contratoResumen"><p class="limp-leyenda">Cargando...</p></div></div><div class="card" id="cardRegistroJornada"><h3><i class="ri-file-chart-line" aria-hidden="true"></i>Registro de jornada</h3><div class="form-inline"><label id="fxEmpleadoBox">Empleado<select id="fxEmpleado" class="toolbar-select"><option value="">Todos los empleados</option></select></label><label>Desde<input type="date" id="fxDesde"></label><label>Hasta<input type="date" id="fxHasta"></label></div><div class="copia-grid" id="fxAtajos"><button type="button" class="btn-cat-filter" data-fx="hoy">Hoy</button><button type="button" class="btn-cat-filter" data-fx="mes">Este mes</button><button type="button" class="btn-cat-filter" data-fx="mesAnt">Mes anterior</button></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><button type="button" class="btn-add" id="fxVer"><i class="ri-search-line" aria-hidden="true"></i>Ver registro</button><button type="button" class="btn-add blue" id="fxCsv"><i class="ri-download-2-line" aria-hidden="true"></i>Descargar CSV</button><button type="button" class="btn-add gray" id="fxImprimir"><i class="ri-printer-line" aria-hidden="true"></i>Imprimir / PDF</button></div><div id="fxMsg" class="msg-inline" aria-live="polite"></div></div><div id="fxContenido"></div></section><section id="tab-caja" class="tab-content"><div class="card"><h3><i class="ri-bar-chart-box-line" aria-hidden="true"></i>Resumen de caja · <span id="cajaFechaTxt"></span></h3><div class="kpi-row"><div class="kpi ef"><span>Efectivo en cajón</span><h2 id="cajaEfectivo">0,00 €</h2></div><div class="kpi ta"><span>Total datáfono</span><h2 id="cajaTarjeta">0,00 €</h2></div><div class="kpi"><span>Total general</span><h2 id="cajaTotal">0,00 €</h2></div></div></div><div class="card"><h3><i class="ri-lock-line" aria-hidden="true"></i>Cierre de Caja</h3><div class="cierre-grid"><label>Billetes (€)<input type="number" inputmode="decimal" id="cjBilletes" step="0.01" min="0" oninput="calcCierre()"></label><label>Monedas (€)<input type="number" inputmode="decimal" id="cjMonedas" step="0.01" min="0" oninput="calcCierre()"></label><label>Efectivo contado<input type="text" id="cjEfectivo" readonly value="0,00 €"></label><label>Datáfono (€)<input type="number" inputmode="decimal" id="cjDatafono" step="0.01" min="0" oninput="calcCierre()"></label></div><div id="cjResumen" class="cierre-resumen"></div><button type="button" id="btnCerrarCaja" class="btn-add" onclick="cerrarCajaHoy()"><i class="ri-lock-line" aria-hidden="true"></i>Confirmar cierre de caja</button><div id="msgCierre" class="msg-inline"></div></div><div class="card"><h3><i class="ri-file-list-3-line" aria-hidden="true"></i>Historial de cierres de caja</h3><div class="table-wrap"><table class="tabla-productos" style="min-width:680px"><thead><tr><th>Fecha</th><th>Efectivo sis.</th><th>Datáfono sis.</th><th>Total</th><th>Dif. efectivo</th><th>Dif. datáfono</th><th>Cerrado por</th><th></th></tr></thead><tbody id="histCajaBody"><tr><td colspan="8" class="tabla-empty">—</td></tr></tbody></table></div></div><div class="card" id="cardCopia"><h3><i class="ri-database-2-line" aria-hidden="true"></i>Exportar y copia de seguridad</h3><p class="limp-leyenda">Descarga los datos en CSV (se abren con Excel). La copia completa es un ZIP con todas las tablas.</p><p id="copiaUltima" class="limp-leyenda" style="font-weight:700"></p><button type="button" id="btnCopiaZip" class="btn-add blue"><i class="ri-download-cloud-2-line" aria-hidden="true"></i>Descargar copia completa (ZIP)</button><div class="copia-grid"><button type="button" class="btn-cat-filter" data-exp="reservas"><i class="ri-calendar-event-line" aria-hidden="true"></i>Reservas</button><button type="button" class="btn-cat-filter" data-exp="clientes"><i class="ri-user-line" aria-hidden="true"></i>Clientes</button><button type="button" class="btn-cat-filter" data-exp="ventas"><i class="ri-shopping-cart-line" aria-hidden="true"></i>Ventas</button><button type="button" class="btn-cat-filter" data-exp="cierres"><i class="ri-lock-line" aria-hidden="true"></i>Cierres de caja</button><button type="button" class="btn-cat-filter" data-exp="deudas"><i class="ri-wallet-3-line" aria-hidden="true"></i>Deudas</button><button type="button" class="btn-cat-filter" data-exp="limpiezas"><i class="ri-brush-line" aria-hidden="true"></i>Limpiezas</button><button type="button" class="btn-cat-filter" data-exp="fichajes"><i class="ri-time-line" aria-hidden="true"></i>Fichajes</button><button type="button" class="btn-cat-filter" data-exp="productos"><i class="ri-store-2-line" aria-hidden="true"></i>Catálogo</button><button type="button" class="btn-cat-filter" data-exp="tarifas"><i class="ri-price-tag-3-line" aria-hidden="true"></i>Tarifas</button></div><div id="msgCopia" class="msg-inline"></div></div></section><section id="tab-deudas" class="tab-content"><div class="card"><h3><i class="ri-wallet-3-line" aria-hidden="true"></i>Añadir deuda</h3><form id="formDeuda" novalidate><div class="form-inline"><label>Nombre<input type="text" id="deudaNombre" maxlength="80" autocomplete="off"></label><label>Teléfono<input type="tel" id="deudaTelefono" maxlength="20" autocomplete="off"></label><label>Día<input type="date" id="deudaFecha"></label><label>Hora<input type="time" id="deudaHora" step="1800"></label><label>Debe (€)<input type="number" inputmode="decimal" id="deudaImporte" step="0.01" min="0.01" placeholder="0,00"></label></div><button type="submit" id="btnAddDeuda" class="btn-add" style="margin-top:14px"><i class="ri-add-line" aria-hidden="true"></i>Añadir deuda</button><div id="msgDeuda" class="msg-inline"></div></form></div><div class="card"><div class="card-head"><h3><i class="ri-list-check-2" aria-hidden="true"></i>Listado de deudas</h3><div class="deuda-total">Pendiente de cobro: <b id="deudaTotal">0,00 €</b><button type="button" class="btn-cat-filter" data-exp="deudas" style="margin-left:8px"><i class="ri-download-2-line" aria-hidden="true"></i>CSV</button></div></div><div class="toolbar"><select id="deudaFiltro" class="toolbar-select" onchange="dibujarDeudas()"><option value="Pendiente">Pendientes</option><option value="Resuelta">Resueltas</option><option value="Todas">Todas</option></select><input type="search" id="deudaBuscar" class="toolbar-input" placeholder="Buscar por nombre o teléfono..." oninput="dibujarDeudas()"></div><div class="table-wrap"><table class="tabla-productos" style="min-width:700px"><thead><tr><th>Nombre</th><th>Teléfono</th><th>Día y hora</th><th>Debe</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="deudasBody"><tr><td colspan="6" class="tabla-empty">Cargando deudas...</td></tr></tbody></table></div></div></section><section id="tab-limpieza" class="tab-content"><datalist id="dlTrabajadores"></datalist><div id="avisoLimpiezaBanner" class="aviso-limpieza" hidden></div><div class="card"><h3><i class="ri-brush-line" aria-hidden="true"></i>Registrar limpieza</h3><form id="formLimpieza" novalidate><div class="limp-label">Pistas limpiadas <button type="button" class="btn-cat-filter" onclick="limpiezaSeleccionarPistas(true)">Todas</button><button type="button" class="btn-cat-filter" onclick="limpiezaSeleccionarPistas(false)">Ninguna</button></div><div id="limpPistas" class="pistas-checkbox-grid limp-grid"></div><div class="limp-label">Qué se ha limpiado</div><div id="limpTareas" class="pistas-checkbox-grid limp-grid"></div><div class="form-inline" style="margin-top:14px"><label>Trabajador<input type="text" id="limpEmpleado" list="dlTrabajadores" maxlength="60" autocomplete="off"></label><label>Cuándo<input type="datetime-local" id="limpFecha"></label></div><button type="submit" id="btnLimpieza" class="btn-add" style="margin-top:14px"><i class="ri-check-line" aria-hidden="true"></i>Registrar limpieza</button><div id="msgLimpieza" class="msg-inline"></div></form></div><div class="card"><h3><i class="ri-calendar-check-line" aria-hidden="true"></i>Última limpieza por pista</h3><p class="limp-leyenda">En rojo: más de 2 semanas sin limpiar o sin registro.</p><div class="table-wrap"><table class="tabla-productos" style="min-width:560px"><thead><tr><th>Pista</th><th>Estructura</th><th>Césped</th><th>Cristales</th></tr></thead><tbody id="limpEstadoBody"><tr><td colspan="4" class="tabla-empty">Cargando...</td></tr></tbody></table></div></div><div class="card"><h3><i class="ri-file-list-3-line" aria-hidden="true"></i>Historial de limpiezas</h3><div class="table-wrap"><table class="tabla-productos" style="min-width:560px"><thead><tr><th>Cuándo</th><th>Pista</th><th>Qué</th><th>Trabajador</th><th></th></tr></thead><tbody id="limpHistBody"><tr><td colspan="5" class="tabla-empty">Cargando...</td></tr></tbody></table></div><button type="button" class="btn-add gray" data-exp="limpiezas" style="margin-top:12px"><i class="ri-download-2-line" aria-hidden="true"></i>Exportar todas las limpiezas (CSV)</button></div></section><section id="tab-ajustes" class="tab-content"><div class="card"><h3><i class="ri-user-settings-line" aria-hidden="true"></i>Clientes y acceso web</h3><p class="limp-leyenda">Busca un cliente por nombre o teléfono. Restablecer el código o habilitar el acceso web solo si has comprobado que es él.</p><div class="toolbar"><input type="search" id="cliBuscar" class="toolbar-input" placeholder="Buscar por nombre o teléfono..." autocomplete="off" aria-label="Buscar cliente"></div><p id="cliContador" class="limp-leyenda" style="font-weight:700" aria-live="polite"></p><div class="table-wrap"><table class="tabla-productos" style="min-width:640px"><thead><tr><th>Nombre</th><th>Teléfono</th><th>Acciones</th></tr></thead><tbody id="cliBody"><tr><td colspan="3" class="tabla-empty">Cargando clientes...</td></tr></tbody></table></div></div><div class="card"><h3><i class="ri-price-tag-3-line" aria-hidden="true"></i>Tarifas de pista por duración</h3><div class="table-wrap"><table class="tabla-productos tabla-tarifas"><thead><tr><th>Franja</th><th>60 min</th><th>90 min</th><th>120 min</th></tr></thead><tbody><tr><td><b>Entre semana mañana</b></td><td><input type="number" inputmode="decimal" id="tarSemMan60" step="0.5" min="0" placeholder="auto" aria-label="Entre semana mañana 60 minutos"></td><td><input type="number" inputmode="decimal" id="tarSemMan" step="0.5" min="0" aria-label="Entre semana mañana 90 minutos"></td><td><input type="number" inputmode="decimal" id="tarSemMan120" step="0.5" min="0" placeholder="auto" aria-label="Entre semana mañana 120 minutos"></td></tr><tr><td><b>Entre semana tarde</b></td><td><input type="number" inputmode="decimal" id="tarSemTar60" step="0.5" min="0" placeholder="auto" aria-label="Entre semana tarde 60 minutos"></td><td><input type="number" inputmode="decimal" id="tarSemTar" step="0.5" min="0" aria-label="Entre semana tarde 90 minutos"></td><td><input type="number" inputmode="decimal" id="tarSemTar120" step="0.5" min="0" placeholder="auto" aria-label="Entre semana tarde 120 minutos"></td></tr><tr><td><b>Fin de semana</b></td><td><input type="number" inputmode="decimal" id="tarFinde60" step="0.5" min="0" placeholder="auto" aria-label="Fin de semana 60 minutos"></td><td><input type="number" inputmode="decimal" id="tarFinde" step="0.5" min="0" aria-label="Fin de semana 90 minutos"></td><td><input type="number" inputmode="decimal" id="tarFinde120" step="0.5" min="0" placeholder="auto" aria-label="Fin de semana 120 minutos"></td></tr></tbody></table></div><button type="button" id="btnGuardarTarifas" class="btn-add" style="margin-top:14px" onclick="guardarTarifasUI()">Guardar tarifas</button><div id="msgTarifas" class="msg-inline"></div></div><div class="card"><div class="card-head"><h3><i class="ri-store-2-line" aria-hidden="true"></i>Catálogo</h3><button type="button" class="btn-add blue" onclick="abrirModalNuevoProducto()">+ Nuevo artículo</button></div><div class="toolbar"><input type="search" id="buscarProdGestion" class="toolbar-input" placeholder="Buscar producto por nombre..." oninput="filtrarGestionCatalogo()"><select id="catFilterGestion" class="toolbar-select" onchange="filtrarGestionCatalogo()"><option value="Todos">Todas las categorías</option><option value="Bebidas">Bebidas</option><option value="Comida">Comida</option><option value="Tienda">Tienda / Material</option><option value="Pista">Pista</option></select></div><div class="table-wrap"><table class="tabla-productos"><thead><tr><th>Nombre</th><th>Precio</th><th>Categoría</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="tablaProductosBody"><tr><td colspan="5" class="tabla-empty">Cargando catálogo...</td></tr></tbody></table></div></div></section></main></div><div id="gpSync"><i class="ri-refresh-line" aria-hidden="true"></i>Sincronizado en tiempo real</div><div id="modalReserva" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitulo"><div class="modal-card-double"><div class="modal-header-bar"><h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="modalTitulo">Gestionar reserva</span></h4><button type="button" class="modal-close" onclick="cerrarModal()" aria-label="Cerrar"><i class="ri-close-line" aria-hidden="true"></i></button></div><div class="modal-double-body"><div class="modal-section-box"><h5>Reserva</h5><input type="hidden" id="modalReservaId"><label for="modalCliente">Cliente</label><input type="text" id="modalCliente" maxlength="80" placeholder="Escribe el nombre para buscar..." autocomplete="off"><label for="modalTelefono">Teléfono</label><input type="tel" id="modalTelefono" maxlength="20" placeholder="Escribe el teléfono para buscar..." autocomplete="off"><label>Pistas</label><div id="modalPistasContainer" class="pistas-checkbox-grid"></div><label for="modalTipoReserva">Tipo de reserva</label><select id="modalTipoReserva" onchange="alCambiarTipo()"><option value="Normal">Normal</option><option value="Pena">Peña (recurrente)</option><option value="Entrenamiento">Entrenamiento</option><option value="Torneo">Torneo (horario ampliado)</option></select><label for="modalFecha">Fecha</label><input type="date" id="modalFecha" onchange="recalcularPrecioSugerido(false)"><label for="modalHora">Hora inicio</label><input type="time" id="modalHora" step="1800" value="17:00" onchange="recalcularPrecioSugerido(false)"><label id="lblDur" for="modalDuracion">Duración</label><select id="modalDuracion" onchange="recalcularPrecioSugerido()"><option value="30">30 minutos (0.5 h)</option><option value="60">60 minutos (1.0 h)</option><option value="90" selected>90 minutos (1.5 h)</option><option value="120">120 minutos (2.0 h)</option><option value="150">150 minutos (2.5 h)</option><option value="180">180 minutos (3.0 h)</option><option value="210">210 minutos (3.5 h)</option><option value="240">240 minutos (4.0 h)</option><option value="270">270 minutos (4.5 h)</option><option value="300">300 minutos (5.0 h)</option></select><div id="boxTorneoDur" style="display:none"><label for="modalDuracionHoras">Duración torneo (horas)</label><input type="number" inputmode="decimal" id="modalDuracionHoras" min="0.5" max="16" step="0.5" value="8" oninput="recalcularPrecioSugerido()"></div><div id="boxRepetir" style="display:none"><label for="modalRepetir"><i class="ri-repeat-line" aria-hidden="true"></i>Repetir peña (semanas consecutivas)</label><input type="number" inputmode="numeric" id="modalRepetir" min="1" max="52" value="12"></div><label for="modalNumJugadores">Número de jugadores</label><select id="modalNumJugadores" onchange="actualizarVistasJugadoresSplit()"></select><label for="modalPrecio">Precio total pista (€)</label><input type="number" inputmode="decimal" id="modalPrecio" value="26.00" step="0.50" min="0" oninput="actualizarVistasJugadoresSplit()"></div><div class="modal-col"><div class="modal-section-box"><h5> Cobro dividido <span id="badgePrecioUnitario" style="font-size:13px;color:var(--blue);font-weight:800">6,50 € / pers</span></h5><div id="splitJugadoresContainer" class="jugadores-split-grid"></div><div class="estado-global"> Estado global: <span id="badgeEstadoPagoGlobal" style="margin-left:6px" class="badge-sin-pagar"><i class="ri-error-warning-line" aria-hidden="true"></i>Sin pagar</span></div></div><div class="modal-section-box nota-box"><h5><span><i class="ri-sticky-note-line" aria-hidden="true"></i>Bloc de notas</span><span class="nota-hint">Se marca en el cuadrante</span></h5><textarea id="modalNotas" rows="4" maxlength="1000" placeholder="Apuntes de esta reserva: debe dinero, trae pala prestada, avisar si llega tarde..."></textarea></div></div></div><div class="modal-footer-bar"><button type="button" id="btnConfirmarPendiente" onclick="confirmarReservaPendiente()" class="btn-add blue" style="display:none"><i class="ri-check-double-line" aria-hidden="true"></i>Confirmar reserva</button><button type="button" id="btnGuardarReserva" onclick="confirmarGuardarReserva()" class="btn-add"><i class="ri-save-line" aria-hidden="true"></i>Guardar reserva</button><button type="button" id="btnEliminarSerie" onclick="confirmarEliminarSerie()" class="btn-add danger-dark" style="display:none"><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar serie</button><button type="button" id="btnEliminarReserva" onclick="confirmarEliminarReserva()" class="btn-add danger" style="display:none"><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar</button><button type="button" onclick="cerrarModal()" class="btn-add gray">Cancelar</button></div></div></div><div id="modalProducto" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalProductoTitulo"><div class="modal-card-double small"><div class="modal-header-bar"><h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="modalProductoTitulo">Editar artículo</span></h4><button type="button" class="modal-close" onclick="cerrarModalProducto()" aria-label="Cerrar"><i class="ri-close-line" aria-hidden="true"></i></button></div><div class="modal-single-body"><input type="hidden" id="modalProdId"><div class="form-group"><label for="modalProdNombre">Nombre del artículo</label><input type="text" id="modalProdNombre" placeholder="Ej. Bote de bolas" maxlength="80" required></div><div class="form-group"><label for="modalProdPrecio">Precio (€)</label><input type="number" inputmode="decimal" id="modalProdPrecio" step="0.01" min="0" placeholder="6.00" required></div><div class="form-group"><label for="modalProdCat">Categoría</label><select id="modalProdCat"><option value="Bebidas">Bebidas</option><option value="Comida">Comida</option><option value="Tienda">Tienda / Material</option><option value="Pista">Pista</option></select></div><div class="form-group"><label for="modalProdEstado">Estado</label><select id="modalProdEstado"><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select></div></div><div class="modal-footer-bar"><button type="button" id="btnGuardarProducto" onclick="guardarProductoModal()" class="btn-add blue"><i class="ri-save-line" aria-hidden="true"></i>Guardar artículo</button><button type="button" onclick="cerrarModalProducto()" class="btn-add gray">Cancelar</button></div></div></div><div id="modalAvisoLimpieza" class="modal-overlay" role="alertdialog" aria-modal="true" aria-labelledby="avisoLimpTitulo"><div class="modal-card-double small"><div class="modal-header-bar"><h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="avisoLimpTitulo">Aviso de limpieza</span></h4><button type="button" class="modal-close" onclick="cerrarAvisoLimpieza()" aria-label="Cerrar"><i class="ri-close-line" aria-hidden="true"></i></button></div><div class="modal-single-body" id="avisoLimpCuerpo"></div><div class="modal-footer-bar"><button type="button" onclick="cerrarAvisoLimpieza()" class="btn-add">Entendido</button></div></div></div><div id="modalArticulo" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalArticuloTitulo"><div class="modal-card-double small"><div class="modal-header-bar"><h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="modalArticuloTitulo">Nuevo artículo</span></h4><button type="button" class="modal-close" onclick="cerrarModalArticulo()" aria-label="Cerrar"><i class="ri-close-line" aria-hidden="true"></i></button></div><div class="modal-single-body"><div class="form-group"><label for="artFoto">Foto</label><div id="artFotoPreview" class="art-preview"></div><input type="file" id="artFoto" accept="image/*"><button type="button" class="btn-add gray" id="btnArtQuitarFoto" style="margin-top:8px" hidden><i class="ri-delete-bin-line" aria-hidden="true"></i>Quitar foto</button><p class="limp-leyenda" style="margin-top:6px">Se reduce y se convierte a WebP automáticamente para que pese poco.</p></div><div class="form-group"><label for="artTitulo">Título</label><input type="text" id="artTitulo" maxlength="80" placeholder="Ej. Pala Bullpadel Vertex"></div><div class="form-group"><label for="artDescripcion">Descripción</label><textarea id="artDescripcion" class="art-textarea" maxlength="600" rows="4" placeholder="Opcional: marca, medidas, colores..."></textarea></div><div class="form-group"><label for="artPrecio">Precio (€)</label><input type="number" inputmode="decimal" id="artPrecio" step="0.01" min="0" placeholder="0,00"></div><label class="cl-check" style="margin:0"><input type="checkbox" id="artVisible" checked><span>Visible para los clientes</span></label><div id="msgArticulo" class="msg-inline" aria-live="polite"></div></div><div class="modal-footer-bar"><button type="button" id="btnGuardarArticulo" class="btn-add blue"><i class="ri-save-line" aria-hidden="true"></i>Guardar artículo</button><button type="button" onclick="cerrarModalArticulo()" class="btn-add gray">Cancelar</button></div></div></div><div id="modalContrato" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="ctTitulo"><div class="modal-card-double"><div class="modal-header-bar"><h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="ctTitulo">Tu contrato</span></h4><button type="button" class="modal-close" id="btnCerrarContrato" aria-label="Cerrar"><i class="ri-close-line" aria-hidden="true"></i></button></div><div class="modal-single-body"><p id="ctObligatorio" class="aviso-limpieza" hidden><i class="ri-information-line" aria-hidden="true"></i>Antes de fichar por primera vez necesitamos saber tu contrato.</p><p class="limp-leyenda">Indica lo que figura en tu contrato firmado. Sirve para comparar tu jornada con tus fichajes. Si cambia, vuelve a entrar aquí y guárdalo de nuevo: se conserva el histórico. No sustituye a tu contrato.</p><div class="form-inline" style="margin:12px 0"><label>Horas semanales del contrato<input type="number" inputmode="decimal" id="ctHoras" step="0.5" min="0.5" max="48" placeholder="Ej. 20"></label><label>Vigente desde<input type="date" id="ctDesde"></label></div><div class="ct-cab"><span>Día</span><span>Tramo 1 (entrada – salida)</span><span>Tramo 2 (opcional)</span></div><div id="ctFilas"></div><p id="ctCalculo" class="limp-leyenda" style="font-weight:700;margin-top:10px" aria-live="polite"></p><div class="form-group" style="margin-top:10px"><label for="ctNotas" style="display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px">Observaciones (opcional)</label><input type="text" id="ctNotas" maxlength="300" placeholder="Ej. turnos rotativos, horario distinto en verano..."></div><div id="msgContrato" class="msg-inline" aria-live="polite"></div></div><div class="modal-footer-bar"><button type="button" id="btnGuardarContrato" class="btn-add blue"><i class="ri-save-line" aria-hidden="true"></i>Guardar contrato</button><button type="button" id="btnCancelarContrato" class="btn-add gray">Cancelar</button></div></div></div><div id="printArea" aria-hidden="true"></div></body></html>
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Gestión de reservas, bar, horarios y caja del club Geopadel">
+    <title>Geopadel · Gestión del club</title>
+    <meta name="theme-color" content="#fcfdfc" id="metaTheme">
+    <meta name="color-scheme" content="light dark">
+    <meta name="application-name" content="Geopadel">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Geopadel">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" type="image/webp" href="Geopadel.webp">
+    <link rel="icon" type="image/webp" sizes="192x192" href="./Geopadel.webp">
+    <link rel="apple-touch-icon" href="./Geopadel.webp">
+    <script> (function () { try { var t = localStorage.getItem('gp-theme'); if (t !== 'dark' && t !== 'light') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; document.documentElement.setAttribute('data-theme', t); var m = document.getElementById('metaTheme'); if (m) m.setAttribute('content', t === 'dark' ? '#364650' : '#fcfdfc'); } catch (e) { } })(); </script>
+    <link rel="stylesheet" href="assets/remixicon/remixicon.css">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="assets/supabase.min.js"></script>
+    <script defer src="config.js"></script>
+    <script defer src="utils.js"></script>
+    <script defer src="app.js"></script>
+    <script defer src="gestion.js"></script>
+    <script defer src="copia.js"></script>
+    <script defer src="fichajes.js"></script>
+    <script defer src="contrato.js"></script>
+    <script defer src="tienda.js"></script>
+    <script defer src="ajustes.js"></script>
+</head>
+
+<body>
+    <div id="bannerOffline" role="alert"><i class="ri-wifi-off-line" aria-hidden="true"></i>Sin conexión · los cambios
+        no se guardarán hasta que vuelva internet</div>
+    <div id="toasts" role="status" aria-live="polite"></div>
+    <div id="loginView" class="login-container"><button type="button" class="theme-toggle" onclick="alternarTema()"
+            aria-label="Cambiar tema"><i class="ri-moon-line" aria-hidden="true"></i></button>
+        <div class="login-card">
+            <div class="gp-brand"><img class="gp-logo" src="./Geopadel.webp" alt="Geopadel" draggable="false"
+                    width="150" height="150"></div>
+            <form id="loginForm" novalidate>
+                <div class="form-group"><label for="usuario">Usuario</label><input type="text" id="usuario"
+                        placeholder="Ej. Javi" required autocomplete="off" autocapitalize="none" autocorrect="off"
+                        spellcheck="false"></div>
+                <div id="cfLogin" style="margin:8px 0 12px;min-height:65px"></div>
+                <div class="form-group"><label for="password">Contraseña</label><input type="password" id="password"
+                        placeholder="••••••••" required autocomplete="new-password"></div><button type="submit"
+                    class="btn-submit" id="btnEntrar">Entrar al Panel</button>
+            </form>
+            <div id="msgLogin" aria-live="polite"></div>
+        </div>
+    </div>
+    <div id="adminView">
+        <header class="app-header">
+            <div class="gp-brand"><img class="gp-logo" src="./Geopadel.webp" alt="Geopadel" draggable="false"
+                    width="150" height="150"></div>
+            <div class="user-info"><span><strong id="nombreEmpleado">...</strong><span id="rolEmpleado"
+                        class="sr-only"></span></span><button type="button" class="theme-toggle"
+                    onclick="alternarTema()" aria-label="Cambiar tema"><i class="ri-moon-line"
+                        aria-hidden="true"></i></button><button type="button" class="btn-logout"
+                    onclick="cerrarSesion()">Salir</button></div>
+        </header>
+        <nav class="app-nav" aria-label="Secciones"><button type="button" id="nav-reservas" class="nav-tab active"
+                data-tab="reservas"><span class="ni"><i class="ri-calendar-event-line"
+                        aria-hidden="true"></i></span>Reservas</button><button type="button" id="nav-tienda"
+                class="nav-tab" data-tab="tienda"><span class="ni"><i class="ri-shopping-bag-3-line"
+                        aria-hidden="true"></i></span>Tienda</button><button type="button" id="nav-fichajes"
+                class="nav-tab" data-tab="fichajes"><span class="ni"><i class="ri-time-line"
+                        aria-hidden="true"></i></span>Fichaje</button><button type="button" id="nav-deudas"
+                class="nav-tab" data-tab="deudas"><span class="ni"><i class="ri-wallet-3-line"
+                        aria-hidden="true"></i></span>Deudas</button><button type="button" id="nav-limpieza"
+                class="nav-tab" data-tab="limpieza"><span class="ni"><i class="ri-brush-line"
+                        aria-hidden="true"></i></span>Limpieza</button><button type="button" id="nav-caja"
+                class="nav-tab" data-tab="caja"><span class="ni"><i class="ri-bar-chart-box-line"
+                        aria-hidden="true"></i></span>Caja</button><button type="button" id="nav-ajustes"
+                class="nav-tab" data-tab="ajustes"><span class="ni"><i class="ri-settings-3-line"
+                        aria-hidden="true"></i></span>Ajustes</button></nav>
+        <main class="container-fluid">
+            <section id="tab-reservas" class="tab-content active">
+                <div class="playtomic-header-bar"><button type="button" id="btnImprimir" class="btn-imprimir"
+                        onclick="imprimirDia()" title="Imprimir las reservas del día (A4 horizontal)"><i
+                            class="ri-printer-line" aria-hidden="true"></i><span>Imprimir día</span></button>
+                    <div class="date-nav-group"><button type="button" class="btn-playtomic-nav"
+                            onclick="irAFechaHoy()">Hoy</button><button type="button" class="btn-playtomic-nav"
+                            onclick="cambiarFechaDias(-1)" aria-label="Día anterior"><i class="ri-arrow-left-s-line"
+                                aria-hidden="true"></i></button><input type="date" id="fechaCuadrante"
+                            class="date-picker-input" aria-label="Fecha" onchange="alCambiarFecha()"><button
+                            type="button" class="btn-playtomic-nav" onclick="cambiarFechaDias(1)"
+                            aria-label="Día siguiente"><i class="ri-arrow-right-s-line" aria-hidden="true"></i></button>
+                    </div>
+                    <div class="stats-chips"><span class="chip">Ocupación <b id="statOcupacion">0%</b></span><span
+                            class="chip">Reservas <b id="statNumReservas">0</b></span><button type="button"
+                            id="chipPendientes" class="chip chip-pendientes" onclick="irAPrimeraPendiente()"
+                            title="Ir a la primera reserva pendiente de confirmar">Pendientes <b
+                                id="statPendientes">0</b></button></div><button type="button" class="btn-crear-partido"
+                        onclick="abrirModalNuevaReserva()" aria-label="Crear reserva"><span class="plus"><i
+                                class="ri-add-line" aria-hidden="true"></i></span><span class="txt">Crear
+                            Reserva</span></button>
+                </div>
+                <div id="gridWrapper" class="grid-playtomic-wrapper">
+                    <div id="playtomicGrid" class="playtomic-grid"></div>
+                </div>
+            </section>
+            <section id="tab-tienda" class="tab-content">
+                <div id="tab-tpv">
+                    <div class="card">
+                        <h3><i class="ri-goblet-line" aria-hidden="true"></i>Bar</h3>
+                        <div id="selectorMesas" class="mesas-bar"></div>
+                        <div class="tpv-grid">
+                            <div>
+                                <div class="tpv-tools"><input type="search" id="buscarTPV" class="toolbar-input"
+                                        placeholder="Buscar producto..."
+                                        oninput="dibujarCatalogo(datosLocales.productos)"></div>
+                                <div class="tpv-tools">
+                                    <div class="tpv-catalog-header" id="catTPVBotones"><button type="button"
+                                            class="btn-cat-filter active" data-cat="Todos">Todos</button><button
+                                            type="button" class="btn-cat-filter" data-cat="Bebidas"><i
+                                                class="ri-cup-line" aria-hidden="true"></i>Bebidas</button><button
+                                            type="button" class="btn-cat-filter" data-cat="Comida"><i
+                                                class="ri-restaurant-line" aria-hidden="true"></i>Comida</button><button
+                                            type="button" class="btn-cat-filter" data-cat="Tienda"><i
+                                                class="ri-shopping-bag-3-line"
+                                                aria-hidden="true"></i>Tienda</button><button type="button"
+                                            class="btn-cat-filter" data-cat="Pista"><i class="ri-ticket-line"
+                                                aria-hidden="true"></i>Pistas</button></div>
+                                </div>
+                                <div id="catalogGrid" class="catalog-grid">Cargando catálogo...</div>
+                            </div>
+                            <div class="ticket-box">
+                                <div>
+                                    <h4>Cuenta activa: <span id="tituloTicketMesa">Mesa 1</span></h4>
+                                    <ul id="ticketItems" class="ticket-items"></ul>
+                                </div>
+                                <div>
+                                    <div class="ticket-total">Total: <span id="ticketTotal">0,00 €</span></div>
+                                    <div class="pay-buttons"><button type="button" id="btnCobrarEfectivo"
+                                            class="btn-pay btn-cash" onclick="cobrarMesaActiva('Efectivo')"><i
+                                                class="ri-money-euro-circle-line"
+                                                aria-hidden="true"></i>Efectivo</button><button type="button"
+                                            id="btnCobrarTarjeta" class="btn-pay btn-card"
+                                            onclick="cobrarMesaActiva('Tarjeta')"><i class="ri-bank-card-line"
+                                                aria-hidden="true"></i>Tarjeta</button></div>
+                                    <div id="msgVenta" class="msg-inline" style="text-align:center"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-head">
+                        <h3><i class="ri-shopping-bag-3-line" aria-hidden="true"></i>Escaparate de la tienda</h3><button
+                            type="button" class="btn-add blue" id="btnNuevoArticulo"><i class="ri-add-line"
+                                aria-hidden="true"></i>Nuevo artículo</button>
+                    </div>
+                    <p class="limp-leyenda">Lo que ven los clientes en la pestaña «Tienda» de la web de reservas. Se
+                        compra en el club; aquí solo se muestra. Usa las flechas para cambiar el orden.</p>
+                    <p id="escaparateResumen" class="limp-leyenda" style="font-weight:700"></p>
+                    <div class="table-wrap">
+                        <table class="tabla-productos" style="min-width:720px">
+                            <thead>
+                                <tr>
+                                    <th>Foto</th>
+                                    <th>Artículo</th>
+                                    <th>Precio</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="escaparateBody">
+                                <tr>
+                                    <td colspan="5" class="tabla-empty">Cargando escaparate...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            <section id="tab-fichajes" class="tab-content">
+                <div class="card card-narrow" id="cardFichar">
+                    <div style="text-align:center">
+                        <h3 style="justify-content:center"><i class="ri-time-line" aria-hidden="true"></i>Control de
+                            Fichaje</h3>
+                        <p id="estadoFichaje" style="margin-top:10px;font-size:14px;font-weight:700;color:var(--muted)">
+                        </p>
+                        <div class="fichaje-buttons"><button type="button" class="btn-fichar btn-entrada"
+                                onclick="fichar('Entrada', this)"><i class="ri-login-box-line"
+                                    aria-hidden="true"></i>Entrada</button><button type="button"
+                                class="btn-fichar btn-salida" onclick="fichar('Salida', this)"><i
+                                    class="ri-logout-box-line" aria-hidden="true"></i>Salida</button></div>
+                        <div id="msgFichaje" class="msg-inline" style="font-size:15px"></div>
+                        <p class="limp-leyenda" style="margin-top:8px">Si sales a comer o haces una pausa no retribuida,
+                            ficha <b>Salida</b> y, al volver, <b>Entrada</b>: así la pausa queda registrada y no cuenta
+                            como trabajada.</p>
+                    </div>
+                    <hr style="border:0;border-top:1.5px solid var(--border);margin:24px 0">
+                    <h3><i class="ri-file-list-3-line" aria-hidden="true"></i>Tus últimos 30 fichajes</h3>
+                    <div class="table-wrap">
+                        <table class="tabla-productos" style="min-width:420px">
+                            <thead>
+                                <tr>
+                                    <th>Fecha y hora</th>
+                                    <th>Tipo</th>
+                                    <th>Empleado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaFichajesBody">
+                                <tr>
+                                    <td colspan="3" class="tabla-empty">Cargando fichajes...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card card-narrow" id="cardContrato">
+                    <div class="card-head">
+                        <h3><i class="ri-file-user-line" aria-hidden="true"></i>Mi contrato</h3><button type="button"
+                            class="btn-add blue" id="btnEditarContrato"><i class="ri-edit-line"
+                                aria-hidden="true"></i>Indicar / modificar</button>
+                    </div>
+                    <div id="contratoResumen">
+                        <p class="limp-leyenda">Cargando...</p>
+                    </div>
+                </div>
+                <div class="card" id="cardRegistroJornada">
+                    <h3><i class="ri-file-chart-line" aria-hidden="true"></i>Registro de jornada</h3>
+                    <div class="form-inline"><label id="fxEmpleadoBox">Empleado<select id="fxEmpleado"
+                                class="toolbar-select">
+                                <option value="">Todos los empleados</option>
+                            </select></label><label>Desde<input type="date" id="fxDesde"></label><label>Hasta<input
+                                type="date" id="fxHasta"></label></div>
+                    <div class="copia-grid" id="fxAtajos"><button type="button" class="btn-cat-filter"
+                            data-fx="hoy">Hoy</button><button type="button" class="btn-cat-filter" data-fx="mes">Este
+                            mes</button><button type="button" class="btn-cat-filter" data-fx="mesAnt">Mes
+                            anterior</button></div>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><button type="button"
+                            class="btn-add" id="fxVer"><i class="ri-search-line" aria-hidden="true"></i>Ver
+                            registro</button><button type="button" class="btn-add blue" id="fxCsv"><i
+                                class="ri-download-2-line" aria-hidden="true"></i>Descargar CSV</button><button
+                            type="button" class="btn-add gray" id="fxImprimir"><i class="ri-printer-line"
+                                aria-hidden="true"></i>Imprimir / PDF</button></div>
+                    <div id="fxMsg" class="msg-inline" aria-live="polite"></div>
+                </div>
+                <div id="fxContenido"></div>
+            </section>
+            <section id="tab-caja" class="tab-content">
+                <div class="card">
+                    <h3><i class="ri-bar-chart-box-line" aria-hidden="true"></i>Resumen de caja · <span
+                            id="cajaFechaTxt"></span></h3>
+                    <div class="kpi-row">
+                        <div class="kpi ef"><span>Efectivo en cajón</span>
+                            <h2 id="cajaEfectivo">0,00 €</h2>
+                        </div>
+                        <div class="kpi ta"><span>Total datáfono</span>
+                            <h2 id="cajaTarjeta">0,00 €</h2>
+                        </div>
+                        <div class="kpi"><span>Total general</span>
+                            <h2 id="cajaTotal">0,00 €</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3><i class="ri-lock-line" aria-hidden="true"></i>Cierre de Caja</h3>
+                    <div class="cierre-grid"><label>Billetes (€)<input type="number" inputmode="decimal" id="cjBilletes"
+                                step="0.01" min="0" oninput="calcCierre()"></label><label>Monedas (€)<input
+                                type="number" inputmode="decimal" id="cjMonedas" step="0.01" min="0"
+                                oninput="calcCierre()"></label><label>Efectivo contado<input type="text" id="cjEfectivo"
+                                readonly value="0,00 €"></label><label>Datáfono (€)<input type="number"
+                                inputmode="decimal" id="cjDatafono" step="0.01" min="0" oninput="calcCierre()"></label>
+                    </div>
+                    <div id="cjResumen" class="cierre-resumen"></div><button type="button" id="btnCerrarCaja"
+                        class="btn-add" onclick="cerrarCajaHoy()"><i class="ri-lock-line"
+                            aria-hidden="true"></i>Confirmar cierre de caja</button>
+                    <div id="msgCierre" class="msg-inline"></div>
+                </div>
+                <div class="card">
+                    <h3><i class="ri-file-list-3-line" aria-hidden="true"></i>Historial de cierres de caja</h3>
+                    <div class="table-wrap">
+                        <table class="tabla-productos" style="min-width:680px">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Efectivo sis.</th>
+                                    <th>Datáfono sis.</th>
+                                    <th>Total</th>
+                                    <th>Dif. efectivo</th>
+                                    <th>Dif. datáfono</th>
+                                    <th>Cerrado por</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="histCajaBody">
+                                <tr>
+                                    <td colspan="8" class="tabla-empty">—</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card" id="cardCopia">
+                    <h3><i class="ri-database-2-line" aria-hidden="true"></i>Exportar y copia de seguridad</h3>
+                    <p class="limp-leyenda">Descarga los datos en CSV (se abren con Excel). La copia completa es un ZIP
+                        con todas las tablas.</p>
+                    <p id="copiaUltima" class="limp-leyenda" style="font-weight:700"></p><button type="button"
+                        id="btnCopiaZip" class="btn-add blue"><i class="ri-download-cloud-2-line"
+                            aria-hidden="true"></i>Descargar copia completa (ZIP)</button>
+                    <div class="copia-grid"><button type="button" class="btn-cat-filter" data-exp="reservas"><i
+                                class="ri-calendar-event-line" aria-hidden="true"></i>Reservas</button><button
+                            type="button" class="btn-cat-filter" data-exp="clientes"><i class="ri-user-line"
+                                aria-hidden="true"></i>Clientes</button><button type="button" class="btn-cat-filter"
+                            data-exp="ventas"><i class="ri-shopping-cart-line"
+                                aria-hidden="true"></i>Ventas</button><button type="button" class="btn-cat-filter"
+                            data-exp="cierres"><i class="ri-lock-line" aria-hidden="true"></i>Cierres de
+                            caja</button><button type="button" class="btn-cat-filter" data-exp="deudas"><i
+                                class="ri-wallet-3-line" aria-hidden="true"></i>Deudas</button><button type="button"
+                            class="btn-cat-filter" data-exp="limpiezas"><i class="ri-brush-line"
+                                aria-hidden="true"></i>Limpiezas</button><button type="button" class="btn-cat-filter"
+                            data-exp="fichajes"><i class="ri-time-line" aria-hidden="true"></i>Fichajes</button><button
+                            type="button" class="btn-cat-filter" data-exp="productos"><i class="ri-store-2-line"
+                                aria-hidden="true"></i>Catálogo</button><button type="button" class="btn-cat-filter"
+                            data-exp="tarifas"><i class="ri-price-tag-3-line" aria-hidden="true"></i>Tarifas</button>
+                    </div>
+                    <div id="msgCopia" class="msg-inline"></div>
+                </div>
+            </section>
+            <section id="tab-deudas" class="tab-content">
+                <div class="card">
+                    <h3><i class="ri-wallet-3-line" aria-hidden="true"></i>Añadir deuda</h3>
+                    <form id="formDeuda" novalidate>
+                        <div class="form-inline"><label>Nombre<input type="text" id="deudaNombre" maxlength="80"
+                                    autocomplete="off"></label><label>Teléfono<input type="tel" id="deudaTelefono"
+                                    maxlength="20" autocomplete="off"></label><label>Día<input type="date"
+                                    id="deudaFecha"></label><label>Hora<input type="time" id="deudaHora"
+                                    step="1800"></label><label>Debe (€)<input type="number" inputmode="decimal"
+                                    id="deudaImporte" step="0.01" min="0.01" placeholder="0,00"></label></div><button
+                            type="submit" id="btnAddDeuda" class="btn-add" style="margin-top:14px"><i
+                                class="ri-add-line" aria-hidden="true"></i>Añadir deuda</button>
+                        <div id="msgDeuda" class="msg-inline"></div>
+                    </form>
+                </div>
+                <div class="card">
+                    <div class="card-head">
+                        <h3><i class="ri-list-check-2" aria-hidden="true"></i>Listado de deudas</h3>
+                        <div class="deuda-total">Pendiente de cobro: <b id="deudaTotal">0,00 €</b><button type="button"
+                                class="btn-cat-filter" data-exp="deudas" style="margin-left:8px"><i
+                                    class="ri-download-2-line" aria-hidden="true"></i>CSV</button></div>
+                    </div>
+                    <div class="toolbar"><select id="deudaFiltro" class="toolbar-select" onchange="dibujarDeudas()">
+                            <option value="Pendiente">Pendientes</option>
+                            <option value="Resuelta">Resueltas</option>
+                            <option value="Todas">Todas</option>
+                        </select><input type="search" id="deudaBuscar" class="toolbar-input"
+                            placeholder="Buscar por nombre o teléfono..." oninput="dibujarDeudas()"></div>
+                    <div class="table-wrap">
+                        <table class="tabla-productos" style="min-width:700px">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Teléfono</th>
+                                    <th>Día y hora</th>
+                                    <th>Debe</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deudasBody">
+                                <tr>
+                                    <td colspan="6" class="tabla-empty">Cargando deudas...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            <section id="tab-limpieza" class="tab-content"><datalist id="dlTrabajadores"></datalist>
+                <div id="avisoLimpiezaBanner" class="aviso-limpieza" hidden></div>
+                <div class="card">
+                    <h3><i class="ri-brush-line" aria-hidden="true"></i>Registrar limpieza</h3>
+                    <form id="formLimpieza" novalidate>
+                        <div class="limp-label">Pistas limpiadas <button type="button" class="btn-cat-filter"
+                                onclick="limpiezaSeleccionarPistas(true)">Todas</button><button type="button"
+                                class="btn-cat-filter" onclick="limpiezaSeleccionarPistas(false)">Ninguna</button></div>
+                        <div id="limpPistas" class="pistas-checkbox-grid limp-grid"></div>
+                        <div class="limp-label">Qué se ha limpiado</div>
+                        <div id="limpTareas" class="pistas-checkbox-grid limp-grid"></div>
+                        <div class="form-inline" style="margin-top:14px"><label>Trabajador<input type="text"
+                                    id="limpEmpleado" list="dlTrabajadores" maxlength="60"
+                                    autocomplete="off"></label><label>Cuándo<input type="datetime-local"
+                                    id="limpFecha"></label></div><button type="submit" id="btnLimpieza" class="btn-add"
+                            style="margin-top:14px"><i class="ri-check-line" aria-hidden="true"></i>Registrar
+                            limpieza</button>
+                        <div id="msgLimpieza" class="msg-inline"></div>
+                    </form>
+                </div>
+                <div class="card">
+                    <h3><i class="ri-calendar-check-line" aria-hidden="true"></i>Última limpieza por pista</h3>
+                    <p class="limp-leyenda">En rojo: más de 2 semanas sin limpiar o sin registro.</p>
+                    <div class="table-wrap">
+                        <table class="tabla-productos" style="min-width:560px">
+                            <thead>
+                                <tr>
+                                    <th>Pista</th>
+                                    <th>Estructura</th>
+                                    <th>Césped</th>
+                                    <th>Cristales</th>
+                                </tr>
+                            </thead>
+                            <tbody id="limpEstadoBody">
+                                <tr>
+                                    <td colspan="4" class="tabla-empty">Cargando...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3><i class="ri-file-list-3-line" aria-hidden="true"></i>Historial de limpiezas</h3>
+                    <div class="table-wrap">
+                        <table class="tabla-productos" style="min-width:560px">
+                            <thead>
+                                <tr>
+                                    <th>Cuándo</th>
+                                    <th>Pista</th>
+                                    <th>Qué</th>
+                                    <th>Trabajador</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="limpHistBody">
+                                <tr>
+                                    <td colspan="5" class="tabla-empty">Cargando...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div><button type="button" class="btn-add gray" data-exp="limpiezas" style="margin-top:12px"><i
+                            class="ri-download-2-line" aria-hidden="true"></i>Exportar todas las limpiezas
+                        (CSV)</button>
+                </div>
+            </section>
+            <section id="tab-ajustes" class="tab-content">
+                <div class="card">
+                    <h3><i class="ri-user-settings-line" aria-hidden="true"></i>Clientes y acceso web</h3>
+                    <p class="limp-leyenda">Busca un cliente por nombre o teléfono. Restablecer el código o habilitar el
+                        acceso web solo si has comprobado que es él.</p>
+                    <div class="toolbar"><input type="search" id="cliBuscar" class="toolbar-input"
+                            placeholder="Buscar por nombre o teléfono..." autocomplete="off"
+                            aria-label="Buscar cliente"></div>
+                    <p id="cliContador" class="limp-leyenda" style="font-weight:700" aria-live="polite"></p>
+                    <div class="table-wrap">
+                        <table class="tabla-productos" style="min-width:640px">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Teléfono</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cliBody">
+                                <tr>
+                                    <td colspan="3" class="tabla-empty">Cargando clientes...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3><i class="ri-price-tag-3-line" aria-hidden="true"></i>Tarifas de pista por duración</h3>
+                    <div class="table-wrap">
+                        <table class="tabla-productos tabla-tarifas">
+                            <thead>
+                                <tr>
+                                    <th>Franja</th>
+                                    <th>60 min</th>
+                                    <th>90 min</th>
+                                    <th>120 min</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><b>Entre semana mañana</b></td>
+                                    <td><input type="number" inputmode="decimal" id="tarSemMan60" step="0.5" min="0"
+                                            placeholder="auto" aria-label="Entre semana mañana 60 minutos"></td>
+                                    <td><input type="number" inputmode="decimal" id="tarSemMan" step="0.5" min="0"
+                                            aria-label="Entre semana mañana 90 minutos"></td>
+                                    <td><input type="number" inputmode="decimal" id="tarSemMan120" step="0.5" min="0"
+                                            placeholder="auto" aria-label="Entre semana mañana 120 minutos"></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Entre semana tarde</b></td>
+                                    <td><input type="number" inputmode="decimal" id="tarSemTar60" step="0.5" min="0"
+                                            placeholder="auto" aria-label="Entre semana tarde 60 minutos"></td>
+                                    <td><input type="number" inputmode="decimal" id="tarSemTar" step="0.5" min="0"
+                                            aria-label="Entre semana tarde 90 minutos"></td>
+                                    <td><input type="number" inputmode="decimal" id="tarSemTar120" step="0.5" min="0"
+                                            placeholder="auto" aria-label="Entre semana tarde 120 minutos"></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Fin de semana</b></td>
+                                    <td><input type="number" inputmode="decimal" id="tarFinde60" step="0.5" min="0"
+                                            placeholder="auto" aria-label="Fin de semana 60 minutos"></td>
+                                    <td><input type="number" inputmode="decimal" id="tarFinde" step="0.5" min="0"
+                                            aria-label="Fin de semana 90 minutos"></td>
+                                    <td><input type="number" inputmode="decimal" id="tarFinde120" step="0.5" min="0"
+                                            placeholder="auto" aria-label="Fin de semana 120 minutos"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div><button type="button" id="btnGuardarTarifas" class="btn-add" style="margin-top:14px"
+                        onclick="guardarTarifasUI()">Guardar tarifas</button>
+                    <div id="msgTarifas" class="msg-inline"></div>
+                </div>
+                <div class="card">
+                    <div class="card-head">
+                        <h3><i class="ri-store-2-line" aria-hidden="true"></i>Catálogo</h3><button type="button"
+                            class="btn-add blue" onclick="abrirModalNuevoProducto()">+ Nuevo artículo</button>
+                    </div>
+                    <div class="toolbar"><input type="search" id="buscarProdGestion" class="toolbar-input"
+                            placeholder="Buscar producto por nombre..." oninput="filtrarGestionCatalogo()"><select
+                            id="catFilterGestion" class="toolbar-select" onchange="filtrarGestionCatalogo()">
+                            <option value="Todos">Todas las categorías</option>
+                            <option value="Bebidas">Bebidas</option>
+                            <option value="Comida">Comida</option>
+                            <option value="Tienda">Tienda / Material</option>
+                            <option value="Pista">Pista</option>
+                        </select></div>
+                    <div class="table-wrap">
+                        <table class="tabla-productos">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Precio</th>
+                                    <th>Categoría</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaProductosBody">
+                                <tr>
+                                    <td colspan="5" class="tabla-empty">Cargando catálogo...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <div id="gpSync"><i class="ri-refresh-line" aria-hidden="true"></i>Sincronizado en tiempo real</div>
+    <div id="modalReserva" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitulo">
+        <div class="modal-card-double">
+            <div class="modal-header-bar">
+                <h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="modalTitulo">Gestionar reserva</span></h4>
+                <button type="button" class="modal-close" onclick="cerrarModal()" aria-label="Cerrar"><i
+                        class="ri-close-line" aria-hidden="true"></i></button>
+            </div>
+            <div class="modal-double-body">
+                <div class="modal-section-box">
+                    <h5>Reserva</h5><input type="hidden" id="modalReservaId"><label
+                        for="modalCliente">Cliente</label><input type="text" id="modalCliente" maxlength="80"
+                        placeholder="Escribe el nombre para buscar..." autocomplete="off"><label
+                        for="modalTelefono">Teléfono</label><input type="tel" id="modalTelefono" maxlength="20"
+                        placeholder="Escribe el teléfono para buscar..." autocomplete="off"><label>Pistas</label>
+                    <div id="modalPistasContainer" class="pistas-checkbox-grid"></div><label for="modalTipoReserva">Tipo
+                        de reserva</label><select id="modalTipoReserva" onchange="alCambiarTipo()">
+                        <option value="Normal">Normal</option>
+                        <option value="Pena">Peña (recurrente)</option>
+                        <option value="Entrenamiento">Entrenamiento</option>
+                        <option value="Torneo">Torneo (horario ampliado)</option>
+                    </select><label for="modalFecha">Fecha</label><input type="date" id="modalFecha"
+                        onchange="recalcularPrecioSugerido(false)"><label for="modalHora">Hora inicio</label><input
+                        type="time" id="modalHora" step="1800" value="17:00"
+                        onchange="recalcularPrecioSugerido(false)"><label id="lblDur"
+                        for="modalDuracion">Duración</label><select id="modalDuracion"
+                        onchange="recalcularPrecioSugerido()">
+                        <option value="30">30 minutos (0.5 h)</option>
+                        <option value="60">60 minutos (1.0 h)</option>
+                        <option value="90" selected>90 minutos (1.5 h)</option>
+                        <option value="120">120 minutos (2.0 h)</option>
+                        <option value="150">150 minutos (2.5 h)</option>
+                        <option value="180">180 minutos (3.0 h)</option>
+                        <option value="210">210 minutos (3.5 h)</option>
+                        <option value="240">240 minutos (4.0 h)</option>
+                        <option value="270">270 minutos (4.5 h)</option>
+                        <option value="300">300 minutos (5.0 h)</option>
+                    </select>
+                    <div id="boxTorneoDur" style="display:none"><label for="modalDuracionHoras">Duración torneo
+                            (horas)</label><input type="number" inputmode="decimal" id="modalDuracionHoras" min="0.5"
+                            max="16" step="0.5" value="8" oninput="recalcularPrecioSugerido()"></div>
+                    <div id="boxRepetir" style="display:none"><label for="modalRepetir"><i class="ri-repeat-line"
+                                aria-hidden="true"></i>Repetir peña (semanas consecutivas)</label><input type="number"
+                            inputmode="numeric" id="modalRepetir" min="1" max="52" value="12"></div><label
+                        for="modalNumJugadores">Número de jugadores</label><select id="modalNumJugadores"
+                        onchange="actualizarVistasJugadoresSplit()"></select><label for="modalPrecio">Precio total pista
+                        (€)</label><input type="number" inputmode="decimal" id="modalPrecio" value="26.00" step="0.50"
+                        min="0" oninput="actualizarVistasJugadoresSplit()">
+                </div>
+                <div class="modal-col">
+                    <div class="modal-section-box">
+                        <h5> Cobro dividido <span id="badgePrecioUnitario"
+                                style="font-size:13px;color:var(--blue);font-weight:800">6,50 € / pers</span></h5>
+                        <div id="splitJugadoresContainer" class="jugadores-split-grid"></div>
+                        <div class="estado-global"> Estado global: <span id="badgeEstadoPagoGlobal"
+                                style="margin-left:6px" class="badge-sin-pagar"><i class="ri-error-warning-line"
+                                    aria-hidden="true"></i>Sin pagar</span></div>
+                    </div>
+                    <div class="modal-section-box nota-box">
+                        <h5><span><i class="ri-sticky-note-line" aria-hidden="true"></i>Bloc de notas</span><span
+                                class="nota-hint">Se marca en el cuadrante</span></h5><textarea id="modalNotas" rows="4"
+                            maxlength="1000"
+                            placeholder="Apuntes de esta reserva: debe dinero, trae pala prestada, avisar si llega tarde..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer-bar"><button type="button" id="btnConfirmarPendiente"
+                    onclick="confirmarReservaPendiente()" class="btn-add blue" style="display:none"><i
+                        class="ri-check-double-line" aria-hidden="true"></i>Confirmar reserva</button><button
+                    type="button" id="btnGuardarReserva" onclick="confirmarGuardarReserva()" class="btn-add"><i
+                        class="ri-save-line" aria-hidden="true"></i>Guardar reserva</button><button type="button"
+                    id="btnEliminarSerie" onclick="confirmarEliminarSerie()" class="btn-add danger-dark"
+                    style="display:none"><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar
+                    serie</button><button type="button" id="btnEliminarReserva" onclick="confirmarEliminarReserva()"
+                    class="btn-add danger" style="display:none"><i class="ri-delete-bin-line"
+                        aria-hidden="true"></i>Eliminar</button><button type="button" onclick="cerrarModal()"
+                    class="btn-add gray">Cancelar</button></div>
+        </div>
+    </div>
+    <div id="modalProducto" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalProductoTitulo">
+        <div class="modal-card-double small">
+            <div class="modal-header-bar">
+                <h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="modalProductoTitulo">Editar artículo</span>
+                </h4><button type="button" class="modal-close" onclick="cerrarModalProducto()" aria-label="Cerrar"><i
+                        class="ri-close-line" aria-hidden="true"></i></button>
+            </div>
+            <div class="modal-single-body"><input type="hidden" id="modalProdId">
+                <div class="form-group"><label for="modalProdNombre">Nombre del artículo</label><input type="text"
+                        id="modalProdNombre" placeholder="Ej. Bote de bolas" maxlength="80" required></div>
+                <div class="form-group"><label for="modalProdPrecio">Precio (€)</label><input type="number"
+                        inputmode="decimal" id="modalProdPrecio" step="0.01" min="0" placeholder="6.00" required></div>
+                <div class="form-group"><label for="modalProdCat">Categoría</label><select id="modalProdCat">
+                        <option value="Bebidas">Bebidas</option>
+                        <option value="Comida">Comida</option>
+                        <option value="Tienda">Tienda / Material</option>
+                        <option value="Pista">Pista</option>
+                    </select></div>
+                <div class="form-group"><label for="modalProdEstado">Estado</label><select id="modalProdEstado">
+                        <option value="Activo">Activo</option>
+                        <option value="Inactivo">Inactivo</option>
+                    </select></div>
+            </div>
+            <div class="modal-footer-bar"><button type="button" id="btnGuardarProducto" onclick="guardarProductoModal()"
+                    class="btn-add blue"><i class="ri-save-line" aria-hidden="true"></i>Guardar artículo</button><button
+                    type="button" onclick="cerrarModalProducto()" class="btn-add gray">Cancelar</button></div>
+        </div>
+    </div>
+    <div id="modalAvisoLimpieza" class="modal-overlay" role="alertdialog" aria-modal="true"
+        aria-labelledby="avisoLimpTitulo">
+        <div class="modal-card-double small">
+            <div class="modal-header-bar">
+                <h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="avisoLimpTitulo">Aviso de limpieza</span>
+                </h4><button type="button" class="modal-close" onclick="cerrarAvisoLimpieza()" aria-label="Cerrar"><i
+                        class="ri-close-line" aria-hidden="true"></i></button>
+            </div>
+            <div class="modal-single-body" id="avisoLimpCuerpo"></div>
+            <div class="modal-footer-bar"><button type="button" onclick="cerrarAvisoLimpieza()"
+                    class="btn-add">Entendido</button></div>
+        </div>
+    </div>
+    <div id="modalArticulo" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalArticuloTitulo">
+        <div class="modal-card-double small">
+            <div class="modal-header-bar">
+                <h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="modalArticuloTitulo">Nuevo artículo</span>
+                </h4><button type="button" class="modal-close" onclick="cerrarModalArticulo()" aria-label="Cerrar"><i
+                        class="ri-close-line" aria-hidden="true"></i></button>
+            </div>
+            <div class="modal-single-body">
+                <div class="form-group"><label for="artFoto">Foto</label>
+                    <div id="artFotoPreview" class="art-preview"></div><input type="file" id="artFoto"
+                        accept="image/*"><button type="button" class="btn-add gray" id="btnArtQuitarFoto"
+                        style="margin-top:8px" hidden><i class="ri-delete-bin-line" aria-hidden="true"></i>Quitar
+                        foto</button>
+                    <p class="limp-leyenda" style="margin-top:6px">Se reduce y se convierte a WebP automáticamente para
+                        que pese poco.</p>
+                </div>
+                <div class="form-group"><label for="artTitulo">Título</label><input type="text" id="artTitulo"
+                        maxlength="80" placeholder="Ej. Pala Bullpadel Vertex"></div>
+                <div class="form-group"><label for="artDescripcion">Descripción</label><textarea id="artDescripcion"
+                        class="art-textarea" maxlength="600" rows="4"
+                        placeholder="Opcional: marca, medidas, colores..."></textarea></div>
+                <div class="form-group"><label for="artPrecio">Precio (€)</label><input type="number"
+                        inputmode="decimal" id="artPrecio" step="0.01" min="0" placeholder="0,00"></div><label
+                    class="cl-check" style="margin:0"><input type="checkbox" id="artVisible" checked><span>Visible para
+                        los clientes</span></label>
+                <div id="msgArticulo" class="msg-inline" aria-live="polite"></div>
+            </div>
+            <div class="modal-footer-bar"><button type="button" id="btnGuardarArticulo" class="btn-add blue"><i
+                        class="ri-save-line" aria-hidden="true"></i>Guardar artículo</button><button type="button"
+                    onclick="cerrarModalArticulo()" class="btn-add gray">Cancelar</button></div>
+        </div>
+    </div>
+    <div id="modalContrato" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="ctTitulo">
+        <div class="modal-card-double">
+            <div class="modal-header-bar">
+                <h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="ctTitulo">Tu contrato</span></h4><button
+                    type="button" class="modal-close" id="btnCerrarContrato" aria-label="Cerrar"><i
+                        class="ri-close-line" aria-hidden="true"></i></button>
+            </div>
+            <div class="modal-single-body">
+                <p id="ctObligatorio" class="aviso-limpieza" hidden><i class="ri-information-line"
+                        aria-hidden="true"></i>Antes de fichar por primera vez necesitamos saber tu contrato.</p>
+                <p class="limp-leyenda">Indica lo que figura en tu contrato firmado. Sirve para comparar tu jornada con
+                    tus fichajes. Si cambia, vuelve a entrar aquí y guárdalo de nuevo: se conserva el histórico. No
+                    sustituye a tu contrato.</p>
+                <div class="form-inline" style="margin:12px 0"><label>Horas semanales del contrato<input type="number"
+                            inputmode="decimal" id="ctHoras" step="0.5" min="0.5" max="48"
+                            placeholder="Ej. 20"></label><label>Vigente desde<input type="date" id="ctDesde"></label>
+                </div>
+                <div class="ct-cab"><span>Día</span><span>Tramo 1 (entrada – salida)</span><span>Tramo 2
+                        (opcional)</span></div>
+                <div id="ctFilas"></div>
+                <p id="ctCalculo" class="limp-leyenda" style="font-weight:700;margin-top:10px" aria-live="polite"></p>
+                <div class="form-group" style="margin-top:10px"><label for="ctNotas"
+                        style="display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px">Observaciones
+                        (opcional)</label><input type="text" id="ctNotas" maxlength="300"
+                        placeholder="Ej. turnos rotativos, horario distinto en verano..."></div>
+                <div id="msgContrato" class="msg-inline" aria-live="polite"></div>
+            </div>
+            <div class="modal-footer-bar"><button type="button" id="btnGuardarContrato" class="btn-add blue"><i
+                        class="ri-save-line" aria-hidden="true"></i>Guardar contrato</button><button type="button"
+                    id="btnCancelarContrato" class="btn-add gray">Cancelar</button></div>
+        </div>
+    </div>
+    <dialog id="modalConfirmDialog" class="modal-overlay" style="border:none; padding:0; background:transparent;">
+        <form method="dialog" class="modal-card-double small" style="margin:auto;">
+            <div class="modal-header-bar">
+                <h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="confirmDialogTitle">Confirmación</span>
+                </h4>
+                <button type="button" class="modal-close" onclick="$('modalConfirmDialog').close('cancel')"
+                    aria-label="Cerrar"><i class="ri-close-line" aria-hidden="true"></i></button>
+            </div>
+            <div class="modal-single-body">
+                <p id="confirmDialogMessage"
+                    style="font-size:15px; font-weight:600; color:var(--text); margin-bottom:10px;"></p>
+                <div id="confirmDialogInputBox" style="display:none; margin-top:12px;">
+                    <input type="text" id="confirmDialogInput" class="toolbar-input" style="width:100%"
+                        autocomplete="off">
+                </div>
+            </div>
+            <div class="modal-footer-bar">
+                <button type="button" id="confirmDialogCancel" class="btn-add gray">Cancelar</button>
+                <button type="submit" id="confirmDialogOk" class="btn-add blue">Aceptar</button>
+            </div>
+        </form>
+    </dialog>
+    <div id="printArea" aria-hidden="true"></div>
+</body>
+
+</html>

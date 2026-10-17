@@ -25,9 +25,34 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      
       - run: node bump-sw.js
+
+      - name: Minificar y añadir cabecera de derechos reservados
+        run: |
+          npm install -g terser clean-css-cli html-minifier-terser
+
+          HEADER_CODE="© Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización."
+          HEADER_JS="/* $HEADER_CODE */"
+          HEADER_HTML="<!-- $HEADER_CODE -->"
+
+          find . -type f -name "*.js" -not -path "*/node_modules/*" -not -path "*/.github/*" | while read -r f; do
+            terser "$f" -o "$f" -c -m --comments false --preamble "$HEADER_JS"
+          done
+
+          find . -type f -name "*.css" -not -path "*/node_modules/*" -not -path "*/.github/*" | while read -r f; do
+            cleancss -o "$f" "$f"
+            printf "%s\n%s" "$HEADER_JS" "$(cat "$f")" > "$f"
+          done
+
+          find . -type f -name "*.html" -not -path "*/node_modules/*" -not -path "*/.github/*" | while read -r f; do
+            html-minifier-terser "$f" -o "$f" --collapse-whitespace --remove-comments --minify-js true --minify-css true
+            printf "%s\n%s" "$HEADER_HTML" "$(cat "$f")" > "$f"
+          done
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .
+      
       - id: despliegue
         uses: actions/deploy-pages@v4
