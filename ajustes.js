@@ -18,10 +18,11 @@ if (!lista.length) { tb.innerHTML = '<tr><td colspan="3" class="tabla-empty">No 
 tb.innerHTML = lista.map((c, i) => {
 const tel = c.telefono ? `<a href="tel:${esc(c.telefono)}" style="color:var(--blue);font-weight:700">${esc(c.telefono)}</a>` : '<span style="color:var(--muted)">Sin teléfono</span>';
 const sinTel = c.telefono ? '' : ' disabled title="El cliente no tiene teléfono"';
+const soloJefa = esJefa();
 return `<tr><td><b>${esc(c.nombre)}</b></td><td>${tel}</td><td class="esc-acciones">
-<button type="button" class="btn-add gray" data-cli="reset" data-i="${i}"${sinTel}><i class="ri-key-2-line" aria-hidden="true"></i>Restablecer código</button>
+${soloJefa ? `<button type="button" class="btn-add gray" data-cli="reset" data-i="${i}"${sinTel}><i class="ri-key-2-line" aria-hidden="true"></i>Restablecer código</button>` : ''}
 <button type="button" class="btn-add blue" data-cli="habilitar" data-i="${i}"${sinTel}><i class="ri-global-line" aria-hidden="true"></i>Habilitar acceso web</button>
-<button type="button" class="btn-add danger" data-cli="borrar" data-i="${i}"><i class="ri-user-unfollow-line" aria-hidden="true"></i>Borrar datos (RGPD)</button>
+${soloJefa ? `<button type="button" class="btn-add danger" data-cli="borrar" data-i="${i}"><i class="ri-user-unfollow-line" aria-hidden="true"></i>Borrar datos (RGPD)</button>` : ''}
 </td></tr>`;
 }).join('');
 }
@@ -31,6 +32,7 @@ await cargarClientes();
 dibujarClientesAjustes();
 }
 async function cliResetearCodigo(c, btn) {
+if (!esJefa()) return toast('Solo la jefa puede restablecer códigos', 'err');
 if (!confirm(`¿Restablecer el código web de «${c.nombre}» y habilitarle el acceso web?\n\nTendrá que crear uno nuevo en su próxima reserva. Hazlo solo si has comprobado que es él.`)) return;
 setBusy(btn, true, CLI_SPIN + 'Restableciendo...');
 try {
@@ -57,7 +59,8 @@ toast('No se pudo habilitar: ' + (err.message || err), 'err');
 } finally { setBusy(btn, false); }
 }
 async function cliBorrarDatos(c, btn) {
-if (!esPersonal()) return toast('Solo un administrador puede borrar datos de clientes', 'err');
+if (!esJefa()) return toast('Solo la jefa puede borrar datos de clientes', 'err');
+if (!c.id) return toast('Falta el identificador del cliente. Recarga la lista e inténtalo de nuevo.', 'err');
 if (!confirm(`¿Borrar los datos personales de «${c.nombre}»?\n\nSe elimina su ficha y se quita su nombre y teléfono de reservas y deudas (los importes se conservan sin datos personales). Se cancelan sus reservas futuras sin cobros. No se puede deshacer.`)) return;
 setBusy(btn, true, CLI_SPIN + 'Borrando...');
 try {

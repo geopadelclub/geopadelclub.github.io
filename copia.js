@@ -10,7 +10,11 @@ fichajes: { etiqueta: 'Fichajes', orden: ['created_at', 'id'] },
 productos: { etiqueta: 'Catálogo', orden: ['nombre', 'id'] },
 tarifas: { etiqueta: 'Tarifas', orden: ['franja'] },
 tienda_articulos: { etiqueta: 'Escaparate de la tienda', orden: ['orden', 'id'] },
-contratos_jornada: { etiqueta: 'Contratos de jornada', orden: ['created_at', 'id'] }
+contratos_jornada: { etiqueta: 'Contratos de jornada', orden: ['created_at', 'id'] },
+cierres_historial: { etiqueta: 'Cierres reabiertos (historial)', orden: ['reabierto_at', 'id'] },
+consentimientos: { etiqueta: 'Consentimientos de privacidad', orden: ['created_at', 'id'] },
+rgpd_log: { etiqueta: 'Registro de borrados RGPD', orden: ['created_at', 'id'] },
+usuarios: { etiqueta: 'Usuarios del panel', orden: ['id'] }
 };
 const COL_PRIVADAS = /codigo|hash|pass|salt|token|secret/i;
 const CLAVE_ULTIMA_COPIA = 'gp-ultima-copia';

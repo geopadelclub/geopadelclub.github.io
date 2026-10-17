@@ -58,7 +58,7 @@ function reiniciarTurnstile() {
 tsToken = '';
 if (window.turnstile && tsId !== null) { try { window.turnstile.reset(tsId); } catch (e) { } }
 }
-const RPC_LECTURA = ['web_config', 'web_disponibilidad', 'web_identificar', 'web_mis_reservas'];
+const RPC_LECTURA = ['web_config', 'web_disponibilidad'];
 async function rpc(fn, args) {
 if (!sb) throw new Error('Sin conexión con la base de datos');
 const llamar = () => sb.rpc(fn, args || {});
@@ -261,7 +261,7 @@ if (!codigo) return toast('Escribe tu código', 'warn');
 const btn = $('btnEntrar');
 setBusy(btn, true, SPIN + 'Entrando...');
 try {
-const r = await rpc('web_identificar', { p_ident: flujo.tel, p_codigo: codigo });
+const r = await conReintento(() => llamarEdge('identificar', { p_ident: flujo.tel, p_codigo: codigo }));
 if (!r || !r.ok) return toast(textoError(r), r && r.error === 'bloqueado' ? 'err' : 'warn');
 flujo.codigo = codigo;
 flujo.nombre = r.nombre;
@@ -391,7 +391,7 @@ const btn = $('btnMis'), msg = $('msgMis');
 setBusy(btn, true, SPIN + 'Buscando...');
 msg.innerText = '';
 try {
-const r = await rpc('web_mis_reservas', { p_ident: ident, p_codigo: codigo });
+const r = await conReintento(() => llamarEdge('mis_reservas', { p_ident: ident, p_codigo: codigo }));
 if (!r || !r.ok) {
 cuenta = null;
 mostrarMis(false);
@@ -426,7 +426,7 @@ if (!confirm('Se borrarán tu nombre, teléfono y código, y se cancelarán tus 
 const btn = $('btnBorrarDatos');
 setBusy(btn, true, 'Borrando...');
 try {
-const r = await rpc('web_borrar_mis_datos', { p_ident: cuenta.ident, p_codigo: cuenta.codigo });
+const r = await llamarEdge('borrar', { p_ident: cuenta.ident, p_codigo: cuenta.codigo });
 if (!r || !r.ok) { toast(textoError(r), 'err'); return; }
 cuenta = null;
 $('misIdent').value = ''; $('misCodigo').value = ''; $('msgMis').innerText = '';
@@ -440,7 +440,7 @@ if (!b || !cuenta) return;
 if (!confirm('¿Cancelar esta reserva?')) return;
 setBusy(b, true, SPIN + 'Cancelando...');
 try {
-const r = await rpc('web_cancelar', { p_ident: cuenta.ident, p_codigo: cuenta.codigo, p_reserva_id: b.dataset.cancelar });
+const r = await llamarEdge('cancelar', { p_ident: cuenta.ident, p_codigo: cuenta.codigo, p_reserva_id: b.dataset.cancelar });
 if (!r || !r.ok) { toast(textoError(r), 'err'); setBusy(b, false); return; }
 toast('Reserva cancelada');
 await cargarMisReservas(cuenta.ident, cuenta.codigo);

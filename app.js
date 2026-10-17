@@ -271,7 +271,7 @@ async function cargarDatosGlobales() {
 await Promise.all([cargarClientes(), cargarProductos(), cargarTarifas(), cargarMesasBar(), cargarReservasHoy(), cargarCajaHoy(), cargarDeudas()]);
 }
 async function cargarClientes() {
-const { data, error } = await conReintento(() => leerTodo(() => supabaseClient.from('clientes').select('nombre, telefono').order('nombre')));
+const { data, error } = await conReintento(() => leerTodo(() => supabaseClient.from('clientes').select('id, nombre, telefono, web_habilitado').order('nombre')));
 if (error) { console.error(error); return; }
 datosLocales.clientes = data || [];
 }
@@ -468,7 +468,7 @@ const heightPx = dur * ppm - 2;
 const nJug = parseInt(r.numJugadores, 10) || 4;
 const arrPagos = String(r.pagosJugadores || "").split(",");
 while (arrPagos.length < nJug) arrPagos.push("0");
-const esPagadoIdx = i => { const p = arrPagos[i]; return p === 'Efectivo' || p === 'Tarjeta' || (p && p !== '0'); };
+const esPagadoIdx = i => { const p = arrPagos[i]; return p === 'Efectivo' || p === 'Tarjeta'; };
 let pagados = 0;
 for (let i = 0; i < nJug; i++) if (esPagadoIdx(i)) pagados++;
 const totalPagado = pagados >= nJug;
@@ -1335,7 +1335,7 @@ const tb = $('histCajaBody');
 const { data, error } = await supabaseClient.from('cierres').select('*').order('fecha', { ascending: false }).limit(60);
 if (error) { tb.innerHTML = `<tr><td colspan="8" class="tabla-empty" style="color:var(--red)">Error: ${esc(error.message)}</td></tr>`; return; }
 const dif = n => { const x = Number(n) || 0; return `<b class="${Math.abs(x) < 0.005 ? 'dif-ok' : 'dif-ko'}">${x > 0 ? '+' : ''}${eur(x)}</b>`; };
-const adm = esPersonal();
+const adm = esJefa();
 tb.innerHTML = (data || []).map(d => `<tr>
 <td><b>${esc(d.fecha)}</b></td><td>${eur(d.efectivo_sistema)}</td><td>${eur(d.tarjeta)}</td>
 <td><b>${eur(d.total)}</b></td><td>${dif(d.dif_efectivo)}</td><td>${dif(d.dif_datafono)}</td>
@@ -1343,7 +1343,7 @@ tb.innerHTML = (data || []).map(d => `<tr>
 <td>${adm ? `<button type="button" class="btn-add gray" data-reabrir="${esc(d.fecha)}"><i class="ri-lock-unlock-line" aria-hidden="true"></i>Reabrir</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="8" class="tabla-empty">—</td></tr>';
 }
 async function reabrirCierre(fecha, btn) {
-if (!esPersonal()) return toast('Solo un administrador puede reabrir una caja', 'err');
+if (!esJefa()) return toast('Solo la jefa puede reabrir una caja', 'err');
 const motivo = (prompt(`Motivo para reabrir la caja del ${fecha} (queda registrado):`) || '').trim();
 if (motivo.length < 5) return toast('Escribe un motivo de al menos 5 caracteres', 'warn');
 setBusy(btn, true);
@@ -1395,7 +1395,7 @@ const arr = String(r.pagosJugadores || '').split(',');
 let pagados = 0;
 for (let i = 0; i < n; i++) {
 const p = arr[i];
-if (p === 'Efectivo' || p === 'Tarjeta' || (p && p !== '0')) pagados++;
+if (p === 'Efectivo' || p === 'Tarjeta') pagados++;
 }
 return { n, pagados, total: pagados >= n };
 }
