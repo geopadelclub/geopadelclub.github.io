@@ -13,7 +13,10 @@
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     <link rel="icon" type="image/webp" href="./Geopadel.webp">
     <script> (function () { try { var t = localStorage.getItem('gp-theme'); if (t !== 'dark' && t !== 'light') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; document.documentElement.setAttribute('data-theme', t); } catch (e) { } })(); </script>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="styles.css">
+    </noscript>
     <style>
         body {
             display: flex;
