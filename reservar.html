@@ -27,7 +27,7 @@
     <meta name="apple-mobile-web-app-title" content="Geopadel">
     <meta name="robots" content="index, follow">
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co;">
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' data: https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://*.challenges.cloudflare.com; frame-src https://challenges.cloudflare.com;">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     <link rel="canonical" href="https://geopadelclub.github.io/reservar">
@@ -57,11 +57,13 @@
                 id="btnTema" aria-label="Cambiar tema"><i class="ri-moon-line" aria-hidden="true"></i></button></div>
     </header>
     <nav class="app-nav" aria-label="Secciones"><button type="button" id="nav-reservar" class="nav-tab active"
-            data-tab="reservar" aria-current="page" aria-label="Pestaña Reservar"><span class="ni"><i class="ri-calendar-event-line"
-                    aria-hidden="true"></i></span>Reservar</button><button type="button" id="nav-mis" class="nav-tab"
-            data-tab="mis" aria-label="Pestaña Mis reservas"><span class="ni"><i class="ri-ticket-line" aria-hidden="true"></i></span>Mis
-            reservas</button><button type="button" id="nav-tienda" class="nav-tab" data-tab="tienda" aria-label="Pestaña Tienda"><span class="ni"><i
-                    class="ri-shopping-bag-3-line" aria-hidden="true"></i></span>Tienda</button></nav>
+            data-tab="reservar" aria-current="page" aria-label="Pestaña Reservar"><span class="ni"><i
+                    class="ri-calendar-event-line" aria-hidden="true"></i></span>Reservar</button><button type="button"
+            id="nav-mis" class="nav-tab" data-tab="mis" aria-label="Pestaña Mis reservas"><span class="ni"><i
+                    class="ri-ticket-line" aria-hidden="true"></i></span>Mis
+            reservas</button><button type="button" id="nav-tienda" class="nav-tab" data-tab="tienda"
+            aria-label="Pestaña Tienda"><span class="ni"><i class="ri-shopping-bag-3-line"
+                    aria-hidden="true"></i></span>Tienda</button></nav>
     <main class="cl-main">
         <section id="tab-reservar" class="tab-content active">
             <div class="cl-intro">
