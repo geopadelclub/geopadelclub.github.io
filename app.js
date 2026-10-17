@@ -108,20 +108,31 @@ function iniciarTurnstileLogin() {
     if (!TURNSTILE_SITEKEY || tsLoginId !== null) return;
     const box = $('cfLogin');
     if (!box) return;
+
     const pintar = () => {
         if (tsLoginId !== null || !window.turnstile) return;
-        tsLoginId = window.turnstile.render('#cfLogin', {
-            sitekey: TURNSTILE_SITEKEY,
-            callback: t => { tsLoginToken = t; },
-            'expired-callback': () => { tsLoginToken = ''; },
-            'error-callback': () => { tsLoginToken = ''; }
-        });
+        try {
+            tsLoginId = window.turnstile.render('#cfLogin', {
+                sitekey: TURNSTILE_SITEKEY,
+                callback: t => { tsLoginToken = t; },
+                'expired-callback': () => { tsLoginToken = ''; },
+                'error-callback': () => {
+                    tsLoginToken = '';
+                    console.warn('Turnstile notificó un error de verificación o conexión.');
+                }
+            });
+        } catch (e) {
+            console.error('Error al renderizar Turnstile:', e);
+        }
     };
-    if (window.turnstile) pintar();
-    else {
+
+    if (window.turnstile) {
+        pintar();
+    } else {
         const s = document.createElement('script');
         s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-        s.async = true; s.onload = pintar;
+        s.async = true;
+        s.onload = pintar;
         document.head.appendChild(s);
     }
 }
