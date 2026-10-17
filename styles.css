@@ -2151,6 +2151,7 @@ i[class*=" ri-"] {
     display: block;
     height: 56px;
     width: auto;
+    aspect-ratio: 1 / 1;
 }
 
 [data-theme="dark"] .gp-logo {
@@ -2161,6 +2162,7 @@ i[class*=" ri-"] {
 
 .login-card .gp-logo {
     height: 150px;
+    width: auto;
 }
 
 [data-theme="dark"] .login-card .gp-logo {
@@ -3346,4 +3348,12 @@ tr.deuda-resuelta td {
 .slot:focus-visible {
     outline: 2px dashed var(--primary) !important;
     background-color: var(--slot-hover) !important;
+}
+
+#cfLogin {
+    margin: 8px 0 12px;
+    min-height: 65px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
