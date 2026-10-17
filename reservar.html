@@ -35,12 +35,20 @@
     <link rel="icon" type="image/webp" sizes="192x192" href="./Geopadel.webp">
     <link rel="apple-touch-icon" href="./Geopadel.webp">
     <script> (function () { try { var t = localStorage.getItem('gp-theme'); if (t !== 'dark' && t !== 'light') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; document.documentElement.setAttribute('data-theme', t); var m = document.getElementById('metaTheme'); if (m) m.setAttribute('content', t === 'dark' ? '#364650' : '#fcfdfc'); } catch (e) { } })(); </script>
-    <link rel="stylesheet" href="assets/remixicon/remixicon.css">
+    <link rel="preload" href="assets/remixicon/remixicon.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="assets/remixicon/remixicon.css">
+    </noscript>
     <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript>
         <link rel="stylesheet" href="styles.css">
     </noscript>
-    <link rel="stylesheet" href="reservar.css">
+    <link rel="preload" href="reservar.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="reservar.css">
+    </noscript>
+    <link rel="preload" href="assets/remixicon/remixicon.woff2" as="font" type="font/woff2" crossorigin>
     <script defer src="assets/supabase.min.js"></script>
     <script defer src="config.js"></script>
     <script defer src="utils.js"></script>
@@ -78,7 +86,7 @@
                 </noscript>
             </div>
             <div class="card">
-                <h3><i class="ri-calendar-event-line" aria-hidden="true"></i>Día y hora</h3>
+                <h2><i class="ri-calendar-event-line" aria-hidden="true"></i>Día y hora</h2>
                 <div id="clDias" class="cl-days" aria-label="Día"></div>
                 <div class="cl-label" id="lblDur">Duración</div>
                 <div id="clDur" class="cl-durs" role="group" aria-labelledby="lblDur"></div>
@@ -86,7 +94,7 @@
                 <div id="clSlots" class="cl-slots" aria-live="polite"></div>
             </div>
             <div id="cardDatos" class="card" hidden>
-                <h3><i class="ri-user-line" aria-hidden="true"></i>Tus datos</h3>
+                <h2><i class="ri-user-line" aria-hidden="true"></i>Tus datos</h2>
                 <div id="clResumen" class="cl-resumen"></div>
                 <div class="form-group"><label for="clTel">Teléfono</label><input type="tel" id="clTel" inputmode="tel"
                         autocomplete="tel" maxlength="20" placeholder="600 123 456"></div>
@@ -118,7 +126,7 @@
             </div>
             <div id="cardOk" class="card cl-ok" hidden>
                 <div class="cl-ok-icon"><i class="ri-check-line" aria-hidden="true"></i></div>
-                <h3>Reserva recibida</h3>
+                <h2>Reserva recibida</h2>
                 <div id="okDetalle" class="cl-ok-det"></div>
                 <div class="cl-actions"><button type="button" class="btn-add gray" id="btnICS"><i
                             class="ri-calendar-check-line" aria-hidden="true"></i>Añadir al calendario</button><button

@@ -550,6 +550,7 @@ header.app-header {
     margin-bottom: 20px;
 }
 
+.card h2,
 .card h3 {
     font-size: 18px;
     font-weight: 700;

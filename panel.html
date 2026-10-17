@@ -22,9 +22,14 @@
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" type="image/webp" href="Geopadel.webp">
     <link rel="icon" type="image/webp" sizes="192x192" href="./Geopadel.webp">
+    <link rel="preload" href="Geopadel.webp" as="image" type="image/webp" fetchpriority="high">
     <link rel="apple-touch-icon" href="./Geopadel.webp">
     <script> (function () { try { var t = localStorage.getItem('gp-theme'); if (t !== 'dark' && t !== 'light') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; document.documentElement.setAttribute('data-theme', t); var m = document.getElementById('metaTheme'); if (m) m.setAttribute('content', t === 'dark' ? '#364650' : '#fcfdfc'); } catch (e) { } })(); </script>
-    <link rel="stylesheet" href="assets/remixicon/remixicon.css">
+    <link rel="preload" href="assets/remixicon/remixicon.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="assets/remixicon/remixicon.css">
+    </noscript>
     <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript>
         <link rel="stylesheet" href="styles.css">
@@ -45,23 +50,24 @@
     <div id="bannerOffline" role="alert"><i class="ri-wifi-off-line" aria-hidden="true"></i>Sin conexión · los cambios
         no se guardarán hasta que vuelva internet</div>
     <div id="toasts" role="status" aria-live="polite"></div>
-    <div id="loginView" class="login-container"><button type="button" class="theme-toggle" onclick="alternarTema()"
+    <main id="loginView" class="login-container"><button type="button" class="theme-toggle" onclick="alternarTema()"
             aria-label="Cambiar tema"><i class="ri-moon-line" aria-hidden="true"></i></button>
         <div class="login-card">
-            <div class="gp-brand"><img class="gp-logo" src="./Geopadel.webp" alt="Geopadel" draggable="false"
-                    width="150" height="150"></div>
-            <form id="loginForm" novalidate>
-                <div class="form-group"><label for="usuario">Usuario</label><input type="text" id="usuario"
-                        placeholder="Ej. Javi" required autocomplete="off" autocapitalize="none" autocorrect="off"
-                        spellcheck="false"></div>
-                <div id="cfLogin" style="margin:8px 0 12px;min-height:65px"></div>
-                <div class="form-group"><label for="password">Contraseña</label><input type="password" id="password"
-                        placeholder="••••••••" required autocomplete="new-password"></div><button type="submit"
-                    class="btn-submit" id="btnEntrar">Entrar al Panel</button>
-            </form>
-            <div id="msgLogin" aria-live="polite"></div>
+            <img class="gp-logo" src="./Geopadel.webp" alt="Geopadel" draggable="false" width="150" height="150"
+                fetchpriority="high">
         </div>
-    </div>
+        <form id="loginForm" novalidate>
+            <div class="form-group"><label for="usuario">Usuario</label><input type="text" id="usuario"
+                    placeholder="Ej. Javi" required autocomplete="off" autocapitalize="none" autocorrect="off"
+                    spellcheck="false"></div>
+            <div id="cfLogin" style="margin:8px 0 12px;min-height:65px"></div>
+            <div class="form-group"><label for="password">Contraseña</label><input type="password" id="password"
+                    placeholder="••••••••" required autocomplete="new-password"></div><button type="submit"
+                class="btn-submit" id="btnEntrar">Entrar al Panel</button>
+        </form>
+        <div id="msgLogin" aria-live="polite"></div>
+        </div>
+    </main>
     <div id="adminView">
         <header class="app-header">
             <div class="gp-brand"><img class="gp-logo" src="./Geopadel.webp" alt="Geopadel" draggable="false"

@@ -227,8 +227,10 @@
     text-align: center;
 }
 
+.cl-ok h2,
 .cl-ok h3 {
     justify-content: center;
+    text-align: center;
 }
 
 .cl-ok-icon {
