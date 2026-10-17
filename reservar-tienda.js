@@ -10,7 +10,8 @@ const foto = tiendaFoto(a.foto_path);
 const img = foto
 ? `<img src="${esc(foto)}" alt="${esc(a.titulo)}" loading="lazy" decoding="async" width="400" height="400">`
 : '<span class="tienda-sin-foto" aria-hidden="true"><i class="ri-shopping-bag-3-line"></i></span>';
-return `<article class="tienda-card"><div class="tienda-foto">${img}</div><div class="tienda-info"><h3>${esc(a.titulo)}</h3>${a.descripcion ? `<p>${esc(a.descripcion)}</p>` : ''}<div class="tienda-precio">${eur(a.precio)}</div></div></article>`;
+const abre = foto ? ` data-foto-id="${esc(a.id)}" role="button" tabindex="0" aria-label="Ver foto de ${esc(a.titulo)} más grande"` : '';
+return `<article class="tienda-card${foto ? ' con-foto' : ''}"${abre}><div class="tienda-foto">${img}</div><div class="tienda-info"><h3>${esc(a.titulo)}</h3>${a.descripcion ? `<p>${esc(a.descripcion)}</p>` : ''}<div class="tienda-precio">${eur(a.precio)}</div></div></article>`;
 }
 function dibujarTienda(lista) {
 const g = $('tiendaGrid');
@@ -37,4 +38,52 @@ g.innerHTML = '<p class="cl-empty">No se pudo cargar la tienda. <button type="bu
 }
 }
 function entrarTienda() { cargarTienda(false); }
-$('tiendaGrid').addEventListener('click', e => { if (e.target.closest('#btnTiendaReintentar')) cargarTienda(true); });
+let visorEl = null, visorPrevFoco = null;
+function crearVisor() {
+if (visorEl) return visorEl;
+visorEl = document.createElement('div');
+visorEl.className = 'tienda-visor';
+visorEl.hidden = true;
+visorEl.setAttribute('role', 'dialog');
+visorEl.setAttribute('aria-modal', 'true');
+visorEl.innerHTML = '<button type="button" class="tienda-visor-cerrar" aria-label="Cerrar"><i class="ri-close-line" aria-hidden="true"></i></button><figure class="tienda-visor-fig"><img alt=""><figcaption></figcaption></figure>';
+visorEl.addEventListener('click', e => { if (!e.target.closest('.tienda-visor-fig img')) cerrarVisor(); });
+document.body.appendChild(visorEl);
+return visorEl;
+}
+function abrirVisor(a) {
+const url = tiendaFoto(a.foto_path);
+if (!url) return;
+const v = crearVisor();
+const img = v.querySelector('img');
+img.src = url;
+img.alt = a.titulo;
+v.querySelector('figcaption').textContent = `${a.titulo} · ${eur(a.precio)}`;
+v.setAttribute('aria-label', a.titulo);
+visorPrevFoco = document.activeElement;
+v.hidden = false;
+document.body.style.overflow = 'hidden';
+v.querySelector('.tienda-visor-cerrar').focus();
+}
+function cerrarVisor() {
+if (!visorEl || visorEl.hidden) return;
+visorEl.hidden = true;
+visorEl.querySelector('img').removeAttribute('src');
+document.body.style.overflow = '';
+if (visorPrevFoco && visorPrevFoco.focus) visorPrevFoco.focus();
+}
+function abrirDesdeTarjeta(card) {
+const a = (tiendaCache.lista || []).find(x => String(x.id) === card.dataset.fotoId);
+if (a) abrirVisor(a);
+}
+$('tiendaGrid').addEventListener('click', e => {
+if (e.target.closest('#btnTiendaReintentar')) { cargarTienda(true); return; }
+const card = e.target.closest('.tienda-card[data-foto-id]');
+if (card) abrirDesdeTarjeta(card);
+});
+$('tiendaGrid').addEventListener('keydown', e => {
+if (e.key !== 'Enter' && e.key !== ' ') return;
+const card = e.target.closest('.tienda-card[data-foto-id]');
+if (card && e.target === card) { e.preventDefault(); abrirDesdeTarjeta(card); }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarVisor(); });
