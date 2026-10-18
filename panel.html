@@ -25,8 +25,6 @@
     <link rel="preconnect" href="https://challenges.cloudflare.com">
     <link rel="preconnect" href="https://gprpyxeamjmvmqtkjvtn.supabase.co" crossorigin>
     <script src="theme-init.js"></script>
-    <link rel="stylesheet" href="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" media="print"
-        onload="this.media='all'">
     <link rel="stylesheet" href="assets/remixicon/remixicon.css">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="panel.css">
@@ -352,9 +350,8 @@
                     <div class="card card-narrow" id="cardContrato">
                         <div class="card-head">
                             <h3><i class="ri-file-user-line" aria-hidden="true"></i>Mi contrato</h3><button
-                                type="button" class="btn-add blue" id="btnEditarContrato"
-                                data-action="abrir-contrato"><i class="ri-edit-line" aria-hidden="true"></i>Indicar /
-                                modificar</button>
+                                type="button" class="btn-add blue" id="btnEditarContrato"><i class="ri-edit-line"
+                                    aria-hidden="true"></i>Indicar / modificar</button>
                         </div>
                         <div id="contratoResumen">
                             <p class="limp-leyenda">Cargando...</p>
@@ -790,7 +787,7 @@
         <div class="modal-card-double">
             <div class="modal-header-bar">
                 <h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="ctTitulo">Tu contrato</span></h4><button
-                    type="button" class="modal-close" data-action="cerrar-contrato" aria-label="Cerrar"><i
+                    type="button" class="modal-close" id="btnCerrarContrato" aria-label="Cerrar"><i
                         class="ri-close-line" aria-hidden="true"></i></button>
             </div>
             <div class="modal-single-body">
