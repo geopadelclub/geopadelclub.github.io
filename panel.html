@@ -29,7 +29,7 @@
         onload="this.onload=null;this.rel='stylesheet'"><noscript>
         <link rel="stylesheet" href="assets/remixicon/remixicon.css">
     </noscript>
-    <link rel="dns-prefetch" href="https://challenges.cloudflare.com">
+    <link rel="preconnect" href="https://challenges.cloudflare.com">
     <link rel="dns-prefetch" href="https://gprpyxeamjmvmqtkjvtn.supabase.co">
     <style>
         :root {
@@ -218,7 +218,6 @@
             color: var(--green);
         }
 
-        /* ALTURA FIJA (no min-height) → Turnstile no puede empujar cuando se inyecta */
         #cfLogin {
             margin: 8px 0 12px;
             height: 78px;
@@ -236,6 +235,73 @@
             .login-card .gp-logo {
                 height: 120px;
             }
+        }
+
+        #bannerOffline {
+            display: none;
+            background: var(--red);
+            color: #fff;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 8px 12px;
+            position: sticky;
+            top: 0;
+            z-index: 300;
+        }
+
+        #bannerOffline.show {
+            display: block;
+        }
+
+        #toasts {
+            position: fixed;
+            top: calc(68px + 14px + env(safe-area-inset-top));
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 2000;
+            width: min(460px, calc(100% - 24px));
+            pointer-events: none;
+        }
+
+        #gpSync {
+            position: fixed;
+            right: 14px;
+            top: calc(68px + 10px + env(safe-area-inset-top));
+            background: var(--surface);
+            color: var(--green);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 7px 14px;
+            border-radius: var(--radius-full);
+            z-index: 150;
+            opacity: 0;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            pointer-events: none;
+        }
+
+        #printArea {
+            display: none;
+        }
+
+        #adminView {
+            display: none;
+        }
+
+        dialog.modal-overlay {
+            display: none;
+        }
+
+        dialog.modal-overlay[open] {
+            display: flex;
+        }
+
+        [hidden] {
+            display: none !important;
         }
     </style>
     <link rel="stylesheet" href="styles.css" media="print" onload="this.media='all'">
