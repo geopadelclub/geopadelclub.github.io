@@ -153,6 +153,7 @@ function mostrarPanelAdmin() {
     iniciarSuscripcionRealtime();
     cargarDatosGlobales();
     if (!esJefa()) cargarMisFichajes();
+    if (typeof entrarResumen === 'function') entrarResumen();
 }
 let loginEnCurso = false;
 $('loginForm').addEventListener('submit', async function (e) {

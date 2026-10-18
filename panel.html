@@ -25,10 +25,7 @@
     <link rel="preload" href="Geopadel.webp" as="image" type="image/webp" fetchpriority="high">
     <link rel="apple-touch-icon" href="./Geopadel.webp">
     <script src="theme-init.js"></script>
-    <link rel="preload" href="assets/remixicon/remixicon.css" as="style"
-        onload="this.onload=null;this.rel='stylesheet'"><noscript>
-        <link rel="stylesheet" href="assets/remixicon/remixicon.css">
-    </noscript>
+    <link rel="stylesheet" href="assets/remixicon/remixicon.css">
     <link rel="preconnect" href="https://challenges.cloudflare.com">
     <link rel="dns-prefetch" href="https://gprpyxeamjmvmqtkjvtn.supabase.co">
     <link rel="preconnect" href="https://gprpyxeamjmvmqtkjvtn.supabase.co" crossorigin>
@@ -322,6 +319,7 @@
     <script defer src="contrato.js"></script>
     <script defer src="tienda.js"></script>
     <script defer src="ajustes.js"></script>
+    <script defer src="resumen.js"></script>
     <script defer src="cookies.js"></script>
 </head>
 
@@ -356,8 +354,10 @@
                         aria-hidden="true"></i></button><button type="button" class="btn-logout"
                     onclick="cerrarSesion()">Salir</button></div>
         </header>
-        <nav class="app-nav" aria-label="Secciones"><button type="button" id="nav-reservas" class="nav-tab active"
-                data-tab="reservas"><span class="ni"><i class="ri-calendar-event-line"
+        <nav class="app-nav" aria-label="Secciones"><button type="button" id="nav-resumen" class="nav-tab active"
+                data-tab="resumen"><span class="ni"><i class="ri-dashboard-3-line"
+                        aria-hidden="true"></i></span>Resumen</button><button type="button" id="nav-reservas"
+                class="nav-tab" data-tab="reservas"><span class="ni"><i class="ri-calendar-event-line"
                         aria-hidden="true"></i></span>Reservas</button><button type="button" id="nav-tienda"
                 class="nav-tab" data-tab="tienda"><span class="ni"><i class="ri-shopping-bag-3-line"
                         aria-hidden="true"></i></span>Tienda</button><button type="button" id="nav-fichajes"
@@ -372,7 +372,13 @@
                 class="nav-tab" data-tab="ajustes"><span class="ni"><i class="ri-settings-3-line"
                         aria-hidden="true"></i></span>Ajustes</button></nav>
         <main class="container-fluid">
-            <section id="tab-reservas" class="tab-content active">
+            <section id="tab-resumen" class="tab-content active">
+                <div id="resumenContenido">
+                    <p style="text-align:center;color:var(--muted);padding:40px 20px;font-weight:600">Cargando resumen
+                        del día...</p>
+                </div>
+            </section>
+            <section id="tab-reservas" class="tab-content">
                 <div class="playtomic-header-bar"><button type="button" id="btnImprimir" class="btn-imprimir"
                         onclick="imprimirDia()" title="Imprimir las reservas del día (A4 horizontal)"><i
                             class="ri-printer-line" aria-hidden="true"></i><span>Imprimir día</span></button>

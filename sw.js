@@ -10,7 +10,7 @@ const PANEL = [
     'panel.html', 'core.js', 'auth.js', 'datos.js', 'reservas.js',
     'bar.js', 'caja.js', 'tarifas.js', 'gestion.js',
     'copia-zip.js', 'copia-worker.js', 'copia.js',
-    'fichajes.js', 'contrato.js', 'tienda.js', 'ajustes.js',
+    'fichajes.js', 'contrato.js', 'tienda.js', 'ajustes.js', 'resumen.js',
     'manifest.webmanifest', 'assets/supabase.min.js'
 ];
 const PUBLICO = [
