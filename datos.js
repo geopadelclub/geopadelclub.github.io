@@ -14,14 +14,14 @@ async function cargarClientes() {
 }
 async function cargarProductos() {
     const { data, error } = await conReintento(() =>
-        supabaseClient.from('productos').select('*').neq('estado', 'Eliminado').order('nombre')
+        supabaseClient.from('productos').select('id, nombre, precio, categoria, estado').neq('estado', 'Eliminado').order('nombre')
     );
     if (error) { console.error(error); toast('No se pudo cargar el catálogo', 'err'); return; }
     datosLocales.productos = data || [];
     dibujarCatalogo(datosLocales.productos);
 }
 async function cargarMesasBar() {
-    const { data, error } = await conReintento(() => supabaseClient.from('mesas_bar').select('*'));
+    const { data, error } = await conReintento(() => supabaseClient.from('mesas_bar').select('mesa, items'));
     if (error) { console.error(error); return; }
     (data || []).forEach(row => { cuentasMesas[row.mesa] = Array.isArray(row.items) ? row.items : []; });
     renderSelectorMesas();

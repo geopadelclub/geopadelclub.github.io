@@ -1,6 +1,6 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 async function cargarTarifas() {
-    const { data, error } = await conReintento(() => supabaseClient.from('tarifas').select('*'));
+    const { data, error } = await conReintento(() => supabaseClient.from('tarifas').select('franja, precio_60min, precio_90min, precio_120min'));
     if (error) { console.error(error); return; }
     const tf = {};
     const num = v => (v === null || v === undefined || v === '') ? null : Number(v);

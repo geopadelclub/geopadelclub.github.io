@@ -25,7 +25,7 @@ async function cargarDeudas() {
         $('deudaTotal').innerText = eur(total);
     } catch (e) { console.error(e); }
     const filtro = $('deudaFiltro')?.value || 'Pendiente';
-    let q = supabaseClient.from('deudas').select('*');
+    let q = supabaseClient.from('deudas').select('id, nombre, telefono, fecha, hora, importe, estado, resuelta_por, resuelta_at, creado_por');
     if (filtro === 'Pendiente') q = q.neq('estado', 'Resuelta');
     else if (filtro === 'Resuelta') q = q.eq('estado', 'Resuelta');
     q = q.order('fecha', { ascending: false }).order('hora', { ascending: false }).order('id', { ascending: false });
@@ -168,7 +168,7 @@ const textoVencido = it => it.sin ? `${it.tarea}: sin registro` : `${it.tarea}: 
 async function cargarLimpiezas(mostrarAviso) {
     const tbE = $('limpEstadoBody'), tbH = $('limpHistBody');
     if (!tbE || !supabaseClient) return false;
-    const { data, error } = await supabaseClient.from('limpiezas').select('*')
+    const { data, error } = await supabaseClient.from('limpiezas').select('id, pista, tarea, empleado, fecha_hora')
         .order('fecha_hora', { ascending: false }).limit(40);
     if (error) {
         console.error(error);

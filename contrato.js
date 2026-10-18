@@ -21,7 +21,7 @@ async function cargarContrato(forzar) {
     const u = ctUsuario();
     if (!u || !supabaseClient) return null;
     if (!forzar && ctCache.usuario === u && ctCache.data !== undefined) return ctCache.data;
-    const { data, error } = await supabaseClient.from('contratos_jornada').select('*').eq('usuario', u).order('created_at', { ascending: false }).limit(1);
+    const { data, error } = await supabaseClient.from('contratos_jornada').select('usuario, horas_semanales, horario, notas, vigente_desde, created_at').eq('usuario', u).order('created_at', { ascending: false }).limit(1);
     if (error) { console.error(error); throw error; }
     ctCache = { usuario: u, data: (data && data[0]) || null };
     return ctCache.data;

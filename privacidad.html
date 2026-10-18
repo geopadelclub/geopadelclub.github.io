@@ -10,16 +10,17 @@
     <meta name="theme-color" content="#fcfdfc" id="metaTheme">
     <meta name="color-scheme" content="light dark">
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' data: https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://*.challenges.cloudflare.com; frame-src https://challenges.cloudflare.com;">
+        content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' data: https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://*.challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com https://www.google.com https://maps.google.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     <link rel="canonical" href="https://geopadelclub.github.io/privacidad">
     <link rel="icon" type="image/webp" sizes="192x192" href="./Geopadel.webp">
-    <script>(function () { try { var t = localStorage.getItem('gp-theme'); if (t !== 'dark' && t !== 'light') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; document.documentElement.setAttribute('data-theme', t); } catch (e) { } })();</script>
+    <script src="theme-init.js"></script>
     <link rel="stylesheet" href="assets/remixicon/remixicon.css">
     <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript>
         <link rel="stylesheet" href="styles.css">
     </noscript>
+    <script defer src="cookies.js"></script>
     <style>
         .legal {
             max-width: 760px;
@@ -81,21 +82,35 @@
             margin-bottom: 6px;
             font-size: 14px
         }
+
+        .legal-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .legal-footer a {
+            margin: 0 10px;
+        }
     </style>
 </head>
 
 <body>
-    <main class="legal"><a class="volver" href="reservar"><i class="ri-arrow-left-line" aria-hidden="true"></i>Volver a
-            reservar</a>
+    <main class="legal">
+        <a class="volver" href="index.html"><i class="ri-arrow-left-line" aria-hidden="true"></i>Volver al inicio</a>
         <h1>Política de privacidad</h1>
-        <p class="upd">Última actualización: 15 de octubre de 2026</p>
+        <p class="upd">Última actualización: 18 de octubre de 2026</p>
+
         <h2>Responsable del tratamiento</h2>
         <ul>
-            <li><b>Titular:</b><mark>[nombre o razón social]</mark></li>
-            <li><b>NIF:</b><mark>[NIF/CIF]</mark></li>
+            <li><b>Titular:</b> <mark>[NOMBRE O RAZÓN SOCIAL DEL TITULAR]</mark></li>
+            <li><b>NIF:</b> <mark>[NIF/CIF]</mark></li>
             <li><b>Dirección:</b> Polígono Tecnológico Los, C. Zamora 130, 18151 Ogíjares (Granada)</li>
-            <li><b>Contacto:</b><mark>geopadel.club@gmail.com</mark> · teléfono +34 646 059 962</li>
+            <li><b>Contacto:</b> <mark>geopadel.club@gmail.com</mark> · teléfono +34 646 059 962</li>
         </ul>
+
         <h2>1. Qué datos tratamos</h2>
         <ul>
             <li>Nombre y apellidos y teléfono, que nos das al reservar.</li>
@@ -106,6 +121,7 @@
             <li>Por seguridad, un identificador técnico anónimo de tu conexión (no guardamos tu IP en claro) que usamos
                 solo para frenar el spam, y que se borra en 24 horas.</li>
         </ul>
+
         <h2>2. Para qué y con qué base legal</h2>
         <ul>
             <li><b>Gestionar tus reservas</b> (avisarte, confirmarlas, cancelarlas, cobrarlas en el club): ejecución de
@@ -116,26 +132,31 @@
             </li>
         </ul>
         <p>No tomamos decisiones automatizadas ni usamos tus datos para publicidad.</p>
+
         <h2>3. Cuánto tiempo los conservamos</h2>
         <p>Tu ficha de cliente y tu código se conservan mientras uses el servicio y puedes pedir que se borren en
             cualquier momento. Los importes de reservas y cobros se conservan el tiempo que exija la normativa fiscal y
             mercantil, sin tu nombre ni tu teléfono una vez borrados tus datos.</p>
+
         <h2>4. Quién más accede a tus datos</h2>
         <p>Usamos proveedores que tratan datos por encargo nuestro: Supabase (base de datos y alojamiento de la
-            aplicación; región <mark>[región de tu proyecto en Supabase]</mark>) y Cloudflare (verificación anti-spam
-            Turnstile). No vendemos tus datos ni los cedemos a terceros salvo obligación legal.</p>
+            aplicación; región <mark>[REGIÓN DE TU PROYECTO EN SUPABASE, ej. eu-west-3]</mark>) y Cloudflare
+            (verificación anti-spam Turnstile). No vendemos tus datos ni los cedemos a terceros salvo obligación legal.
+        </p>
+
         <h2>5. Tus derechos</h2>
         <p>Puedes acceder a tus datos, rectificarlos, pedir su supresión, oponerte al tratamiento, limitarlo y pedir su
             portabilidad.</p>
         <ul>
-            <li><b>Borrar tus datos tú mismo:</b> en la pestaña «Mis reservas» de <a href="reservar">reservar</a>, entra
-                con tu código y pulsa «Borrar mis datos». Se cancelan tus reservas futuras y se elimina tu ficha. Si
-                tienes un pago pendiente con el club, tendrás que resolverlo antes.</li>
+            <li><b>Borrar tus datos tú mismo:</b> en la pestaña «Mis reservas» de <a href="reservar.html">reservar</a>,
+                entra con tu código y pulsa «Borrar mis datos». Se cancelan tus reservas futuras y se elimina tu ficha.
+                Si tienes un pago pendiente con el club, tendrás que resolverlo antes.</li>
             <li><b>Cualquier otro derecho:</b> escríbenos a <mark>geopadel.club@gmail.com</mark> o llama al club.
                 Respondemos en un mes como máximo.</li>
             <li>Si crees que no hemos tratado bien tus datos, puedes reclamar ante la Agencia Española de Protección de
                 Datos (<a href="https://www.aepd.es" target="_blank" rel="noopener">aepd.es</a>).</li>
         </ul>
+
         <h2>6. Personal del club: registro de jornada</h2>
         <p>Si trabajas en el club, registramos tu nombre de usuario y la fecha y hora de cada fichaje de entrada y
             salida para calcular tu jornada diaria y mensual.</p>
@@ -151,6 +172,10 @@
             <li><b>Tus derechos:</b> puedes consultar tu registro en la pestaña «Fichaje» del panel y ejercer el resto
                 de derechos escribiendo a <mark>geopadel.club@gmail.com</mark>.</li>
         </ul>
+
+        <div class="legal-footer">
+            <a href="aviso-legal.html">Aviso Legal</a> · <a href="politica-cookies.html">Política de Cookies</a>
+        </div>
     </main>
 </body>
 

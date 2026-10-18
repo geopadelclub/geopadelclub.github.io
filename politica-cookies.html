@@ -1,0 +1,177 @@
+<!-- © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. -->
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Geopadel · Política de Cookies</title>
+    <meta name="description" content="Información sobre el uso de cookies y almacenamiento local en Geopadel.">
+    <meta name="theme-color" content="#fcfdfc" id="metaTheme">
+    <meta name="color-scheme" content="light dark">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' data: https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://*.challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com https://www.google.com https://maps.google.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <link rel="canonical" href="https://geopadelclub.github.io/politica-cookies">
+    <link rel="icon" type="image/webp" sizes="192x192" href="./Geopadel.webp">
+    <script src="theme-init.js"></script>
+    <link rel="stylesheet" href="assets/remixicon/remixicon.css">
+    <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript>
+        <link rel="stylesheet" href="styles.css">
+    </noscript>
+    <script defer src="cookies.js"></script>
+    <style>
+        .legal {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 20px 16px 60px;
+            line-height: 1.55;
+            -webkit-user-select: text;
+            user-select: text
+        }
+
+        .legal h1 {
+            font-size: 26px;
+            color: var(--heading);
+            margin: 8px 0 4px
+        }
+
+        .legal h2 {
+            font-size: 18px;
+            color: var(--heading);
+            margin: 26px 0 8px
+        }
+
+        .legal p,
+        .legal li {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 8px
+        }
+
+        .legal ul {
+            padding-left: 22px;
+            margin-bottom: 8px
+        }
+
+        .legal a {
+            color: var(--blue);
+            font-weight: 700
+        }
+
+        .legal .upd {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600
+        }
+
+        .legal .volver {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+            font-size: 14px
+        }
+
+        .tabla-cookies {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .tabla-cookies th,
+        .tabla-cookies td {
+            border: 1px solid var(--border);
+            padding: 8px 10px;
+            text-align: left;
+        }
+
+        .tabla-cookies th {
+            background: var(--surface-3);
+        }
+    </style>
+</head>
+
+<body>
+    <main class="legal">
+        <a class="volver" href="index.html"><i class="ri-arrow-left-line" aria-hidden="true"></i>Volver al inicio</a>
+        <h1>Política de Cookies</h1>
+        <p class="upd">Última actualización: 18 de octubre de 2026</p>
+
+        <p>Este sitio web utiliza cookies y tecnologías de almacenamiento local (como <i>localStorage</i>) para
+            garantizar el correcto funcionamiento de la plataforma y mejorar tu experiencia. A continuación, te
+            explicamos qué son, cuáles usamos y cómo puedes gestionarlas.</p>
+
+        <h2>1. ¿Qué son las cookies y el almacenamiento local?</h2>
+        <p>Una cookie es un pequeño archivo de texto que se descarga en tu dispositivo al acceder a determinadas páginas
+            web. El almacenamiento local (<i>localStorage</i>) es una tecnología similar que permite guardar información
+            en tu navegador. Ambos se utilizan para recordar tus preferencias o mantener tu sesión activa.</p>
+
+        <h2>2. Tipos de cookies que utilizamos</h2>
+        <p>Al ser una plataforma de reservas, <b>no utilizamos cookies publicitarias ni de seguimiento de terceros</b>.
+            Solo empleamos las estrictamente necesarias para el funcionamiento del servicio:</p>
+
+        <table class="tabla-cookies">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Tipo</th>
+                    <th>Finalidad</th>
+                    <th>Duración</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>gp-theme</td>
+                    <td>Técnica (localStorage)</td>
+                    <td>Guarda tu preferencia de tema (claro u oscuro).</td>
+                    <td>Permanente</td>
+                </tr>
+                <tr>
+                    <td>gp-sesion-ini</td>
+                    <td>Técnica (localStorage)</td>
+                    <td>Controla el tiempo de sesión de los trabajadores en el panel.</td>
+                    <td>8 horas</td>
+                </tr>
+                <tr>
+                    <td>gp-cookies-accepted</td>
+                    <td>Técnica (localStorage)</td>
+                    <td>Recuerda que has aceptado este aviso de cookies.</td>
+                    <td>Permanente</td>
+                </tr>
+                <tr>
+                    <td>Supabase Auth</td>
+                    <td>Técnica (localStorage)</td>
+                    <td>Mantiene la sesión iniciada de los administradores.</td>
+                    <td>Sesión</td>
+                </tr>
+                <tr>
+                    <td>Cloudflare Turnstile</td>
+                    <td>Terceros (Técnica)</td>
+                    <td>Sistema anti-spam para proteger los formularios de reserva.</td>
+                    <td>Sesión</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>3. ¿Cómo gestionar o deshabilitar las cookies?</h2>
+        <p>Puedes restringir, bloquear o borrar las cookies de este sitio web utilizando la configuración de tu
+            navegador. Ten en cuenta que si deshabilitas las cookies técnicas, es posible que algunas funcionalidades
+            (como iniciar sesión o reservar) dejen de funcionar correctamente.</p>
+        <ul>
+            <li><b>Google Chrome:</b> Configuración > Privacidad y seguridad > Cookies y otros datos de sitios.</li>
+            <li><b>Mozilla Firefox:</b> Ajustes > Privacidad y seguridad > Cookies y datos del sitio.</li>
+            <li><b>Safari:</b> Preferencias > Privacidad > Gestionar datos de sitios web.</li>
+            <li><b>Microsoft Edge:</b> Configuración > Cookies y permisos del sitio.</li>
+        </ul>
+
+        <h2>4. Actualizaciones de esta política</h2>
+        <p>Es posible que actualicemos la información contenida en esta política cuando cambien las tecnologías
+            utilizadas o la normativa aplicable. Te recomendamos revisarla periódicamente.</p>
+    </main>
+</body>
+
+</html>

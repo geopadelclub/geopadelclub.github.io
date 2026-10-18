@@ -128,7 +128,7 @@ async function fxCargarContratos(emps) {
     const out = {};
     if (!emps.length) return out;
     try {
-        const { data, error } = await leerTodo(() => supabaseClient.from('contratos_jornada').select('*').in('usuario', emps).order('vigente_desde', { ascending: false }).order('created_at', { ascending: false }));
+        const { data, error } = await leerTodo(() => supabaseClient.from('contratos_jornada').select('usuario, horas_semanales, horario, notas, vigente_desde, created_at').in('usuario', emps).order('vigente_desde', { ascending: false }).order('created_at', { ascending: false }));
         if (error) throw error;
         (data || []).forEach(c => { (out[c.usuario] = out[c.usuario] || []).push(c); });
     } catch (e) { console.error('contratos', e); }
@@ -148,7 +148,7 @@ async function fxGenerar() {
     try {
         const ini = new Date(sumarDiasISO(desde, -1) + 'T00:00:00'), fin = new Date(sumarDiasISO(hasta, 2) + 'T00:00:00');
         const { data, error } = await leerTodo(() => {
-            let q = supabaseClient.from('fichajes').select('*').gte('created_at', ini.toISOString()).lt('created_at', fin.toISOString()).order('created_at', { ascending: true });
+            let q = supabaseClient.from('fichajes').select('empleado, tipo, created_at, fecha_hora').gte('created_at', ini.toISOString()).lt('created_at', fin.toISOString()).order('created_at', { ascending: true });
             if (emp) q = q.eq('empleado', emp);
             return q;
         });

@@ -102,7 +102,7 @@ async function cerrarCajaHoy() {
 }
 async function cargarHistorialCaja() {
     const tb = $('histCajaBody');
-    const { data, error } = await supabaseClient.from('cierres').select('*').order('fecha', { ascending: false }).limit(60);
+    const { data, error } = await supabaseClient.from('cierres').select('fecha, efectivo_sistema, tarjeta, total, dif_efectivo, dif_datafono, cerrado_por').order('fecha', { ascending: false }).limit(60);
     if (error) { tb.innerHTML = `<tr><td colspan="8" class="tabla-empty" style="color:var(--red)">Error: ${esc(error.message)}</td></tr>`; return; }
     const dif = n => {
         const x = Number(n) || 0;

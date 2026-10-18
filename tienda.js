@@ -12,7 +12,7 @@ const MSG_FALTA_TIENDA = 'Falta crear la tabla «tienda_articulos». Ejecuta mig
 async function cargarArticulos() {
     const tb = $('escaparateBody');
     if (!tb || !supabaseClient) return;
-    const { data, error } = await supabaseClient.from('tienda_articulos').select('*').order('orden', { ascending: true }).order('created_at', { ascending: true });
+    const { data, error } = await supabaseClient.from('tienda_articulos').select('id, titulo, descripcion, precio, foto_path, visible, orden').order('orden', { ascending: true }).order('created_at', { ascending: true });
     if (error) {
         console.error(error);
         tb.innerHTML = `<tr><td colspan="5" class="tabla-empty" style="color:var(--red)">${esc(esErrorTabla(error) ? MSG_FALTA_TIENDA : 'Error al cargar el escaparate: ' + error.message)}</td></tr>`;

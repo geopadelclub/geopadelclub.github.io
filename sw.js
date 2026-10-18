@@ -3,7 +3,8 @@ const VERSION = 'geopadel-b62b41b5b0';
 const BASE = [
     './', 'index.html', 'styles.css', 'config.js', 'utils.js',
     'Geopadel.webp', 'Geopadel-512.webp', 'fondo.webp',
-    'assets/remixicon/remixicon.css', 'assets/remixicon/remixicon.woff2'
+    'assets/remixicon/remixicon.css', 'assets/remixicon/remixicon.woff2',
+    'theme-init.js', 'cookies.js'
 ];
 const PANEL = [
     'panel.html', 'core.js', 'auth.js', 'datos.js', 'reservas.js',

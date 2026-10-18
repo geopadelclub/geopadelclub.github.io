@@ -1,15 +1,16 @@
 <!-- © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. -->
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Geopadel · Club de pádel en Ogíjares (Granada)</title>
     <meta name="description"
-        content="Geopadel, club de pádel en Ogíjares (Granada). Reserva tu pista online eligiendo día, duración y hora. Se paga en el club.">
+        content="Reserva tu pista de pádel online en Geopadel (Ogíjares, Granada). Consulta disponibilidad al instante, tarifas y ubicación. El pago se realiza en el club.">
     <meta name="robots" content="index, follow, max-image-preview:large">
     <link rel="canonical" href="https://geopadelclub.github.io/">
+
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Geopadel">
     <meta property="og:locale" content="es_ES">
@@ -18,22 +19,32 @@
     <meta property="og:description" content="Reserva tu pista de pádel online en Geopadel. Elige día, duración y hora.">
     <meta property="og:image" content="https://geopadelclub.github.io/Geopadel-512.webp">
     <meta property="og:image:alt" content="Logotipo de Geopadel">
+
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Geopadel · Club de pádel en Ogíjares (Granada)">
     <meta name="twitter:description" content="Reserva tu pista de pádel online en Geopadel.">
     <meta name="twitter:image" content="https://geopadelclub.github.io/Geopadel-512.webp">
+
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' data: https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://*.challenges.cloudflare.com; frame-src https://challenges.cloudflare.com;">
+        content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' data: https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://*.challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com https://www.google.com https://maps.google.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+
     <link rel="icon" type="image/webp" href="Geopadel.webp">
     <link rel="preload" href="Geopadel.webp" as="image" type="image/webp" fetchpriority="high">
+    <link rel="preload" href="fondo.webp" as="image" type="image/webp">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript>
         <link rel="stylesheet" href="styles.css">
     </noscript>
-    <script
-        type="application/ld+json">{"@context":"https://schema.org","@type":"SportsActivityLocation","@id":"https://geopadelclub.github.io/#club","name":"Geopadel","description":"Club de pádel en Ogíjares (Granada) con reserva de pistas online.","url":"https://geopadelclub.github.io/","image":"https://geopadelclub.github.io/Geopadel-512.webp","logo":"https://geopadelclub.github.io/Geopadel-512.webp","telephone":"+34646059962","priceRange":"€€","hasMap":"https://maps.app.goo.gl/GZXgGoteM9hXp8mP6","address":{"@type":"PostalAddress","streetAddress":"Polígono Tecnológico los, C. Zamora, 130","addressLocality":"Ogíjares","addressRegion":"Granada","postalCode":"18151","addressCountry":"ES"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"09:00","closes":"14:00"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday"],"opens":"17:00","closes":"23:30"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Friday","Saturday","Sunday"],"opens":"17:00","closes":"22:00"}],"potentialAction":{"@type":"ReserveAction","target":{"@type":"EntryPoint","urlTemplate":"https://geopadelclub.github.io/reservar","actionPlatform":["http://schema.org/DesktopWebPlatform","http://schema.org/MobileWebPlatform"]},"result":{"@type":"Reservation","name":"Reserva de pista de pádel"}}}</script>
+
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"SportsActivityLocation","@id":"https://geopadelclub.github.io/#club","name":"Geopadel","description":"Club de pádel en Ogíjares (Granada) con reserva de pistas online.","url":"https://geopadelclub.github.io/","image":"https://geopadelclub.github.io/Geopadel-512.webp","logo":"https://geopadelclub.github.io/Geopadel-512.webp","telephone":"+34646059962","priceRange":"€€","hasMap":"https://maps.app.goo.gl/GZXgGoteM9hXp8mP6","address":{"@type":"PostalAddress","streetAddress":"Polígono Tecnológico los, C. Zamora, 130","addressLocality":"Ogíjares","addressRegion":"Granada","postalCode":"18151","addressCountry":"ES"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"09:00","closes":"14:00"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday"],"opens":"17:00","closes":"23:30"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Friday","Saturday","Sunday"],"opens":"17:00","closes":"22:00"}],"potentialAction":{"@type":"ReserveAction","target":{"@type":"EntryPoint","urlTemplate":"https://geopadelclub.github.io/reservar","actionPlatform":["http://schema.org/DesktopWebPlatform","http://schema.org/MobileWebPlatform"]},"result":{"@type":"Reservation","name":"Reserva de pista de pádel"}}}
+    </script>
+
+    <script src="theme-init.js"></script>
+    <script defer src="cookies.js"></script>
+
     <style>
         :root {
             --navy-dark: #2e464f;
@@ -51,156 +62,510 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        html,
-        body {
-            height: 100%;
+        html {
+            -webkit-text-size-adjust: 100%;
+            scroll-behavior: smooth;
         }
 
         body {
             font-family: var(--font-sans);
-            color: #fff;
-            background: var(--navy-dark);
-            overflow: hidden;
+            color: var(--text, #2a3834);
+            background: var(--bg, #f3f6f4);
+            line-height: 1.4;
+            overflow-x: hidden;
         }
 
-        .portada {
+        img {
+            -webkit-user-drag: none;
+            user-select: none;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .landing-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: var(--surface, #fcfdfc);
+            border-bottom: 1px solid var(--border, #dfe7e3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .landing-header .logo {
+            height: 48px;
+            width: auto;
+            aspect-ratio: 1/1;
+        }
+
+        .landing-header nav {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .landing-header nav a {
+            color: var(--text, #2a3834);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .landing-header nav a:hover {
+            color: var(--primary, #4b7a86);
+        }
+
+        .btn-nav-reservar {
+            background: var(--primary, #4b7a86);
+            color: var(--on-primary, #fff) !important;
+            padding: 10px 20px;
+            border-radius: var(--radius-full, 9999px);
+            transition: background .15s;
+        }
+
+        .btn-nav-reservar:hover {
+            background: var(--primary-hover, #3f6a75) !important;
+        }
+
+        .hero {
             position: relative;
-            min-height: 100vh;
-            min-height: 100dvh;
+            min-height: 80vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));
-            background: linear-gradient(180deg, rgba(20, 35, 28, .55) 0%, rgba(20, 35, 28, .35) 40%, rgba(20, 35, 28, .75) 100%), url("fondo.webp") center / cover no-repeat, var(--navy-dark);
+            text-align: center;
+            padding: 80px 24px;
+            background: linear-gradient(180deg, rgba(20, 35, 28, .65) 0%, rgba(20, 35, 28, .45) 50%, rgba(20, 35, 28, .8) 100%), url("fondo.webp") center / cover no-repeat, var(--navy-dark);
+            color: #fff;
         }
 
-        .portada-contenido {
-            width: 100%;
-            max-width: 460px;
+        .hero-content {
+            max-width: 800px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            text-align: center;
-            gap: 28px;
+            gap: 24px;
         }
 
-        .portada-logo {
-            display: block;
-            height: clamp(110px, 22vh, 190px);
-            width: auto;
-            background: #f6f9f4;
-            border-radius: 22px;
-            padding: 10px 22px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
-            -webkit-user-drag: none;
-            user-select: none;
-        }
-
-        .portada h1 {
-            font-size: clamp(44px, 12vw, 84px);
+        .hero h1 {
+            font-size: clamp(36px, 6vw, 64px);
             font-weight: 800;
-            line-height: 1;
-            letter-spacing: .02em;
+            line-height: 1.1;
             text-transform: uppercase;
             text-shadow: 0 3px 18px rgba(0, 0, 0, .55);
+            letter-spacing: -.02em;
         }
 
-        .portada-botones {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            margin-top: 8px;
+        .hero p {
+            font-size: clamp(16px, 2vw, 22px);
+            font-weight: 600;
+            opacity: .92;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, .55);
+            max-width: 600px;
         }
 
-        .btn-portada {
-            display: block;
-            width: 100%;
-            padding: 18px 20px;
+        .btn-hero {
+            display: inline-block;
+            background: var(--lime);
+            color: var(--navy-dark);
+            padding: 18px 40px;
             border-radius: 16px;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 800;
-            text-align: center;
             text-decoration: none;
-            transition: background .15s, transform .1s, border-color .15s;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, .3);
+            transition: transform .1s, background .15s;
         }
 
-        .btn-portada:active {
+        .btn-hero:hover {
+            background: var(--lime-hover);
+            transform: scale(1.02);
+        }
+
+        .btn-hero:active {
             transform: scale(.98);
         }
 
-        .btn-portada:focus-visible {
-            outline: 3px solid #fff;
-            outline-offset: 3px;
+        .section {
+            padding: 80px 24px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        .btn-jugador {
-            background: var(--lime);
-            color: var(--navy-dark);
-            box-shadow: 0 6px 18px rgba(0, 0, 0, .3);
+        .section-title {
+            text-align: center;
+            font-size: clamp(28px, 4vw, 40px);
+            font-weight: 800;
+            color: var(--heading, #33505a);
+            margin-bottom: 12px;
         }
 
-        .btn-jugador:hover {
-            background: var(--lime-hover);
+        .section-subtitle {
+            text-align: center;
+            font-size: 17px;
+            color: var(--muted, #62716b);
+            font-weight: 600;
+            margin-bottom: 48px;
         }
 
-        .btn-admin {
-            background: rgba(255, 255, 255, .14);
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--surface, #fcfdfc);
+            border: 1px solid var(--border, #dfe7e3);
+            border-radius: var(--radius-lg, 20px);
+            padding: 32px 24px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .03);
+        }
+
+        .feature-card i {
+            font-size: 40px;
+            color: var(--primary, #4b7a86);
+            margin-bottom: 16px;
+            display: inline-block;
+        }
+
+        .feature-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--heading, #33505a);
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 15px;
+            color: var(--muted, #62716b);
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .tarifas-container {
+            background: var(--surface, #fcfdfc);
+            border: 1px solid var(--border, #dfe7e3);
+            border-radius: var(--radius-lg, 20px);
+            padding: 40px 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .04);
+        }
+
+        .tarifas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .tarifa-col {
+            padding: 24px;
+            border-radius: var(--radius-md, 14px);
+            background: var(--surface-3, #edf2ef);
+            border: 1.5px solid var(--border, #dfe7e3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tarifa-col h3 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--heading, #33505a);
+            text-align: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border, #dfe7e3);
+        }
+
+        .tarifa-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text, #2a3834);
+            border-bottom: 1px dashed var(--border, #dfe7e3);
+        }
+
+        .tarifa-item:last-child {
+            border-bottom: 0;
+        }
+
+        .tarifa-item span:last-child {
+            font-weight: 800;
+            color: var(--primary, #4b7a86);
+            font-size: 17px;
+        }
+
+        .nota-tarifas {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--muted, #62716b);
+            font-weight: 600;
+        }
+
+        .ubicacion-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .ubicacion-info h3 {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--heading, #33505a);
+            margin-bottom: 16px;
+        }
+
+        .ubicacion-info p {
+            font-size: 16px;
+            color: var(--text, #2a3834);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .ubicacion-info p i {
+            color: var(--primary, #4b7a86);
+            font-size: 20px;
+        }
+
+        .mapa-box {
+            border-radius: var(--radius-lg, 20px);
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .1);
+            border: 1px solid var(--border, #dfe7e3);
+            background: var(--surface-3, #edf2ef);
+            min-height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .mapa-box iframe {
+            width: 100%;
+            height: 100%;
+            min-height: 350px;
+            border: 0;
+            display: block;
+        }
+
+        .mapa-fallback {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .mapa-fallback i {
+            font-size: 48px;
+            color: var(--primary, #4b7a86);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .mapa-fallback a {
+            display: inline-block;
+            background: var(--primary, #4b7a86);
             color: #fff;
-            border: 2px solid rgba(255, 255, 255, .85);
-            -webkit-backdrop-filter: blur(6px);
-            backdrop-filter: blur(6px);
+            padding: 12px 24px;
+            border-radius: var(--radius-full, 9999px);
+            text-decoration: none;
+            font-weight: 700;
+            margin-top: 10px;
+            transition: background .15s;
         }
 
-        .btn-admin:hover {
-            background: rgba(255, 255, 255, .26);
+        .mapa-fallback a:hover {
+            background: var(--primary-hover, #3f6a75);
         }
 
-        .portada-texto {
-            font-size: clamp(15px, 4vw, 19px);
-            opacity: .92;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, .55);
-            margin-top: -12px;
+        .landing-footer {
+            background: var(--navy-dark);
+            color: #fff;
+            text-align: center;
+            padding: 40px 24px;
+            margin-top: 40px;
         }
 
-        @media (min-width: 700px) {
-            .portada-botones {
-                flex-direction: row;
+        .landing-footer p {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            opacity: .8;
+        }
+
+        .landing-footer .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 24px;
+        }
+
+        .landing-footer .footer-links a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+            opacity: .8;
+            transition: opacity .15s;
+        }
+
+        .landing-footer .footer-links a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .landing-footer .footer-links a.acceso-trabajadores {
+            opacity: .5;
+            font-size: 12px;
+        }
+
+        @media (max-width: 900px) {
+            .ubicacion-grid {
+                grid-template-columns: 1fr;
             }
 
-            .btn-portada {
-                flex: 1;
+            .mapa-box {
+                min-height: 280px;
             }
         }
 
-        @media (min-width: 700px) {
-            .portada-contenido {
-                max-width: 640px;
-            }
-        }
-
-        @media (max-height: 560px) {
-            .portada-contenido {
-                gap: 16px;
+        @media (max-width: 700px) {
+            .landing-header nav {
+                display: none;
             }
 
-            .portada-logo {
-                height: 80px;
+            .hero {
+                min-height: 70vh;
+                padding: 60px 20px;
+            }
+
+            .section {
+                padding: 60px 20px;
+            }
+
+            .tarifas-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 
 <body>
-    <main class="portada">
-        <div class="portada-contenido"><img class="portada-logo" src="./Geopadel.webp" alt="Geopadel" draggable="false"
-                width="150" height="150">
-            <h1>Geopadel</h1>
-            <p class="portada-texto">Club de pádel en Ogíjares (Granada). Reserva tu pista online.</p>
-            <div class="portada-botones"><a class="btn-portada btn-admin" href="panel" rel="nofollow">Soy
-                    Administrador</a><a class="btn-portada btn-jugador" href="reservar">Soy Jugador</a></div>
-        </div>
+    <header class="landing-header">
+        <a href="/"><img class="logo" src="Geopadel.webp" alt="Geopadel" width="150" height="150"></a>
+        <nav>
+            <a href="#tarifas">Tarifas</a>
+            <a href="#ubicacion">Ubicación</a>
+            <a href="reservar" class="btn-nav-reservar">Reservar pista</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Tu pista de pádel en Ogíjares</h1>
+                <p>Consulta disponibilidad al instante, elige tu hora y juega. El pago se realiza cómodamente en el
+                    club.</p>
+                <a href="reservar" class="btn-hero">Reservar pista ahora</a>
+            </div>
+        </section>
+
+        <section class="section" id="beneficios">
+            <h2 class="section-title">¿Por qué jugar en Geopadel?</h2>
+            <p class="section-subtitle">Las mejores instalaciones para disfrutar del pádel en Granada.</p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="ri-calendar-check-line"></i>
+                    <h3>Reserva en 1 minuto</h3>
+                    <p>Elige día, duración y hora de forma sencilla. Sin registros complicados, directo al juego.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="ri-trophy-line"></i>
+                    <h3>Pistas de primer nivel</h3>
+                    <p>Instalaciones de última generación, mantenidas a diario para que solo te preocupes de jugar.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="ri-cup-line"></i>
+                    <h3>Ambiente inmejorable</h3>
+                    <p>Ven a disfrutar del deporte y quédate después en nuestra zona de bar y tienda.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="tarifas">
+            <h2 class="section-title">Nuestras Tarifas</h2>
+            <p class="section-subtitle">Precios claros por pista. Sin sorpresas.</p>
+            <div class="tarifas-container">
+                <div class="tarifas-grid">
+                    <div class="tarifa-col">
+                        <h3>Entre semana mañana</h3>
+                        <div class="tarifa-item"><span>60 minutos</span><span>18 €</span></div>
+                        <div class="tarifa-item"><span>90 minutos</span><span>22 €</span></div>
+                        <div class="tarifa-item"><span>120 minutos</span><span>24 €</span></div>
+                    </div>
+                    <div class="tarifa-col">
+                        <h3>Entre semana tarde</h3>
+                        <div class="tarifa-item"><span>60 minutos</span><span>22 €</span></div>
+                        <div class="tarifa-item"><span>90 minutos</span><span>26 €</span></div>
+                        <div class="tarifa-item"><span>120 minutos</span><span>30 €</span></div>
+                    </div>
+                    <div class="tarifa-col">
+                        <h3>Fin de semana</h3>
+                        <div class="tarifa-item"><span>60 minutos</span><span>22 €</span></div>
+                        <div class="tarifa-item"><span>90 minutos</span><span>26 €</span></div>
+                        <div class="tarifa-item"><span>120 minutos</span><span>30 €</span></div>
+                    </div>
+                </div>
+                <p class="nota-tarifas">* Precios orientativos. Consulta el precio final en la pantalla de reserva. El
+                    pago se realiza en el club.</p>
+            </div>
+        </section>
+
+        <section class="section" id="ubicacion">
+            <h2 class="section-title">¿Dónde estamos?</h2>
+            <p class="section-subtitle">Ven a conocernos, estamos muy cerca.</p>
+            <div class="ubicacion-grid">
+                <div class="ubicacion-info">
+                    <h3>Geopadel Ogíjares</h3>
+                    <p><i class="ri-map-pin-line"></i>Polígono Tecnológico Los, C. Zamora, 130, 18151 Ogíjares, Granada
+                    </p>
+                    <p><i class="ri-phone-line"></i><a href="tel:+34646059962"
+                            style="color: inherit; text-decoration: none;">+34 646 059 962</a></p>
+                    <p><i class="ri-whatsapp-line"></i><a
+                            href="https://wa.me/34646059962?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20las%20pistas"
+                            target="_blank" rel="noopener" style="color: inherit; text-decoration: none;">Escríbenos por
+                            WhatsApp</a></p>
+                    <p><i class="ri-time-line"></i>Lunes a Jueves: 09:00 a 14:00 y 17:00 a 23:30 // Viernes a Domingo:
+                        9:00 a 14:00 y 17:00 a 22:00</p>
+                </div>
+                <div class="mapa-box">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3180.847313040629!2d-3.6185362237186043!3d37.1325474488941!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd71fb0c6271ada7%3A0xa30100c6e11e242b!2sGeopadel!5e0!3m2!1ses!2ses!4v1792348251113!5m2!1ses!2ses"
+                        width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"
+                        referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                </div>
+            </div>
+        </section>
     </main>
+
+    <footer class="landing-footer">
+        <p>© Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización.
+        </p>
+        <div class="footer-links">
+            <a href="privacidad">Privacidad</a>
+            <a href="aviso-legal">Aviso Legal</a>
+            <a href="politica-cookies">Cookies</a>
+            <a href="panel" rel="nofollow" class="acceso-trabajadores">Acceso trabajadores</a>
+        </div>
+    </footer>
 </body>
 
 </html>

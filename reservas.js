@@ -5,7 +5,10 @@ async function cargarReservasHoy() {
     const iso = $('fechaCuadrante').value || fechaLocalISO();
     const miReq = ++reqReservas;
     const { data, error } = await conReintento(() =>
-        supabaseClient.from('reservas').select('*').eq('fecha', iso).or(FILTRO_NO_CANCELADA)
+        supabaseClient.from('reservas')
+            .select('id, cliente, telefono, fecha, hora_inicio, duracion_min, pista, estado, pago_estado, tipo_reserva, jugadores, pagos_jugadores, precio, empleado, serie, notas, origen')
+            .eq('fecha', iso)
+            .or(FILTRO_NO_CANCELADA)
     );
     if (miReq !== reqReservas) return;
     if (error) { console.error(error); toast('No se pudieron cargar las reservas', 'err'); return; }
