@@ -29,8 +29,9 @@
         onload="this.onload=null;this.rel='stylesheet'"><noscript>
         <link rel="stylesheet" href="assets/remixicon/remixicon.css">
     </noscript>
-    <link rel="stylesheet" href="styles.css">
-    <script defer src="assets/supabase.min.js"></script>
+    <link rel="preconnect" href="https://challenges.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://gprpyxeamjmvmqtkjvtn.supabase.co" crossorigin>
+    <link rel="stylesheet" href="styles.css" fetchpriority="high">
     <script defer src="config.js"></script>
     <script defer src="utils.js"></script>
     <script defer src="core.js"></script>
@@ -53,8 +54,8 @@
     <div id="bannerOffline" role="alert"><i class="ri-wifi-off-line" aria-hidden="true"></i>Sin conexión · los cambios
         no se guardarán hasta que vuelva internet</div>
     <div id="toasts" role="status" aria-live="polite"></div>
-    <div id="loginView" class="login-container"><button type="button" class="theme-toggle" onclick="alternarTema()"
-            aria-label="Cambiar tema"><i class="ri-moon-line" aria-hidden="true"></i></button>
+    <main id="loginView" class="login-container" aria-label="Iniciar sesión"><button type="button" class="theme-toggle"
+            onclick="alternarTema()" aria-label="Cambiar tema"><i class="ri-moon-line" aria-hidden="true"></i></button>
         <div class="login-card">
             <div class="gp-brand"><img class="gp-logo" src="./Geopadel.webp" alt="Geopadel" draggable="false"
                     width="150" height="150" fetchpriority="high"></div>
@@ -69,7 +70,7 @@
             </form>
             <div id="msgLogin" aria-live="polite"></div>
         </div>
-    </div>
+    </main>
     <div id="adminView" style="display: none;">
         <header class="app-header">
             <div class="gp-brand"><img class="gp-logo" src="./Geopadel.webp" alt="Geopadel" draggable="false"

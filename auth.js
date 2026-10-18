@@ -1,9 +1,39 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
-const supabaseClient = (window.supabase && window.supabase.createClient)
-    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+let supabaseClient = null;
+let _sbLoadPromise = null;
+let _authListenerRegistrado = false;
+function _cargarScriptSupabase() {
+    if (_sbLoadPromise) return _sbLoadPromise;
+    _sbLoadPromise = new Promise((resolve, reject) => {
+        if (window.supabase && window.supabase.createClient) return resolve();
+        const s = document.createElement('script');
+        s.src = 'assets/supabase.min.js';
+        s.async = true;
+        s.onload = resolve;
+        s.onerror = () => reject(new Error('No se pudo cargar la librería de Supabase'));
+        document.head.appendChild(s);
+    });
+    return _sbLoadPromise;
+}
+function _registrarAuthListener() {
+    if (_authListenerRegistrado || !supabaseClient) return;
+    _authListenerRegistrado = true;
+    supabaseClient.auth.onAuthStateChange((evento) => {
+        if (evento === 'SIGNED_OUT' && usuarioSesion) {
+            usuarioSesion = null;
+            mostrarLogin();
+        }
+    });
+}
+async function inicializarSupabase() {
+    if (supabaseClient) return supabaseClient;
+    await _cargarScriptSupabase();
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
         auth: { storage: window.localStorage, persistSession: true, autoRefreshToken: true }
-    })
-    : null;
+    });
+    _registrarAuthListener();
+    return supabaseClient;
+}
 let intentosFallidos = 0, bloqueoHasta = 0;
 let tsLoginId = null, tsLoginToken = '';
 function iniciarTurnstileLogin() {
@@ -34,9 +64,12 @@ function iniciarTurnstileLogin() {
 }
 function reiniciarTurnstileLogin() {
     tsLoginToken = '';
-    if (window.turnstile && tsLoginId !== null) { try { window.turnstile.reset(tsLoginId); } catch (e) { } }
+    if (window.turnstile && tsLoginId !== null) {
+        try { window.turnstile.reset(tsLoginId); } catch (e) { }
+    }
 }
 async function cargarPerfil(authUser) {
+    if (!supabaseClient) return null;
     const { data, error } = await supabaseClient.from('usuarios')
         .select('id, usuario, nombre, rol')
         .eq('auth_id', authUser.id).eq('estado', 'Activo').maybeSingle();
@@ -44,7 +77,18 @@ async function cargarPerfil(authUser) {
     return { id: data.id, user: data.usuario, nombre: data.nombre, rol: data.rol };
 }
 async function comprobarSesion() {
-    if (!supabaseClient) { mostrarLogin(); return; }
+    let tieneHistorial = false;
+    try { tieneHistorial = !!localStorage.getItem(CLAVE_SESION_INI); } catch (e) { }
+    if (!tieneHistorial) { mostrarLogin(); return; }
+
+    try {
+        await inicializarSupabase();
+    } catch (e) {
+        console.error(e);
+        mostrarLogin();
+        return;
+    }
+
     const { data } = await supabaseClient.auth.getSession();
     if (data && data.session) {
         if (sesionCaducada()) {
@@ -66,19 +110,20 @@ async function comprobarSesion() {
     mostrarLogin();
 }
 async function cerrarSesion() {
-    if (canalRealtime) { supabaseClient.removeChannel(canalRealtime); canalRealtime = null; }
-    await supabaseClient.auth.signOut();
-    try { localStorage.removeItem(CLAVE_SESION_INI); } catch (e) { }
+    if (canalRealtime && supabaseClient) {
+        supabaseClient.removeChannel(canalRealtime);
+        canalRealtime = null;
+    }
+    if (supabaseClient) await supabaseClient.auth.signOut();
+    try {
+        localStorage.removeItem(CLAVE_SESION_INI);
+        localStorage.removeItem(CLAVE_ULT_ACT);
+    } catch (e) { }
     usuarioSesion = null;
     $('password').value = '';
     $('msgLogin').innerText = '';
     cambiarPestana('reservas');
     mostrarLogin();
-}
-if (supabaseClient) {
-    supabaseClient.auth.onAuthStateChange((evento) => {
-        if (evento === 'SIGNED_OUT' && usuarioSesion) { usuarioSesion = null; mostrarLogin(); }
-    });
 }
 function mostrarLogin() {
     $('loginView').style.display = 'flex';
@@ -86,6 +131,7 @@ function mostrarLogin() {
     iniciarTurnstileLogin();
     reiniciarTurnstileLogin();
 }
+
 function mostrarPanelAdmin() {
     if (!supabaseClient) {
         mostrarLogin();
@@ -113,7 +159,6 @@ $('loginForm').addEventListener('submit', async function (e) {
     e.preventDefault();
     if (loginEnCurso) return;
     const msgDiv = $('msgLogin'), btn = $('btnEntrar');
-    if (!supabaseClient) { msgDiv.className = 'msg-error'; msgDiv.innerText = 'No se pudo cargar la base de datos. Recarga la página.'; return; }
     if (Date.now() < bloqueoHasta) {
         msgDiv.className = 'msg-error';
         msgDiv.innerText = `Demasiados intentos. Espera ${Math.ceil((bloqueoHasta - Date.now()) / 1000)} s.`;
@@ -127,6 +172,16 @@ $('loginForm').addEventListener('submit', async function (e) {
     btn.disabled = true; btn.innerText = "Verificando...";
     msgDiv.className = ''; msgDiv.innerText = 'Conectando...';
     try {
+        await inicializarSupabase();
+    } catch (loadErr) {
+        console.error(loadErr);
+        msgDiv.className = 'msg-error';
+        msgDiv.innerText = 'No se pudo cargar la librería de base de datos. Revisa tu conexión y recarga.';
+        loginEnCurso = false;
+        btn.disabled = false; btn.innerText = "Entrar al Panel";
+        return;
+    }
+    try {
         const { data, error } = await supabaseClient.auth.signInWithPassword({
             email: user + DOMINIO_LOGIN, password: pass,
             options: { captchaToken: tsLoginToken }
@@ -137,13 +192,17 @@ $('loginForm').addEventListener('submit', async function (e) {
             } else if (error.status === 400 || /invalid login/i.test(error.message || '')) {
                 intentosFallidos++;
                 if (intentosFallidos >= 5) { bloqueoHasta = Date.now() + 30000; intentosFallidos = 0; }
-                msgDiv.className = 'msg-error'; msgDiv.innerText = /not confirmed/i.test(error.message || '') ? 'Este usuario no está confirmado. Contacta con el administrador.' : 'Credenciales incorrectas';
+                msgDiv.className = 'msg-error';
+                msgDiv.innerText = /not confirmed/i.test(error.message || '')
+                    ? 'Este usuario no está confirmado. Contacta con el administrador.'
+                    : 'Credenciales incorrectas';
             } else throw error;
         } else {
             const perfil = await cargarPerfil(data.user);
             if (!perfil) {
                 await supabaseClient.auth.signOut();
-                msgDiv.className = 'msg-error'; msgDiv.innerText = 'Usuario inactivo o sin perfil. Contacta con el administrador.';
+                msgDiv.className = 'msg-error';
+                msgDiv.innerText = 'Usuario inactivo o sin perfil. Contacta con el administrador.';
             } else {
                 intentosFallidos = 0;
                 usuarioSesion = perfil;
@@ -166,7 +225,8 @@ $('loginForm').addEventListener('submit', async function (e) {
         }
     } catch (err) {
         console.error(err);
-        msgDiv.className = 'msg-error'; msgDiv.innerText = 'Error de conexión. Inténtalo de nuevo.';
+        msgDiv.className = 'msg-error';
+        msgDiv.innerText = 'Error de conexión. Inténtalo de nuevo.';
     }
     reiniciarTurnstileLogin();
     btn.disabled = false; btn.innerText = "Entrar al Panel";
@@ -182,6 +242,7 @@ const refrescar = {
     limpiezas: debounce(() => cargarLimpiezas(false), 300)
 };
 function iniciarSuscripcionRealtime() {
+    if (!supabaseClient) return;
     if (canalRealtime) { supabaseClient.removeChannel(canalRealtime); canalRealtime = null; }
     canalRealtime = supabaseClient.channel('geopadel-realtime')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'reservas' }, refrescar.reservas)
@@ -204,7 +265,8 @@ function iniciarSuscripcionRealtime() {
 let audioCtx = null;
 function pitar() {
     try {
-        const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
         audioCtx = audioCtx || new AC();
         if (audioCtx.state === 'suspended') audioCtx.resume();
         const o = audioCtx.createOscillator(), g = audioCtx.createGain();
@@ -240,14 +302,18 @@ function cambiarPestana(tabName) {
     $(`tab-${tabName}`).classList.add('active');
     const nav = $(`nav-${tabName}`);
     nav.classList.add('active'); nav.setAttribute('aria-current', 'page');
-    document.title = 'Geopadel · ' + ({ reservas: 'Reservas', tienda: 'Tienda', fichajes: 'Fichaje', caja: 'Caja', deudas: 'Deudas', limpieza: 'Limpieza', ajustes: 'Ajustes' }[tabName] || 'Panel');
+    document.title = 'Geopadel · ' + ({ resumen: 'Resumen', reservas: 'Reservas', tienda: 'Tienda', fichajes: 'Fichaje', caja: 'Caja', deudas: 'Deudas', limpieza: 'Limpieza', ajustes: 'Ajustes' }[tabName] || 'Panel');
     if (usuarioSesion) {
+        if (tabName === 'resumen' && typeof entrarResumen === 'function') entrarResumen();
         if (tabName === 'deudas') cargarDeudas();
         if (tabName === 'tienda') { cargarMesasBar(); if (typeof entrarEscaparate === 'function') entrarEscaparate(); }
         if (tabName === 'ajustes' && typeof entrarAjustes === 'function') entrarAjustes();
         if (tabName === 'limpieza') entrarPestanaLimpieza();
         if (tabName === 'caja') { cargarHistorialCaja(); cargarCajaHoy(); }
-        if (tabName === 'fichajes') { if (!esJefa()) { cargarMisFichajes(); if (typeof entrarContrato === 'function') entrarContrato(); } if (typeof entrarFichajes === 'function') entrarFichajes(); }
+        if (tabName === 'fichajes') {
+            if (!esJefa()) { cargarMisFichajes(); if (typeof entrarContrato === 'function') entrarContrato(); }
+            if (typeof entrarFichajes === 'function') entrarFichajes();
+        }
         if (tabName === 'reservas') { scrollAhoraPendiente = true; renderizarCuadrantePlaytomic(datosLocales.reservas || []); }
     }
 }
@@ -255,7 +321,11 @@ document.querySelectorAll('.nav-tab').forEach(b => b.addEventListener('click', (
 async function fichar(tipo, btn) {
     const msg = $('msgFichaje');
     if (esJefa()) return;
-    if (typeof asegurarContrato === 'function' && !(await asegurarContrato())) { msg.style.color = 'var(--orange-text)'; msg.innerText = 'Para fichar necesitas indicar tu contrato.'; return; }
+    if (typeof asegurarContrato === 'function' && !(await asegurarContrato())) {
+        msg.style.color = 'var(--orange-text)';
+        msg.innerText = 'Para fichar necesitas indicar tu contrato.';
+        return;
+    }
     if (ultimoFichaje && ultimoFichaje.tipo === tipo) {
         if (!(await customConfirm(`Tu último fichaje ya fue de ${tipo}. ¿Registrar otra ${tipo} igualmente?`))) return;
     }
@@ -273,10 +343,20 @@ async function fichar(tipo, btn) {
 }
 async function cargarMisFichajes() {
     const tbody = $('tablaFichajesBody');
-    if (!tbody || !usuarioSesion) return;
-    const { data, error } = await supabaseClient.from('fichajes').select('*').eq('empleado', usuarioSesion.user).order('created_at', { ascending: false }).limit(30);
-    if (error) { tbody.innerHTML = `<tr><td colspan="3" class="tabla-empty" style="color:var(--red)">Error al cargar fichajes: ${esc(error.message)}</td></tr>`; return; }
-    if (!data || !data.length) { ultimoFichaje = null; $('estadoFichaje').innerText = ''; tbody.innerHTML = `<tr><td colspan="3" class="tabla-empty">No hay registros de fichajes aún</td></tr>`; return; }
+    if (!tbody || !usuarioSesion || !supabaseClient) return;
+    const { data, error } = await supabaseClient.from('fichajes')
+        .select('*').eq('empleado', usuarioSesion.user)
+        .order('created_at', { ascending: false }).limit(30);
+    if (error) {
+        tbody.innerHTML = `<tr><td colspan="3" class="tabla-empty" style="color:var(--red)">Error al cargar fichajes: ${esc(error.message)}</td></tr>`;
+        return;
+    }
+    if (!data || !data.length) {
+        ultimoFichaje = null;
+        $('estadoFichaje').innerText = '';
+        tbody.innerHTML = `<tr><td colspan="3" class="tabla-empty">No hay registros de fichajes aún</td></tr>`;
+        return;
+    }
     const fmt = f => {
         const d = new Date(f.created_at || f.fecha_hora);
         return isNaN(d.getTime()) ? (f.created_at || f.fecha_hora || '-') : d.toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'medium' });
