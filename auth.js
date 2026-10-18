@@ -377,8 +377,8 @@ async function cargarMisFichajes() {
         return;
     }
     const fmt = f => {
-        const d = new Date(f.created_at || f.fecha_hora);
-        return isNaN(d.getTime()) ? (f.created_at || f.fecha_hora || '-') : d.toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'medium' });
+        const d = new Date(f.created_at);
+        return isNaN(d.getTime()) ? (f.created_at || '-') : d.toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'medium' });
     };
     ultimoFichaje = { tipo: data[0].tipo };
     $('estadoFichaje').innerText = `Último fichaje: ${data[0].tipo} · ${fmt(data[0])}`;

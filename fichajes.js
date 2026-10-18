@@ -7,7 +7,7 @@ const fxPad = n => String(n).padStart(2, '0');
 const fxHM = min => `${Math.floor(min / 60)}:${fxPad(min % 60)}`;
 const fxDec = min => (min / 60).toFixed(2).replace('.', ',');
 const fxHora = d => `${fxPad(d.getHours())}:${fxPad(d.getMinutes())}`;
-const fxTs = f => f.created_at || f.fecha_hora;
+const fxTs = f => f.created_at;
 const fxNombre = emp => fxEmpleados[emp] || emp;
 const fxFecha = iso => { const [y, m, d] = String(iso).split('-'); return `${d}/${m}/${y}`; };
 const fxDiaSemana = iso => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d, 12).toLocaleDateString('es-ES', { weekday: 'short' }).replace('.', ''); };
@@ -149,7 +149,7 @@ async function fxGenerar() {
     try {
         const ini = new Date(sumarDiasISO(desde, -1) + 'T00:00:00'), fin = new Date(sumarDiasISO(hasta, 2) + 'T00:00:00');
         const { data, error } = await leerTodo(() => {
-            let q = supabaseClient.from('fichajes').select('empleado, tipo, created_at, fecha_hora').gte('created_at', ini.toISOString()).lt('created_at', fin.toISOString()).order('created_at', { ascending: true });
+            let q = supabaseClient.from('fichajes').select('empleado, tipo, created_at').gte('created_at', ini.toISOString()).lt('created_at', fin.toISOString()).order('created_at', { ascending: true });
             if (emp) q = q.eq('empleado', emp);
             return q;
         });
