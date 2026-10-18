@@ -33,7 +33,7 @@ async function entrarAjustes() {
 }
 async function cliResetearCodigo(c, btn) {
     if (!esJefa()) return toast('Solo la jefa puede restablecer códigos', 'err');
-    if (!confirm(`¿Restablecer el código web de «${c.nombre}» y habilitarle el acceso web?\n\nTendrá que crear uno nuevo en su próxima reserva. Hazlo solo si has comprobado que es él.`)) return;
+    if (!(await customConfirm(`¿Restablecer el código web de «${c.nombre}» y habilitarle el acceso web?\n\nTendrá que crear uno nuevo en su próxima reserva. Hazlo solo si has comprobado que es él.`))) return;
     setBusy(btn, true, CLI_SPIN + 'Restableciendo...');
     try {
         const { data, error } = await supabaseClient.rpc('gp_resetear_codigo_cliente', { p_telefono: c.telefono });
@@ -47,7 +47,7 @@ async function cliResetearCodigo(c, btn) {
     } finally { setBusy(btn, false); }
 }
 async function cliHabilitarAcceso(c, btn) {
-    if (!confirm(`¿Habilitar el acceso web de «${c.nombre}»?\n\nPodrá crear su código en su próxima reserva online. Hazlo solo si has comprobado que es él.`)) return;
+    if (!(await customConfirm(`¿Habilitar el acceso web de «${c.nombre}»?\n\nPodrá crear su código en su próxima reserva online. Hazlo solo si has comprobado que es él.`))) return;
     setBusy(btn, true, CLI_SPIN + 'Habilitando...');
     try {
         const { data, error } = await supabaseClient.rpc('gp_habilitar_acceso_web', { p_telefono: c.telefono });
@@ -61,7 +61,7 @@ async function cliHabilitarAcceso(c, btn) {
 async function cliBorrarDatos(c, btn) {
     if (!esJefa()) return toast('Solo la jefa puede borrar datos de clientes', 'err');
     if (!c.id) return toast('Falta el identificador del cliente. Recarga la lista e inténtalo de nuevo.', 'err');
-    if (!confirm(`¿Borrar los datos personales de «${c.nombre}»?\n\nSe elimina su ficha y se quita su nombre y teléfono de reservas y deudas (los importes se conservan sin datos personales). Se cancelan sus reservas futuras sin cobros. No se puede deshacer.`)) return;
+    if (!(await customConfirm(`¿Borrar los datos personales de «${c.nombre}»?\n\nSe elimina su ficha y se quita su nombre y teléfono de reservas y deudas (los importes se conservan sin datos personales). Se cancelan sus reservas futuras sin cobros. No se puede deshacer.`))) return;
     setBusy(btn, true, CLI_SPIN + 'Borrando...');
     try {
         const { data, error } = await supabaseClient.rpc('gp_borrar_cliente', { p_id: c.id });

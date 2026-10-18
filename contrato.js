@@ -26,14 +26,6 @@ async function cargarContrato(forzar) {
     ctCache = { usuario: u, data: (data && data[0]) || null };
     return ctCache.data;
 }
-async function contratoJornadaDiaria() {
-    try {
-        const c = await cargarContrato(false);
-        if (!c) return null;
-        const dias = CT_DIAS.filter(([k]) => c.horario && c.horario[k] && c.horario[k].on).length;
-        return dias ? Math.round(Number(c.horas_semanales) / dias * 100) / 100 : null;
-    } catch (e) { return null; }
-}
 function ctJornadaDeContrato(c, fecha) {
     if (!c) return null;
     const h = c.horario || {};
@@ -146,7 +138,7 @@ async function guardarContrato() {
         limpio[k] = d.on ? { on: true, ini: d.ini, fin: d.fin, ini2: d.ini2 || '', fin2: d.fin2 || '' } : { on: false };
     });
     const calc = ctMinutosSemana(limpio) / 60;
-    if (Math.abs(calc - horas) > 0.5 && !confirm(`Las horas que has escrito (${ctNum(horas)} h) no coinciden con las del horario (${ctNum(Math.round(calc * 10) / 10)} h). ¿Guardar igualmente?`)) return;
+    if (Math.abs(calc - horas) > 0.5 && !(await customConfirm(`Las horas que has escrito (${ctNum(horas)} h) no coinciden con las del horario (${ctNum(Math.round(calc * 10) / 10)} h). ¿Guardar igualmente?`))) return;
     setBusy(btn, true, '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Guardando...');
     try {
         const u = ctUsuario();

@@ -363,7 +363,7 @@
                                 class="btn-cat-filter" data-exp="deudas" style="margin-left:8px"><i
                                     class="ri-download-2-line" aria-hidden="true"></i>CSV</button></div>
                     </div>
-                    <div class="toolbar"><select id="deudaFiltro" class="toolbar-select" onchange="dibujarDeudas()">
+                    <div class="toolbar"><select id="deudaFiltro" class="toolbar-select" onchange="cargarDeudas()">
                             <option value="Pendiente">Pendientes</option>
                             <option value="Resuelta">Resueltas</option>
                             <option value="Todas">Todas</option>
@@ -564,7 +564,7 @@
         </main>
     </div>
     <div id="gpSync"><i class="ri-refresh-line" aria-hidden="true"></i>Sincronizado en tiempo real</div>
-    <div id="modalReserva" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitulo">
+    <dialog id="modalReserva" class="modal-overlay" aria-labelledby="modalTitulo">
         <div class="modal-card-double">
             <div class="modal-header-bar">
                 <h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="modalTitulo">Gestionar reserva</span></h4>
@@ -641,8 +641,8 @@
                         aria-hidden="true"></i>Eliminar</button><button type="button" onclick="cerrarModal()"
                     class="btn-add gray">Cancelar</button></div>
         </div>
-    </div>
-    <div id="modalProducto" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalProductoTitulo">
+    </dialog>
+    <dialog id="modalProducto" class="modal-overlay" aria-labelledby="modalProductoTitulo">
         <div class="modal-card-double small">
             <div class="modal-header-bar">
                 <h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="modalProductoTitulo">Editar artículo</span>
@@ -669,9 +669,8 @@
                     class="btn-add blue"><i class="ri-save-line" aria-hidden="true"></i>Guardar artículo</button><button
                     type="button" onclick="cerrarModalProducto()" class="btn-add gray">Cancelar</button></div>
         </div>
-    </div>
-    <div id="modalAvisoLimpieza" class="modal-overlay" role="alertdialog" aria-modal="true"
-        aria-labelledby="avisoLimpTitulo">
+    </dialog>
+    <dialog id="modalAvisoLimpieza" class="modal-overlay" aria-labelledby="avisoLimpTitulo">
         <div class="modal-card-double small">
             <div class="modal-header-bar">
                 <h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="avisoLimpTitulo">Aviso de limpieza</span>
@@ -682,8 +681,8 @@
             <div class="modal-footer-bar"><button type="button" onclick="cerrarAvisoLimpieza()"
                     class="btn-add">Entendido</button></div>
         </div>
-    </div>
-    <div id="modalArticulo" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalArticuloTitulo">
+    </dialog>
+    <dialog id="modalArticulo" class="modal-overlay" aria-labelledby="modalArticuloTitulo">
         <div class="modal-card-double small">
             <div class="modal-header-bar">
                 <h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="modalArticuloTitulo">Nuevo artículo</span>
@@ -714,8 +713,8 @@
                         class="ri-save-line" aria-hidden="true"></i>Guardar artículo</button><button type="button"
                     onclick="cerrarModalArticulo()" class="btn-add gray">Cancelar</button></div>
         </div>
-    </div>
-    <div id="modalContrato" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="ctTitulo">
+    </dialog>
+    <dialog id="modalContrato" class="modal-overlay" aria-labelledby="ctTitulo">
         <div class="modal-card-double">
             <div class="modal-header-bar">
                 <h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="ctTitulo">Tu contrato</span></h4><button
@@ -746,8 +745,8 @@
                         class="ri-save-line" aria-hidden="true"></i>Guardar contrato</button><button type="button"
                     id="btnCancelarContrato" class="btn-add gray">Cancelar</button></div>
         </div>
-    </div>
-    <dialog id="modalConfirmDialog" class="modal-overlay">
+    </dialog>
+    <dialog id="modalConfirmDialog" class="modal-overlay" aria-labelledby="confirmDialogTitle">
         <form method="dialog" class="modal-card-double small">
             <div class="modal-header-bar">
                 <h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="confirmDialogTitle">Confirmación</span>

@@ -193,7 +193,7 @@ async function alternarVisible(a) {
     cargarArticulos();
 }
 async function eliminarArticulo(a) {
-    if (!confirm(`¿Eliminar «${a.titulo}» del escaparate? Esta acción no se puede deshacer.`)) return;
+    if (!(await customConfirm(`¿Eliminar «${a.titulo}» del escaparate? Esta acción no se puede deshacer.`))) return;
     const { error } = await supabaseClient.from('tienda_articulos').delete().eq('id', a.id);
     if (error) return toast('No se pudo eliminar: ' + error.message, 'err');
     borrarFotoStorage(a.foto_path);

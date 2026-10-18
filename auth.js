@@ -108,9 +108,13 @@ function mostrarPanelAdmin() {
     cargarDatosGlobales();
     if (!esJefa()) cargarMisFichajes();
 }
+let loginEnCurso = false;
 $('loginForm').addEventListener('submit', async function (e) {
     e.preventDefault();
+    if (loginEnCurso) return;
+
     const msgDiv = $('msgLogin'), btn = $('btnEntrar');
+
     if (!supabaseClient) { msgDiv.className = 'msg-error'; msgDiv.innerText = 'No se pudo cargar la base de datos. Recarga la página.'; return; }
     if (Date.now() < bloqueoHasta) {
         msgDiv.className = 'msg-error';
@@ -121,8 +125,10 @@ $('loginForm').addEventListener('submit', async function (e) {
     const pass = $('password').value;
     if (!user || !pass) { msgDiv.className = 'msg-error'; msgDiv.innerText = 'Introduce usuario y contraseña'; return; }
     if (TURNSTILE_SITEKEY && !tsLoginToken) { msgDiv.className = 'msg-error'; msgDiv.innerText = 'Completa la verificación anti-spam'; return; }
+    loginEnCurso = true;
     btn.disabled = true; btn.innerText = "Verificando...";
     msgDiv.className = ''; msgDiv.innerText = 'Conectando...';
+
     try {
         const { data, error } = await supabaseClient.auth.signInWithPassword({
             email: user + DOMINIO_LOGIN, password: pass,
@@ -147,7 +153,17 @@ $('loginForm').addEventListener('submit', async function (e) {
                 marcarInicioSesion();
                 reiniciarTurnstileLogin();
                 msgDiv.className = 'msg-success'; msgDiv.innerText = '¡Bienvenido!';
-                setTimeout(() => { btn.disabled = false; btn.innerText = "Entrar al Panel"; mostrarPanelAdmin(); }, 250);
+                setTimeout(() => {
+                    btn.disabled = false; btn.innerText = "Entrar al Panel";
+                    try { mostrarPanelAdmin(); }
+                    catch (ex) {
+                        console.error(ex);
+                        msgDiv.className = 'msg-error';
+                        msgDiv.innerText = 'Error al cargar el panel. Recarga la página.';
+                    } finally {
+                        loginEnCurso = false;
+                    }
+                }, 250);
                 return;
             }
         }
@@ -157,6 +173,7 @@ $('loginForm').addEventListener('submit', async function (e) {
     }
     reiniciarTurnstileLogin();
     btn.disabled = false; btn.innerText = "Entrar al Panel";
+    loginEnCurso = false;
 });
 const refrescar = {
     reservas: debounce(() => cargarReservasHoy(), 250),

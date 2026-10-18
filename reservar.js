@@ -422,7 +422,7 @@ $('btnSalirMis').addEventListener('click', () => {
 });
 $('btnBorrarDatos').addEventListener('click', async () => {
     if (!cuenta) return;
-    if (!confirm('Se borrarán tu nombre, teléfono y código, y se cancelarán tus reservas futuras. No se puede deshacer. ¿Continuar?')) return;
+    if (!(await customConfirm('Se borrarán tu nombre, teléfono y código, y se cancelarán tus reservas futuras. No se puede deshacer. ¿Continuar?'))) return;
     const btn = $('btnBorrarDatos');
     setBusy(btn, true, 'Borrando...');
     try {
@@ -437,7 +437,7 @@ $('btnBorrarDatos').addEventListener('click', async () => {
 $('misLista').addEventListener('click', async e => {
     const b = e.target.closest('button[data-cancelar]');
     if (!b || !cuenta) return;
-    if (!confirm('¿Cancelar esta reserva?')) return;
+    if (!(await customConfirm('¿Cancelar esta reserva?'))) return;
     setBusy(b, true, SPIN + 'Cancelando...');
     try {
         const r = await llamarEdge('cancelar', { p_ident: cuenta.ident, p_codigo: cuenta.codigo, p_reserva_id: b.dataset.cancelar });

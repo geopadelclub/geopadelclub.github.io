@@ -10,17 +10,30 @@ function ahoraLocalInput() {
     d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
     return d.toISOString().slice(0, 16);
 }
+
 let deudas = [];
 function iniciarFormDeuda() {
     $('deudaFecha').value = fechaLocalISO();
     $('deudaHora').value = '';
 }
 enlazarBuscadorCliente($('deudaNombre'), $('deudaTelefono'));
+
 async function cargarDeudas() {
     const tb = $('deudasBody');
     if (!tb || !supabaseClient) return;
-    const { data, error } = await conReintento(() => leerTodo(() => supabaseClient.from('deudas').select('*')
-        .order('fecha', { ascending: false }).order('hora', { ascending: false }).order('id', { ascending: false })));
+    try {
+        const { data: pend } = await supabaseClient.from('deudas').select('importe').neq('estado', 'Resuelta');
+        const total = redondear2((pend || []).reduce((s, d) => s + (Number(d.importe) || 0), 0));
+        $('deudaTotal').innerText = eur(total);
+    } catch (e) { console.error(e); }
+
+    const filtro = $('deudaFiltro')?.value || 'Pendiente';
+    let q = supabaseClient.from('deudas').select('*');
+    if (filtro === 'Pendiente') q = q.neq('estado', 'Resuelta');
+    else if (filtro === 'Resuelta') q = q.eq('estado', 'Resuelta');
+    q = q.order('fecha', { ascending: false }).order('hora', { ascending: false }).order('id', { ascending: false });
+
+    const { data, error } = await conReintento(() => leerTodo(() => q));
     if (error) {
         console.error(error);
         tb.innerHTML = `<tr><td colspan="6" class="tabla-empty" style="color:var(--red)">${esc(esErrorTabla(error) ? MSG_FALTA_TABLA('deudas') : 'Error al cargar deudas: ' + error.message)}</td></tr>`;
@@ -29,16 +42,13 @@ async function cargarDeudas() {
     deudas = data || [];
     dibujarDeudas();
 }
+
 function dibujarDeudas() {
     const tb = $('deudasBody');
     if (!tb) return;
-    const filtro = $('deudaFiltro').value;
     const q = $('deudaBuscar').value.toLowerCase().trim();
-    const pendiente = redondear2(deudas.filter(d => d.estado !== 'Resuelta').reduce((s, d) => s + (Number(d.importe) || 0), 0));
-    $('deudaTotal').innerText = eur(pendiente);
     const lista = deudas.filter(d =>
-        (filtro === 'Todas' || (filtro === 'Resuelta' ? d.estado === 'Resuelta' : d.estado !== 'Resuelta')) &&
-        (!q || String(d.nombre).toLowerCase().includes(q) || String(d.telefono || '').toLowerCase().includes(q)));
+        !q || String(d.nombre).toLowerCase().includes(q) || String(d.telefono || '').toLowerCase().includes(q));
     if (!lista.length) { tb.innerHTML = '<tr><td colspan="6" class="tabla-empty">No hay deudas en esta lista</td></tr>'; return; }
     tb.innerHTML = lista.map(d => {
         const res = d.estado === 'Resuelta';
@@ -60,6 +70,7 @@ function dibujarDeudas() {
 </tr>`;
     }).join('');
 }
+
 async function anadirDeuda(e) {
     e.preventDefault();
     const msg = $('msgDeuda'), btn = $('btnAddDeuda');
@@ -90,10 +101,14 @@ async function anadirDeuda(e) {
         err(esErrorTabla(ex) ? MSG_FALTA_TABLA('deudas') : 'No se pudo guardar: ' + (ex.message || ex));
     } finally { setBusy(btn, false); }
 }
+
 async function cambiarEstadoDeuda(id, resolver) {
     const d = deudas.find(x => String(x.id) === String(id));
     if (!d) return;
-    if (!confirm(resolver ? `¿Marcar como resuelta la deuda de ${d.nombre} (${eur(d.importe)})?` : '¿Volver a poner esta deuda como pendiente?')) return;
+    const msg = resolver
+        ? `¿Marcar como resuelta la deuda de ${d.nombre} (${eur(d.importe)})?`
+        : '¿Volver a poner esta deuda como pendiente?';
+    if (!(await customConfirm(msg))) return;
     const upd = resolver
         ? { estado: 'Resuelta', resuelta_por: nombreUsuario(), resuelta_at: new Date().toISOString() }
         : { estado: 'Pendiente', resuelta_por: null, resuelta_at: null };
@@ -102,10 +117,11 @@ async function cambiarEstadoDeuda(id, resolver) {
     toast(resolver ? 'Deuda resuelta' : 'Deuda reabierta');
     cargarDeudas();
 }
+
 async function eliminarDeuda(id) {
     const d = deudas.find(x => String(x.id) === String(id));
     if (!d) return;
-    if (!confirm(`¿Anular la deuda de ${d.nombre} (${eur(d.importe)})?`)) return;
+    if (!(await customConfirm(`¿Anular la deuda de ${d.nombre} (${eur(d.importe)})?`))) return;
     const empleado = nombreUsuario();
     const { data, error } = await supabaseClient.rpc('anular_deuda', {
         p_deuda_id: id,
@@ -117,6 +133,7 @@ async function eliminarDeuda(id) {
     toast('Deuda anulada');
     cargarDeudas();
 }
+
 let limpiezas = [], limpUltimas = [];
 async function iniciarFormLimpieza() {
     const cont = $('limpPistas'), tar = $('limpTareas');
@@ -187,7 +204,8 @@ function dibujarLimpieza() {
             const l = ult[p + '|' + t];
             if (!l) return '<td class="limp-cell"><span class="limp-ko">Sin registro</span></td>';
             const venc = Date.now() - new Date(l.fecha_hora).getTime() > lim;
-            return `<td class="limp-cell"><span class="${venc ? 'limp-ko' : 'limp-ok'}">${esc(fmtFecha(new Date(l.fecha_hora).toLocaleDateString('en-CA')))}</span><small>hace ${diasDesde(l.fecha_hora)} d · ${esc(l.empleado)}</small></td>`;
+            // FIX: usar fechaLocalISO en vez del hack 'en-CA'
+            return `<td class="limp-cell"><span class="${venc ? 'limp-ko' : 'limp-ok'}">${esc(fmtFecha(fechaLocalISO(new Date(l.fecha_hora))))}</span><small>hace ${diasDesde(l.fecha_hora)} d · ${esc(l.empleado)}</small></td>`;
         }).join('');
         return `<tr><td><b>${esc(p)}</b></td>${celdas}</tr>`;
     }).join('');
@@ -245,7 +263,7 @@ async function registrarLimpieza(e) {
     } finally { setBusy(btn, false); }
 }
 async function eliminarLimpieza(id) {
-    if (!confirm('¿Eliminar este registro de limpieza?')) return;
+    if (!(await customConfirm('¿Eliminar este registro de limpieza?'))) return;
     const { error } = await supabaseClient.from('limpiezas').delete().eq('id', id);
     if (error) return toast('No se pudo eliminar: ' + error.message, 'err');
     toast('Registro eliminado');
