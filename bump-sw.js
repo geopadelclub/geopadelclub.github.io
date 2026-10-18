@@ -6,7 +6,6 @@ if (!arrays.length) {
     console.error('No encuentro arrays BASE/PANEL/PUBLICO en sw.js');
     process.exit(1);
 }
-
 const archivosSet = new Set();
 for (const [, , contenido] of arrays) {
     for (const m of contenido.matchAll(/'([^']+)'/g)) {
@@ -14,7 +13,6 @@ for (const [, , contenido] of arrays) {
         if (!/^https?:/.test(f) && f !== './') archivosSet.add(f);
     }
 }
-
 const lista = [...archivosSet].sort();
 const limpio = sw.replace(/const VERSION = '[^']*';/, '');
 const h = crypto.createHash('sha256');

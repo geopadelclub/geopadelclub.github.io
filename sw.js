@@ -1,26 +1,22 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 const VERSION = 'geopadel-b62b41b5b0';
-
 const BASE = [
     './', 'index.html', 'styles.css', 'config.js', 'utils.js',
     'Geopadel.webp', 'Geopadel-512.webp', 'fondo.webp',
     'assets/remixicon/remixicon.css', 'assets/remixicon/remixicon.woff2'
 ];
-
 const PANEL = [
     'panel.html', 'core.js', 'auth.js', 'datos.js', 'reservas.js',
-    'bar.js', 'caja.js', 'tarifas.js', 'gestion.js', 'copia.js',
+    'bar.js', 'caja.js', 'tarifas.js', 'gestion.js',
+    'copia-zip.js', 'copia-worker.js', 'copia.js',
     'fichajes.js', 'contrato.js', 'tienda.js', 'ajustes.js',
     'manifest.webmanifest', 'assets/supabase.min.js'
 ];
-
 const PUBLICO = [
     'reservar.html', 'reservar.css', 'reservar.js', 'reservar-tienda.js',
     'privacidad.html', 'manifest-reservar.webmanifest', 'assets/supabase.min.js'
 ];
-
 const ARCHIVOS = [...BASE, ...PANEL, ...PUBLICO];
-
 async function detectarModo() {
     try {
         if (self.registration.scope.includes('/panel')) return 'panel';
@@ -29,7 +25,6 @@ async function detectarModo() {
     } catch (e) { }
     return 'public';
 }
-
 self.addEventListener('install', e => {
     e.waitUntil((async () => {
         const modo = await detectarModo();
@@ -39,7 +34,6 @@ self.addEventListener('install', e => {
         await self.skipWaiting();
     })());
 });
-
 self.addEventListener('activate', e => {
     e.waitUntil((async () => {
         const claves = await caches.keys();
@@ -47,11 +41,9 @@ self.addEventListener('activate', e => {
         await self.clients.claim();
     })());
 });
-
 function conTiempo(promesa, ms) {
     return Promise.race([promesa, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
 }
-
 self.addEventListener('fetch', e => {
     const req = e.request;
     if (req.method !== 'GET') return;

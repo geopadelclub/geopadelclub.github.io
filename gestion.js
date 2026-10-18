@@ -10,14 +10,12 @@ function ahoraLocalInput() {
     d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
     return d.toISOString().slice(0, 16);
 }
-
 let deudas = [];
 function iniciarFormDeuda() {
     $('deudaFecha').value = fechaLocalISO();
     $('deudaHora').value = '';
 }
 enlazarBuscadorCliente($('deudaNombre'), $('deudaTelefono'));
-
 async function cargarDeudas() {
     const tb = $('deudasBody');
     if (!tb || !supabaseClient) return;
@@ -26,13 +24,11 @@ async function cargarDeudas() {
         const total = redondear2((pend || []).reduce((s, d) => s + (Number(d.importe) || 0), 0));
         $('deudaTotal').innerText = eur(total);
     } catch (e) { console.error(e); }
-
     const filtro = $('deudaFiltro')?.value || 'Pendiente';
     let q = supabaseClient.from('deudas').select('*');
     if (filtro === 'Pendiente') q = q.neq('estado', 'Resuelta');
     else if (filtro === 'Resuelta') q = q.eq('estado', 'Resuelta');
     q = q.order('fecha', { ascending: false }).order('hora', { ascending: false }).order('id', { ascending: false });
-
     const { data, error } = await conReintento(() => leerTodo(() => q));
     if (error) {
         console.error(error);
@@ -42,7 +38,6 @@ async function cargarDeudas() {
     deudas = data || [];
     dibujarDeudas();
 }
-
 function dibujarDeudas() {
     const tb = $('deudasBody');
     if (!tb) return;
@@ -70,7 +65,6 @@ function dibujarDeudas() {
 </tr>`;
     }).join('');
 }
-
 async function anadirDeuda(e) {
     e.preventDefault();
     const msg = $('msgDeuda'), btn = $('btnAddDeuda');
@@ -101,7 +95,6 @@ async function anadirDeuda(e) {
         err(esErrorTabla(ex) ? MSG_FALTA_TABLA('deudas') : 'No se pudo guardar: ' + (ex.message || ex));
     } finally { setBusy(btn, false); }
 }
-
 async function cambiarEstadoDeuda(id, resolver) {
     const d = deudas.find(x => String(x.id) === String(id));
     if (!d) return;
@@ -117,7 +110,6 @@ async function cambiarEstadoDeuda(id, resolver) {
     toast(resolver ? 'Deuda resuelta' : 'Deuda reabierta');
     cargarDeudas();
 }
-
 async function eliminarDeuda(id) {
     const d = deudas.find(x => String(x.id) === String(id));
     if (!d) return;
@@ -133,7 +125,6 @@ async function eliminarDeuda(id) {
     toast('Deuda anulada');
     cargarDeudas();
 }
-
 let limpiezas = [], limpUltimas = [];
 async function iniciarFormLimpieza() {
     const cont = $('limpPistas'), tar = $('limpTareas');
@@ -204,7 +195,6 @@ function dibujarLimpieza() {
             const l = ult[p + '|' + t];
             if (!l) return '<td class="limp-cell"><span class="limp-ko">Sin registro</span></td>';
             const venc = Date.now() - new Date(l.fecha_hora).getTime() > lim;
-            // FIX: usar fechaLocalISO en vez del hack 'en-CA'
             return `<td class="limp-cell"><span class="${venc ? 'limp-ko' : 'limp-ok'}">${esc(fmtFecha(fechaLocalISO(new Date(l.fecha_hora))))}</span><small>hace ${diasDesde(l.fecha_hora)} d · ${esc(l.empleado)}</small></td>`;
         }).join('');
         return `<tr><td><b>${esc(p)}</b></td>${celdas}</tr>`;

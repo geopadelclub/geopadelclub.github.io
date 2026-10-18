@@ -4,14 +4,11 @@ const SESION_MAX_MS = 8 * 3600 * 1000;
 const INACTIVIDAD_MAX_MS = 60 * 60 * 1000;
 const CLAVE_ULT_ACT = 'gp-ult-actividad';
 const CLAVE_SESION_INI = 'gp-sesion-ini';
-
 const APERT_MIN = 8 * 60;
 const bloqueDescansoInicio = 14 * 60;
 const bloqueDescansoFin = 17 * 60;
-
 const listaPistas = ["1 PADEL MASTER", "Pista 2", "Pista 3", "Pista 4", "Pista 5", "Pista 6", "Pista 7", "Pista 8", "Pista 9"];
 const listaMesas = ["Suelto", "Mesa 1", "Mesa 2", "Mesa 3", "Mesa 4", "Mesa 5", "Mesa 6", "Barra"];
-
 const TARIFAS_DEFECTO = { semanaManana: { 90: 20 }, semanaTarde: { 90: 26 }, finde: { 90: 26 } };
 const TARIFAS_IDS = {
     semanaManana: ['tarSemMan60', 'tarSemMan', 'tarSemMan120'],
@@ -23,10 +20,8 @@ const TARIFAS_FRANJAS = {
     semanaTarde: 'Entre semana tarde',
     finde: 'Fin de semana'
 };
-
 const ROLES_ADMIN = ['trabajador', 'jefa'];
 const FILTRO_NO_CANCELADA = 'estado.is.null,estado.neq.Cancelada';
-
 let horaInicioGrid = 8, horaFinGrid = 21.5;
 let usuarioSesion = null;
 let datosLocales = {
@@ -46,11 +41,9 @@ let categoriaTPVFiltro = "Todos";
 let colaMesas = Promise.resolve();
 let cobrando = false;
 let ultimoFichaje = null;
-
 const nombreUsuario = () => usuarioSesion ? (usuarioSesion.user || usuarioSesion.nombre) : 'Sistema';
 const esJefa = () => !!usuarioSesion && String(usuarioSesion.rol || '').trim().toLowerCase() === 'jefa';
 const esPersonal = () => !!usuarioSesion && ROLES_ADMIN.includes(String(usuarioSesion.rol || '').trim().toLowerCase());
-
 function marcarInicioSesion() {
     try {
         const ahora = String(Date.now());
@@ -74,7 +67,6 @@ function sesionCaducada() {
     return (!!ini && ahora - ini > SESION_MAX_MS) || (!!ult && ahora - ult > INACTIVIDAD_MAX_MS);
 }
 function inicializarFechaHoy() { $('fechaCuadrante').value = fechaLocalISO(); }
-
 function obtenerCierreMin(iso) {
     const dateIso = iso || ($('fechaCuadrante') ? $('fechaCuadrante').value : fechaLocalISO());
     const [y, m, d] = dateIso.split('-').map(Number);
@@ -82,7 +74,6 @@ function obtenerCierreMin(iso) {
     if (day >= 1 && day <= 4) return 23 * 60 + 30;
     return 22 * 60;
 }
-
 function debounce(fn, ms) {
     let t;
     return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };

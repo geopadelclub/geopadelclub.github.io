@@ -112,9 +112,7 @@ let loginEnCurso = false;
 $('loginForm').addEventListener('submit', async function (e) {
     e.preventDefault();
     if (loginEnCurso) return;
-
     const msgDiv = $('msgLogin'), btn = $('btnEntrar');
-
     if (!supabaseClient) { msgDiv.className = 'msg-error'; msgDiv.innerText = 'No se pudo cargar la base de datos. Recarga la página.'; return; }
     if (Date.now() < bloqueoHasta) {
         msgDiv.className = 'msg-error';
@@ -128,7 +126,6 @@ $('loginForm').addEventListener('submit', async function (e) {
     loginEnCurso = true;
     btn.disabled = true; btn.innerText = "Verificando...";
     msgDiv.className = ''; msgDiv.innerText = 'Conectando...';
-
     try {
         const { data, error } = await supabaseClient.auth.signInWithPassword({
             email: user + DOMINIO_LOGIN, password: pass,

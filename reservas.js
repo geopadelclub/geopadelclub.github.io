@@ -1,7 +1,6 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 let reqReservas = 0;
 let totalPendientes = 0;
-
 async function cargarReservasHoy() {
     const iso = $('fechaCuadrante').value || fechaLocalISO();
     const miReq = ++reqReservas;
@@ -32,14 +31,12 @@ async function cargarReservasHoy() {
     renderizarCuadrantePlaytomic(datosLocales.reservas);
     cargarTotalPendientes();
 }
-
 function actualizarChipPendientes() {
     const chip = $('chipPendientes'), n = $('statPendientes');
     if (!chip || !n) return;
     n.innerText = totalPendientes;
     chip.classList.toggle('hay', totalPendientes > 0);
 }
-
 async function cargarTotalPendientes() {
     const iso = $('fechaCuadrante').value || fechaLocalISO();
     const { count, error } = await supabaseClient.from('reservas')
@@ -49,7 +46,6 @@ async function cargarTotalPendientes() {
     totalPendientes = count || 0;
     actualizarChipPendientes();
 }
-
 async function irAPrimeraPendiente() {
     const iso = $('fechaCuadrante').value || fechaLocalISO();
     const { data, error } = await supabaseClient.from('reservas')
@@ -66,7 +62,6 @@ async function irAPrimeraPendiente() {
         card.scrollIntoView({ block: 'nearest', inline: 'center' });
     }
 }
-
 function alCambiarFecha() { scrollAhoraPendiente = true; cargarReservasHoy(); cargarCajaHoy(); }
 function irAFechaHoy() { inicializarFechaHoy(); alCambiarFecha(); }
 function cambiarFechaDias(offset) {
@@ -88,9 +83,7 @@ function pobladorPistasModal(pistasSeleccionadas = []) {
 function obtenerPistasSeleccionadasModal() {
     return Array.from(document.querySelectorAll('input[name="chkPistasModal"]:checked')).map(c => c.value);
 }
-
 enlazarBuscadorCliente($('modalCliente'), $('modalTelefono'));
-
 function renderizarCuadrantePlaytomic(reservas) {
     const grid = $('playtomicGrid');
     if (!grid) return;
@@ -206,7 +199,6 @@ ${tieneNota && heightPx >= 150 ? `<div class="reserva-nota-txt">${esc(r.notas)}<
     });
     grid.innerHTML = "";
     grid.appendChild(frag);
-
     const cierreGrid = obtenerCierreMin(isoGrid);
     const ventanas = [[9 * 60, 14 * 60], [17 * 60, cierreGrid]];
     const minDisp = listaPistas.length * ventanas.reduce((s, [a, b]) => s + Math.max(0, b - a), 0);
@@ -227,7 +219,6 @@ ${tieneNota && heightPx >= 150 ? `<div class="reserva-nota-txt">${esc(r.notas)}<
         wrapper.scrollTop = prevScrollTop; wrapper.scrollLeft = prevScrollLeft;
     }
 }
-
 setInterval(() => {
     if (document.hidden || !usuarioSesion) return;
     if ($('fechaCuadrante').value !== fechaLocalISO()) return;
@@ -238,9 +229,7 @@ setInterval(() => {
     const top = (minAhora - horaInicioGrid * 60) * ppm;
     lines.forEach(l => { l.style.top = `${top}px`; });
 }, 60000);
-
 window.addEventListener('resize', debounce(() => { if (usuarioSesion) renderizarCuadrantePlaytomic(datosLocales.reservas || []); }, 200));
-
 (function iniciarInteraccionGrid() {
     const grid = $('playtomicGrid');
     grid.addEventListener('click', e => {
@@ -319,13 +308,11 @@ window.addEventListener('resize', debounce(() => { if (usuarioSesion) renderizar
     grid.addEventListener('touchend', finTouch);
     grid.addEventListener('touchcancel', finTouch);
 })();
-
 function horaDesdeTop(topPx) {
     const ppm = pxPorMin();
     let m = horaInicioGrid * 60 + Math.round(topPx / ppm / 30) * 30;
     return Math.max(horaInicioGrid * 60, Math.min(horaFinGrid * 60, m));
 }
-
 async function buscarConflicto({ pistas, fechas, iniMin, dur, excluirId }) {
     const orden = [...fechas].sort();
     const { data, error } = await leerTodo(() => supabaseClient.from('reservas')
@@ -343,7 +330,6 @@ async function buscarConflicto({ pistas, fechas, iniMin, dur, excluirId }) {
         return iniMin < b && fin > a;
     }) || null;
 }
-
 async function moverReservaAccion(idRes, nuevaHora, nuevaPista) {
     const t = (datosLocales.reservas || []).find(r => String(r.id) === String(idRes));
     if (!t) return;
@@ -363,7 +349,6 @@ async function moverReservaAccion(idRes, nuevaHora, nuevaPista) {
         toast(err && err.code === '23P01' ? `No se puede mover: ${nuevaPista} ya está ocupada en ese horario` : "Error al mover la reserva: " + (err.message || err), 'err');
     }
 }
-
 function precioSugerido() {
     const t = { ...TARIFAS_DEFECTO, ...(datosLocales.tarifas || {}) };
     const iso = $('modalFecha').value || $('fechaCuadrante').value || fechaLocalISO();
@@ -388,13 +373,11 @@ function alCambiarTipo() {
     $('boxRepetir').style.display = (t === 'Pena' && nueva) ? 'block' : 'none';
     recalcularPrecioSugerido(nueva);
 }
-
 (function () {
     const sel = $('modalNumJugadores');
     for (let i = 1; i <= 16; i++) sel.appendChild(new Option(i === 1 ? '1 jugador' : `${i} jugadores`, i));
     sel.value = '4';
 })();
-
 function abrirModalNuevaReserva(pistas = ["1 PADEL MASTER"], hora = "17:00", tipo = "Normal") {
     if (!Array.isArray(pistas)) pistas = ["1 PADEL MASTER"];
     if (typeof hora !== 'string') hora = "17:00";
@@ -415,6 +398,7 @@ function abrirModalNuevaReserva(pistas = ["1 PADEL MASTER"], hora = "17:00", tip
     $('btnEliminarSerie').style.display = 'none';
     $('btnEliminarReserva').style.display = "none";
     $('btnConfirmarPendiente').style.display = 'none';
+    $('btnHistorialReserva').style.display = 'none';
     $('modalNumJugadores').value = "4";
     alCambiarTipo();
     $('modalPrecio').value = precioSugerido().toFixed(2);
@@ -443,6 +427,7 @@ function abrirModalEditarReserva(res) {
     $('btnEliminarSerie').style.display = res.serie ? 'inline-block' : 'none';
     $('btnEliminarReserva').style.display = "inline-block";
     $('btnConfirmarPendiente').style.display = res.estado === 'Pendiente' ? 'inline-block' : 'none';
+    $('btnHistorialReserva').style.display = 'inline-block';
     alCambiarTipo();
     $('modalNumJugadores').value = String(nJug);
     $('modalPrecio').value = parseFloat(res.precio || 0).toFixed(2);
@@ -518,7 +503,6 @@ async function cambiarPagoJugador(numJugador, nuevoMetodo, btn) {
     }
 }
 function cerrarModal() { cerrarOverlay('modalReserva'); }
-
 async function guardarClienteSilencioso(nombre, telefono) {
     const row = { nombre };
     if (telefono) row.telefono = telefono;
@@ -530,7 +514,6 @@ async function guardarClienteSilencioso(nombre, telefono) {
     const ex = datosLocales.clientes.find(c => String(c.nombre).toLowerCase() === nombre.toLowerCase());
     if (ex) { if (telefono) ex.telefono = telefono; } else datosLocales.clientes.push(row);
 }
-
 async function confirmarGuardarReserva() {
     const cliente = $('modalCliente').value.trim();
     if (!cliente) return toast("Introduce el nombre del cliente", 'warn');
@@ -619,7 +602,6 @@ async function confirmarGuardarReserva() {
         setBusy(btn, false);
     }
 }
-
 async function confirmarReservaPendiente() {
     const id = $('modalReservaId').value; if (!id) return;
     const btn = $('btnConfirmarPendiente');
@@ -638,7 +620,6 @@ async function confirmarReservaPendiente() {
         setBusy(btn, false);
     }
 }
-
 async function eliminarReservaRPC(alcance) {
     const id = $('modalReservaId').value; if (!id) return;
     const msg = alcance === 'serie' ? "¿Eliminar esta reserva y todas las siguientes de la serie?" : "¿Eliminar esta reserva? Se devolverán los pagos registrados.";
@@ -747,3 +728,96 @@ async function imprimirDia() {
     }
 }
 window.addEventListener('afterprint', () => { const a = $('printArea'); if (a) a.innerHTML = ''; });
+const CAMPOS_BONITOS = {
+    fecha: 'Fecha', hora_inicio: 'Hora inicio', hora: 'Hora',
+    duracion_min: 'Duración (min)', tipo_reserva: 'Tipo',
+    jugadores: 'Jugadores', precio: 'Precio', pago_estado: 'Estado de pago',
+    pagos_jugadores: 'Pagos por jugador', estado: 'Estado', pista: 'Pista',
+    cliente: 'Cliente', telefono: 'Teléfono', notas: 'Notas', serie: 'Serie',
+    origen: 'Origen', empleado: 'Empleado', nombre: 'Nombre', importe: 'Importe',
+    rol: 'Rol', web_habilitado: 'Acceso web', resuelta_por: 'Resuelta por',
+    resuelta_at: 'Resuelta el', creado_por: 'Creada por',
+    efectivo_sistema: 'Efectivo sistema', tarjeta: 'Tarjeta', total: 'Total',
+    dif_efectivo: 'Dif. efectivo', dif_datafono: 'Dif. datáfono',
+    cerrado_por: 'Cerrado por', franja: 'Franja',
+    precio_60min: 'Precio 60 min', precio_90min: 'Precio 90 min', precio_120min: 'Precio 120 min',
+    horas_semanales: 'Horas semanales', horario: 'Horario',
+    vigente_desde: 'Vigente desde', declarado_por: 'Declarado por',
+    categoria: 'Categoría', visible: 'Visible'
+};
+const campoBonito = c => CAMPOS_BONITOS[c] || c;
+function valorBonito(v) {
+    if (v === null || v === undefined) return '<span style="color:var(--muted)">—</span>';
+    if (typeof v === 'boolean') return v ? 'Sí' : 'No';
+    if (typeof v === 'number') return String(v);
+    if (typeof v === 'object') {
+        const s = JSON.stringify(v);
+        return esc(s.length > 60 ? s.slice(0, 57) + '…' : s);
+    }
+    const s = String(v);
+    if (!s) return '<span style="color:var(--muted)">—</span>';
+    return esc(s.length > 60 ? s.slice(0, 57) + '…' : s);
+}
+function iconoAccion(a) {
+    if (a === 'INSERT') return '<i class="ri-add-circle-line" aria-hidden="true"></i>';
+    if (a === 'DELETE') return '<i class="ri-delete-bin-line" aria-hidden="true"></i>';
+    return '<i class="ri-edit-line" aria-hidden="true"></i>';
+}
+function textoAccion(a) {
+    return a === 'INSERT' ? 'Creada' : (a === 'DELETE' ? 'Eliminada' : 'Modificada');
+}
+function agruparCambios(cambios) {
+    const grupos = [];
+    const mapa = {};
+    for (const c of cambios) {
+        const k = `${c.ts}|${c.empleado || ''}|${c.accion}`;
+        if (!mapa[k]) {
+            mapa[k] = { ...c, campos: [] };
+            grupos.push(mapa[k]);
+        }
+        if (c.campo) mapa[k].campos.push({ campo: c.campo, antes: c.valor_antiguo, despues: c.valor_nuevo });
+    }
+    return grupos;
+}
+function dibujarHistorial(cambios) {
+    if (!cambios || !cambios.length) {
+        return '<p style="color:var(--muted);text-align:center;padding:16px">Sin cambios registrados todavía.</p>';
+    }
+    const grupos = agruparCambios(cambios);
+    return `<ol style="list-style:none;padding:0;margin:0">${grupos.map(g => {
+        const ts = new Date(g.ts);
+        const fecha = isNaN(ts.getTime()) ? '—' : ts.toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' });
+        const cls = `hist-item accion-${g.accion}`;
+        const camposHtml = g.campos.length ? `<ul class="hist-cambios">${g.campos.map(c =>
+            `<li><b>${esc(campoBonito(c.campo))}:</b> ${valorBonito(c.antes)} → ${valorBonito(c.despues)}</li>`
+        ).join('')}</ul>` : '';
+        return `<li class="${cls}">
+<div class="hist-meta">
+${iconoAccion(g.accion)}
+<b>${textoAccion(g.accion)}</b>
+<span style="color:var(--muted)">${esc(fecha)} · ${esc(g.empleado || 'sistema')}</span>
+</div>
+${camposHtml}
+</li>`;
+    }).join('')}</ol>`;
+}
+async function verHistorialReserva() {
+    const id = $('modalReservaId').value;
+    if (!id) return;
+    $('histTitulo').innerText = 'Historial de la reserva';
+    $('histCuerpo').innerHTML = '<p style="color:var(--muted)">Cargando...</p>';
+    abrirOverlay('modalHistorial');
+    try {
+        const { data, error } = await supabaseClient.rpc('gp_historial_reserva', { p_reserva_id: Number(id) });
+        if (error) throw error;
+        if (!data || !data.ok) {
+            $('histCuerpo').innerHTML = `<p style="color:var(--red);text-align:center;padding:16px">No tienes permiso para ver el historial.</p>`;
+            return;
+        }
+        $('histCuerpo').innerHTML = dibujarHistorial(data.cambios);
+    } catch (e) {
+        console.error(e);
+        $('histCuerpo').innerHTML = `<p style="color:var(--red);text-align:center;padding:16px">No se pudo cargar el historial: ${esc(e.message || e)}</p>`;
+    }
+}
+function cerrarHistorial() { cerrarOverlay('modalHistorial'); }

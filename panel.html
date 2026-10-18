@@ -41,6 +41,7 @@
     <script defer src="caja.js"></script>
     <script defer src="tarifas.js"></script>
     <script defer src="gestion.js"></script>
+    <script defer src="copia-zip.js"></script>
     <script defer src="copia.js"></script>
     <script defer src="fichajes.js"></script>
     <script defer src="contrato.js"></script>
@@ -636,10 +637,12 @@
                         class="ri-save-line" aria-hidden="true"></i>Guardar reserva</button><button type="button"
                     id="btnEliminarSerie" onclick="confirmarEliminarSerie()" class="btn-add danger-dark"
                     style="display:none"><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar
-                    serie</button><button type="button" id="btnEliminarReserva" onclick="confirmarEliminarReserva()"
-                    class="btn-add danger" style="display:none"><i class="ri-delete-bin-line"
-                        aria-hidden="true"></i>Eliminar</button><button type="button" onclick="cerrarModal()"
-                    class="btn-add gray">Cancelar</button></div>
+                    serie</button><button type="button" id="btnHistorialReserva" onclick="verHistorialReserva()"
+                    class="btn-add gray" style="display:none"><i class="ri-history-line"
+                        aria-hidden="true"></i>Historial</button><button type="button" id="btnEliminarReserva"
+                    onclick="confirmarEliminarReserva()" class="btn-add danger" style="display:none"><i
+                        class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar</button><button type="button"
+                    onclick="cerrarModal()" class="btn-add gray">Cancelar</button></div>
         </div>
     </dialog>
     <dialog id="modalProducto" class="modal-overlay" aria-labelledby="modalProductoTitulo">
@@ -763,6 +766,20 @@
                     class="btn-add gray">Cancelar</button><button type="button" id="confirmDialogOk"
                     class="btn-add blue">Aceptar</button></div>
         </form>
+    </dialog>
+    <dialog id="modalHistorial" class="modal-overlay" aria-labelledby="histTitulo">
+        <div class="modal-card-double small">
+            <div class="modal-header-bar">
+                <h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="histTitulo">Historial de cambios</span>
+                </h4><button type="button" class="modal-close" onclick="cerrarHistorial()" aria-label="Cerrar"><i
+                        class="ri-close-line" aria-hidden="true"></i></button>
+            </div>
+            <div class="modal-single-body" id="histCuerpo">
+                <p style="color:var(--muted)">Cargando...</p>
+            </div>
+            <div class="modal-footer-bar"><button type="button" onclick="cerrarHistorial()"
+                    class="btn-add gray">Cerrar</button></div>
+        </div>
     </dialog>
     <div id="printArea" aria-hidden="true"></div>
 </body>
