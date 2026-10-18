@@ -80,7 +80,6 @@ async function comprobarSesion() {
     let tieneHistorial = false;
     try { tieneHistorial = !!localStorage.getItem(CLAVE_SESION_INI); } catch (e) { }
     if (!tieneHistorial) { mostrarLogin(); return; }
-
     try {
         await inicializarSupabase();
     } catch (e) {
@@ -88,7 +87,6 @@ async function comprobarSesion() {
         mostrarLogin();
         return;
     }
-
     const { data } = await supabaseClient.auth.getSession();
     if (data && data.session) {
         if (sesionCaducada()) {
@@ -110,6 +108,7 @@ async function comprobarSesion() {
     mostrarLogin();
 }
 async function cerrarSesion() {
+    detenerVigilanciaSesion();
     if (canalRealtime && supabaseClient) {
         supabaseClient.removeChannel(canalRealtime);
         canalRealtime = null;
@@ -131,7 +130,6 @@ function mostrarLogin() {
     iniciarTurnstileLogin();
     reiniciarTurnstileLogin();
 }
-
 function mostrarPanelAdmin() {
     if (!supabaseClient) {
         mostrarLogin();
@@ -144,13 +142,11 @@ function mostrarPanelAdmin() {
     $('nombreEmpleado').innerText = usuarioSesion.nombre;
     $('rolEmpleado').innerText = usuarioSesion.rol || 'Trabajador';
     inicializarFechaHoy();
-    pobladorPistasModal();
-    iniciarFormDeuda();
-    iniciarFormLimpieza();
     if (typeof aplicarPermisosCopia === 'function') aplicarPermisosCopia();
     if (typeof aplicarPermisosFichajes === 'function') aplicarPermisosFichajes();
     renderSelectorMesas();
     iniciarSuscripcionRealtime();
+    iniciarVigilanciaSesion();
     cargarDatosGlobales();
     if (!esJefa()) cargarMisFichajes();
     if (typeof entrarResumen === 'function') entrarResumen();
@@ -240,7 +236,8 @@ const refrescar = {
     productos: debounce(() => cargarProductos(), 300),
     tarifas: debounce(() => cargarTarifas(), 300),
     deudas: debounce(() => cargarDeudas(), 300),
-    limpiezas: debounce(() => cargarLimpiezas(false), 300)
+    limpiezas: debounce(() => cargarLimpiezas(false), 300),
+    clientes: debounce(() => cargarClientes(), 500)
 };
 function iniciarSuscripcionRealtime() {
     if (!supabaseClient) return;
@@ -254,6 +251,7 @@ function iniciarSuscripcionRealtime() {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'tarifas' }, refrescar.tarifas)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'deudas' }, refrescar.deudas)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'limpiezas' }, refrescar.limpiezas)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'clientes' }, refrescar.clientes)
         .subscribe((status) => {
             if (status === 'SUBSCRIBED') {
                 mostrarFlashSync();
@@ -297,16 +295,35 @@ document.addEventListener('visibilitychange', () => {
     if (sesionCaducada()) { cerrarSesion(); toast('La sesión ha caducado. Vuelve a entrar.', 'warn'); return; }
     if (navigator.onLine) cargarDatosGlobales();
 });
+const SUB_DEFAULT = { ventas: 'tienda', equipo: 'fichajes' };
+const SUB_TABS = { tienda: 'ventas', caja: 'ventas', fichajes: 'equipo', limpieza: 'equipo' };
 function cambiarPestana(tabName) {
+    if (SUB_DEFAULT[tabName]) tabName = SUB_DEFAULT[tabName];
+    const padre = SUB_TABS[tabName] || tabName;
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.subtab-content').forEach(el => el.classList.remove('active'));
+    const tabPadre = $(`tab-${padre}`);
+    if (tabPadre) tabPadre.classList.add('active');
+    if (SUB_TABS[tabName]) {
+        const sub = $(`sub-${tabName}`);
+        if (sub) sub.classList.add('active');
+    }
     document.querySelectorAll('.nav-tab').forEach(el => { el.classList.remove('active'); el.removeAttribute('aria-current'); });
-    $(`tab-${tabName}`).classList.add('active');
-    const nav = $(`nav-${tabName}`);
-    nav.classList.add('active'); nav.setAttribute('aria-current', 'page');
-    document.title = 'Geopadel · ' + ({ resumen: 'Resumen', reservas: 'Reservas', tienda: 'Tienda', fichajes: 'Fichaje', caja: 'Caja', deudas: 'Deudas', limpieza: 'Limpieza', ajustes: 'Ajustes' }[tabName] || 'Panel');
+    const nav = $(`nav-${padre}`);
+    if (nav) { nav.classList.add('active'); nav.setAttribute('aria-current', 'page'); }
+    document.querySelectorAll('.subnav-btn').forEach(b => {
+        const isActive = b.dataset.tab === tabName;
+        b.classList.toggle('active', isActive);
+        b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+    const titulos = { resumen: 'Resumen', reservas: 'Reservas', tienda: 'Bar / TPV', caja: 'Caja', fichajes: 'Fichaje', limpieza: 'Limpieza', deudas: 'Deudas', ajustes: 'Ajustes' };
+    document.title = 'Geopadel · ' + (titulos[tabName] || 'Panel');
     if (usuarioSesion) {
         if (tabName === 'resumen' && typeof entrarResumen === 'function') entrarResumen();
-        if (tabName === 'deudas') cargarDeudas();
+        if (tabName === 'deudas') {
+            if (!_formDeudaInit) { iniciarFormDeuda(); _formDeudaInit = true; }
+            cargarDeudas();
+        }
         if (tabName === 'tienda') { cargarMesasBar(); if (typeof entrarEscaparate === 'function') entrarEscaparate(); }
         if (tabName === 'ajustes' && typeof entrarAjustes === 'function') entrarAjustes();
         if (tabName === 'limpieza') entrarPestanaLimpieza();
@@ -319,6 +336,7 @@ function cambiarPestana(tabName) {
     }
 }
 document.querySelectorAll('.nav-tab').forEach(b => b.addEventListener('click', () => cambiarPestana(b.dataset.tab)));
+document.querySelectorAll('.subnav-btn').forEach(b => b.addEventListener('click', () => cambiarPestana(b.dataset.tab)));
 async function fichar(tipo, btn) {
     const msg = $('msgFichaje');
     if (esJefa()) return;

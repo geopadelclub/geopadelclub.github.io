@@ -11,6 +11,7 @@ function ahoraLocalInput() {
     return d.toISOString().slice(0, 16);
 }
 let deudas = [];
+let _formDeudaInit = false;
 function iniciarFormDeuda() {
     $('deudaFecha').value = fechaLocalISO();
     $('deudaHora').value = '';
@@ -219,6 +220,7 @@ function mostrarAvisoLimpieza() {
 }
 function cerrarAvisoLimpieza() { cerrarOverlay('modalAvisoLimpieza'); }
 async function entrarPestanaLimpieza() {
+    if (!$('limpPistas').children.length) await iniciarFormLimpieza();
     $('limpFecha').value = ahoraLocalInput();
     if (!$('limpEmpleado').value && usuarioSesion) $('limpEmpleado').value = usuarioSesion.nombre;
     await cargarLimpiezas(true);

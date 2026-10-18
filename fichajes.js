@@ -134,6 +134,7 @@ async function fxCargarContratos(emps) {
     } catch (e) { console.error('contratos', e); }
     return out;
 }
+let fxUltimoState = null;
 async function fxGenerar() {
     const msg = $('fxMsg'), btn = $('fxVer');
     const err = t => { msg.style.color = 'var(--red)'; msg.innerText = t; return false; };
@@ -167,7 +168,7 @@ async function fxGenerar() {
         };
         const res = fxCalcular(filas, desde, hasta, jornadaDe);
         res.sinContrato = Array.from(sin).filter(e => res.dias.some(d => d.emp === e));
-        window.fxUltimo = { res, desde, hasta, emp, generado: new Date() };
+        fxUltimoState = { res, desde, hasta, emp, generado: new Date() };
         fxDibujar(res);
         msg.style.color = 'var(--muted)';
         msg.innerText = `Generado ${new Date().toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}`;
@@ -186,7 +187,9 @@ async function fxExportarCSV() {
     setBusy(btn, true);
     try {
         if (!(await fxGenerar())) return;
-        const u = window.fxUltimo, r = u.res;
+        const u = fxUltimoState;
+        if (!u) return toast('Genera el registro antes de exportar', 'warn');
+        const r = u.res;
         if (!r.dias.length) return toast('No hay fichajes en este periodo', 'warn');
         const f = a => a.map(fxCelda).join(';');
         const l = [f(['REGISTRO DE JORNADA · GEOPADEL']), f(['Periodo', `${fxFecha(u.desde)} a ${fxFecha(u.hasta)}`]), f(['Criterio', 'Jornada del día según el contrato de cada trabajador (horas semanales / días de trabajo; libranza = 0). * = sin contrato']), f(['Generado', u.generado.toLocaleString('es-ES')]), '',
@@ -216,7 +219,8 @@ async function fxImprimir() {
     setBusy(btn, true);
     try {
         if (!(await fxGenerar())) return;
-        const u = window.fxUltimo;
+        const u = fxUltimoState;
+        if (!u) return;
         const emps = Array.from(new Set(u.res.dias.map(d => d.emp)));
         if (!emps.length) return toast('No hay fichajes en este periodo para imprimir', 'warn');
         const area = $('printArea');

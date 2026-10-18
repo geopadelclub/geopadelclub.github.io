@@ -134,7 +134,7 @@ function dibujarDuraciones() {
     $('clDur').innerHTML = cfg.duraciones.map(d =>
         `<button type="button" class="cl-dur${d === sel.dur ? ' active' : ''}" data-dur="${d}" aria-pressed="${d === sel.dur}">${esc(duracionTxt(d))}</button>`).join('');
 }
-function seleccionarDia(iso) {
+async function seleccionarDia(iso) {
     sel.fecha = iso;
     sel.hora = null;
     document.querySelectorAll('.cl-day').forEach(b => {
@@ -144,7 +144,7 @@ function seleccionarDia(iso) {
         if (on) b.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
     });
     $('cardDatos').hidden = true;
-    cargarHuecos();
+    return cargarHuecos();
 }
 $('clDias').addEventListener('click', e => {
     const b = e.target.closest('.cl-day');
@@ -176,14 +176,16 @@ async function cargarHuecos() {
     cont.innerHTML = '<p class="cl-empty">Buscando huecos...</p>';
     try {
         const r = await rpc('web_disponibilidad', { p_fecha: fecha });
-        if (mi !== reqHuecos) return;
-        if (!r || !r.ok) { slotsDia = []; cont.innerHTML = `<p class="cl-empty">${esc(textoError(r))}</p>`; return; }
+        if (mi !== reqHuecos) return slotsDia;
+        if (!r || !r.ok) { slotsDia = []; cont.innerHTML = `<p class="cl-empty">${esc(textoError(r))}</p>`; return slotsDia; }
         slotsDia = r.slots || [];
         dibujarHuecos();
+        return slotsDia;
     } catch (err) {
-        if (mi !== reqHuecos) return;
+        if (mi !== reqHuecos) return slotsDia;
         console.error(err);
         cont.innerHTML = '<p class="cl-empty">No se pudo cargar la disponibilidad. <button type="button" class="cl-link" id="btnReintentar">Reintentar</button></p>';
+        return slotsDia;
     }
 }
 function dibujarHuecos() {
@@ -377,9 +379,10 @@ function dibujarMisReservas(r) {
         const estado = x.estado === 'Pendiente'
             ? '<span class="badge-pendiente"><i class="ri-hourglass-line" aria-hidden="true"></i>Pendiente de confirmar</span>'
             : '<span class="badge-confirmada"><i class="ri-check-line" aria-hidden="true"></i>Confirmada</span>';
+        const repetir = `<button type="button" class="btn-add gray" data-repetir="${esc(x.id)}" data-fecha="${esc(x.fecha)}" data-hora="${esc(x.hora)}" data-dur="${esc(x.duracion)}"><i class="ri-repeat-line" aria-hidden="true"></i>Reservar otra vez</button>`;
         const accion = x.motivo
-            ? `<p class="cl-hint">${esc(motivoTexto(x.motivo))}</p>`
-            : `<button type="button" class="btn-add danger" data-cancelar="${esc(x.id)}"><i class="ri-delete-bin-line" aria-hidden="true"></i>Cancelar reserva</button>`;
+            ? `<div class="cl-res-acciones"><p class="cl-hint">${esc(motivoTexto(x.motivo))}</p>${repetir}</div>`
+            : `<div class="cl-res-acciones"><button type="button" class="btn-add danger" data-cancelar="${esc(x.id)}"><i class="ri-delete-bin-line" aria-hidden="true"></i>Cancelar reserva</button>${repetir}</div>`;
         return `<article class="cl-res"><div class="cl-res-top"><b>${esc(fechaWeb(x.fecha))}</b>${estado}${tipo}</div>` +
             `<div class="cl-res-info"><span><i class="ri-time-line" aria-hidden="true"></i>${esc(x.hora)} – ${fin}</span>` +
             `<span><i class="ri-map-pin-line" aria-hidden="true"></i>${esc(x.pista)}</span>` +
@@ -435,6 +438,8 @@ $('btnBorrarDatos').addEventListener('click', async () => {
     } catch (err) { errorRed(err); } finally { setBusy(btn, false); }
 });
 $('misLista').addEventListener('click', async e => {
+    const bRep = e.target.closest('button[data-repetir]');
+    if (bRep && cuenta) { repetirReserva(bRep); return; }
     const b = e.target.closest('button[data-cancelar]');
     if (!b || !cuenta) return;
     if (!(await customConfirm('¿Cancelar esta reserva?'))) return;
@@ -446,6 +451,29 @@ $('misLista').addEventListener('click', async e => {
         await cargarMisReservas(cuenta.ident, cuenta.codigo);
     } catch (err) { errorRed(err); setBusy(b, false); }
 });
+async function repetirReserva(btn) {
+    if (!cuenta) return;
+    flujo.tel = cuenta.ident;
+    flujo.codigo = cuenta.codigo;
+    flujo.nombre = cuenta.nombre;
+    flujo.fase = 'listo';
+    sel.dur = parseInt(btn.dataset.dur, 10) || 90;
+    if (!cfg.duraciones.includes(sel.dur)) sel.dur = cfg.duraciones[0];
+    dibujarDuraciones();
+    cambiarPestana('reservar');
+    const slots = await seleccionarDia(btn.dataset.fecha);
+    const hora = btn.dataset.hora;
+    const libre = (slots || []).some(s => s.hora === hora && (s.opciones || []).some(o => o.dur === sel.dur));
+    if (libre) {
+        sel.hora = hora;
+        const op = (slots.find(s => s.hora === hora).opciones || []).find(o => o.dur === sel.dur);
+        sel.precio = Number(op && op.precio) || 0;
+        dibujarHuecos();
+        mostrarDatos();
+    } else {
+        toast('Ese hueco ya no está disponible. Elige otro día u hora.', 'warn');
+    }
+}
 setInterval(() => { if (!document.hidden && sel.fecha && $('tab-reservar').classList.contains('active')) dibujarHuecos(); }, 60000);
 window.addEventListener('online', estadoRed);
 window.addEventListener('offline', estadoRed);

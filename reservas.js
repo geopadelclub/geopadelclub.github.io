@@ -551,7 +551,9 @@ async function confirmarGuardarReserva() {
         if (idExistente) {
             if (pistasSel.length !== 1) return toast("Al editar una reserva selecciona una única pista", 'warn');
             const hayPagos = String(reservaEnEdicion.pagosJugadores || '').split(',').some(p => p === 'Efectivo' || p === 'Tarjeta');
-            if (hayPagos && (Math.abs(importe - (parseFloat(reservaEnEdicion.precio) || 0)) > 0.004 || numJugadores !== reservaEnEdicion.numJugadoresOrig)) {
+            const duracionOriginal = parseInt(reservaEnEdicion.duracionMin, 10) || 90;
+            const duracionCambia = duracionMin !== duracionOriginal;
+            if (hayPagos && (Math.abs(importe - (parseFloat(reservaEnEdicion.precio) || 0)) > 0.004 || numJugadores !== reservaEnEdicion.numJugadoresOrig || duracionCambia)) {
                 return toast('Esta reserva tiene cobros. Quita antes los pagos para cambiar el precio, la duración o los jugadores.', 'err');
             }
             const conf = await buscarConflicto({ pistas: pistasSel, fechas: [iso], iniMin, dur: duracionMin, excluirId: idExistente });

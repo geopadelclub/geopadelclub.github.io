@@ -1,5 +1,6 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 const totalItems = items => redondear2((items || []).reduce((s, i) => s + (Number(i.precio) || 0), 0));
+$('buscarTPV').addEventListener('input', debounce(() => dibujarCatalogo(datosLocales.productos), 150));
 function renderSelectorMesas() {
     const nav = $('selectorMesas'); if (!nav) return;
     nav.innerHTML = "";

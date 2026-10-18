@@ -248,3 +248,16 @@ function customPrompt(mensaje, valorDefecto = '', titulo = 'Entrada requerida') 
         setTimeout(() => input.focus(), 50);
     });
 }
+window.addEventListener('unhandledrejection', e => {
+    console.error('Unhandled promise rejection:', e.reason);
+    if (typeof toast === 'function' && document.getElementById('toasts')) {
+        toast('Ha ocurrido un error inesperado. Inténtalo de nuevo.', 'err');
+    }
+});
+window.addEventListener('error', e => {
+    if (e.target && (e.target.tagName === 'IMG' || e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK')) return;
+    console.error('Uncaught error:', e.error || e.message);
+    if (typeof toast === 'function' && document.getElementById('toasts')) {
+        toast('Ha ocurrido un error inesperado. Inténtalo de nuevo.', 'err');
+    }
+});

@@ -76,7 +76,7 @@ async function cliBorrarDatos(c, btn) {
         cargarReservasHoy(); cargarDeudas();
     } catch (err) { toast('No se pudo borrar: ' + (err.message || err), 'err'); } finally { setBusy(btn, false); }
 }
-$('cliBuscar').addEventListener('input', dibujarClientesAjustes);
+$('cliBuscar').addEventListener('input', debounce(dibujarClientesAjustes, 150));
 $('cliBody').addEventListener('click', e => {
     const b = e.target.closest('button[data-cli]');
     if (!b || b.disabled) return;

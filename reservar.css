@@ -641,3 +641,16 @@
 .tienda-visor-cerrar:hover {
     background: rgba(255, 255, 255, .3);
 }
+
+.cl-res-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.cl-res-acciones .btn-add {
+    flex: 1;
+    min-width: 140px;
+    justify-content: center;
+}

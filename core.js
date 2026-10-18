@@ -1,7 +1,8 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 const DOMINIO_LOGIN = '@geopadel.app';
 const SESION_MAX_MS = 8 * 3600 * 1000;
-const INACTIVIDAD_MAX_MS = 60 * 60 * 1000;
+const INACTIVIDAD_MAX_MS = 8 * 3600 * 1000;
+const AVISO_SESION_MS = 2 * 60 * 1000;
 const CLAVE_ULT_ACT = 'gp-ult-actividad';
 const CLAVE_SESION_INI = 'gp-sesion-ini';
 const APERT_MIN = 8 * 60;
@@ -58,13 +59,54 @@ function registrarActividad() {
     window.addEventListener(evt, debounce(registrarActividad, 1000), { passive: true });
 });
 function sesionCaducada() {
+    return msSesionRestante() <= 0;
+}
+function msSesionRestante() {
     let ini = 0, ult = 0;
     try {
         ini = parseInt(localStorage.getItem(CLAVE_SESION_INI), 10) || 0;
         ult = parseInt(localStorage.getItem(CLAVE_ULT_ACT), 10) || ini;
     } catch (e) { }
     const ahora = Date.now();
-    return (!!ini && ahora - ini > SESION_MAX_MS) || (!!ult && ahora - ult > INACTIVIDAD_MAX_MS);
+    const restanteMax = ini ? (ini + SESION_MAX_MS - ahora) : Infinity;
+    const restanteInac = ult ? (ult + INACTIVIDAD_MAX_MS - ahora) : Infinity;
+    return Math.min(restanteMax, restanteInac);
+}
+let _intervaloVigilancia = null;
+let _avisoSesionActivo = false;
+function iniciarVigilanciaSesion() {
+    if (_intervaloVigilancia) return;
+    _intervaloVigilancia = setInterval(async () => {
+        if (!usuarioSesion) return;
+        const restante = msSesionRestante();
+        if (restante <= 0) {
+            cerrarSesion();
+            toast('La sesión ha caducado. Vuelve a entrar.', 'warn');
+            return;
+        }
+        if (restante <= AVISO_SESION_MS && !_avisoSesionActivo) {
+            _avisoSesionActivo = true;
+            const seg = Math.ceil(restante / 1000);
+            const ok = await customConfirm(
+                `Tu sesión caducará en ${seg} segundos por inactividad. ¿Quieres seguir conectado?`,
+                'Sesión a punto de caducar'
+            );
+            _avisoSesionActivo = false;
+            if (ok) {
+                marcarInicioSesion();
+                toast('Sesión renovada', 'ok');
+            } else {
+                cerrarSesion();
+            }
+        }
+    }, 15000);
+}
+function detenerVigilanciaSesion() {
+    if (_intervaloVigilancia) {
+        clearInterval(_intervaloVigilancia);
+        _intervaloVigilancia = null;
+    }
+    _avisoSesionActivo = false;
 }
 function inicializarFechaHoy() { $('fechaCuadrante').value = fechaLocalISO(); }
 function obtenerCierreMin(iso) {
@@ -101,10 +143,14 @@ function esFranjaBloqueada(iniMin, finMin, tipoReserva = "Normal", iso) {
     if (iniMin < bloqueDescansoFin && finMin > bloqueDescansoInicio) return true;
     return false;
 }
+let _ppmCache = null;
 function pxPorMin() {
+    if (_ppmCache !== null) return _ppmCache;
     const v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--slot-h'));
-    return (v || 30) / 30;
+    _ppmCache = (v || 30) / 30;
+    return _ppmCache;
 }
+window.addEventListener('resize', () => { _ppmCache = null; }, { passive: true });
 function esFinde(iso) {
     const [y, m, d] = iso.split('-').map(Number);
     const w = new Date(y, m - 1, d, 12).getDay();

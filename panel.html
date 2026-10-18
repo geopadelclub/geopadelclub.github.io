@@ -17,44 +17,24 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta http-equiv="Content-Security-Policy"
         content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' data: https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://*.challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com https://www.google.com https://maps.google.com; base-uri 'self'; form-action 'self';">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" type="image/webp" href="Geopadel.webp">
     <link rel="icon" type="image/webp" sizes="192x192" href="./Geopadel.webp">
     <link rel="preload" href="Geopadel.webp" as="image" type="image/webp" fetchpriority="high">
     <link rel="preload" href="assets/remixicon/remixicon.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="apple-touch-icon" href="./Geopadel.webp">
-
-    <script>
-        (function () {
-            try {
-                var t = localStorage.getItem('gp-theme');
-                if (t !== 'dark' && t !== 'light') {
-                    t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                }
-                document.documentElement.setAttribute('data-theme', t);
-                var m = document.getElementById('metaTheme');
-                if (m) m.setAttribute('content', t === 'dark' ? '#364650' : '#fcfdfc');
-            } catch (e) { }
-        })();
-    </script>
-
+    <script> (function () { try { var t = localStorage.getItem('gp-theme'); if (t !== 'dark' && t !== 'light') { t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; } document.documentElement.setAttribute('data-theme', t); var m = document.getElementById('metaTheme'); if (m) m.setAttribute('content', t === 'dark' ? '#364650' : '#fcfdfc'); } catch (e) { } })(); </script>
     <link rel="preconnect" href="https://challenges.cloudflare.com">
     <link rel="preconnect" href="https://gprpyxeamjmvmqtkjvtn.supabase.co" crossorigin>
-
     <link rel="stylesheet" href="styles.css">
     <link rel="preload" href="assets/remixicon/remixicon.css" as="style"
-        onload="this.onload=null;this.rel='stylesheet'">
-    <noscript>
+        onload="this.onload=null;this.rel='stylesheet'"><noscript>
         <link rel="stylesheet" href="assets/remixicon/remixicon.css">
     </noscript>
-    <link rel="preload" href="panel.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript>
+    <link rel="preload" href="panel.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript>
         <link rel="stylesheet" href="panel.css">
     </noscript>
     <link rel="stylesheet" href="print.css" media="print">
-
     <script defer src="config.js"></script>
     <script defer src="utils.js"></script>
     <script defer src="core.js"></script>
@@ -113,11 +93,11 @@
                     width="150" height="150" fetchpriority="high"></div>
             <form id="loginForm" novalidate>
                 <div class="form-group"><label for="usuario">Usuario</label><input type="text" id="usuario"
-                        placeholder="Ej. Javi" required autocomplete="off" autocapitalize="none" autocorrect="off"
+                        placeholder="Trabajador" required autocomplete="off" autocapitalize="none" autocorrect="off"
                         spellcheck="false"></div>
                 <div id="cfLogin" style="margin:8px 0 12px;min-height:65px"></div>
                 <div class="form-group"><label for="password">Contraseña</label><input type="password" id="password"
-                        placeholder="••••••••" required autocomplete="new-password"></div><button type="submit"
+                        placeholder="••••••••" required autocomplete="current-password"></div><button type="submit"
                     class="btn-submit" id="btnEntrar">Entrar al Panel</button>
             </form>
             <div id="msgLogin" aria-live="polite"></div>
@@ -137,17 +117,13 @@
                 data-tab="resumen"><span class="ni"><i class="ri-dashboard-3-line"
                         aria-hidden="true"></i></span>Resumen</button><button type="button" id="nav-reservas"
                 class="nav-tab" data-tab="reservas"><span class="ni"><i class="ri-calendar-event-line"
-                        aria-hidden="true"></i></span>Reservas</button><button type="button" id="nav-tienda"
-                class="nav-tab" data-tab="tienda"><span class="ni"><i class="ri-shopping-bag-3-line"
-                        aria-hidden="true"></i></span>Tienda</button><button type="button" id="nav-fichajes"
-                class="nav-tab" data-tab="fichajes"><span class="ni"><i class="ri-time-line"
-                        aria-hidden="true"></i></span>Fichaje</button><button type="button" id="nav-deudas"
+                        aria-hidden="true"></i></span>Reservas</button><button type="button" id="nav-ventas"
+                class="nav-tab" data-tab="ventas"><span class="ni"><i class="ri-shopping-bag-3-line"
+                        aria-hidden="true"></i></span>Ventas</button><button type="button" id="nav-equipo"
+                class="nav-tab" data-tab="equipo"><span class="ni"><i class="ri-team-line"
+                        aria-hidden="true"></i></span>Equipo</button><button type="button" id="nav-deudas"
                 class="nav-tab" data-tab="deudas"><span class="ni"><i class="ri-wallet-3-line"
-                        aria-hidden="true"></i></span>Deudas</button><button type="button" id="nav-limpieza"
-                class="nav-tab" data-tab="limpieza"><span class="ni"><i class="ri-brush-line"
-                        aria-hidden="true"></i></span>Limpieza</button><button type="button" id="nav-caja"
-                class="nav-tab" data-tab="caja"><span class="ni"><i class="ri-bar-chart-box-line"
-                        aria-hidden="true"></i></span>Caja</button><button type="button" id="nav-ajustes"
+                        aria-hidden="true"></i></span>Deudas</button><button type="button" id="nav-ajustes"
                 class="nav-tab" data-tab="ajustes"><span class="ni"><i class="ri-settings-3-line"
                         aria-hidden="true"></i></span>Ajustes</button></nav>
         <main class="container-fluid">
@@ -182,146 +158,307 @@
                     <div id="playtomicGrid" class="playtomic-grid"></div>
                 </div>
             </section>
-            <section id="tab-tienda" class="tab-content">
-                <div id="tab-tpv">
-                    <div class="card">
-                        <h3><i class="ri-goblet-line" aria-hidden="true"></i>Bar</h3>
-                        <div id="selectorMesas" class="mesas-bar"></div>
-                        <div class="tpv-grid">
-                            <div>
-                                <div class="tpv-tools"><input type="search" id="buscarTPV" class="toolbar-input"
-                                        placeholder="Buscar producto..."
-                                        oninput="dibujarCatalogo(datosLocales.productos)"></div>
-                                <div class="tpv-tools">
-                                    <div class="tpv-catalog-header" id="catTPVBotones"><button type="button"
-                                            class="btn-cat-filter active" data-cat="Todos">Todos</button><button
-                                            type="button" class="btn-cat-filter" data-cat="Bebidas"><i
-                                                class="ri-cup-line" aria-hidden="true"></i>Bebidas</button><button
-                                            type="button" class="btn-cat-filter" data-cat="Comida"><i
-                                                class="ri-restaurant-line" aria-hidden="true"></i>Comida</button><button
-                                            type="button" class="btn-cat-filter" data-cat="Tienda"><i
-                                                class="ri-shopping-bag-3-line"
-                                                aria-hidden="true"></i>Tienda</button><button type="button"
-                                            class="btn-cat-filter" data-cat="Pista"><i class="ri-ticket-line"
-                                                aria-hidden="true"></i>Pistas</button></div>
-                                </div>
-                                <div id="catalogGrid" class="catalog-grid">Cargando catálogo...</div>
-                            </div>
-                            <div class="ticket-box">
+            <section id="tab-ventas" class="tab-content">
+                <div class="subnav" role="tablist" aria-label="Secciones de ventas"><button type="button"
+                        class="subnav-btn active" data-tab="tienda" role="tab" aria-selected="true"><i
+                            class="ri-goblet-line" aria-hidden="true"></i>Bar / TPV</button><button type="button"
+                        class="subnav-btn" data-tab="caja" role="tab" aria-selected="false"><i
+                            class="ri-bar-chart-box-line" aria-hidden="true"></i>Caja</button></div>
+                <div id="sub-tienda" class="subtab-content active">
+                    <div id="tab-tpv">
+                        <div class="card">
+                            <h3><i class="ri-goblet-line" aria-hidden="true"></i>Bar</h3>
+                            <div id="selectorMesas" class="mesas-bar"></div>
+                            <div class="tpv-grid">
                                 <div>
-                                    <h4>Cuenta activa: <span id="tituloTicketMesa">Mesa 1</span></h4>
-                                    <ul id="ticketItems" class="ticket-items"></ul>
+                                    <div class="tpv-tools"><input type="search" id="buscarTPV" class="toolbar-input"
+                                            placeholder="Buscar producto..."></div>
+                                    <div class="tpv-tools">
+                                        <div class="tpv-catalog-header" id="catTPVBotones"><button type="button"
+                                                class="btn-cat-filter active" data-cat="Todos">Todos</button><button
+                                                type="button" class="btn-cat-filter" data-cat="Bebidas"><i
+                                                    class="ri-cup-line" aria-hidden="true"></i>Bebidas</button><button
+                                                type="button" class="btn-cat-filter" data-cat="Comida"><i
+                                                    class="ri-restaurant-line"
+                                                    aria-hidden="true"></i>Comida</button><button type="button"
+                                                class="btn-cat-filter" data-cat="Tienda"><i
+                                                    class="ri-shopping-bag-3-line"
+                                                    aria-hidden="true"></i>Tienda</button><button type="button"
+                                                class="btn-cat-filter" data-cat="Pista"><i class="ri-ticket-line"
+                                                    aria-hidden="true"></i>Pistas</button></div>
+                                    </div>
+                                    <div id="catalogGrid" class="catalog-grid">Cargando catálogo...</div>
                                 </div>
-                                <div>
-                                    <div class="ticket-total">Total: <span id="ticketTotal">0,00 €</span></div>
-                                    <div class="pay-buttons"><button type="button" id="btnCobrarEfectivo"
-                                            class="btn-pay btn-cash" onclick="cobrarMesaActiva('Efectivo')"><i
-                                                class="ri-money-euro-circle-line"
-                                                aria-hidden="true"></i>Efectivo</button><button type="button"
-                                            id="btnCobrarTarjeta" class="btn-pay btn-card"
-                                            onclick="cobrarMesaActiva('Tarjeta')"><i class="ri-bank-card-line"
-                                                aria-hidden="true"></i>Tarjeta</button></div>
-                                    <div id="msgVenta" class="msg-inline" style="text-align:center"></div>
+                                <div class="ticket-box">
+                                    <div>
+                                        <h4>Cuenta activa: <span id="tituloTicketMesa">Mesa 1</span></h4>
+                                        <ul id="ticketItems" class="ticket-items"></ul>
+                                    </div>
+                                    <div>
+                                        <div class="ticket-total">Total: <span id="ticketTotal">0,00 €</span></div>
+                                        <div class="pay-buttons"><button type="button" id="btnCobrarEfectivo"
+                                                class="btn-pay btn-cash" onclick="cobrarMesaActiva('Efectivo')"><i
+                                                    class="ri-money-euro-circle-line"
+                                                    aria-hidden="true"></i>Efectivo</button><button type="button"
+                                                id="btnCobrarTarjeta" class="btn-pay btn-card"
+                                                onclick="cobrarMesaActiva('Tarjeta')"><i class="ri-bank-card-line"
+                                                    aria-hidden="true"></i>Tarjeta</button></div>
+                                        <div id="msgVenta" class="msg-inline" style="text-align:center"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="card">
-                    <div class="card-head">
-                        <h3><i class="ri-shopping-bag-3-line" aria-hidden="true"></i>Escaparate de la tienda</h3><button
-                            type="button" class="btn-add blue" id="btnNuevoArticulo"><i class="ri-add-line"
-                                aria-hidden="true"></i>Nuevo artículo</button>
+                    <div class="card">
+                        <div class="card-head">
+                            <h3><i class="ri-shopping-bag-3-line" aria-hidden="true"></i>Escaparate de la tienda</h3>
+                            <button type="button" class="btn-add blue" id="btnNuevoArticulo"><i class="ri-add-line"
+                                    aria-hidden="true"></i>Nuevo artículo</button>
+                        </div>
+                        <p class="limp-leyenda">Lo que ven los clientes en la pestaña «Tienda» de la web de reservas. Se
+                            compra en el club; aquí solo se muestra. Usa las flechas para cambiar el orden.</p>
+                        <p id="escaparateResumen" class="limp-leyenda" style="font-weight:700"></p>
+                        <div class="table-wrap">
+                            <table class="tabla-productos" style="min-width:720px">
+                                <thead>
+                                    <tr>
+                                        <th>Foto</th>
+                                        <th>Artículo</th>
+                                        <th>Precio</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="escaparateBody">
+                                    <tr>
+                                        <td colspan="5" class="tabla-empty">Cargando escaparate...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <p class="limp-leyenda">Lo que ven los clientes en la pestaña «Tienda» de la web de reservas. Se
-                        compra en el club; aquí solo se muestra. Usa las flechas para cambiar el orden.</p>
-                    <p id="escaparateResumen" class="limp-leyenda" style="font-weight:700"></p>
-                    <div class="table-wrap">
-                        <table class="tabla-productos" style="min-width:720px">
-                            <thead>
-                                <tr>
-                                    <th>Foto</th>
-                                    <th>Artículo</th>
-                                    <th>Precio</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="escaparateBody">
-                                <tr>
-                                    <td colspan="5" class="tabla-empty">Cargando escaparate...</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                </div>
+                <div id="sub-caja" class="subtab-content">
+                    <div class="card">
+                        <h3><i class="ri-bar-chart-box-line" aria-hidden="true"></i>Resumen de caja · <span
+                                id="cajaFechaTxt"></span></h3>
+                        <div class="kpi-row">
+                            <div class="kpi ef"><span>Efectivo en cajón</span>
+                                <h2 id="cajaEfectivo">0,00 €</h2>
+                            </div>
+                            <div class="kpi ta"><span>Total datáfono</span>
+                                <h2 id="cajaTarjeta">0,00 €</h2>
+                            </div>
+                            <div class="kpi"><span>Total general</span>
+                                <h2 id="cajaTotal">0,00 €</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="ri-lock-line" aria-hidden="true"></i>Cierre de Caja</h3>
+                        <div class="cierre-grid"><label>Billetes (€)<input type="number" inputmode="decimal"
+                                    id="cjBilletes" step="0.01" min="0" oninput="calcCierre()"></label><label>Monedas
+                                (€)<input type="number" inputmode="decimal" id="cjMonedas" step="0.01" min="0"
+                                    oninput="calcCierre()"></label><label>Efectivo contado<input type="text"
+                                    id="cjEfectivo" readonly value="0,00 €"></label><label>Datáfono (€)<input
+                                    type="number" inputmode="decimal" id="cjDatafono" step="0.01" min="0"
+                                    oninput="calcCierre()"></label></div>
+                        <div id="cjResumen" class="cierre-resumen"></div><button type="button" id="btnCerrarCaja"
+                            class="btn-add" onclick="cerrarCajaHoy()"><i class="ri-lock-line"
+                                aria-hidden="true"></i>Confirmar cierre de caja</button>
+                        <div id="msgCierre" class="msg-inline"></div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="ri-file-list-3-line" aria-hidden="true"></i>Historial de cierres de caja</h3>
+                        <div class="table-wrap">
+                            <table class="tabla-productos" style="min-width:680px">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Efectivo sis.</th>
+                                        <th>Datáfono sis.</th>
+                                        <th>Total</th>
+                                        <th>Dif. efectivo</th>
+                                        <th>Dif. datáfono</th>
+                                        <th>Cerrado por</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="histCajaBody">
+                                    <tr>
+                                        <td colspan="8" class="tabla-empty">—</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card" id="cardCopia">
+                        <h3><i class="ri-database-2-line" aria-hidden="true"></i>Exportar y copia de seguridad</h3>
+                        <p class="limp-leyenda">Descarga los datos en CSV (se abren con Excel). La copia completa es un
+                            ZIP con todas las tablas.</p>
+                        <p id="copiaUltima" class="limp-leyenda" style="font-weight:700"></p><button type="button"
+                            id="btnCopiaZip" class="btn-add blue"><i class="ri-download-cloud-2-line"
+                                aria-hidden="true"></i>Descargar copia completa (ZIP)</button>
+                        <div class="copia-grid"><button type="button" class="btn-cat-filter" data-exp="reservas"><i
+                                    class="ri-calendar-event-line" aria-hidden="true"></i>Reservas</button><button
+                                type="button" class="btn-cat-filter" data-exp="clientes"><i class="ri-user-line"
+                                    aria-hidden="true"></i>Clientes</button><button type="button" class="btn-cat-filter"
+                                data-exp="ventas"><i class="ri-shopping-cart-line"
+                                    aria-hidden="true"></i>Ventas</button><button type="button" class="btn-cat-filter"
+                                data-exp="cierres"><i class="ri-lock-line" aria-hidden="true"></i>Cierres de
+                                caja</button><button type="button" class="btn-cat-filter" data-exp="deudas"><i
+                                    class="ri-wallet-3-line" aria-hidden="true"></i>Deudas</button><button type="button"
+                                class="btn-cat-filter" data-exp="limpiezas"><i class="ri-brush-line"
+                                    aria-hidden="true"></i>Limpiezas</button><button type="button"
+                                class="btn-cat-filter" data-exp="fichajes"><i class="ri-time-line"
+                                    aria-hidden="true"></i>Fichajes</button><button type="button" class="btn-cat-filter"
+                                data-exp="productos"><i class="ri-store-2-line"
+                                    aria-hidden="true"></i>Catálogo</button><button type="button" class="btn-cat-filter"
+                                data-exp="tarifas"><i class="ri-price-tag-3-line"
+                                    aria-hidden="true"></i>Tarifas</button></div>
+                        <div id="msgCopia" class="msg-inline"></div>
                     </div>
                 </div>
             </section>
-            <section id="tab-fichajes" class="tab-content">
-                <div class="card card-narrow" id="cardFichar">
-                    <div style="text-align:center">
-                        <h3 style="justify-content:center"><i class="ri-time-line" aria-hidden="true"></i>Control de
-                            Fichaje</h3>
-                        <p id="estadoFichaje" style="margin-top:10px;font-size:14px;font-weight:700;color:var(--muted)">
-                        </p>
-                        <div class="fichaje-buttons"><button type="button" class="btn-fichar btn-entrada"
-                                onclick="fichar('Entrada', this)"><i class="ri-login-box-line"
-                                    aria-hidden="true"></i>Entrada</button><button type="button"
-                                class="btn-fichar btn-salida" onclick="fichar('Salida', this)"><i
-                                    class="ri-logout-box-line" aria-hidden="true"></i>Salida</button></div>
-                        <div id="msgFichaje" class="msg-inline" style="font-size:15px"></div>
-                        <p class="limp-leyenda" style="margin-top:8px">Si sales a comer o haces una pausa no retribuida,
-                            ficha <b>Salida</b> y, al volver, <b>Entrada</b>: así la pausa queda registrada y no cuenta
-                            como trabajada.</p>
+            <section id="tab-equipo" class="tab-content">
+                <div class="subnav" role="tablist" aria-label="Secciones de equipo"><button type="button"
+                        class="subnav-btn active" data-tab="fichajes" role="tab" aria-selected="true"><i
+                            class="ri-time-line" aria-hidden="true"></i>Fichaje</button><button type="button"
+                        class="subnav-btn" data-tab="limpieza" role="tab" aria-selected="false"><i class="ri-brush-line"
+                            aria-hidden="true"></i>Limpieza</button></div>
+                <div id="sub-fichajes" class="subtab-content active">
+                    <div class="card card-narrow" id="cardFichar">
+                        <div style="text-align:center">
+                            <h3 style="justify-content:center"><i class="ri-time-line" aria-hidden="true"></i>Control de
+                                Fichaje</h3>
+                            <p id="estadoFichaje"
+                                style="margin-top:10px;font-size:14px;font-weight:700;color:var(--muted)"></p>
+                            <div class="fichaje-buttons"><button type="button" class="btn-fichar btn-entrada"
+                                    onclick="fichar('Entrada', this)"><i class="ri-login-box-line"
+                                        aria-hidden="true"></i>Entrada</button><button type="button"
+                                    class="btn-fichar btn-salida" onclick="fichar('Salida', this)"><i
+                                        class="ri-logout-box-line" aria-hidden="true"></i>Salida</button></div>
+                            <div id="msgFichaje" class="msg-inline" style="font-size:15px"></div>
+                            <p class="limp-leyenda" style="margin-top:8px">Si sales a comer o haces una pausa no
+                                retribuida, ficha <b>Salida</b> y, al volver, <b>Entrada</b>: así la pausa queda
+                                registrada y no cuenta como trabajada.</p>
+                        </div>
+                        <hr style="border:0;border-top:1.5px solid var(--border);margin:24px 0">
+                        <h3><i class="ri-file-list-3-line" aria-hidden="true"></i>Tus últimos 30 fichajes</h3>
+                        <div class="table-wrap">
+                            <table class="tabla-productos" style="min-width:420px">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha y hora</th>
+                                        <th>Tipo</th>
+                                        <th>Empleado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaFichajesBody">
+                                    <tr>
+                                        <td colspan="3" class="tabla-empty">Cargando fichajes...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <hr style="border:0;border-top:1.5px solid var(--border);margin:24px 0">
-                    <h3><i class="ri-file-list-3-line" aria-hidden="true"></i>Tus últimos 30 fichajes</h3>
-                    <div class="table-wrap">
-                        <table class="tabla-productos" style="min-width:420px">
-                            <thead>
-                                <tr>
-                                    <th>Fecha y hora</th>
-                                    <th>Tipo</th>
-                                    <th>Empleado</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaFichajesBody">
-                                <tr>
-                                    <td colspan="3" class="tabla-empty">Cargando fichajes...</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="card card-narrow" id="cardContrato">
+                        <div class="card-head">
+                            <h3><i class="ri-file-user-line" aria-hidden="true"></i>Mi contrato</h3><button
+                                type="button" class="btn-add blue" id="btnEditarContrato"><i class="ri-edit-line"
+                                    aria-hidden="true"></i>Indicar / modificar</button>
+                        </div>
+                        <div id="contratoResumen">
+                            <p class="limp-leyenda">Cargando...</p>
+                        </div>
+                    </div>
+                    <div class="card" id="cardRegistroJornada">
+                        <h3><i class="ri-file-chart-line" aria-hidden="true"></i>Registro de jornada</h3>
+                        <div class="form-inline"><label id="fxEmpleadoBox">Empleado<select id="fxEmpleado"
+                                    class="toolbar-select">
+                                    <option value="">Todos los empleados</option>
+                                </select></label><label>Desde<input type="date" id="fxDesde"></label><label>Hasta<input
+                                    type="date" id="fxHasta"></label></div>
+                        <div class="copia-grid" id="fxAtajos"><button type="button" class="btn-cat-filter"
+                                data-fx="hoy">Hoy</button><button type="button" class="btn-cat-filter"
+                                data-fx="mes">Este mes</button><button type="button" class="btn-cat-filter"
+                                data-fx="mesAnt">Mes anterior</button></div>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><button type="button"
+                                class="btn-add" id="fxVer"><i class="ri-search-line" aria-hidden="true"></i>Ver
+                                registro</button><button type="button" class="btn-add blue" id="fxCsv"><i
+                                    class="ri-download-2-line" aria-hidden="true"></i>Descargar CSV</button><button
+                                type="button" class="btn-add gray" id="fxImprimir"><i class="ri-printer-line"
+                                    aria-hidden="true"></i>Imprimir / PDF</button></div>
+                        <div id="fxMsg" class="msg-inline" aria-live="polite"></div>
+                    </div>
+                    <div id="fxContenido"></div>
+                </div>
+                <div id="sub-limpieza" class="subtab-content"><datalist id="dlTrabajadores"></datalist>
+                    <div id="avisoLimpiezaBanner" class="aviso-limpieza" hidden></div>
+                    <div class="card">
+                        <h3><i class="ri-brush-line" aria-hidden="true"></i>Registrar limpieza</h3>
+                        <form id="formLimpieza" novalidate>
+                            <div class="limp-label">Pistas limpiadas <button type="button" class="btn-cat-filter"
+                                    onclick="limpiezaSeleccionarPistas(true)">Todas</button><button type="button"
+                                    class="btn-cat-filter" onclick="limpiezaSeleccionarPistas(false)">Ninguna</button>
+                            </div>
+                            <div id="limpPistas" class="pistas-checkbox-grid limp-grid"></div>
+                            <div class="limp-label">Qué se ha limpiado</div>
+                            <div id="limpTareas" class="pistas-checkbox-grid limp-grid"></div>
+                            <div class="form-inline" style="margin-top:14px"><label>Trabajador<input type="text"
+                                        id="limpEmpleado" list="dlTrabajadores" maxlength="60"
+                                        autocomplete="off"></label><label>Cuándo<input type="datetime-local"
+                                        id="limpFecha"></label></div><button type="submit" id="btnLimpieza"
+                                class="btn-add" style="margin-top:14px"><i class="ri-check-line"
+                                    aria-hidden="true"></i>Registrar limpieza</button>
+                            <div id="msgLimpieza" class="msg-inline"></div>
+                        </form>
+                    </div>
+                    <div class="card">
+                        <h3><i class="ri-calendar-check-line" aria-hidden="true"></i>Última limpieza por pista</h3>
+                        <p class="limp-leyenda">En rojo: más de 2 semanas sin limpiar o sin registro.</p>
+                        <div class="table-wrap">
+                            <table class="tabla-productos" style="min-width:560px">
+                                <thead>
+                                    <tr>
+                                        <th>Pista</th>
+                                        <th>Estructura</th>
+                                        <th>Césped</th>
+                                        <th>Cristales</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="limpEstadoBody">
+                                    <tr>
+                                        <td colspan="4" class="tabla-empty">Cargando...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="ri-file-list-3-line" aria-hidden="true"></i>Historial de limpiezas</h3>
+                        <div class="table-wrap">
+                            <table class="tabla-productos" style="min-width:560px">
+                                <thead>
+                                    <tr>
+                                        <th>Cuándo</th>
+                                        <th>Pista</th>
+                                        <th>Qué</th>
+                                        <th>Trabajador</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="limpHistBody">
+                                    <tr>
+                                        <td colspan="5" class="tabla-empty">Cargando...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div><button type="button" class="btn-add gray" data-exp="limpiezas" style="margin-top:12px"><i
+                                class="ri-download-2-line" aria-hidden="true"></i>Exportar todas las limpiezas
+                            (CSV)</button>
                     </div>
                 </div>
-                <div class="card card-narrow" id="cardContrato">
-                    <div class="card-head">
-                        <h3><i class="ri-file-user-line" aria-hidden="true"></i>Mi contrato</h3><button type="button"
-                            class="btn-add blue" id="btnEditarContrato"><i class="ri-edit-line"
-                                aria-hidden="true"></i>Indicar / modificar</button>
-                    </div>
-                    <div id="contratoResumen">
-                        <p class="limp-leyenda">Cargando...</p>
-                    </div>
-                </div>
-                <div class="card" id="cardRegistroJornada">
-                    <h3><i class="ri-file-chart-line" aria-hidden="true"></i>Registro de jornada</h3>
-                    <div class="form-inline"><label id="fxEmpleadoBox">Empleado<select id="fxEmpleado"
-                                class="toolbar-select">
-                                <option value="">Todos los empleados</option>
-                            </select></label><label>Desde<input type="date" id="fxDesde"></label><label>Hasta<input
-                                type="date" id="fxHasta"></label></div>
-                    <div class="copia-grid" id="fxAtajos"><button type="button" class="btn-cat-filter"
-                            data-fx="hoy">Hoy</button><button type="button" class="btn-cat-filter" data-fx="mes">Este
-                            mes</button><button type="button" class="btn-cat-filter" data-fx="mesAnt">Mes
-                            anterior</button></div>
-                    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><button type="button"
-                            class="btn-add" id="fxVer"><i class="ri-search-line" aria-hidden="true"></i>Ver
-                            registro</button><button type="button" class="btn-add blue" id="fxCsv"><i
-                                class="ri-download-2-line" aria-hidden="true"></i>Descargar CSV</button><button
-                            type="button" class="btn-add gray" id="fxImprimir"><i class="ri-printer-line"
-                                aria-hidden="true"></i>Imprimir / PDF</button></div>
-                    <div id="fxMsg" class="msg-inline" aria-live="polite"></div>
-                </div>
-                <div id="fxContenido"></div>
             </section>
             <section id="tab-caja" class="tab-content">
                 <div class="card">
@@ -626,11 +763,10 @@
         </main>
     </div>
     <div id="gpSync"><i class="ri-refresh-line" aria-hidden="true"></i>Sincronizado en tiempo real</div>
-    <div style="text-align: center; font-size: 12px; color: var(--muted); padding: 20px;">
-        <a href="privacidad" style="color: inherit; text-decoration: underline; margin: 0 8px;">Privacidad</a>
-        <a href="aviso-legal" style="color: inherit; text-decoration: underline; margin: 0 8px;">Aviso Legal</a>
-        <a href="politica-cookies" style="color: inherit; text-decoration: underline; margin: 0 8px;">Cookies</a>
-    </div>
+    <div style="text-align: center; font-size: 12px; color: var(--muted); padding: 20px;"><a href="privacidad"
+            style="color: inherit; text-decoration: underline; margin: 0 8px;">Privacidad</a><a href="aviso-legal"
+            style="color: inherit; text-decoration: underline; margin: 0 8px;">Aviso Legal</a><a href="politica-cookies"
+            style="color: inherit; text-decoration: underline; margin: 0 8px;">Cookies</a></div>
     <dialog id="modalReserva" class="modal-overlay" aria-labelledby="modalTitulo">
         <div class="modal-card-double">
             <div class="modal-header-bar">
