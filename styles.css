@@ -1715,7 +1715,8 @@ select {
     padding: 16px;
 }
 
-.modal-overlay.open {
+.modal-overlay.open,
+.modal-overlay[open] {
     display: flex;
 }
 

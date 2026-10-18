@@ -34,7 +34,13 @@
     <script defer src="assets/supabase.min.js"></script>
     <script defer src="config.js"></script>
     <script defer src="utils.js"></script>
-    <script defer src="app.js"></script>
+    <script defer src="core.js"></script>
+    <script defer src="auth.js"></script>
+    <script defer src="datos.js"></script>
+    <script defer src="reservas.js"></script>
+    <script defer src="bar.js"></script>
+    <script defer src="caja.js"></script>
+    <script defer src="tarifas.js"></script>
     <script defer src="gestion.js"></script>
     <script defer src="copia.js"></script>
     <script defer src="fichajes.js"></script>
@@ -63,7 +69,6 @@
                 class="btn-submit" id="btnEntrar">Entrar al Panel</button>
         </form>
         <div id="msgLogin" aria-live="polite"></div>
-        </div>
     </div>
     <div id="adminView" style="display: none;">
         <header class="app-header">
@@ -761,7 +766,7 @@
             </div>
             <div class="modal-footer-bar">
                 <button type="button" id="confirmDialogCancel" class="btn-add gray">Cancelar</button>
-                <button type="submit" id="confirmDialogOk" class="btn-add blue">Aceptar</button>
+                <button type="button" id="confirmDialogOk" class="btn-add blue">Aceptar</button>
             </div>
         </form>
     </dialog>
