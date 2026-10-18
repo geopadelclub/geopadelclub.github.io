@@ -13,8 +13,7 @@
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     <link rel="icon" type="image/webp" href="./Geopadel.webp">
     <script> (function () { try { var t = localStorage.getItem('gp-theme'); if (t !== 'dark' && t !== 'light') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; document.documentElement.setAttribute('data-theme', t); } catch (e) { } })(); </script>
-    <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript>
+    <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript>
         <link rel="stylesheet" href="styles.css">
     </noscript>
     <style>
@@ -100,15 +99,12 @@
 </head>
 
 <body>
-    <main class="error-card">
-        <img src="./Geopadel.webp" alt="Geopadel Logo" width="120" height="120">
+    <main class="error-card"><img src="./Geopadel.webp" alt="Geopadel Logo" width="120" height="120">
         <h1 class="error-code">404</h1>
         <h2 class="error-title">Página no encontrada</h2>
         <p class="error-message">La dirección que buscas no existe o ha sido movida.</p>
-        <div class="btn-group">
-            <a href="panel.html" class="btn-action">Volver al Panel</a>
-            <a href="reservar.html" class="btn-action secondary">Reservar Pista</a>
-        </div>
+        <div class="btn-group"><a href="panel.html" class="btn-action">Volver al Panel</a><a href="reservar.html"
+                class="btn-action secondary">Reservar Pista</a></div>
     </main>
 </body>
 

@@ -1,6 +1,4 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
-// Carga, pintado y guardado de tarifas por franja y duración.
-
 async function cargarTarifas() {
     const { data, error } = await conReintento(() => supabaseClient.from('tarifas').select('*'));
     if (error) { console.error(error); return; }
@@ -13,7 +11,6 @@ async function cargarTarifas() {
     datosLocales.tarifas = tf;
     dibujarTarifas({ ...TARIFAS_DEFECTO, ...tf });
 }
-
 function dibujarTarifas(t) {
     if (!t) return;
     Object.entries(TARIFAS_IDS).forEach(([k, ids]) => {
@@ -24,7 +21,6 @@ function dibujarTarifas(t) {
         $(ids[2]).value = f[120] ?? '';
     });
 }
-
 async function guardarTarifasUI() {
     const msg = $('msgTarifas'), btn = $('btnGuardarTarifas');
     const opcional = id => { const v = $(id).value.trim(); return v === '' ? null : parseFloat(v); };

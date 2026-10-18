@@ -1,8 +1,5 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
-// Caja diaria, cierre y reapertura.
-
 let reqCaja = 0;
-
 async function cargarCajaHoy() {
     const iso = $('fechaCuadrante').value || fechaLocalISO();
     const miReq = ++reqCaja;
@@ -33,7 +30,6 @@ async function cargarCajaHoy() {
     dibujarCaja(datosLocales.caja);
     calcCierre();
 }
-
 function dibujarCaja(caja) {
     $('cajaEfectivo').innerText = eur(caja.totalEfectivo);
     $('cajaTarjeta').innerText = eur(caja.totalTarjeta);
@@ -41,9 +37,7 @@ function dibujarCaja(caja) {
     const iso = $('fechaCuadrante').value || fechaLocalISO();
     $('cajaFechaTxt').innerText = fechaBonita(iso);
 }
-
 const FONDO_CAJA = 100;
-
 function calcularCierre(bil, mon, efSistema) {
     const efContado = redondear2(bil + mon);
     const dejarBilletes = Math.max(0, redondear2(FONDO_CAJA - mon));
@@ -58,7 +52,6 @@ function calcularCierre(bil, mon, efSistema) {
         dE: redondear2(efContado - esperado)
     };
 }
-
 function calcCierre() {
     const v = id => parseFloat($(id).value) || 0, c = datosLocales.caja || {};
     const r = calcularCierre(v('cjBilletes'), v('cjMonedas'), c.totalEfectivo || 0);
@@ -72,7 +65,6 @@ function calcCierre() {
             ? `<span class="dif-ko">No hay billetes suficientes para dejar ${eur(FONDO_CAJA)}: faltan ${eur(r.faltaFondo)}</span>`
             : `<span><b>Guardar en el sobre: ${eur(r.sobre)}</b> (se quedan en caja ${eur(FONDO_CAJA)}: ${eur(parseFloat($('cjMonedas').value) || 0)} en monedas + ${eur(r.dejarBilletes)} en billetes)</span>`);
 }
-
 async function cerrarCajaHoy() {
     const btn = $('btnCerrarCaja'), msg = $('msgCierre');
     const bil = parseFloat($('cjBilletes').value) || 0;
@@ -108,7 +100,6 @@ async function cerrarCajaHoy() {
         msg.innerText = 'No se pudo cerrar la caja: ' + (err.message || err);
     } finally { setBusy(btn, false); }
 }
-
 async function cargarHistorialCaja() {
     const tb = $('histCajaBody');
     const { data, error } = await supabaseClient.from('cierres').select('*').order('fecha', { ascending: false }).limit(60);
@@ -125,7 +116,6 @@ async function cargarHistorialCaja() {
 <td>${adm ? `<button type="button" class="btn-add gray" data-reabrir="${esc(d.fecha)}"><i class="ri-lock-unlock-line" aria-hidden="true"></i>Reabrir</button>` : ''}</td></tr>`).join('')
         || '<tr><td colspan="8" class="tabla-empty">—</td></tr>';
 }
-
 async function reabrirCierre(fecha, btn) {
     if (!esJefa()) return toast('Solo la jefa puede reabrir una caja', 'err');
     const motivoRaw = await customPrompt(`Motivo para reabrir la caja del ${fecha} (queda registrado):`, '', 'Reabrir caja');
@@ -140,7 +130,6 @@ async function reabrirCierre(fecha, btn) {
         cargarHistorialCaja();
     } catch (err) { toast('No se pudo reabrir: ' + (err.message || err), 'err'); } finally { setBusy(btn, false); }
 }
-
 $('histCajaBody').addEventListener('click', e => {
     const b = e.target.closest('button[data-reabrir]');
     if (b) reabrirCierre(b.dataset.reabrir, b);

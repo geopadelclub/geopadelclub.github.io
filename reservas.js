@@ -1,9 +1,6 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
-// Cuadrante de reservas, drag&drop, modales, conflictos e impresión del día.
-
 let reqReservas = 0;
 let totalPendientes = 0;
-
 async function cargarReservasHoy() {
     const iso = $('fechaCuadrante').value || fechaLocalISO();
     const miReq = ++reqReservas;
@@ -34,7 +31,6 @@ async function cargarReservasHoy() {
     renderizarCuadrantePlaytomic(datosLocales.reservas);
     cargarTotalPendientes();
 }
-
 function actualizarChipPendientes() {
     const chip = $('chipPendientes'), n = $('statPendientes');
     if (!chip || !n) return;
@@ -68,8 +64,6 @@ async function irAPrimeraPendiente() {
         card.scrollIntoView({ block: 'nearest', inline: 'center' });
     }
 }
-
-// ---- Fecha navegación ----
 function alCambiarFecha() { scrollAhoraPendiente = true; cargarReservasHoy(); cargarCajaHoy(); }
 function irAFechaHoy() { inicializarFechaHoy(); alCambiarFecha(); }
 function cambiarFechaDias(offset) {
@@ -77,8 +71,6 @@ function cambiarFechaDias(offset) {
     inputF.value = sumarDiasISO(inputF.value || fechaLocalISO(), offset);
     alCambiarFecha();
 }
-
-// ---- Selector de pistas en el modal ----
 function pobladorPistasModal(pistasSeleccionadas = []) {
     const container = $('modalPistasContainer');
     container.innerHTML = "";
@@ -93,10 +85,7 @@ function pobladorPistasModal(pistasSeleccionadas = []) {
 function obtenerPistasSeleccionadasModal() {
     return Array.from(document.querySelectorAll('input[name="chkPistasModal"]:checked')).map(c => c.value);
 }
-
 enlazarBuscadorCliente($('modalCliente'), $('modalTelefono'));
-
-// ---- Cuadrante ----
 function renderizarCuadrantePlaytomic(reservas) {
     const grid = $('playtomicGrid');
     if (!grid) return;
@@ -128,7 +117,7 @@ function renderizarCuadrantePlaytomic(reservas) {
     colTime.className = 'col-time-axis';
     for (let min = horaInicioGrid * 60; min <= horaFinGrid * 60; min += 30) {
         const el = document.createElement('div');
-        const bloqueado = esCerrado(min, isoGrid);           // FIX: iso explícito
+        const bloqueado = esCerrado(min, isoGrid);
         el.className = 'time-slot-label' + (bloqueado ? ' blocked' : (min % 60 === 0 ? ' hour' : ''));
         el.textContent = minToTimeStr(min);
         colTime.appendChild(el);
@@ -149,7 +138,7 @@ function renderizarCuadrantePlaytomic(reservas) {
         colPista.dataset.pista = pista;
         for (let min = horaInicioGrid * 60; min <= horaFinGrid * 60; min += 30) {
             const slot = document.createElement('div');
-            const bloqueado = esCerrado(min, isoGrid);        // FIX: iso explícito
+            const bloqueado = esCerrado(min, isoGrid);
             slot.className = 'slot ' + (bloqueado ? 'blocked' : (min % 60 === 0 ? 'hour' : 'half'));
             slot.dataset.min = min;
             slot.dataset.pista = pista;
@@ -212,8 +201,6 @@ ${tieneNota && heightPx >= 150 ? `<div class="reserva-nota-txt">${esc(r.notas)}<
     });
     grid.innerHTML = "";
     grid.appendChild(frag);
-
-    // Ocupación (FIX: usar cierre real del día)
     const cierreGrid = obtenerCierreMin(isoGrid);
     const ventanas = [[9 * 60, 14 * 60], [17 * 60, cierreGrid]];
     const minDisp = listaPistas.length * ventanas.reduce((s, [a, b]) => s + Math.max(0, b - a), 0);
@@ -234,15 +221,12 @@ ${tieneNota && heightPx >= 150 ? `<div class="reserva-nota-txt">${esc(r.notas)}<
         wrapper.scrollTop = prevScrollTop; wrapper.scrollLeft = prevScrollLeft;
     }
 }
-
 setInterval(() => {
     if (!document.hidden && usuarioSesion && $('fechaCuadrante').value === fechaLocalISO() && $('tab-reservas').classList.contains('active')) {
         renderizarCuadrantePlaytomic(datosLocales.reservas || []);
     }
 }, 30000);
 window.addEventListener('resize', debounce(() => { if (usuarioSesion) renderizarCuadrantePlaytomic(datosLocales.reservas || []); }, 200));
-
-// ---- Interacción grid ----
 (function iniciarInteraccionGrid() {
     const grid = $('playtomicGrid');
     grid.addEventListener('click', e => {
@@ -321,13 +305,11 @@ window.addEventListener('resize', debounce(() => { if (usuarioSesion) renderizar
     grid.addEventListener('touchend', finTouch);
     grid.addEventListener('touchcancel', finTouch);
 })();
-
 function horaDesdeTop(topPx) {
     const ppm = pxPorMin();
     let m = horaInicioGrid * 60 + Math.round(topPx / ppm / 30) * 30;
     return Math.max(horaInicioGrid * 60, Math.min(horaFinGrid * 60, m));
 }
-
 async function buscarConflicto({ pistas, fechas, iniMin, dur, excluirId }) {
     const orden = [...fechas].sort();
     const { data, error } = await leerTodo(() => supabaseClient.from('reservas')
@@ -345,7 +327,6 @@ async function buscarConflicto({ pistas, fechas, iniMin, dur, excluirId }) {
         return iniMin < b && fin > a;
     }) || null;
 }
-
 async function moverReservaAccion(idRes, nuevaHora, nuevaPista) {
     const t = (datosLocales.reservas || []).find(r => String(r.id) === String(idRes));
     if (!t) return;
@@ -365,8 +346,6 @@ async function moverReservaAccion(idRes, nuevaHora, nuevaPista) {
         toast(err && err.code === '23P01' ? `No se puede mover: ${nuevaPista} ya está ocupada en ese horario` : "Error al mover la reserva: " + (err.message || err), 'err');
     }
 }
-
-// ---- Precios ----
 function precioSugerido() {
     const t = { ...TARIFAS_DEFECTO, ...(datosLocales.tarifas || {}) };
     const iso = $('modalFecha').value || $('fechaCuadrante').value || fechaLocalISO();
@@ -385,20 +364,17 @@ function recalcularPrecioSugerido(forzar = true) {
 function alCambiarTipo() {
     const t = $('modalTipoReserva').value, nueva = !$('modalReservaId').value, tor = t === 'Torneo';
     $('boxTorneoDur').style.display = tor ? 'block' : 'none';
-    const dispDur = tor ? 'none' : 'block';       // ← FIX: 'block', no ''
+    const dispDur = tor ? 'none' : 'block';
     $('lblDur').style.display = dispDur;
     $('modalDuracion').style.display = dispDur;
     $('boxRepetir').style.display = (t === 'Pena' && nueva) ? 'block' : 'none';
     recalcularPrecioSugerido(nueva);
 }
-
 (function () {
     const sel = $('modalNumJugadores');
     for (let i = 1; i <= 16; i++) sel.appendChild(new Option(i === 1 ? '1 jugador' : `${i} jugadores`, i));
     sel.value = '4';
 })();
-
-// ---- Modales de reserva ----
 function abrirModalNuevaReserva(pistas = ["1 PADEL MASTER"], hora = "17:00", tipo = "Normal") {
     if (!Array.isArray(pistas)) pistas = ["1 PADEL MASTER"];
     if (typeof hora !== 'string') hora = "17:00";
@@ -522,7 +498,6 @@ async function cambiarPagoJugador(numJugador, nuevoMetodo, btn) {
     }
 }
 function cerrarModal() { cerrarOverlay('modalReserva'); }
-
 async function guardarClienteSilencioso(nombre, telefono) {
     const row = { nombre };
     if (telefono) row.telefono = telefono;
@@ -534,7 +509,6 @@ async function guardarClienteSilencioso(nombre, telefono) {
     const ex = datosLocales.clientes.find(c => String(c.nombre).toLowerCase() === nombre.toLowerCase());
     if (ex) { if (telefono) ex.telefono = telefono; } else datosLocales.clientes.push(row);
 }
-
 async function confirmarGuardarReserva() {
     const cliente = $('modalCliente').value.trim();
     if (!cliente) return toast("Introduce el nombre del cliente", 'warn');
@@ -623,7 +597,6 @@ async function confirmarGuardarReserva() {
         setBusy(btn, false);
     }
 }
-
 async function confirmarReservaPendiente() {
     const id = $('modalReservaId').value; if (!id) return;
     const btn = $('btnConfirmarPendiente');
@@ -642,7 +615,6 @@ async function confirmarReservaPendiente() {
         setBusy(btn, false);
     }
 }
-
 async function eliminarReservaRPC(alcance) {
     const id = $('modalReservaId').value; if (!id) return;
     const msg = alcance === 'serie' ? "¿Eliminar esta reserva y todas las siguientes de la serie?" : "¿Eliminar esta reserva? Se devolverán los pagos registrados.";
@@ -656,8 +628,6 @@ async function eliminarReservaRPC(alcance) {
 }
 const confirmarEliminarSerie = () => eliminarReservaRPC('serie');
 const confirmarEliminarReserva = () => eliminarReservaRPC('unica');
-
-// ---- Impresión del cuadrante ----
 const PP_TIPO_CLASE = { Pena: 't-pena', Torneo: 't-torneo', Entrenamiento: 't-entreno' };
 function estadoPagoReserva(r) {
     const n = parseInt(r.numJugadores, 10) || 4;
@@ -753,8 +723,6 @@ async function imprimirDia() {
     }
 }
 window.addEventListener('afterprint', () => { const a = $('printArea'); if (a) a.innerHTML = ''; });
-
-// ---- Escape + click-fondo para cerrar overlays ----
 document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
     if ($('modalAvisoLimpieza').classList.contains('open')) cerrarAvisoLimpieza();

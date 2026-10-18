@@ -1,15 +1,11 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
-// Cliente Supabase, login, sesión, realtime, navegación entre pestañas y fichaje del propio usuario.
-
 const supabaseClient = (window.supabase && window.supabase.createClient)
     ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
         auth: { storage: window.localStorage, persistSession: true, autoRefreshToken: true }
     })
     : null;
-
 let intentosFallidos = 0, bloqueoHasta = 0;
 let tsLoginId = null, tsLoginToken = '';
-
 function iniciarTurnstileLogin() {
     if (!TURNSTILE_SITEKEY || tsLoginId !== null) return;
     const box = $('cfLogin');
@@ -40,7 +36,6 @@ function reiniciarTurnstileLogin() {
     tsLoginToken = '';
     if (window.turnstile && tsLoginId !== null) { try { window.turnstile.reset(tsLoginId); } catch (e) { } }
 }
-
 async function cargarPerfil(authUser) {
     const { data, error } = await supabaseClient.from('usuarios')
         .select('id, usuario, nombre, rol')
@@ -48,7 +43,6 @@ async function cargarPerfil(authUser) {
     if (error || !data) return null;
     return { id: data.id, user: data.usuario, nombre: data.nombre, rol: data.rol };
 }
-
 async function comprobarSesion() {
     if (!supabaseClient) { mostrarLogin(); return; }
     const { data } = await supabaseClient.auth.getSession();
@@ -71,7 +65,6 @@ async function comprobarSesion() {
     }
     mostrarLogin();
 }
-
 async function cerrarSesion() {
     if (canalRealtime) { supabaseClient.removeChannel(canalRealtime); canalRealtime = null; }
     await supabaseClient.auth.signOut();
@@ -82,20 +75,17 @@ async function cerrarSesion() {
     cambiarPestana('reservas');
     mostrarLogin();
 }
-
 if (supabaseClient) {
     supabaseClient.auth.onAuthStateChange((evento) => {
         if (evento === 'SIGNED_OUT' && usuarioSesion) { usuarioSesion = null; mostrarLogin(); }
     });
 }
-
 function mostrarLogin() {
     $('loginView').style.display = 'flex';
     $('adminView').style.display = 'none';
     iniciarTurnstileLogin();
     reiniciarTurnstileLogin();
 }
-
 function mostrarPanelAdmin() {
     if (!supabaseClient) {
         mostrarLogin();
@@ -118,7 +108,6 @@ function mostrarPanelAdmin() {
     cargarDatosGlobales();
     if (!esJefa()) cargarMisFichajes();
 }
-
 $('loginForm').addEventListener('submit', async function (e) {
     e.preventDefault();
     const msgDiv = $('msgLogin'), btn = $('btnEntrar');
@@ -169,8 +158,6 @@ $('loginForm').addEventListener('submit', async function (e) {
     reiniciarTurnstileLogin();
     btn.disabled = false; btn.innerText = "Entrar al Panel";
 });
-
-// ---- Realtime ----
 const refrescar = {
     reservas: debounce(() => cargarReservasHoy(), 250),
     mesas: debounce(() => cargarMesasBar(), 250),
@@ -180,7 +167,6 @@ const refrescar = {
     deudas: debounce(() => cargarDeudas(), 300),
     limpiezas: debounce(() => cargarLimpiezas(false), 300)
 };
-
 function iniciarSuscripcionRealtime() {
     if (canalRealtime) { supabaseClient.removeChannel(canalRealtime); canalRealtime = null; }
     canalRealtime = supabaseClient.channel('geopadel-realtime')
@@ -201,7 +187,6 @@ function iniciarSuscripcionRealtime() {
             }
         });
 }
-
 let audioCtx = null;
 function pitar() {
     try {
@@ -228,7 +213,6 @@ function mostrarFlashSync() {
     el.style.opacity = 1;
     setTimeout(() => { el.style.opacity = 0; }, 1500);
 }
-
 window.addEventListener('online', () => { estadoRed(); if (usuarioSesion) cargarDatosGlobales(); });
 window.addEventListener('offline', estadoRed);
 document.addEventListener('visibilitychange', () => {
@@ -236,8 +220,6 @@ document.addEventListener('visibilitychange', () => {
     if (sesionCaducada()) { cerrarSesion(); toast('La sesión ha caducado. Vuelve a entrar.', 'warn'); return; }
     if (navigator.onLine) cargarDatosGlobales();
 });
-
-// ---- Navegación entre pestañas ----
 function cambiarPestana(tabName) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-tab').forEach(el => { el.classList.remove('active'); el.removeAttribute('aria-current'); });
@@ -256,8 +238,6 @@ function cambiarPestana(tabName) {
     }
 }
 document.querySelectorAll('.nav-tab').forEach(b => b.addEventListener('click', () => cambiarPestana(b.dataset.tab)));
-
-// ---- Fichaje del propio usuario ----
 async function fichar(tipo, btn) {
     const msg = $('msgFichaje');
     if (esJefa()) return;
@@ -297,8 +277,6 @@ async function cargarMisFichajes() {
 <td><b>${esc(f.empleado)}</b></td></tr>`;
     }).join('');
 }
-
-// ---- Arranque ----
 window.addEventListener('DOMContentLoaded', () => { iniciarTema(); estadoRed(); comprobarSesion(); });
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => { }));

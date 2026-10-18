@@ -1,13 +1,10 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
-// Carga de datos maestros (clientes, productos, mesas).
-
 async function cargarDatosGlobales() {
     await Promise.all([
         cargarClientes(), cargarProductos(), cargarTarifas(),
         cargarMesasBar(), cargarReservasHoy(), cargarCajaHoy(), cargarDeudas()
     ]);
 }
-
 async function cargarClientes() {
     const { data, error } = await conReintento(() => leerTodo(
         () => supabaseClient.from('clientes').select('id, nombre, telefono, web_habilitado').order('nombre')
@@ -15,7 +12,6 @@ async function cargarClientes() {
     if (error) { console.error(error); return; }
     datosLocales.clientes = data || [];
 }
-
 async function cargarProductos() {
     const { data, error } = await conReintento(() =>
         supabaseClient.from('productos').select('*').neq('estado', 'Eliminado').order('nombre')
@@ -24,7 +20,6 @@ async function cargarProductos() {
     datosLocales.productos = data || [];
     dibujarCatalogo(datosLocales.productos);
 }
-
 async function cargarMesasBar() {
     const { data, error } = await conReintento(() => supabaseClient.from('mesas_bar').select('*'));
     if (error) { console.error(error); return; }

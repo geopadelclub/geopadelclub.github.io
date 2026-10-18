@@ -1,8 +1,5 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
-// Punto de venta, mesas, catálogo y modales de producto.
-
 const totalItems = items => redondear2((items || []).reduce((s, i) => s + (Number(i.precio) || 0), 0));
-
 function renderSelectorMesas() {
     const nav = $('selectorMesas'); if (!nav) return;
     nav.innerHTML = "";
@@ -49,9 +46,7 @@ $('catTPVBotones').addEventListener('click', e => {
     b.classList.add('active');
     dibujarCatalogo(datosLocales.productos);
 });
-
 const faltaFuncion = err => !!err && (err.code === 'PGRST202' || err.code === '42883' || /could not find the function|does not exist/i.test(String(err.message || '')));
-
 function mutarMesa(mesa, fn, rpcNombre, rpcArgs) {
     colaMesas = colaMesas.then(async () => {
         try {
@@ -93,7 +88,6 @@ function quitarDelTicket(index) {
         return items;
     }, 'mesa_quitar', { p_mesa: mesa, p_index: index, p_nombre: item.nombre, p_precio: Number(item.precio) || 0 });
 }
-
 async function cobrarMesaActiva(metodoPago) {
     if (cobrando) return;
     cobrando = true;
@@ -142,7 +136,6 @@ async function cobrarMesaActiva(metodoPago) {
         botones.forEach(b => b.disabled = false);
     }
 }
-
 function dibujarCatalogo(productos) {
     const grid = $('catalogGrid');
     if (grid) {
@@ -162,7 +155,6 @@ $('catalogGrid').addEventListener('click', e => {
     const p = (datosLocales.productos || []).find(x => String(x.id) === b.dataset.id);
     if (p) agregarAlTicket({ id: p.id, nombre: p.nombre, precio: parseFloat(p.precio) });
 });
-
 function filtrarGestionCatalogo() {
     const tbody = $('tablaProductosBody'); if (!tbody) return;
     const q = ($('buscarProdGestion')?.value || '').toLowerCase().trim();
@@ -187,7 +179,6 @@ $('tablaProductosBody').addEventListener('click', e => {
     if (b.dataset.act === 'edit') abrirModalEditarProducto(b.dataset.id);
     else eliminarProductoCat(b.dataset.id);
 });
-
 function abrirModalNuevoProducto() {
     $('modalProductoTitulo').innerText = "Nuevo artículo";
     $('modalProdId').value = "";
@@ -232,7 +223,6 @@ async function guardarProductoModal() {
         toast("No se pudo guardar el artículo: " + (err.message || err), 'err');
     } finally { setBusy(btn, false); }
 }
-
 async function eliminarProductoCat(idProd) {
     if (!(await customConfirm("¿Deseas eliminar este artículo del catálogo?"))) return;
     const { error } = await supabaseClient.from('productos').update({ estado: 'Eliminado' }).eq('id', idProd);

@@ -3,7 +3,6 @@ window.$ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const eur = n => (Number(n) || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
 const redondear2 = n => Math.round((Number(n) || 0) * 100) / 100;
-
 function toast(msg, tipo = 'ok', ms = 3500) {
     const box = $('toasts');
     const el = document.createElement('div');
@@ -13,13 +12,11 @@ function toast(msg, tipo = 'ok', ms = 3500) {
     const dur = tipo === 'err' ? Math.max(ms, 6000) : ms;
     setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 260); }, dur);
 }
-
 function setBusy(btn, on, txt) {
     if (!btn) return;
     if (on) { btn.dataset.txt = btn.innerHTML; btn.disabled = true; if (txt) btn.innerHTML = txt; }
     else { btn.disabled = false; if (btn.dataset.txt) btn.innerHTML = btn.dataset.txt; }
 }
-
 function fechaLocalISO(d = new Date()) {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
@@ -28,7 +25,6 @@ function sumarDiasISO(iso, dias) {
     return new Date(Date.UTC(y, m - 1, d + dias, 12, 0, 0)).toISOString().split('T')[0];
 }
 function estadoRed() { $('bannerOffline').classList.toggle('show', !navigator.onLine); }
-
 function descargarBlob(blob, nombre) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -38,7 +34,6 @@ function descargarBlob(blob, nombre) {
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
-
 async function leerTodo(construir, pagina = 1000, maximo = 200000) {
     const filas = [];
     for (let desde = 0; desde < maximo; desde += pagina) {
@@ -49,13 +44,11 @@ async function leerTodo(construir, pagina = 1000, maximo = 200000) {
     }
     return { data: filas, error: null };
 }
-
 function fechaBonita(iso, mayuscula) {
     const [y, m, d] = iso.split('-').map(Number);
     const t = new Date(y, m - 1, d, 12).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
     return mayuscula ? t.charAt(0).toUpperCase() + t.slice(1) : t;
 }
-
 function aplicarTema(t, guardar = true) {
     document.documentElement.setAttribute('data-theme', t);
     if (guardar) { try { localStorage.setItem('gp-theme', t); } catch (e) { } }
@@ -82,7 +75,6 @@ function iniciarTema() {
         if (mq.addEventListener) mq.addEventListener('change', seguir);
     } catch (e) { }
 }
-
 function normalizarTelefono(t) {
     let d = String(t || '').replace(/\D/g, '');
     if (d.startsWith('00')) d = d.slice(2);
@@ -94,7 +86,6 @@ function telefonoValido(t) {
     const n = normalizarTelefono(txt).length;
     return /^[+\d][\d\s().-]*$/.test(txt) && n >= 9 && n <= 15;
 }
-
 function esErrorRed(e) {
     if (!e || e.code) return false;
     return /failed to fetch|networkerror|network request failed|load failed|timeout|timed out/i.test(String(e.message || e));
@@ -116,7 +107,6 @@ async function conReintento(fn, intentos = 2, espera = 700) {
     if (ultimo.e) throw ultimo.e;
     return ultimo.r;
 }
-
 // ---- Autocompletado de clientes ----
 // FIX: idempotente, no duplica el wrapper en llamadas repetidas
 function enlazarBuscadorCliente(inpNombre, inpTel, alElegir) {
@@ -124,7 +114,6 @@ function enlazarBuscadorCliente(inpNombre, inpTel, alElegir) {
     const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
     const dig = s => String(s || '').replace(/\D/g, '');
     const MAX = 6;
-
     function buscar() {
         const palabras = norm(inpNombre.value).split(' ').filter(Boolean);
         const usaNombre = norm(inpNombre.value).length >= 2;
@@ -142,7 +131,6 @@ function enlazarBuscadorCliente(inpNombre, inpTel, alElegir) {
         res.sort((a, b) => a.empieza - b.empieza || String(a.c.nombre).localeCompare(String(b.c.nombre), 'es'));
         return res.slice(0, MAX).map(x => x.c);
     }
-
     function vincular(inp) {
         if (inp.dataset.cliBound) return; // FIX
         inp.dataset.cliBound = '1';
@@ -196,8 +184,6 @@ function enlazarBuscadorCliente(inpNombre, inpTel, alElegir) {
     vincular(inpNombre);
     vincular(inpTel);
 }
-
-// ---- Diálogos nativos reutilizables ----
 function customConfirm(mensaje, titulo = 'Confirmación') {
     return new Promise((resolve) => {
         const dialog = $('modalConfirmDialog');
@@ -205,7 +191,7 @@ function customConfirm(mensaje, titulo = 'Confirmación') {
             resolve(window.confirm(mensaje));
             return;
         }
-        dialog.returnValue = '';             // FIX
+        dialog.returnValue = '';
         $('confirmDialogTitle').innerText = titulo;
         $('confirmDialogMessage').innerText = mensaje;
         $('confirmDialogInputBox').style.display = 'none';
@@ -227,7 +213,6 @@ function customConfirm(mensaje, titulo = 'Confirmación') {
         dialog.showModal();
     });
 }
-
 function customPrompt(mensaje, valorDefecto = '', titulo = 'Entrada requerida') {
     return new Promise((resolve) => {
         const dialog = $('modalConfirmDialog');
@@ -235,7 +220,7 @@ function customPrompt(mensaje, valorDefecto = '', titulo = 'Entrada requerida') 
             resolve(window.prompt(mensaje, valorDefecto));
             return;
         }
-        dialog.returnValue = '';             // FIX
+        dialog.returnValue = '';
         $('confirmDialogTitle').innerText = titulo;
         $('confirmDialogMessage').innerText = mensaje;
         $('confirmDialogInputBox').style.display = 'block';
