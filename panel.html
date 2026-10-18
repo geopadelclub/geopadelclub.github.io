@@ -53,22 +53,30 @@
     <div id="bannerOffline" role="alert"><i class="ri-wifi-off-line" aria-hidden="true"></i>Sin conexión · los cambios
         no se guardarán hasta que vuelva internet</div>
     <div id="toasts" role="status" aria-live="polite"></div>
-    <div id="loginView" class="login-container"><button type="button" class="theme-toggle" onclick="alternarTema()"
-            aria-label="Cambiar tema"><i class="ri-moon-line" aria-hidden="true"></i></button>
+    <div id="loginView" class="login-container">
+        <button type="button" class="theme-toggle" onclick="alternarTema()" aria-label="Cambiar tema">
+            <i class="ri-moon-line" aria-hidden="true"></i>
+        </button>
         <div class="login-card">
-            <img class="gp-logo" src="./Geopadel.webp" alt="Geopadel" draggable="false" width="150" height="150"
-                fetchpriority="high">
+            <div class="gp-brand">
+                <img class="gp-logo" src="./Geopadel.webp" alt="Geopadel" draggable="false" width="150" height="150"
+                    fetchpriority="high">
+            </div>
+            <form id="loginForm" novalidate>
+                <div class="form-group">
+                    <label for="usuario">Usuario</label>
+                    <input type="text" id="usuario" placeholder="Ej. Javi" required autocomplete="off"
+                        autocapitalize="none" autocorrect="off" spellcheck="false">
+                </div>
+                <div id="cfLogin" style="margin:8px 0 12px;min-height:65px"></div>
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" placeholder="••••••••" required autocomplete="new-password">
+                </div>
+                <button type="submit" class="btn-submit" id="btnEntrar">Entrar al Panel</button>
+            </form>
+            <div id="msgLogin" aria-live="polite"></div>
         </div>
-        <form id="loginForm" novalidate>
-            <div class="form-group"><label for="usuario">Usuario</label><input type="text" id="usuario"
-                    placeholder="Ej. Javi" required autocomplete="off" autocapitalize="none" autocorrect="off"
-                    spellcheck="false"></div>
-            <div id="cfLogin" style="margin:8px 0 12px;min-height:65px"></div>
-            <div class="form-group"><label for="password">Contraseña</label><input type="password" id="password"
-                    placeholder="••••••••" required autocomplete="new-password"></div><button type="submit"
-                class="btn-submit" id="btnEntrar">Entrar al Panel</button>
-        </form>
-        <div id="msgLogin" aria-live="polite"></div>
     </div>
     <div id="adminView" style="display: none;">
         <header class="app-header">
