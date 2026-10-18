@@ -29,9 +29,204 @@
         onload="this.onload=null;this.rel='stylesheet'"><noscript>
         <link rel="stylesheet" href="assets/remixicon/remixicon.css">
     </noscript>
-    <link rel="preconnect" href="https://challenges.cloudflare.com" crossorigin>
-    <link rel="preconnect" href="https://gprpyxeamjmvmqtkjvtn.supabase.co" crossorigin>
-    <link rel="stylesheet" href="styles.css" fetchpriority="high">
+    <link rel="dns-prefetch" href="https://challenges.cloudflare.com">
+    <link rel="dns-prefetch" href="https://gprpyxeamjmvmqtkjvtn.supabase.co">
+    <style>
+        :root {
+            --bg: #f3f6f4;
+            --surface: #fcfdfc;
+            --surface-3: #edf2ef;
+            --text: #2a3834;
+            --muted: #62716b;
+            --border: #dfe7e3;
+            --heading: #33505a;
+            --primary: #4b7a86;
+            --on-primary: #fff;
+            --red: #b84e53;
+            --green: #2f7a58;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-full: 9999px;
+            --shadow-md: 0 3px 10px rgba(42, 56, 52, .07);
+            --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color-scheme: light;
+        }
+
+        [data-theme="dark"] {
+            --bg: #2b373d;
+            --surface: #364650;
+            --surface-3: #425360;
+            --text: #f0f5f3;
+            --muted: #b9c8c3;
+            --border: #4e606a;
+            --heading: #f0f5f3;
+            --primary: #b4dcc9;
+            --on-primary: #14231c;
+            --red: #f09599;
+            --green: #86d4ac;
+            color-scheme: dark;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            font-family: var(--font-sans);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.4;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding: 20px;
+            background: var(--bg);
+            position: relative;
+        }
+
+        .login-container .theme-toggle {
+            position: absolute;
+            top: calc(14px + env(safe-area-inset-top));
+            right: 14px;
+        }
+
+        .login-card {
+            background: var(--surface);
+            padding: 40px 32px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            width: 100%;
+            max-width: 420px;
+            border: 1px solid var(--border);
+        }
+
+        .login-card .gp-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 26px;
+        }
+
+        .gp-logo {
+            display: block;
+            height: 56px;
+            width: auto;
+            aspect-ratio: 1 / 1;
+        }
+
+        .login-card .gp-logo {
+            height: 150px;
+            width: auto;
+        }
+
+        .theme-toggle {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-full);
+            border: 1px solid var(--border);
+            background: var(--surface-3);
+            color: var(--heading);
+            font-size: 17px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            background: var(--surface);
+            color: var(--text);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: var(--on-primary);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .btn-submit:disabled {
+            opacity: .65;
+            cursor: wait;
+        }
+
+        #msgLogin {
+            margin-top: 16px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 700;
+            min-height: 18px;
+        }
+
+        .msg-error {
+            color: var(--red);
+        }
+
+        .msg-success {
+            color: var(--green);
+        }
+
+        #cfLogin {
+            margin: 8px 0 12px;
+            min-height: 65px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @media (max-width: 700px) {
+            .login-card {
+                padding: 30px 22px;
+            }
+
+            .login-card .gp-logo {
+                height: 120px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="styles.css" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="styles.css">
+    </noscript>
     <script defer src="config.js"></script>
     <script defer src="utils.js"></script>
     <script defer src="core.js"></script>
