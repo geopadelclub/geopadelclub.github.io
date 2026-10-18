@@ -85,7 +85,20 @@
             font-family: var(--font-sans);
             color: var(--text);
             min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: hidden;
             line-height: 1.4;
+        }
+
+        img {
+            -webkit-user-drag: none;
+            user-select: none;
+        }
+
+        .gp-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .login-container {
@@ -113,11 +126,11 @@
             width: 100%;
             max-width: 420px;
             border: 1px solid var(--border);
+            contain: layout style;
+            animation: none !important;
         }
 
         .login-card .gp-brand {
-            display: flex;
-            align-items: center;
             justify-content: center;
             gap: 12px;
             margin-bottom: 26px;
@@ -205,12 +218,14 @@
             color: var(--green);
         }
 
+        /* ALTURA FIJA (no min-height) → Turnstile no puede empujar cuando se inyecta */
         #cfLogin {
             margin: 8px 0 12px;
-            min-height: 65px;
+            height: 78px;
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow: hidden;
         }
 
         @media (max-width: 700px) {
