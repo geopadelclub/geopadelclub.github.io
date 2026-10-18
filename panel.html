@@ -23,15 +23,48 @@
     <link rel="icon" type="image/webp" href="Geopadel.webp">
     <link rel="icon" type="image/webp" sizes="192x192" href="./Geopadel.webp">
     <link rel="preload" href="Geopadel.webp" as="image" type="image/webp" fetchpriority="high">
+    <link rel="preload" href="assets/remixicon/remixicon.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="apple-touch-icon" href="./Geopadel.webp">
-    <script src="theme-init.js"></script>
-    <link rel="stylesheet" href="assets/remixicon/remixicon.css">
+
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('gp-theme');
+                if (t !== 'dark' && t !== 'light') {
+                    t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+                document.documentElement.setAttribute('data-theme', t);
+                var m = document.getElementById('metaTheme');
+                if (m) m.setAttribute('content', t === 'dark' ? '#364650' : '#fcfdfc');
+            } catch (e) { }
+        })();
+    </script>
+
     <link rel="preconnect" href="https://challenges.cloudflare.com">
-    <link rel="dns-prefetch" href="https://gprpyxeamjmvmqtkjvtn.supabase.co">
     <link rel="preconnect" href="https://gprpyxeamjmvmqtkjvtn.supabase.co" crossorigin>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="panel.css">
-    <link rel="stylesheet" href="print.css">
+
+    <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="styles.css">
+    </noscript>
+    <link rel="preload" href="panel.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="panel.css">
+    </noscript>
+    <link rel="preload" href="assets/remixicon/remixicon.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="assets/remixicon/remixicon.css">
+    </noscript>
+
+    <link rel="stylesheet" href="print.css" media="print">
+
+    <style>
+        #printArea {
+            display: none;
+        }
+    </style>
+
     <script defer src="config.js"></script>
     <script defer src="utils.js"></script>
     <script defer src="core.js"></script>
