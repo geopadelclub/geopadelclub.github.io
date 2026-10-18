@@ -36,6 +36,8 @@
     <link rel="preload" href="assets/remixicon/remixicon.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="manifest" href="manifest.webmanifest">
 
+    <link rel="preconnect" href="https://gprpyxeamjmvmqtkjvtn.supabase.co">
+
     <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript>
         <link rel="stylesheet" href="styles.css">
@@ -51,7 +53,34 @@
     {"@context":"https://schema.org","@type":"SportsActivityLocation","@id":"https://geopadelclub.github.io/#club","name":"Geopadel","description":"Club de pádel en Ogíjares (Granada) con reserva de pistas online.","url":"https://geopadelclub.github.io/","image":"https://geopadelclub.github.io/Geopadel-512.webp","logo":"https://geopadelclub.github.io/Geopadel-512.webp","telephone":"+34646059962","priceRange":"€€","hasMap":"https://maps.app.goo.gl/GZXgGoteM9hXp8mP6","address":{"@type":"PostalAddress","streetAddress":"Polígono Tecnológico los, C. Zamora, 130","addressLocality":"Ogíjares","addressRegion":"Granada","postalCode":"18151","addressCountry":"ES"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"09:00","closes":"14:00"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday"],"opens":"17:00","closes":"23:30"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Friday","Saturday","Sunday"],"opens":"17:00","closes":"22:00"}],"potentialAction":{"@type":"ReserveAction","target":{"@type":"EntryPoint","urlTemplate":"https://geopadelclub.github.io/reservar","actionPlatform":["http://schema.org/DesktopWebPlatform","http://schema.org/MobileWebPlatform"]},"result":{"@type":"Reservation","name":"Reserva de pista de pádel"}}}
     </script>
 
-    <script src="theme-init.js"></script>
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('gp-theme');
+                if (t !== 'dark' && t !== 'light') {
+                    t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+                document.documentElement.setAttribute('data-theme', t);
+            } catch (e) { }
+        })();
+        function cambiarTema() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('gp-theme', next);
+            const m = document.getElementById('metaTheme');
+            if (m) m.setAttribute('content', next === 'dark' ? '#364650' : '#fcfdfc');
+            document.querySelectorAll('.theme-toggle i').forEach(i => {
+                i.className = next === 'dark' ? 'ri-sun-line' : 'ri-moon-line';
+            });
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const t = document.documentElement.getAttribute('data-theme');
+            document.querySelectorAll('.theme-toggle i').forEach(i => {
+                i.className = t === 'dark' ? 'ri-sun-line' : 'ri-moon-line';
+            });
+        });
+    </script>
     <script defer src="cookies.js"></script>
 
     <style>
@@ -145,6 +174,7 @@
             align-items: center;
             justify-content: center;
             transition: background .15s;
+            padding: 0;
         }
 
         .theme-toggle:hover {
@@ -286,6 +316,7 @@
             color: var(--primary, #4b7a86);
             margin-bottom: 16px;
             display: inline-block;
+            margin-right: 0;
         }
 
         .feature-card h3 {
@@ -395,6 +426,8 @@
         .ubicacion-info p i {
             color: var(--primary, #4b7a86);
             font-size: 20px;
+            margin-right: 0;
+            flex-shrink: 0;
         }
 
         .mapa-link {
@@ -422,6 +455,7 @@
             font-size: 48px;
             color: var(--primary, #4b7a86);
             margin-bottom: 12px;
+            margin-right: 0;
         }
 
         .mapa-link b {
@@ -509,26 +543,6 @@
             }
         }
     </style>
-
-    <script>
-        function cambiarTema() {
-            const current = document.documentElement.getAttribute('data-theme');
-            const next = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('gp-theme', next);
-            const m = document.getElementById('metaTheme');
-            if (m) m.setAttribute('content', next === 'dark' ? '#364650' : '#fcfdfc');
-            document.querySelectorAll('.theme-toggle i').forEach(i => {
-                i.className = next === 'dark' ? 'ri-sun-line' : 'ri-moon-line';
-            });
-        }
-        document.addEventListener('DOMContentLoaded', () => {
-            const t = document.documentElement.getAttribute('data-theme');
-            document.querySelectorAll('.theme-toggle i').forEach(i => {
-                i.className = t === 'dark' ? 'ri-sun-line' : 'ri-moon-line';
-            });
-        });
-    </script>
 </head>
 
 <body>
@@ -563,17 +577,17 @@
             <p class="section-subtitle">Las mejores instalaciones para disfrutar del pádel en Granada.</p>
             <div class="features-grid">
                 <div class="feature-card">
-                    <i class="ri-calendar-check-line"></i>
+                    <i class="ri-calendar-check-line" aria-hidden="true"></i>
                     <h3>Reserva en 1 minuto</h3>
                     <p>Elige día, duración y hora de forma sencilla. Sin registros complicados, directo al juego.</p>
                 </div>
                 <div class="feature-card">
-                    <i class="ri-trophy-line"></i>
+                    <i class="ri-trophy-line" aria-hidden="true"></i>
                     <h3>Pistas de primer nivel</h3>
                     <p>Instalaciones de última generación, mantenidas a diario para que solo te preocupes de jugar.</p>
                 </div>
                 <div class="feature-card">
-                    <i class="ri-cup-line"></i>
+                    <i class="ri-cup-line" aria-hidden="true"></i>
                     <h3>Ambiente inmejorable</h3>
                     <p>Ven a disfrutar del deporte y quédate después en nuestra zona de bar y tienda.</p>
                 </div>
@@ -615,16 +629,16 @@
             <div class="ubicacion-grid">
                 <div class="ubicacion-info">
                     <h3>Geopadel Ogíjares</h3>
-                    <p><i class="ri-map-pin-line"></i>Polígono Tecnológico Los, C. Zamora, 130, 18151 Ogíjares, Granada
-                    </p>
-                    <p><i class="ri-phone-line"></i><a href="tel:+34646059962"
+                    <p><i class="ri-map-pin-line" aria-hidden="true"></i>Polígono Tecnológico Los, C. Zamora, 130, 18151
+                        Ogíjares, Granada</p>
+                    <p><i class="ri-phone-line" aria-hidden="true"></i><a href="tel:+34646059962"
                             style="color: inherit; text-decoration: none;">+34 646 059 962</a></p>
-                    <p><i class="ri-whatsapp-line"></i><a
+                    <p><i class="ri-whatsapp-line" aria-hidden="true"></i><a
                             href="https://wa.me/34646059962?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20las%20pistas"
                             target="_blank" rel="noopener" style="color: inherit; text-decoration: none;">Escríbenos por
                             WhatsApp</a></p>
-                    <p><i class="ri-time-line"></i>Lunes a Jueves: 09:00 a 14:00 y 17:00 a 23:30 // Viernes a Domingo:
-                        9:00 a 14:00 y 17:00 a 22:00</p>
+                    <p><i class="ri-time-line" aria-hidden="true"></i>Lunes a Jueves: 09:00 a 14:00 y 17:00 a 23:30 //
+                        Viernes a Domingo: 9:00 a 14:00 y 17:00 a 22:00</p>
                 </div>
                 <a href="https://maps.app.goo.gl/GZXgGoteM9hXp8mP6" target="_blank" rel="noopener" class="mapa-link"
                     aria-label="Abrir ubicación de Geopadel en Google Maps">
