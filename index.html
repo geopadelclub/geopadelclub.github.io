@@ -23,20 +23,23 @@
     <meta name="twitter:description" content="Reserva tu pista de pádel online en Geopadel.">
     <meta name="twitter:image" content="https://geopadelclub.github.io/Geopadel-512.webp">
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' data: https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://*.challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com https://www.google.com https://maps.google.com; base-uri 'self'; form-action 'self';">
+        content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' data: https://*.supabase.co wss://*.supabase.co; base-uri 'self'; form-action 'self';">
     <link rel="icon" type="image/webp" href="Geopadel.webp">
     <link rel="preload" href="Geopadel.webp" as="image" type="image/webp" fetchpriority="high">
     <link rel="preload" href="fondo.webp" as="image" type="image/webp" fetchpriority="high">
-    <link rel="preload" href="assets/remixicon/remixicon.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="preconnect" href="https://gprpyxeamjmvmqtkjvtn.supabase.co">
-    <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript>
-        <link rel="stylesheet" href="styles.css">
-    </noscript>
+    <script src="theme-init.js"></script>
     <link rel="stylesheet" href="assets/remixicon/remixicon.css">
-    <script
-        type="application/ld+json"> {"@context":"https://schema.org","@type":"SportsActivityLocation","@id":"https://geopadelclub.github.io/#club","name":"Geopadel","description":"Club de pádel en Ogíjares (Granada) con reserva de pistas online.","url":"https://geopadelclub.github.io/","image":"https://geopadelclub.github.io/Geopadel-512.webp","logo":"https://geopadelclub.github.io/Geopadel-512.webp","telephone":"+34646059962","priceRange":"€€","hasMap":"https://maps.app.goo.gl/GZXgGoteM9hXp8mP6","address":{"@type":"PostalAddress","streetAddress":"Polígono Tecnológico los, C. Zamora, 130","addressLocality":"Ogíjares","addressRegion":"Granada","postalCode":"18151","addressCountry":"ES"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"09:00","closes":"14:00"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday"],"opens":"17:00","closes":"23:30"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Friday","Saturday","Sunday"],"opens":"17:00","closes":"22:00"}],"potentialAction":{"@type":"ReserveAction","target":{"@type":"EntryPoint","urlTemplate":"https://geopadelclub.github.io/reservar","actionPlatform":["http://schema.org/DesktopWebPlatform","http://schema.org/MobileWebPlatform"]},"result":{"@type":"Reservation","name":"Reserva de pista de pádel"}}} </script>
-    <script> (function () { try { var t = localStorage.getItem('gp-theme'); if (t !== 'dark' && t !== 'light') { t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; } document.documentElement.setAttribute('data-theme', t); } catch (e) { } })(); function cambiarTema() { const current = document.documentElement.getAttribute('data-theme'); const next = current === 'dark' ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', next); localStorage.setItem('gp-theme', next); const m = document.getElementById('metaTheme'); if (m) m.setAttribute('content', next === 'dark' ? '#364650' : '#fcfdfc'); document.querySelectorAll('.theme-toggle i').forEach(i => { i.className = next === 'dark' ? 'ri-sun-line' : 'ri-moon-line'; }); } document.addEventListener('DOMContentLoaded', () => { const t = document.documentElement.getAttribute('data-theme'); document.querySelectorAll('.theme-toggle i').forEach(i => { i.className = t === 'dark' ? 'ri-sun-line' : 'ri-moon-line'; }); }); </script>
+    <link rel="stylesheet" href="styles.css">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"SportsActivityLocation","@id":"https://geopadelclub.github.io/#club","name":"Geopadel","description":"Club de pádel en Ogíjares (Granada) con reserva de pistas online.","url":"https://geopadelclub.github.io/","image":"https://geopadelclub.github.io/Geopadel-512.webp","logo":"https://geopadelclub.github.io/Geopadel-512.webp","telephone":"+34646059962","priceRange":"€€","hasMap":"https://maps.app.goo.gl/GZXgGoteM9hXp8mP6","address":{"@type":"PostalAddress","streetAddress":"Polígono Tecnológico los, C. Zamora, 130","addressLocality":"Ogíjares","addressRegion":"Granada","postalCode":"18151","addressCountry":"ES"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"09:00","closes":"14:00"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday"],"opens":"17:00","closes":"23:30"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Friday","Saturday","Sunday"],"opens":"17:00","closes":"22:00"}],"potentialAction":{"@type":"ReserveAction","target":{"@type":"EntryPoint","urlTemplate":"https://geopadelclub.github.io/reservar","actionPlatform":["http://schema.org/DesktopWebPlatform","http://schema.org/MobileWebPlatform"]},"result":{"@type":"Reservation","name":"Reserva de pista de pádel"}}}
+    </script>
+    <script defer src="config.js"></script>
+    <script defer src="utils.js"></script>
+    <script defer src="i18n.js"></script>
+    <script defer src="acciones.js"></script>
+    <script defer src="landing.js"></script>
     <script defer src="cookies.js"></script>
     <style>
         :root {
@@ -612,42 +615,52 @@
     <header class="landing-header"><a href="/"><img class="logo" src="Geopadel.webp" alt="Geopadel" width="150"
                 height="150"></a>
         <div class="header-right">
-            <nav><a href="#tarifas">Tarifas</a><a href="#ubicacion">Ubicación</a><a href="reservar"
-                    class="btn-nav-reservar">Reservar pista</a></nav><button type="button" class="theme-toggle"
-                aria-label="Cambiar tema" onclick="cambiarTema()"><i class="ri-moon-line"
-                    aria-hidden="true"></i></button>
+            <nav>
+                <a href="#tarifas" data-i18n="nav.tarifas">Tarifas</a>
+                <a href="#ubicacion" data-i18n="nav.ubicacion">Ubicación</a>
+                <a href="reservar" class="btn-nav-reservar" data-i18n="nav.reservar">Reservar pista</a>
+            </nav>
+            <button type="button" class="theme-toggle" id="btnIdioma" data-action="cambiar-idioma"
+                aria-label="Cambiar idioma" style="font-weight:800;font-size:12px">ES</button>
+            <button type="button" class="theme-toggle" aria-label="Cambiar tema" data-action="alternar-tema"><i
+                    class="ri-moon-line" aria-hidden="true"></i></button>
         </div>
     </header>
     <main>
         <section class="hero"><img src="fondo.webp" class="hero-bg" alt="" fetchpriority="high" loading="eager">
             <div class="hero-overlay"></div>
             <div class="hero-content">
-                <h1>Tu pista de pádel en Ogíjares</h1>
-                <p>Consulta disponibilidad al instante, elige tu hora y juega. El pago se realiza cómodamente en el
-                    club.</p><a href="reservar" class="btn-hero">Reservar pista ahora</a>
+                <h1 data-i18n="hero.titulo">Tu pista de pádel en Ogíjares</h1>
+                <p data-i18n="hero.subtitulo">Consulta disponibilidad al instante, elige tu hora y juega. El pago se
+                    realiza cómodamente en el club.</p><a href="reservar" class="btn-hero" data-i18n="hero.cta">Reservar
+                    pista ahora</a>
             </div>
         </section>
         <section class="section" id="beneficios">
-            <h2 class="section-title">¿Por qué jugar en Geopadel?</h2>
-            <p class="section-subtitle">Las mejores instalaciones para disfrutar del pádel en Granada.</p>
+            <h2 class="section-title" data-i18n="features.titulo">¿Por qué jugar en Geopadel?</h2>
+            <p class="section-subtitle" data-i18n="features.subtitulo">Las mejores instalaciones para disfrutar del
+                pádel en Granada.</p>
             <div class="features-grid">
                 <div class="feature-card"><i class="ri-calendar-check-line" aria-hidden="true"></i>
-                    <h3>Reserva en 1 minuto</h3>
-                    <p>Elige día, duración y hora de forma sencilla. Sin registros complicados, directo al juego.</p>
+                    <h3 data-i18n="feature1.titulo">Reserva en 1 minuto</h3>
+                    <p data-i18n="feature1.texto">Elige día, duración y hora de forma sencilla. Sin registros
+                        complicados, directo al juego.</p>
                 </div>
                 <div class="feature-card"><i class="ri-trophy-line" aria-hidden="true"></i>
-                    <h3>Pistas de primer nivel</h3>
-                    <p>Instalaciones de última generación, mantenidas a diario para que solo te preocupes de jugar.</p>
+                    <h3 data-i18n="feature2.titulo">Pistas de primer nivel</h3>
+                    <p data-i18n="feature2.texto">Instalaciones de última generación, mantenidas a diario para que solo
+                        te preocupes de jugar.</p>
                 </div>
                 <div class="feature-card"><i class="ri-cup-line" aria-hidden="true"></i>
-                    <h3>Ambiente inmejorable</h3>
-                    <p>Ven a disfrutar del deporte y quédate después en nuestra zona de bar y tienda.</p>
+                    <h3 data-i18n="feature3.titulo">Ambiente inmejorable</h3>
+                    <p data-i18n="feature3.texto">Ven a disfrutar del deporte y quédate después en nuestra zona de bar y
+                        tienda.</p>
                 </div>
             </div>
         </section>
         <section class="section" id="tarifas">
-            <h2 class="section-title">Nuestras Tarifas</h2>
-            <p class="section-subtitle">Precios claros por pista. Sin sorpresas.</p>
+            <h2 class="section-title" data-i18n="tarifas.titulo">Nuestras Tarifas</h2>
+            <p class="section-subtitle" data-i18n="tarifas.subtitulo">Precios claros por pista. Sin sorpresas.</p>
             <div class="tarifas-container">
                 <div class="tarifas-grid">
                     <div class="tarifa-col">
@@ -680,15 +693,15 @@
             </div>
         </section>
         <section class="section" id="huecos">
-            <h2 class="section-title">Huecos libres hoy</h2>
-            <p class="section-subtitle">Actualizado en tiempo real. Reserva desde aquí.</p>
+            <h2 class="section-title" data-i18n="huecos.titulo">Huecos libres hoy</h2>
+            <p class="section-subtitle" data-i18n="huecos.subtitulo">Actualizado en tiempo real. Reserva desde aquí.</p>
             <div id="huecosHoy" class="huecos-grid" aria-live="polite">
                 <p class="huecos-cargando">Cargando disponibilidad...</p>
             </div>
         </section>
         <section class="section" id="ubicacion">
-            <h2 class="section-title">¿Dónde estamos?</h2>
-            <p class="section-subtitle">Ven a conocernos, estamos muy cerca.</p>
+            <h2 class="section-title" data-i18n="ubicacion.titulo">¿Dónde estamos?</h2>
+            <p class="section-subtitle" data-i18n="ubicacion.subtitulo">Ven a conocernos, estamos muy cerca.</p>
             <div class="ubicacion-grid">
                 <div class="ubicacion-info">
                     <h3>Geopadel Ogíjares</h3>
@@ -702,10 +715,11 @@
                             WhatsApp</a></p>
                     <p><i class="ri-time-line" aria-hidden="true"></i>Lunes a Jueves: 09:00 a 14:00 y 17:00 a 23:30 //
                         Viernes a Domingo: 9:00 a 14:00 y 17:00 a 22:00</p>
-                </div><a href="https://maps.app.goo.gl/GZXgGoteM9hXp8mP6" target="_blank" rel="noopener"
-                    class="mapa-link" aria-label="Abrir ubicación de Geopadel en Google Maps"><i class="ri-map-2-line"
-                        aria-hidden="true"></i><b>Ver en Google Maps</b><span>Haz clic para abrir la ubicación exacta en
-                        tu aplicación de mapas.</span></a>
+                </div>
+                <a href="https://maps.app.goo.gl/GZXgGoteM9hXp8mP6" target="_blank" rel="noopener" class="mapa-link"
+                    aria-label="Abrir ubicación de Geopadel en Google Maps"><i class="ri-map-2-line"
+                        aria-hidden="true"></i><b data-i18n="ubicacion.cta">Ver en Google Maps</b><span>Haz clic para
+                        abrir la ubicación exacta en tu aplicación de mapas.</span></a>
             </div>
         </section>
     </main>
@@ -720,8 +734,6 @@
             rel="noopener noreferrer"><i class="ri-whatsapp-line" aria-hidden="true"></i>Hablar por WhatsApp</a>
         <p class="contacto-llamar">¿Prefieres llamar? <a href="tel:+34646059962">646 05 99 62</a></p>
     </div>
-    <script src="config.js"></script>
-    <script defer src="landing.js"></script>
 </body>
 
 </html>

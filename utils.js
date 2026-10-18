@@ -5,6 +5,7 @@ const eur = n => (Number(n) || 0).toLocaleString('es-ES', { style: 'currency', c
 const redondear2 = n => Math.round((Number(n) || 0) * 100) / 100;
 function toast(msg, tipo = 'ok', ms = 3500) {
     const box = $('toasts');
+    if (!box) return;
     const el = document.createElement('div');
     el.className = 'toast ' + (tipo === 'ok' ? '' : tipo);
     el.textContent = msg;
@@ -24,7 +25,7 @@ function sumarDiasISO(iso, dias) {
     const [y, m, d] = iso.split('-').map(Number);
     return new Date(Date.UTC(y, m - 1, d + dias, 12, 0, 0)).toISOString().split('T')[0];
 }
-function estadoRed() { $('bannerOffline').classList.toggle('show', !navigator.onLine); }
+function estadoRed() { const b = $('bannerOffline'); if (b) b.classList.toggle('show', !navigator.onLine); }
 function descargarBlob(blob, nombre) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -107,8 +108,6 @@ async function conReintento(fn, intentos = 2, espera = 700) {
     if (ultimo.e) throw ultimo.e;
     return ultimo.r;
 }
-// ---- Autocompletado de clientes ----
-// FIX: idempotente, no duplica el wrapper en llamadas repetidas
 function enlazarBuscadorCliente(inpNombre, inpTel, alElegir) {
     if (!inpNombre || !inpTel) return;
     const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
@@ -132,7 +131,7 @@ function enlazarBuscadorCliente(inpNombre, inpTel, alElegir) {
         return res.slice(0, MAX).map(x => x.c);
     }
     function vincular(inp) {
-        if (inp.dataset.cliBound) return; // FIX
+        if (inp.dataset.cliBound) return;
         inp.dataset.cliBound = '1';
         const wrap = document.createElement('div');
         wrap.className = 'cli-wrap';
@@ -187,10 +186,7 @@ function enlazarBuscadorCliente(inpNombre, inpTel, alElegir) {
 function customConfirm(mensaje, titulo = 'Confirmación') {
     return new Promise((resolve) => {
         const dialog = $('modalConfirmDialog');
-        if (!dialog || typeof dialog.showModal !== 'function') {
-            resolve(window.confirm(mensaje));
-            return;
-        }
+        if (!dialog || typeof dialog.showModal !== 'function') { resolve(window.confirm(mensaje)); return; }
         dialog.returnValue = '';
         $('confirmDialogTitle').innerText = titulo;
         $('confirmDialogMessage').innerText = mensaje;
@@ -202,11 +198,7 @@ function customConfirm(mensaje, titulo = 'Confirmación') {
             dialog.removeEventListener('close', onClose);
         };
         const onCancel = () => dialog.close('cancel');
-        const onClose = () => {
-            const ok = dialog.returnValue === 'ok';
-            cleanup();
-            resolve(ok);
-        };
+        const onClose = () => { const ok = dialog.returnValue === 'ok'; cleanup(); resolve(ok); };
         btnCancel.addEventListener('click', onCancel);
         dialog.addEventListener('close', onClose);
         btnOk.onclick = (e) => { e.preventDefault(); dialog.close('ok'); };
@@ -216,10 +208,7 @@ function customConfirm(mensaje, titulo = 'Confirmación') {
 function customPrompt(mensaje, valorDefecto = '', titulo = 'Entrada requerida') {
     return new Promise((resolve) => {
         const dialog = $('modalConfirmDialog');
-        if (!dialog || typeof dialog.showModal !== 'function') {
-            resolve(window.prompt(mensaje, valorDefecto));
-            return;
-        }
+        if (!dialog || typeof dialog.showModal !== 'function') { resolve(window.prompt(mensaje, valorDefecto)); return; }
         dialog.returnValue = '';
         $('confirmDialogTitle').innerText = titulo;
         $('confirmDialogMessage').innerText = mensaje;
@@ -235,11 +224,7 @@ function customPrompt(mensaje, valorDefecto = '', titulo = 'Entrada requerida') 
         };
         const onCancel = () => dialog.close('cancel');
         const onKey = (e) => { if (e.key === 'Enter') { e.preventDefault(); dialog.close('ok'); } };
-        const onClose = () => {
-            const val = dialog.returnValue === 'ok' ? input.value : null;
-            cleanup();
-            resolve(val);
-        };
+        const onClose = () => { const val = dialog.returnValue === 'ok' ? input.value : null; cleanup(); resolve(val); };
         btnCancel.addEventListener('click', onCancel);
         input.addEventListener('keydown', onKey);
         dialog.addEventListener('close', onClose);
@@ -248,16 +233,29 @@ function customPrompt(mensaje, valorDefecto = '', titulo = 'Entrada requerida') 
         setTimeout(() => input.focus(), 50);
     });
 }
+const ACCIONES = {};
+window.accion = (nombre, fn) => { if (typeof fn === 'function') ACCIONES[nombre] = fn; };
+function _delegar(evento, atributo, preventDefault = true) {
+    document.addEventListener(evento, e => {
+        const el = e.target.closest(`[${atributo}]`);
+        if (!el) return;
+        const nombre = el.getAttribute(atributo);
+        const fn = ACCIONES[nombre];
+        if (!fn) return;
+        if (preventDefault) e.preventDefault();
+        fn(el, e);
+    }, false);
+}
+_delegar('click', 'data-action');
+_delegar('input', 'data-oninput', false);
+_delegar('change', 'data-onchange', false);
+_delegar('submit', 'data-onsubmit');
 window.addEventListener('unhandledrejection', e => {
     console.error('Unhandled promise rejection:', e.reason);
-    if (typeof toast === 'function' && document.getElementById('toasts')) {
-        toast('Ha ocurrido un error inesperado. Inténtalo de nuevo.', 'err');
-    }
+    if (document.getElementById('toasts')) toast('Ha ocurrido un error inesperado. Inténtalo de nuevo.', 'err');
 });
 window.addEventListener('error', e => {
     if (e.target && (e.target.tagName === 'IMG' || e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK')) return;
     console.error('Uncaught error:', e.error || e.message);
-    if (typeof toast === 'function' && document.getElementById('toasts')) {
-        toast('Ha ocurrido un error inesperado. Inténtalo de nuevo.', 'err');
-    }
+    if (document.getElementById('toasts')) toast('Ha ocurrido un error inesperado. Inténtalo de nuevo.', 'err');
 });

@@ -80,13 +80,8 @@ async function comprobarSesion() {
     let tieneHistorial = false;
     try { tieneHistorial = !!localStorage.getItem(CLAVE_SESION_INI); } catch (e) { }
     if (!tieneHistorial) { mostrarLogin(); return; }
-    try {
-        await inicializarSupabase();
-    } catch (e) {
-        console.error(e);
-        mostrarLogin();
-        return;
-    }
+    try { await inicializarSupabase(); }
+    catch (e) { console.error(e); mostrarLogin(); return; }
     const { data } = await supabaseClient.auth.getSession();
     if (data && data.session) {
         if (sesionCaducada()) {
@@ -147,6 +142,9 @@ function mostrarPanelAdmin() {
     renderSelectorMesas();
     iniciarSuscripcionRealtime();
     iniciarVigilanciaSesion();
+    if (typeof pedirPermisoNotificaciones === 'function') pedirPermisoNotificaciones();
+    const bNotif = document.getElementById('btnNotif');
+    if (bNotif && 'Notification' in window && Notification.permission === 'granted') bNotif.style.display = 'none';
     cargarDatosGlobales();
     if (!esJefa()) cargarMisFichajes();
     if (typeof entrarResumen === 'function') entrarResumen();
@@ -168,9 +166,8 @@ $('loginForm').addEventListener('submit', async function (e) {
     loginEnCurso = true;
     btn.disabled = true; btn.innerText = "Verificando...";
     msgDiv.className = ''; msgDiv.innerText = 'Conectando...';
-    try {
-        await inicializarSupabase();
-    } catch (loadErr) {
+    try { await inicializarSupabase(); }
+    catch (loadErr) {
         console.error(loadErr);
         msgDiv.className = 'msg-error';
         msgDiv.innerText = 'No se pudo cargar la librería de base de datos. Revisa tu conexión y recarga.';
@@ -213,9 +210,7 @@ $('loginForm').addEventListener('submit', async function (e) {
                         console.error(ex);
                         msgDiv.className = 'msg-error';
                         msgDiv.innerText = 'Error al cargar el panel. Recarga la página.';
-                    } finally {
-                        loginEnCurso = false;
-                    }
+                    } finally { loginEnCurso = false; }
                 }, 250);
                 return;
             }
@@ -278,7 +273,13 @@ function pitar() {
 function avisarNuevaReservaWeb(p) {
     const r = p && p.new;
     if (!r || r.origen !== 'web' || r.estado !== 'Pendiente') return;
-    toast(`Nueva reserva web: ${r.cliente || ''} · ${fechaBonita(r.fecha)} ${String(r.hora_inicio || '').slice(0, 5)}`, 'warn', 9000);
+    const msg = `Nueva reserva web: ${r.cliente || ''} · ${fechaBonita(r.fecha)} ${String(r.hora_inicio || '').slice(0, 5)}`;
+    const detalle = `${r.pista || ''}${r.precio ? ' · ' + eur(r.precio) : ''}`;
+    let mostrada = false;
+    if (document.hidden && typeof mostrarNotificacion === 'function') {
+        mostrada = mostrarNotificacion(msg, { body: detalle });
+    }
+    if (!mostrada) toast(msg, 'warn', 9000);
     pitar();
     try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) { }
 }

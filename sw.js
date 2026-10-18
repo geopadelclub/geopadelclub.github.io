@@ -2,6 +2,7 @@
 const VERSION = 'geopadel-b62b41b5b0';
 const BASE = [
     './', 'index.html', 'styles.css', 'config.js', 'utils.js',
+    'acciones.js', 'i18n.js', 'landing.js',
     'Geopadel.webp', 'Geopadel-512.webp', 'fondo.webp',
     'assets/remixicon/remixicon.css', 'assets/remixicon/remixicon.woff2',
     'theme-init.js', 'cookies.js'
@@ -11,12 +12,14 @@ const PANEL = [
     'bar.js', 'caja.js', 'tarifas.js', 'gestion.js',
     'copia-zip.js', 'copia-worker.js', 'copia.js',
     'fichajes.js', 'contrato.js', 'tienda.js', 'ajustes.js', 'resumen.js',
+    'acciones.js', 'notificaciones.js',
     'styles.css', 'panel.css', 'print.css',
     'manifest.webmanifest', 'assets/supabase.min.js'
 ];
 const PUBLICO = [
     'reservar.html', 'reservar.css', 'reservar.js', 'reservar-tienda.js',
-    'privacidad.html', 'manifest-reservar.webmanifest', 'assets/supabase.min.js'
+    'privacidad.html', 'manifest-reservar.webmanifest', 'assets/supabase.min.js',
+    'acciones.js', 'i18n.js'
 ];
 const ARCHIVOS = [...BASE, ...PANEL, ...PUBLICO];
 async function detectarModo() {
@@ -80,5 +83,27 @@ self.addEventListener('fetch', e => {
             }
             return Response.error();
         }
+    })());
+});
+self.addEventListener('push', e => {
+    let data = { title: 'Geopadel', body: 'Nueva notificación' };
+    try { if (e.data) data = e.data.json(); } catch (err) { if (e.data) data.body = e.data.text(); }
+    e.waitUntil(self.registration.showNotification(data.title || 'Geopadel', {
+        body: data.body || '',
+        icon: 'Geopadel.webp',
+        badge: 'Geopadel.webp',
+        tag: 'geopadel-reserva',
+        data: { url: data.url || '/panel' }
+    }));
+});
+self.addEventListener('notificationclick', e => {
+    e.notification.close();
+    const url = (e.notification.data && e.notification.data.url) || '/panel';
+    e.waitUntil((async () => {
+        const clientes = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+        for (const c of clientes) {
+            if (c.url.includes(url) && 'focus' in c) return c.focus();
+        }
+        return self.clients.openWindow(url);
     })());
 });
