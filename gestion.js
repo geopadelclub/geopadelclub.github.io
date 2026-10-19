@@ -20,31 +20,30 @@ enlazarBuscadorCliente($('deudaNombre'), $('deudaTelefono'));
 async function cargarDeudas() {
     const tb = $('deudasBody');
     if (!tb || !supabaseClient) return;
-    try {
-        const { data: pend } = await supabaseClient.from('deudas').select('importe').neq('estado', 'Resuelta');
-        const total = redondear2((pend || []).reduce((s, d) => s + (Number(d.importe) || 0), 0));
-        $('deudaTotal').innerText = eur(total);
-    } catch (e) { console.error(e); }
-    const filtro = $('deudaFiltro')?.value || 'Pendiente';
-    let q = supabaseClient.from('deudas').select('id, nombre, telefono, fecha, hora, importe, estado, resuelta_por, resuelta_at, creado_por');
-    if (filtro === 'Pendiente') q = q.neq('estado', 'Resuelta');
-    else if (filtro === 'Resuelta') q = q.eq('estado', 'Resuelta');
-    q = q.order('fecha', { ascending: false }).order('hora', { ascending: false }).order('id', { ascending: false });
-    const { data, error } = await conReintento(() => leerTodo(() => q));
+    const { data, error } = await conReintento(() => leerTodo(() =>
+        supabaseClient.from('deudas').select('id, nombre, telefono, fecha, hora, importe, estado, resuelta_por, resuelta_at, creado_por')
+            .order('fecha', { ascending: false }).order('hora', { ascending: false }).order('id', { ascending: false })
+    ));
     if (error) {
         console.error(error);
         tb.innerHTML = `<tr><td colspan="6" class="tabla-empty" style="color:var(--red)">${esc(esErrorTabla(error) ? MSG_FALTA_TABLA('deudas') : 'Error al cargar deudas: ' + error.message)}</td></tr>`;
         return;
     }
     deudas = data || [];
+    const total = redondear2(deudas.filter(d => d.estado !== 'Resuelta').reduce((s, d) => s + (Number(d.importe) || 0), 0));
+    $('deudaTotal').innerText = eur(total);
     dibujarDeudas();
 }
 function dibujarDeudas() {
     const tb = $('deudasBody');
     if (!tb) return;
+    const filtro = $('deudaFiltro')?.value || 'Pendiente';
     const q = $('deudaBuscar').value.toLowerCase().trim();
-    const lista = deudas.filter(d =>
-        !q || String(d.nombre).toLowerCase().includes(q) || String(d.telefono || '').toLowerCase().includes(q));
+    const lista = deudas.filter(d => {
+        if (filtro === 'Pendiente' && d.estado === 'Resuelta') return false;
+        if (filtro === 'Resuelta' && d.estado !== 'Resuelta') return false;
+        return !q || String(d.nombre).toLowerCase().includes(q) || String(d.telefono || '').toLowerCase().includes(q);
+    });
     if (!lista.length) { tb.innerHTML = '<tr><td colspan="6" class="tabla-empty">No hay deudas en esta lista</td></tr>'; return; }
     tb.innerHTML = lista.map(d => {
         const res = d.estado === 'Resuelta';
@@ -57,13 +56,13 @@ function dibujarDeudas() {
             ? `<button type="button" class="btn-add gray" data-act="reabrir" data-id="${esc(d.id)}"><i class="ri-arrow-go-back-line" aria-hidden="true"></i>Reabrir</button>`
             : `<button type="button" class="btn-add" data-act="resolver" data-id="${esc(d.id)}"><i class="ri-check-double-line" aria-hidden="true"></i>Resolver</button>`;
         return `<tr class="${res ? 'deuda-resuelta' : ''}">
-<td><b>${esc(d.nombre)}</b></td>
-<td>${tel}</td>
-<td>${esc(fmtFecha(d.fecha))}${hora ? ' · ' + esc(hora) : ''}</td>
-<td><b>${eur(d.importe)}</b></td>
-<td>${estado}</td>
-<td>${accion}<button type="button" class="btn-add danger" data-act="eliminar" data-id="${esc(d.id)}"><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar</button></td>
-</tr>`;
+            <td><b>${esc(d.nombre)}</b></td>
+            <td>${tel}</td>
+            <td>${esc(fmtFecha(d.fecha))}${hora ? ' · ' + esc(hora) : ''}</td>
+            <td><b>${eur(d.importe)}</b></td>
+            <td>${estado}</td>
+            <td>${accion}<button type="button" class="btn-add danger" data-act="eliminar" data-id="${esc(d.id)}"><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar</button></td>
+            </tr>`;
     }).join('');
 }
 async function anadirDeuda(e) {

@@ -19,6 +19,7 @@ async function cargarProductos() {
     if (error) { console.error(error); toast('No se pudo cargar el catálogo', 'err'); return; }
     datosLocales.productos = data || [];
     dibujarCatalogo(datosLocales.productos);
+    if (typeof filtrarGestionCatalogo === 'function') filtrarGestionCatalogo();
 }
 async function cargarMesasBar() {
     const { data, error } = await conReintento(() => supabaseClient.from('mesas_bar').select('mesa, items'));

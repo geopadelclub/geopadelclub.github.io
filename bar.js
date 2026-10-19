@@ -149,7 +149,6 @@ function dibujarCatalogo(productos) {
             `<button type="button" class="btn-product" data-id="${esc(p.id)}">${esc(p.nombre)} <span>${eur(p.precio)}</span></button>`).join('')
             : '<p style="color:var(--muted);font-weight:600">No hay productos en esta categoría.</p>';
     }
-    filtrarGestionCatalogo();
 }
 $('catalogGrid').addEventListener('click', e => {
     const b = e.target.closest('.btn-product'); if (!b) return;

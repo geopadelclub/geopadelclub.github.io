@@ -55,7 +55,7 @@ function marcarInicioSesion() {
 function registrarActividad() {
     try { localStorage.setItem(CLAVE_ULT_ACT, String(Date.now())); } catch (e) { }
 }
-['click', 'mousemove', 'keydown', 'scroll', 'touchstart'].forEach(evt => {
+['click', 'keydown', 'scroll', 'touchstart'].forEach(evt => {
     window.addEventListener(evt, debounce(registrarActividad, 1000), { passive: true });
 });
 function sesionCaducada() {

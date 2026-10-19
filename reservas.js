@@ -41,12 +41,7 @@ function actualizarChipPendientes() {
     chip.classList.toggle('hay', totalPendientes > 0);
 }
 async function cargarTotalPendientes() {
-    const iso = $('fechaCuadrante').value || fechaLocalISO();
-    const { count, error } = await supabaseClient.from('reservas')
-        .select('id', { count: 'exact', head: true })
-        .eq('estado', 'Pendiente').eq('fecha', iso);
-    if (error) { console.error(error); return; }
-    totalPendientes = count || 0;
+    totalPendientes = (datosLocales.reservas || []).filter(r => r.estado === 'Pendiente').length;
     actualizarChipPendientes();
 }
 async function irAPrimeraPendiente() {
