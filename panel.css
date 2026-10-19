@@ -2018,3 +2018,168 @@ tr.deuda-resuelta td {
     margin-bottom: 2px;
     overflow-wrap: anywhere;
 }
+
+.pistas-checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 8px;
+    margin: 8px 0 16px;
+}
+
+.pistas-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--surface-2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.pistas-checkbox-item:hover {
+    border-color: var(--primary);
+    background: var(--surface-3);
+}
+
+.pistas-checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+    margin: 0;
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+.pistas-checkbox-item:has(input:checked) {
+    background: var(--green-soft);
+    border-color: var(--green);
+    color: var(--green-text);
+}
+
+.card-jugador-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+    transition: all 0.15s;
+}
+
+.card-jugador-item.estado-efectivo {
+    border-left: 4px solid #16a34a;
+    background: rgba(22, 163, 74, 0.05);
+}
+
+.card-jugador-item.estado-tarjeta {
+    border-left: 4px solid #3b82f6;
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.jugador-info-title {
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--heading);
+}
+
+.jugador-info-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+}
+
+.jugador-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.btn-pay-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: #fff;
+    font-size: 18px;
+}
+
+.btn-pay-toggle:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.btn-pay-efectivo {
+    background: #16a34a;
+}
+
+.btn-pay-efectivo:hover:not(:disabled) {
+    background: #15803d;
+    transform: scale(1.05);
+}
+
+.btn-pay-tarjeta {
+    background: #3b82f6;
+}
+
+.btn-pay-tarjeta:hover:not(:disabled) {
+    background: #2563eb;
+    transform: scale(1.05);
+}
+
+.btn-pay-reset {
+    background: #ef4444;
+}
+
+.btn-pay-reset:hover:not(:disabled) {
+    background: #dc2626;
+    transform: scale(1.05);
+}
+
+.estado-global {
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+}
+
+.nota-box h5 {
+    color: var(--heading);
+}
+
+.nota-hint {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+    background: var(--surface-3);
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.modal-section-box .cli-wrap input {
+    width: 100%;
+}
+
+.modal-section-box .cli-wrap input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(75, 122, 134, 0.2);
+}
