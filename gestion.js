@@ -56,13 +56,13 @@ function dibujarDeudas() {
             ? `<button type="button" class="btn-add gray" data-act="reabrir" data-id="${esc(d.id)}"><i class="ri-arrow-go-back-line" aria-hidden="true"></i>Reabrir</button>`
             : `<button type="button" class="btn-add" data-act="resolver" data-id="${esc(d.id)}"><i class="ri-check-double-line" aria-hidden="true"></i>Resolver</button>`;
         return `<tr class="${res ? 'deuda-resuelta' : ''}">
-            <td><b>${esc(d.nombre)}</b></td>
-            <td>${tel}</td>
-            <td>${esc(fmtFecha(d.fecha))}${hora ? ' · ' + esc(hora) : ''}</td>
-            <td><b>${eur(d.importe)}</b></td>
-            <td>${estado}</td>
-            <td>${accion}<button type="button" class="btn-add danger" data-act="eliminar" data-id="${esc(d.id)}"><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar</button></td>
-            </tr>`;
+<td><b>${esc(d.nombre)}</b></td>
+<td>${tel}</td>
+<td>${esc(fmtFecha(d.fecha))}${hora ? ' · ' + esc(hora) : ''}</td>
+<td><b>${eur(d.importe)}</b></td>
+<td>${estado}</td>
+<td>${accion}<button type="button" class="btn-add danger" data-act="eliminar" data-id="${esc(d.id)}"><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar</button></td>
+</tr>`;
     }).join('');
 }
 async function anadirDeuda(e) {

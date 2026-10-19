@@ -55,9 +55,9 @@
     <div id="bannerOffline" role="alert"><i class="ri-wifi-off-line" aria-hidden="true"></i>Sin conexión · los cambios
         no se guardarán hasta que vuelva internet</div>
     <div id="toasts" role="status" aria-live="polite"></div>
-    <main id="loginView" class="login-container" aria-label="Iniciar sesión">
-        <button type="button" class="theme-toggle" data-action="alternar-tema" aria-label="Cambiar tema"><i
-                class="ri-moon-line" aria-hidden="true"></i></button>
+    <main id="loginView" class="login-container" aria-label="Iniciar sesión"><button type="button" class="theme-toggle"
+            data-action="alternar-tema" aria-label="Cambiar tema"><i class="ri-moon-line"
+                aria-hidden="true"></i></button>
         <div class="login-card">
             <div class="gp-brand"><img class="gp-logo" src="./Geopadel.webp" alt="Geopadel" draggable="false"
                     width="150" height="150" fetchpriority="high"></div>
@@ -86,20 +86,19 @@
                         aria-hidden="true"></i></button><button type="button" class="btn-logout"
                     data-action="cerrar-sesion">Salir</button></div>
         </header>
-        <nav class="app-nav" aria-label="Secciones">
-            <button type="button" id="nav-resumen" class="nav-tab active" data-tab="resumen"><span class="ni"><i
-                        class="ri-dashboard-3-line" aria-hidden="true"></i></span>Resumen</button>
-            <button type="button" id="nav-reservas" class="nav-tab" data-tab="reservas"><span class="ni"><i
-                        class="ri-calendar-event-line" aria-hidden="true"></i></span>Reservas</button>
-            <button type="button" id="nav-ventas" class="nav-tab" data-tab="ventas"><span class="ni"><i
-                        class="ri-shopping-bag-3-line" aria-hidden="true"></i></span>Ventas</button>
-            <button type="button" id="nav-equipo" class="nav-tab" data-tab="equipo"><span class="ni"><i
-                        class="ri-team-line" aria-hidden="true"></i></span>Equipo</button>
-            <button type="button" id="nav-deudas" class="nav-tab" data-tab="deudas"><span class="ni"><i
-                        class="ri-wallet-3-line" aria-hidden="true"></i></span>Deudas</button>
-            <button type="button" id="nav-ajustes" class="nav-tab" data-tab="ajustes"><span class="ni"><i
-                        class="ri-settings-3-line" aria-hidden="true"></i></span>Ajustes</button>
-        </nav>
+        <nav class="app-nav" aria-label="Secciones"><button type="button" id="nav-resumen" class="nav-tab active"
+                data-tab="resumen"><span class="ni"><i class="ri-dashboard-3-line"
+                        aria-hidden="true"></i></span>Resumen</button><button type="button" id="nav-reservas"
+                class="nav-tab" data-tab="reservas"><span class="ni"><i class="ri-calendar-event-line"
+                        aria-hidden="true"></i></span>Reservas</button><button type="button" id="nav-ventas"
+                class="nav-tab" data-tab="ventas"><span class="ni"><i class="ri-shopping-bag-3-line"
+                        aria-hidden="true"></i></span>Ventas</button><button type="button" id="nav-equipo"
+                class="nav-tab" data-tab="equipo"><span class="ni"><i class="ri-team-line"
+                        aria-hidden="true"></i></span>Equipo</button><button type="button" id="nav-deudas"
+                class="nav-tab" data-tab="deudas"><span class="ni"><i class="ri-wallet-3-line"
+                        aria-hidden="true"></i></span>Deudas</button><button type="button" id="nav-ajustes"
+                class="nav-tab" data-tab="ajustes"><span class="ni"><i class="ri-settings-3-line"
+                        aria-hidden="true"></i></span>Ajustes</button></nav>
         <main class="container-fluid">
             <section id="tab-resumen" class="tab-content active">
                 <div id="resumenContenido">
@@ -108,28 +107,23 @@
                 </div>
             </section>
             <section id="tab-reservas" class="tab-content">
-                <div class="playtomic-header-bar">
-                    <button type="button" id="btnImprimir" class="btn-imprimir" data-action="imprimir-dia"
-                        title="Imprimir las reservas del día (A4 horizontal)"><i class="ri-printer-line"
-                            aria-hidden="true"></i><span>Imprimir día</span></button>
-                    <div class="date-nav-group">
-                        <button type="button" class="btn-playtomic-nav" data-action="ir-fecha-hoy">Hoy</button>
-                        <button type="button" class="btn-playtomic-nav" data-action="cambiar-fecha" data-offset="-1"
-                            aria-label="Día anterior"><i class="ri-arrow-left-s-line" aria-hidden="true"></i></button>
-                        <input type="date" id="fechaCuadrante" class="date-picker-input" aria-label="Fecha"
-                            data-onchange="al-cambiar-fecha">
-                        <button type="button" class="btn-playtomic-nav" data-action="cambiar-fecha" data-offset="1"
-                            aria-label="Día siguiente"><i class="ri-arrow-right-s-line" aria-hidden="true"></i></button>
-                    </div>
+                <div class="playtomic-header-bar"><button type="button" id="btnImprimir" class="btn-imprimir"
+                        data-action="imprimir-dia" title="Imprimir las reservas del día (A4 horizontal)"><i
+                            class="ri-printer-line" aria-hidden="true"></i><span>Imprimir día</span></button>
+                    <div class="date-nav-group"><button type="button" class="btn-playtomic-nav"
+                            data-action="ir-fecha-hoy">Hoy</button><button type="button" class="btn-playtomic-nav"
+                            data-action="cambiar-fecha" data-offset="-1" aria-label="Día anterior"><i
+                                class="ri-arrow-left-s-line" aria-hidden="true"></i></button><input type="date"
+                            id="fechaCuadrante" class="date-picker-input" aria-label="Fecha"
+                            data-onchange="al-cambiar-fecha"><button type="button" class="btn-playtomic-nav"
+                            data-action="cambiar-fecha" data-offset="1" aria-label="Día siguiente"><i
+                                class="ri-arrow-right-s-line" aria-hidden="true"></i></button></div>
                     <div class="stats-chips"><span class="chip">Ocupación <b id="statOcupacion">0%</b></span><span
-                            class="chip">Reservas <b id="statNumReservas">0</b></span>
-                        <button type="button" id="chipPendientes" class="chip chip-pendientes"
-                            data-action="ir-primera-pendiente"
+                            class="chip">Reservas <b id="statNumReservas">0</b></span><button type="button"
+                            id="chipPendientes" class="chip chip-pendientes" data-action="ir-primera-pendiente"
                             title="Ir a la primera reserva pendiente de confirmar">Pendientes <b
-                                id="statPendientes">0</b></button>
-                    </div>
-                    <button type="button" class="btn-crear-partido" data-action="nueva-reserva"
-                        aria-label="Crear reserva"><span class="plus"><i class="ri-add-line"
+                                id="statPendientes">0</b></button></div><button type="button" class="btn-crear-partido"
+                        data-action="nueva-reserva" aria-label="Crear reserva"><span class="plus"><i class="ri-add-line"
                                 aria-hidden="true"></i></span><span class="txt">Crear Reserva</span></button>
                 </div>
                 <div id="gridWrapper" class="grid-playtomic-wrapper">
@@ -137,12 +131,11 @@
                 </div>
             </section>
             <section id="tab-ventas" class="tab-content">
-                <div class="subnav" role="tablist" aria-label="Secciones de ventas">
-                    <button type="button" class="subnav-btn active" data-tab="tienda" role="tab" aria-selected="true"><i
-                            class="ri-goblet-line" aria-hidden="true"></i>Bar / TPV</button>
-                    <button type="button" class="subnav-btn" data-tab="caja" role="tab" aria-selected="false"><i
-                            class="ri-bar-chart-box-line" aria-hidden="true"></i>Caja</button>
-                </div>
+                <div class="subnav" role="tablist" aria-label="Secciones de ventas"><button type="button"
+                        class="subnav-btn active" data-tab="tienda" role="tab" aria-selected="true"><i
+                            class="ri-goblet-line" aria-hidden="true"></i>Bar / TPV</button><button type="button"
+                        class="subnav-btn" data-tab="caja" role="tab" aria-selected="false"><i
+                            class="ri-bar-chart-box-line" aria-hidden="true"></i>Caja</button></div>
                 <div id="sub-tienda" class="subtab-content active">
                     <div id="tab-tpv">
                         <div class="card">
@@ -237,8 +230,8 @@
                         <h3><i class="ri-lock-line" aria-hidden="true"></i>Cierre de Caja</h3>
                         <div class="cierre-grid"><label>Billetes (€)<input type="number" inputmode="decimal"
                                     id="cjBilletes" step="0.01" min="0"
-                                    data-oninput="calc-cierre"></label><label>Monedas
-                                (€)<input type="number" inputmode="decimal" id="cjMonedas" step="0.01" min="0"
+                                    data-oninput="calc-cierre"></label><label>Monedas (€)<input type="number"
+                                    inputmode="decimal" id="cjMonedas" step="0.01" min="0"
                                     data-oninput="calc-cierre"></label><label>Efectivo contado<input type="text"
                                     id="cjEfectivo" readonly value="0,00 €"></label><label>Datáfono (€)<input
                                     type="number" inputmode="decimal" id="cjDatafono" step="0.01" min="0"
@@ -279,37 +272,33 @@
                         <p id="copiaUltima" class="limp-leyenda" style="font-weight:700"></p><button type="button"
                             id="btnCopiaZip" class="btn-add blue"><i class="ri-download-cloud-2-line"
                                 aria-hidden="true"></i>Descargar copia completa (ZIP)</button>
-                        <div class="copia-grid">
-                            <button type="button" class="btn-cat-filter" data-exp="reservas"><i
-                                    class="ri-calendar-event-line" aria-hidden="true"></i>Reservas</button>
-                            <button type="button" class="btn-cat-filter" data-exp="clientes"><i class="ri-user-line"
-                                    aria-hidden="true"></i>Clientes</button>
-                            <button type="button" class="btn-cat-filter" data-exp="ventas"><i
-                                    class="ri-shopping-cart-line" aria-hidden="true"></i>Ventas</button>
-                            <button type="button" class="btn-cat-filter" data-exp="cierres"><i class="ri-lock-line"
-                                    aria-hidden="true"></i>Cierres de caja</button>
-                            <button type="button" class="btn-cat-filter" data-exp="deudas"><i class="ri-wallet-3-line"
-                                    aria-hidden="true"></i>Deudas</button>
-                            <button type="button" class="btn-cat-filter" data-exp="limpiezas"><i class="ri-brush-line"
-                                    aria-hidden="true"></i>Limpiezas</button>
-                            <button type="button" class="btn-cat-filter" data-exp="fichajes"><i class="ri-time-line"
-                                    aria-hidden="true"></i>Fichajes</button>
-                            <button type="button" class="btn-cat-filter" data-exp="productos"><i class="ri-store-2-line"
-                                    aria-hidden="true"></i>Catálogo</button>
-                            <button type="button" class="btn-cat-filter" data-exp="tarifas"><i
-                                    class="ri-price-tag-3-line" aria-hidden="true"></i>Tarifas</button>
-                        </div>
+                        <div class="copia-grid"><button type="button" class="btn-cat-filter" data-exp="reservas"><i
+                                    class="ri-calendar-event-line" aria-hidden="true"></i>Reservas</button><button
+                                type="button" class="btn-cat-filter" data-exp="clientes"><i class="ri-user-line"
+                                    aria-hidden="true"></i>Clientes</button><button type="button" class="btn-cat-filter"
+                                data-exp="ventas"><i class="ri-shopping-cart-line"
+                                    aria-hidden="true"></i>Ventas</button><button type="button" class="btn-cat-filter"
+                                data-exp="cierres"><i class="ri-lock-line" aria-hidden="true"></i>Cierres de
+                                caja</button><button type="button" class="btn-cat-filter" data-exp="deudas"><i
+                                    class="ri-wallet-3-line" aria-hidden="true"></i>Deudas</button><button type="button"
+                                class="btn-cat-filter" data-exp="limpiezas"><i class="ri-brush-line"
+                                    aria-hidden="true"></i>Limpiezas</button><button type="button"
+                                class="btn-cat-filter" data-exp="fichajes"><i class="ri-time-line"
+                                    aria-hidden="true"></i>Fichajes</button><button type="button" class="btn-cat-filter"
+                                data-exp="productos"><i class="ri-store-2-line"
+                                    aria-hidden="true"></i>Catálogo</button><button type="button" class="btn-cat-filter"
+                                data-exp="tarifas"><i class="ri-price-tag-3-line"
+                                    aria-hidden="true"></i>Tarifas</button></div>
                         <div id="msgCopia" class="msg-inline"></div>
                     </div>
                 </div>
             </section>
             <section id="tab-equipo" class="tab-content">
-                <div class="subnav" role="tablist" aria-label="Secciones de equipo">
-                    <button type="button" class="subnav-btn active" data-tab="fichajes" role="tab"
-                        aria-selected="true"><i class="ri-time-line" aria-hidden="true"></i>Fichaje</button>
-                    <button type="button" class="subnav-btn" data-tab="limpieza" role="tab" aria-selected="false"><i
-                            class="ri-brush-line" aria-hidden="true"></i>Limpieza</button>
-                </div>
+                <div class="subnav" role="tablist" aria-label="Secciones de equipo"><button type="button"
+                        class="subnav-btn active" data-tab="fichajes" role="tab" aria-selected="true"><i
+                            class="ri-time-line" aria-hidden="true"></i>Fichaje</button><button type="button"
+                        class="subnav-btn" data-tab="limpieza" role="tab" aria-selected="false"><i class="ri-brush-line"
+                            aria-hidden="true"></i>Limpieza</button></div>
                 <div id="sub-fichajes" class="subtab-content active">
                     <div class="card card-narrow" id="cardFichar">
                         <div style="text-align:center">
@@ -367,20 +356,17 @@
                                 data-fx="hoy">Hoy</button><button type="button" class="btn-cat-filter"
                                 data-fx="mes">Este mes</button><button type="button" class="btn-cat-filter"
                                 data-fx="mesAnt">Mes anterior</button></div>
-                        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
-                            <button type="button" class="btn-add" id="fxVer"><i class="ri-search-line"
-                                    aria-hidden="true"></i>Ver registro</button>
-                            <button type="button" class="btn-add blue" id="fxCsv"><i class="ri-download-2-line"
-                                    aria-hidden="true"></i>Descargar CSV</button>
-                            <button type="button" class="btn-add gray" id="fxImprimir"><i class="ri-printer-line"
-                                    aria-hidden="true"></i>Imprimir / PDF</button>
-                        </div>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><button type="button"
+                                class="btn-add" id="fxVer"><i class="ri-search-line" aria-hidden="true"></i>Ver
+                                registro</button><button type="button" class="btn-add blue" id="fxCsv"><i
+                                    class="ri-download-2-line" aria-hidden="true"></i>Descargar CSV</button><button
+                                type="button" class="btn-add gray" id="fxImprimir"><i class="ri-printer-line"
+                                    aria-hidden="true"></i>Imprimir / PDF</button></div>
                         <div id="fxMsg" class="msg-inline" aria-live="polite"></div>
                     </div>
                     <div id="fxContenido"></div>
                 </div>
-                <div id="sub-limpieza" class="subtab-content">
-                    <datalist id="dlTrabajadores"></datalist>
+                <div id="sub-limpieza" class="subtab-content"><datalist id="dlTrabajadores"></datalist>
                     <div id="avisoLimpiezaBanner" class="aviso-limpieza" hidden></div>
                     <div class="card">
                         <h3><i class="ri-brush-line" aria-hidden="true"></i>Registrar limpieza</h3>
@@ -442,8 +428,8 @@
                                 </tbody>
                             </table>
                         </div><button type="button" class="btn-add gray" data-exp="limpiezas" style="margin-top:12px"><i
-                                class="ri-download-2-line" aria-hidden="true"></i>Exportar
-                            todas las limpiezas (CSV)</button>
+                                class="ri-download-2-line" aria-hidden="true"></i>Exportar todas las limpiezas
+                            (CSV)</button>
                     </div>
                 </div>
             </section>
@@ -564,27 +550,24 @@
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
-                    <button type="button" id="btnGuardarTarifas" class="btn-add" style="margin-top:14px"
+                    </div><button type="button" id="btnGuardarTarifas" class="btn-add" style="margin-top:14px"
                         data-action="guardar-tarifas">Guardar tarifas</button>
                     <div id="msgTarifas" class="msg-inline"></div>
                 </div>
                 <div class="card">
                     <div class="card-head">
-                        <h3><i class="ri-store-2-line" aria-hidden="true"></i>Catálogo</h3>
-                        <button type="button" class="btn-add blue" data-action="abrir-nuevo-producto">+ Nuevo
-                            producto</button>
+                        <h3><i class="ri-store-2-line" aria-hidden="true"></i>Catálogo</h3><button type="button"
+                            class="btn-add blue" data-action="abrir-nuevo-producto">+ Nuevo producto</button>
                     </div>
                     <div class="toolbar"><input type="search" id="buscarProdGestion" class="toolbar-input"
-                            placeholder="Buscar producto por nombre..." data-oninput="filtrar-gestion">
-                        <select id="catFilterGestion" class="toolbar-select" data-onchange="filtrar-gestion">
+                            placeholder="Buscar producto por nombre..." data-oninput="filtrar-gestion"><select
+                            id="catFilterGestion" class="toolbar-select" data-onchange="filtrar-gestion">
                             <option value="Todos">Todas las categorías</option>
                             <option value="Bebidas">Bebidas</option>
                             <option value="Comida">Comida</option>
                             <option value="Tienda">Tienda / Material</option>
                             <option value="Pista">Pista</option>
-                        </select>
-                    </div>
+                        </select></div>
                     <div class="table-wrap">
                         <table class="tabla-productos">
                             <thead>
@@ -608,12 +591,10 @@
         </main>
     </div>
     <div id="gpSync"><i class="ri-refresh-line" aria-hidden="true"></i>Sincronizado en tiempo real</div>
-    <div style="text-align: center; font-size: 12px; color: var(--muted); padding: 20px;">
-        <a href="privacidad" style="color: inherit; text-decoration: underline; margin: 0 8px;">Privacidad</a>
-        <a href="aviso-legal" style="color: inherit; text-decoration: underline; margin: 0 8px;">Aviso Legal</a>
-        <a href="politica-cookies" style="color: inherit; text-decoration: underline; margin: 0 8px;">Cookies</a>
-    </div>
-
+    <div style="text-align: center; font-size: 12px; color: var(--muted); padding: 20px;"><a href="privacidad"
+            style="color: inherit; text-decoration: underline; margin: 0 8px;">Privacidad</a><a href="aviso-legal"
+            style="color: inherit; text-decoration: underline; margin: 0 8px;">Aviso Legal</a><a href="politica-cookies"
+            style="color: inherit; text-decoration: underline; margin: 0 8px;">Cookies</a></div>
     <dialog id="modalReserva" class="modal-overlay" aria-labelledby="modalTitulo">
         <div class="modal-card-double">
             <div class="modal-header-bar">
@@ -623,29 +604,23 @@
             </div>
             <div class="modal-double-body">
                 <div class="modal-section-box">
-                    <h5>Reserva</h5><input type="hidden" id="modalReservaId">
-                    <label for="modalCliente">Cliente</label>
-                    <input type="text" id="modalCliente" maxlength="80" placeholder="Escribe el nombre para buscar..."
-                        autocomplete="off">
-                    <label for="modalTelefono">Teléfono</label>
-                    <input type="tel" id="modalTelefono" maxlength="20" placeholder="Escribe el teléfono para buscar..."
-                        autocomplete="off">
-                    <label>Pistas</label>
-                    <div id="modalPistasContainer" class="pistas-checkbox-grid"></div>
-                    <label for="modalTipoReserva">Tipo de reserva</label>
-                    <select id="modalTipoReserva" data-onchange="al-cambiar-tipo">
+                    <h5>Reserva</h5><input type="hidden" id="modalReservaId"><label
+                        for="modalCliente">Cliente</label><input type="text" id="modalCliente" maxlength="80"
+                        placeholder="Escribe el nombre para buscar..." autocomplete="off"><label
+                        for="modalTelefono">Teléfono</label><input type="tel" id="modalTelefono" maxlength="20"
+                        placeholder="Escribe el teléfono para buscar..." autocomplete="off"><label>Pistas</label>
+                    <div id="modalPistasContainer" class="pistas-checkbox-grid"></div><label for="modalTipoReserva">Tipo
+                        de reserva</label><select id="modalTipoReserva" data-onchange="al-cambiar-tipo">
                         <option value="Normal">Normal</option>
                         <option value="Pena">Peña (recurrente)</option>
                         <option value="Entrenamiento">Entrenamiento</option>
                         <option value="Torneo">Torneo (horario ampliado)</option>
-                    </select>
-                    <label for="modalFecha">Fecha</label>
-                    <input type="date" id="modalFecha" data-onchange="recalcular-precio" data-forzar="false">
-                    <label for="modalHora">Hora inicio</label>
-                    <input type="time" id="modalHora" step="1800" value="17:00" data-onchange="recalcular-precio"
-                        data-forzar="false">
-                    <label id="lblDur" for="modalDuracion">Duración</label>
-                    <select id="modalDuracion" data-onchange="recalcular-precio">
+                    </select><label for="modalFecha">Fecha</label><input type="date" id="modalFecha"
+                        data-onchange="recalcular-precio" data-forzar="false"><label for="modalHora">Hora
+                        inicio</label><input type="time" id="modalHora" step="1800" value="17:00"
+                        data-onchange="recalcular-precio" data-forzar="false"><label id="lblDur"
+                        for="modalDuracion">Duración</label><select id="modalDuracion"
+                        data-onchange="recalcular-precio">
                         <option value="30">30 minutos (0.5 h)</option>
                         <option value="60">60 minutos (1.0 h)</option>
                         <option value="90" selected>90 minutos (1.5 h)</option>
@@ -662,12 +637,11 @@
                             max="16" step="0.5" value="8" data-oninput="recalcular-precio"></div>
                     <div id="boxRepetir" style="display:none"><label for="modalRepetir"><i class="ri-repeat-line"
                                 aria-hidden="true"></i>Repetir peña (semanas consecutivas)</label><input type="number"
-                            inputmode="numeric" id="modalRepetir" min="1" max="52" value="12"></div>
-                    <label for="modalNumJugadores">Número de jugadores</label>
-                    <select id="modalNumJugadores" data-onchange="actualizar-split"></select>
-                    <label for="modalPrecio">Precio total pista (€)</label>
-                    <input type="number" inputmode="decimal" id="modalPrecio" value="26.00" step="0.50" min="0"
-                        data-oninput="actualizar-split">
+                            inputmode="numeric" id="modalRepetir" min="1" max="52" value="12"></div><label
+                        for="modalNumJugadores">Número de jugadores</label><select id="modalNumJugadores"
+                        data-onchange="actualizar-split"></select><label for="modalPrecio">Precio total pista
+                        (€)</label><input type="number" inputmode="decimal" id="modalPrecio" value="26.00" step="0.50"
+                        min="0" data-oninput="actualizar-split">
                 </div>
                 <div class="modal-col">
                     <div class="modal-section-box">
@@ -686,23 +660,21 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer-bar">
-                <button type="button" id="btnConfirmarPendiente" data-action="confirmar-pendiente" class="btn-add blue"
-                    style="display:none"><i class="ri-check-double-line" aria-hidden="true"></i>Confirmar
-                    reserva</button>
-                <button type="button" id="btnGuardarReserva" data-action="guardar-reserva" class="btn-add"><i
-                        class="ri-save-line" aria-hidden="true"></i>Guardar reserva</button>
-                <button type="button" id="btnEliminarSerie" data-action="eliminar-serie" class="btn-add danger-dark"
-                    style="display:none"><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar serie</button>
-                <button type="button" id="btnHistorialReserva" data-action="ver-historial" class="btn-add gray"
-                    style="display:none"><i class="ri-history-line" aria-hidden="true"></i>Historial</button>
-                <button type="button" id="btnEliminarReserva" data-action="eliminar-reserva" class="btn-add danger"
-                    style="display:none"><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar</button>
-                <button type="button" data-action="cerrar-modal" class="btn-add gray">Cancelar</button>
-            </div>
+            <div class="modal-footer-bar"><button type="button" id="btnConfirmarPendiente"
+                    data-action="confirmar-pendiente" class="btn-add blue" style="display:none"><i
+                        class="ri-check-double-line" aria-hidden="true"></i>Confirmar reserva</button><button
+                    type="button" id="btnGuardarReserva" data-action="guardar-reserva" class="btn-add"><i
+                        class="ri-save-line" aria-hidden="true"></i>Guardar reserva</button><button type="button"
+                    id="btnEliminarSerie" data-action="eliminar-serie" class="btn-add danger-dark"
+                    style="display:none"><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar
+                    serie</button><button type="button" id="btnHistorialReserva" data-action="ver-historial"
+                    class="btn-add gray" style="display:none"><i class="ri-history-line"
+                        aria-hidden="true"></i>Historial</button><button type="button" id="btnEliminarReserva"
+                    data-action="eliminar-reserva" class="btn-add danger" style="display:none"><i
+                        class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar</button><button type="button"
+                    data-action="cerrar-modal" class="btn-add gray">Cancelar</button></div>
         </div>
     </dialog>
-
     <dialog id="modalProducto" class="modal-overlay" aria-labelledby="modalProductoTitulo">
         <div class="modal-card-double small">
             <div class="modal-header-bar">
@@ -726,14 +698,11 @@
                         <option value="Inactivo">Inactivo</option>
                     </select></div>
             </div>
-            <div class="modal-footer-bar">
-                <button type="button" id="btnGuardarProducto" data-action="guardar-producto" class="btn-add blue"><i
-                        class="ri-save-line" aria-hidden="true"></i>Guardar artículo</button>
-                <button type="button" data-action="cerrar-modal-producto" class="btn-add gray">Cancelar</button>
-            </div>
+            <div class="modal-footer-bar"><button type="button" id="btnGuardarProducto" data-action="guardar-producto"
+                    class="btn-add blue"><i class="ri-save-line" aria-hidden="true"></i>Guardar artículo</button><button
+                    type="button" data-action="cerrar-modal-producto" class="btn-add gray">Cancelar</button></div>
         </div>
     </dialog>
-
     <dialog id="modalAvisoLimpieza" class="modal-overlay" aria-labelledby="avisoLimpTitulo">
         <div class="modal-card-double small">
             <div class="modal-header-bar">
@@ -746,7 +715,6 @@
                     class="btn-add">Entendido</button></div>
         </div>
     </dialog>
-
     <dialog id="modalArticulo" class="modal-overlay" aria-labelledby="modalArticuloTitulo">
         <div class="modal-card-double small">
             <div class="modal-header-bar">
@@ -774,14 +742,11 @@
                         los clientes</span></label>
                 <div id="msgArticulo" class="msg-inline" aria-live="polite"></div>
             </div>
-            <div class="modal-footer-bar">
-                <button type="button" id="btnGuardarArticulo" class="btn-add blue"><i class="ri-save-line"
-                        aria-hidden="true"></i>Guardar artículo</button>
-                <button type="button" data-action="cerrar-modal-articulo" class="btn-add gray">Cancelar</button>
-            </div>
+            <div class="modal-footer-bar"><button type="button" id="btnGuardarArticulo" class="btn-add blue"><i
+                        class="ri-save-line" aria-hidden="true"></i>Guardar artículo</button><button type="button"
+                    data-action="cerrar-modal-articulo" class="btn-add gray">Cancelar</button></div>
         </div>
     </dialog>
-
     <dialog id="modalContrato" class="modal-overlay" aria-labelledby="ctTitulo">
         <div class="modal-card-double">
             <div class="modal-header-bar">
@@ -809,14 +774,11 @@
                         placeholder="Ej. turnos rotativos, horario distinto en verano..."></div>
                 <div id="msgContrato" class="msg-inline" aria-live="polite"></div>
             </div>
-            <div class="modal-footer-bar">
-                <button type="button" id="btnGuardarContrato" class="btn-add blue"><i class="ri-save-line"
-                        aria-hidden="true"></i>Guardar contrato</button>
-                <button type="button" id="btnCancelarContrato" class="btn-add gray">Cancelar</button>
-            </div>
+            <div class="modal-footer-bar"><button type="button" id="btnGuardarContrato" class="btn-add blue"><i
+                        class="ri-save-line" aria-hidden="true"></i>Guardar contrato</button><button type="button"
+                    id="btnCancelarContrato" class="btn-add gray">Cancelar</button></div>
         </div>
     </dialog>
-
     <dialog id="modalConfirmDialog" class="modal-overlay" aria-labelledby="confirmDialogTitle">
         <form method="dialog" class="modal-card-double small">
             <div class="modal-header-bar">
@@ -830,13 +792,11 @@
                 <div id="confirmDialogInputBox" style="display:none; margin-top:12px;"><input type="text"
                         id="confirmDialogInput" class="toolbar-input" style="width:100%" autocomplete="off"></div>
             </div>
-            <div class="modal-footer-bar">
-                <button type="button" id="confirmDialogCancel" class="btn-add gray">Cancelar</button>
-                <button type="button" id="confirmDialogOk" class="btn-add blue">Aceptar</button>
-            </div>
+            <div class="modal-footer-bar"><button type="button" id="confirmDialogCancel"
+                    class="btn-add gray">Cancelar</button><button type="button" id="confirmDialogOk"
+                    class="btn-add blue">Aceptar</button></div>
         </form>
     </dialog>
-
     <dialog id="modalHistorial" class="modal-overlay" aria-labelledby="histTitulo">
         <div class="modal-card-double small">
             <div class="modal-header-bar">

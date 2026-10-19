@@ -337,16 +337,30 @@ async function moverReservaAccion(idRes, nuevaHora, nuevaPista) {
     const dur = parseInt(t.duracionMin, 10) || 90;
     const ini = timeToMin(nuevaHora);
     if (esFranjaBloqueada(ini, ini + dur, t.tipoReserva, t.fecha)) return toast("Horario no permitido para este tipo de reserva", 'err');
+    const iniMin = ini, finMin = ini + dur;
+    const conflictoLocal = (datosLocales.reservas || []).find(r => {
+        if (String(r.id) === String(idRes)) return false;
+        if (r.pista !== nuevaPista || r.fecha !== t.fecha) return false;
+        if (r.estado === 'Cancelada') return false;
+        const a = timeToMin(r.horaInicio), b = a + (parseInt(r.duracionMin, 10) || 90);
+        return iniMin < b && finMin > a;
+    });
+    if (conflictoLocal) return toast(`No se puede mover: ${nuevaPista} está ocupada a las ${conflictoLocal.horaInicio} (${conflictoLocal.cliente})`, 'err');
     try {
-        const c = await buscarConflicto({ pistas: [nuevaPista], fechas: [t.fecha], iniMin: ini, dur, excluirId: t.id });
-        if (c) return toast(`No se puede mover: ${nuevaPista} está ocupada a las ${String(c.hora_inicio).slice(0, 5)} (${c.cliente})`, 'err');
         const { error } = await supabaseClient.from('reservas').update({ hora_inicio: nuevaHora, pista: nuevaPista, updated_at: new Date().toISOString() }).eq('id', t.id);
         if (error) throw error;
+        t.horaInicio = nuevaHora;
+        t.pista = nuevaPista;
         toast(`Reserva movida a ${nuevaPista} · ${nuevaHora}`);
-        cargarReservasHoy();
+        renderizarCuadrantePlaytomic(datosLocales.reservas);
     } catch (err) {
         console.error(err);
-        toast(err && err.code === '23P01' ? `No se puede mover: ${nuevaPista} ya está ocupada en ese horario` : "Error al mover la reserva: " + (err.message || err), 'err');
+        if (err && err.code === '23P01') {
+            toast(`No se puede mover: ${nuevaPista} ya está ocupada en ese horario`, 'err');
+            cargarReservasHoy();
+            return;
+        }
+        toast("Error al mover la reserva: " + (err.message || err), 'err');
     }
 }
 function precioSugerido() {

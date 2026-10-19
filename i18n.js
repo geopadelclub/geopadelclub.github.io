@@ -37,7 +37,6 @@ const I18N = {
         'footer.copyright': '© Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización.',
         'footer.privacidad': 'Privacidad', 'footer.aviso': 'Aviso Legal', 'footer.cookies': 'Cookies', 'footer.acceso': 'Acceso trabajadores',
         'contacto.whatsapp': 'Hablar por WhatsApp', 'contacto.llamar': '¿Prefieres llamar?',
-
         'reservar.titulo': 'Reserva tu pista de pádel',
         'reservar.hoy': 'hoy',
         'reservar.subtitulo': 'Elige día, duración y hora. Se paga en el club.',
@@ -56,13 +55,11 @@ const I18N = {
         'reservar.antelacion-llama': ' Para reservar con menos antelación, llama al club.',
         'reservar.reintentar': 'Reintentar',
         'reservar.noscript': 'Necesitas activar JavaScript para reservar. También puedes llamar al club: <a href="tel:+34646059962">646 05 99 62</a>.',
-
         'mis-reservas.titulo': 'Mis reservas', 'mis-reservas.subtitulo': 'Solo se muestran las próximas.',
         'mis-reservas.ident': 'Teléfono o nombre completo', 'mis-reservas.codigo': 'Tu código', 'mis-reservas.ver': 'Ver mis reservas',
         'mis-reservas.hola': 'Hola, <b>{nombre}</b>', 'mis-reservas.salir': 'Salir', 'mis-reservas.borrar': 'Borrar mis datos',
         'mis-reservas.vacio': 'No tienes reservas próximas.', 'mis-reservas.confirmada': 'Confirmada',
         'mis-reservas.pendiente': 'Pendiente de confirmar', 'mis-reservas.cancelar': 'Cancelar reserva', 'mis-reservas.repetir': 'Reservar otra vez',
-
         'tienda.titulo': 'Tienda', 'tienda.subtitulo': 'Esto es lo que tenemos en el club. Se compra en el club.',
         'tienda.vacio': 'Ahora mismo no hay artículos en la tienda. Pregunta en el club.',
         'tienda.cargando': 'Cargando...', 'tienda.error': 'No se pudo cargar la tienda.',
@@ -105,8 +102,6 @@ const I18N = {
         'footer.copyright': '© Geopadel · All rights reserved. Reproduction in whole or in part is prohibited without authorization.',
         'footer.privacidad': 'Privacy', 'footer.aviso': 'Legal Notice', 'footer.cookies': 'Cookies', 'footer.acceso': 'Staff access',
         'contacto.whatsapp': 'Chat on WhatsApp', 'contacto.llamar': 'Prefer to call?',
-
-
         'reservar.titulo': 'Book your padel court',
         'reservar.hoy': 'today',
         'reservar.subtitulo': 'Pick day, duration and time. Payment at the club.',
@@ -125,20 +120,17 @@ const I18N = {
         'reservar.antelacion-llama': ' To book with less notice, call the club.',
         'reservar.reintentar': 'Retry',
         'reservar.noscript': 'You need JavaScript to book. You can also call the club: <a href="tel:+34646059962">646 05 99 62</a>.',
-
         'mis-reservas.titulo': 'My bookings', 'mis-reservas.subtitulo': 'Only upcoming bookings are shown.',
         'mis-reservas.ident': 'Phone or full name', 'mis-reservas.codigo': 'Your code', 'mis-reservas.ver': 'View my bookings',
         'mis-reservas.hola': 'Hello, <b>{nombre}</b>', 'mis-reservas.salir': 'Exit', 'mis-reservas.borrar': 'Delete my data',
         'mis-reservas.vacio': 'You have no upcoming bookings.', 'mis-reservas.confirmada': 'Confirmed',
         'mis-reservas.pendiente': 'Awaiting confirmation', 'mis-reservas.cancelar': 'Cancel booking', 'mis-reservas.repetir': 'Book again',
-
         'tienda.titulo': 'Shop', 'tienda.subtitulo': 'This is what we have at the club. Purchase at the club.',
         'tienda.vacio': 'There are no items in the shop right now. Ask at the club.',
         'tienda.cargando': 'Loading...', 'tienda.error': 'Could not load the shop.',
         'reservar.subtitulo-completo': 'Pick day, duration and time. Payment at the club. Book at least {min} in advance; for less, call the club.'
     }
 };
-
 let _idioma = 'es';
 function t(clave, vars) {
     let texto = (I18N[_idioma] && I18N[_idioma][clave]) || I18N.es[clave] || clave;

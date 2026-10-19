@@ -32,9 +32,8 @@
     <script src="theme-init.js"></script>
     <link rel="stylesheet" href="assets/remixicon/remixicon.css">
     <link rel="stylesheet" href="styles.css">
-    <script type="application/ld+json">
-    {"@context":"https://schema.org","@type":"SportsActivityLocation","@id":"https://geopadelclub.github.io/#club","name":"Geopadel","description":"Club de pádel en Ogíjares (Granada) con reserva de pistas online.","url":"https://geopadelclub.github.io/","image":"https://geopadelclub.github.io/Geopadel-512.webp","logo":"https://geopadelclub.github.io/Geopadel-512.webp","telephone":"+34646059962","priceRange":"€€","hasMap":"https://maps.app.goo.gl/GZXgGoteM9hXp8mP6","address":{"@type":"PostalAddress","streetAddress":"Polígono Tecnológico los, C. Zamora, 130","addressLocality":"Ogíjares","addressRegion":"Granada","postalCode":"18151","addressCountry":"ES"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"09:00","closes":"14:00"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday"],"opens":"17:00","closes":"23:30"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Friday","Saturday","Sunday"],"opens":"17:00","closes":"22:00"}],"potentialAction":{"@type":"ReserveAction","target":{"@type":"EntryPoint","urlTemplate":"https://geopadelclub.github.io/reservar","actionPlatform":["http://schema.org/DesktopWebPlatform","http://schema.org/MobileWebPlatform"]},"result":{"@type":"Reservation","name":"Reserva de pista de pádel"}}}
-    </script>
+    <script
+        type="application/ld+json"> {"@context":"https://schema.org","@type":"SportsActivityLocation","@id":"https://geopadelclub.github.io/#club","name":"Geopadel","description":"Club de pádel en Ogíjares (Granada) con reserva de pistas online.","url":"https://geopadelclub.github.io/","image":"https://geopadelclub.github.io/Geopadel-512.webp","logo":"https://geopadelclub.github.io/Geopadel-512.webp","telephone":"+34646059962","priceRange":"€€","hasMap":"https://maps.app.goo.gl/GZXgGoteM9hXp8mP6","address":{"@type":"PostalAddress","streetAddress":"Polígono Tecnológico los, C. Zamora, 130","addressLocality":"Ogíjares","addressRegion":"Granada","postalCode":"18151","addressCountry":"ES"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"09:00","closes":"14:00"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday"],"opens":"17:00","closes":"23:30"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Friday","Saturday","Sunday"],"opens":"17:00","closes":"22:00"}],"potentialAction":{"@type":"ReserveAction","target":{"@type":"EntryPoint","urlTemplate":"https://geopadelclub.github.io/reservar","actionPlatform":["http://schema.org/DesktopWebPlatform","http://schema.org/MobileWebPlatform"]},"result":{"@type":"Reservation","name":"Reserva de pista de pádel"}}} </script>
     <script defer src="config.js"></script>
     <script defer src="utils.js"></script>
     <script defer src="i18n.js"></script>
@@ -615,15 +614,13 @@
     <header class="landing-header"><a href="/"><img class="logo" src="Geopadel.webp" alt="Geopadel" width="150"
                 height="150"></a>
         <div class="header-right">
-            <nav>
-                <a href="#tarifas" data-i18n="nav.tarifas">Tarifas</a>
-                <a href="#ubicacion" data-i18n="nav.ubicacion">Ubicación</a>
-                <a href="reservar" class="btn-nav-reservar" data-i18n="nav.reservar">Reservar pista</a>
-            </nav>
-            <button type="button" class="theme-toggle" id="btnIdioma" data-action="cambiar-idioma"
-                aria-label="Cambiar idioma" style="font-weight:800;font-size:12px">ES</button>
-            <button type="button" class="theme-toggle" aria-label="Cambiar tema" data-action="alternar-tema"><i
-                    class="ri-moon-line" aria-hidden="true"></i></button>
+            <nav><a href="#tarifas" data-i18n="nav.tarifas">Tarifas</a><a href="#ubicacion"
+                    data-i18n="nav.ubicacion">Ubicación</a><a href="reservar" class="btn-nav-reservar"
+                    data-i18n="nav.reservar">Reservar pista</a></nav><button type="button" class="theme-toggle"
+                id="btnIdioma" data-action="cambiar-idioma" aria-label="Cambiar idioma"
+                style="font-weight:800;font-size:12px">ES</button><button type="button" class="theme-toggle"
+                aria-label="Cambiar tema" data-action="alternar-tema"><i class="ri-moon-line"
+                    aria-hidden="true"></i></button>
         </div>
     </header>
     <main>
@@ -632,8 +629,8 @@
             <div class="hero-content">
                 <h1 data-i18n="hero.titulo">Tu pista de pádel en Ogíjares</h1>
                 <p data-i18n="hero.subtitulo">Consulta disponibilidad al instante, elige tu hora y juega. El pago se
-                    realiza cómodamente en el club.</p>
-                <a href="reservar" class="btn-hero" data-i18n="hero.cta">Reservar pista ahora</a>
+                    realiza cómodamente en el club.</p><a href="reservar" class="btn-hero" data-i18n="hero.cta">Reservar
+                    pista ahora</a>
             </div>
         </section>
         <section class="section" id="beneficios">
@@ -666,14 +663,11 @@
                     <div class="tarifa-col">
                         <h3 data-i18n="tarifas.manana">Entre semana mañana</h3>
                         <div class="tarifa-item"><span data-i18n="tarifas.60">60 minutos</span><span
-                                data-tarifa="semanaManana-60">18 €</span>
-                        </div>
+                                data-tarifa="semanaManana-60">18 €</span></div>
                         <div class="tarifa-item"><span data-i18n="tarifas.90">90 minutos</span><span
-                                data-tarifa="semanaManana-90">22 €</span>
-                        </div>
+                                data-tarifa="semanaManana-90">22 €</span></div>
                         <div class="tarifa-item"><span data-i18n="tarifas.120">120 minutos</span><span
-                                data-tarifa="semanaManana-120">24
-                                €</span></div>
+                                data-tarifa="semanaManana-120">24 €</span></div>
                     </div>
                     <div class="tarifa-col">
                         <h3>Entre semana tarde</h3>
@@ -692,8 +686,7 @@
                     </div>
                 </div>
                 <p class="nota-tarifas" data-i18n="tarifas.nota">* Precios orientativos. Consulta el precio final en la
-                    pantalla de reserva. El
-                    pago se realiza en el club.</p>
+                    pantalla de reserva. El pago se realiza en el club.</p>
             </div>
         </section>
         <section class="section" id="huecos">
@@ -710,37 +703,32 @@
                 <div class="ubicacion-info">
                     <h3>Geopadel Ogíjares</h3>
                     <p><i class="ri-map-pin-line" aria-hidden="true"></i><span data-i18n="ubicacion.direccion">Polígono
-                            Tecnológico Los, C. Zamora, 130, 18151
-                            Ogíjares, Granada</span></p>
+                            Tecnológico Los, C. Zamora, 130, 18151 Ogíjares, Granada</span></p>
                     <p><i class="ri-phone-line" aria-hidden="true"></i><a href="tel:+34646059962"
                             style="color: inherit; text-decoration: none;" data-i18n="ubicacion.telefono">+34 646 059
                             962</a></p>
                     <p><i class="ri-whatsapp-line" aria-hidden="true"></i><a
                             href="https://wa.me/34646059962?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20las%20pistas"
                             target="_blank" rel="noopener" style="color: inherit; text-decoration: none;"
-                            data-i18n="ubicacion.whatsapp">Escríbenos por
-                            WhatsApp</a></p>
+                            data-i18n="ubicacion.whatsapp">Escríbenos por WhatsApp</a></p>
                     <p><i class="ri-time-line" aria-hidden="true"></i><span data-i18n="ubicacion.horario">Lunes a
-                            Jueves: 09:00 a 14:00 y 17:00 a 23:30 //
-                            Viernes a Domingo: 9:00 a 14:00 y 17:00 a 22:00</span></p>
-                </div>
-                <a href="https://maps.app.goo.gl/GZXgGoteM9hXp8mP6" target="_blank" rel="noopener" class="mapa-link"
-                    aria-label="Abrir ubicación de Geopadel en Google Maps"><i class="ri-map-2-line"
+                            Jueves: 09:00 a 14:00 y 17:00 a 23:30 // Viernes a Domingo: 9:00 a 14:00 y 17:00 a
+                            22:00</span></p>
+                </div><a href="https://maps.app.goo.gl/GZXgGoteM9hXp8mP6" target="_blank" rel="noopener"
+                    class="mapa-link" aria-label="Abrir ubicación de Geopadel en Google Maps"><i class="ri-map-2-line"
                         aria-hidden="true"></i><b data-i18n="ubicacion.cta">Ver en Google Maps</b><span
-                        data-i18n="ubicacion.cta-desc">Haz clic para
-                        abrir la ubicación exacta en tu aplicación de mapas.</span></a>
+                        data-i18n="ubicacion.cta-desc">Haz clic para abrir la ubicación exacta en tu aplicación de
+                        mapas.</span></a>
             </div>
         </section>
     </main>
     <footer class="landing-footer">
         <p data-i18n="footer.copyright">© Geopadel · Todos los derechos reservados. Queda prohibida la reproducción
-            total o parcial sin autorización.
-        </p>
+            total o parcial sin autorización. </p>
         <div class="footer-links"><a href="privacidad" data-i18n="footer.privacidad">Privacidad</a><a href="aviso-legal"
                 data-i18n="footer.aviso">Aviso Legal</a><a href="politica-cookies"
                 data-i18n="footer.cookies">Cookies</a><a href="panel" rel="nofollow" class="acceso-trabajadores"
-                data-i18n="footer.acceso">Acceso
-                trabajadores</a></div>
+                data-i18n="footer.acceso">Acceso trabajadores</a></div>
     </footer>
     <div class="contacto-flotante"><a class="btn-whatsapp" href="https://wa.me/34646059962?text=Hola%2C" target="_blank"
             rel="noopener noreferrer"><i class="ri-whatsapp-line" aria-hidden="true"></i><span

@@ -54,30 +54,24 @@
     <header class="app-header">
         <div class="gp-brand"><img class="gp-logo" src="./Geopadel.webp" alt="Geopadel" draggable="false" width="150"
                 height="150" style="aspect-ratio: 1/1;"></div>
-        <div class="user-info">
-            <button type="button" class="btn-install" id="btnInstalar"><i class="ri-download-2-line"
-                    aria-hidden="true"></i><span>Instalar</span></button>
-            <button type="button" class="theme-toggle" id="btnIdioma" data-action="cambiar-idioma"
-                aria-label="Cambiar idioma" style="font-weight:800;font-size:12px">ES</button>
-            <button type="button" class="theme-toggle" id="btnTema" aria-label="Cambiar tema"><i class="ri-moon-line"
-                    aria-hidden="true"></i></button>
-        </div>
+        <div class="user-info"><button type="button" class="btn-install" id="btnInstalar"><i class="ri-download-2-line"
+                    aria-hidden="true"></i><span>Instalar</span></button><button type="button" class="theme-toggle"
+                id="btnIdioma" data-action="cambiar-idioma" aria-label="Cambiar idioma"
+                style="font-weight:800;font-size:12px">ES</button><button type="button" class="theme-toggle"
+                id="btnTema" aria-label="Cambiar tema"><i class="ri-moon-line" aria-hidden="true"></i></button></div>
     </header>
-    <nav class="app-nav" aria-label="Secciones">
-        <button type="button" id="nav-reservar" class="nav-tab active" data-tab="reservar" aria-current="page"
-            aria-label="Pestaña Reservar"><span class="ni"><i class="ri-calendar-event-line"
-                    aria-hidden="true"></i></span>Reservar</button>
-        <button type="button" id="nav-mis" class="nav-tab" data-tab="mis" aria-label="Pestaña Mis reservas"><span
-                class="ni"><i class="ri-ticket-line" aria-hidden="true"></i></span>Mis reservas</button>
-        <button type="button" id="nav-tienda" class="nav-tab" data-tab="tienda" aria-label="Pestaña Tienda"><span
-                class="ni"><i class="ri-shopping-bag-3-line" aria-hidden="true"></i></span>Tienda</button>
-    </nav>
+    <nav class="app-nav" aria-label="Secciones"><button type="button" id="nav-reservar" class="nav-tab active"
+            data-tab="reservar" aria-current="page" aria-label="Pestaña Reservar"><span class="ni"><i
+                    class="ri-calendar-event-line" aria-hidden="true"></i></span>Reservar</button><button type="button"
+            id="nav-mis" class="nav-tab" data-tab="mis" aria-label="Pestaña Mis reservas"><span class="ni"><i
+                    class="ri-ticket-line" aria-hidden="true"></i></span>Mis reservas</button><button type="button"
+            id="nav-tienda" class="nav-tab" data-tab="tienda" aria-label="Pestaña Tienda"><span class="ni"><i
+                    class="ri-shopping-bag-3-line" aria-hidden="true"></i></span>Tienda</button></nav>
     <main class="cl-main">
         <section id="tab-reservar" class="tab-content active">
             <div class="cl-intro">
                 <h1 data-i18n="reservar.titulo">Reserva tu pista de pádel</h1>
-                <p id="txtIntroReserva">Elige día, duración y hora. Se paga en el club.</p>
-                <noscript>
+                <p id="txtIntroReserva">Elige día, duración y hora. Se paga en el club.</p><noscript>
                     <p data-i18n="reservar.noscript">Necesitas activar JavaScript para reservar.</p>
                 </noscript>
             </div>
@@ -100,38 +94,32 @@
                 <div id="bloqueTel"><button type="button" class="btn-submit" id="btnTel"
                         data-i18n="reservar.continuar">Continuar</button></div>
                 <div id="bloqueExistente" hidden>
-                    <div class="form-group">
-                        <label for="clCodigoEx" data-i18n="reservar.tu-codigo">Tu código</label>
-                        <input type="password" id="clCodigoEx" autocomplete="off" maxlength="30">
+                    <div class="form-group"><label for="clCodigoEx" data-i18n="reservar.tu-codigo">Tu
+                            código</label><input type="password" id="clCodigoEx" autocomplete="off" maxlength="30">
                         <p class="cl-hint" data-i18n="reservar.recuperar">¿Lo has olvidado? Llama al club y te lo
                             restablecemos.</p>
-                    </div>
-                    <button type="button" class="btn-submit" id="btnEntrar" data-i18n="reservar.entrar">Entrar</button>
+                    </div><button type="button" class="btn-submit" id="btnEntrar"
+                        data-i18n="reservar.entrar">Entrar</button>
                 </div>
                 <div id="bloqueNuevo" hidden>
-                    <div class="form-group">
-                        <label for="clNombre" data-i18n="reservar.nombre">Nombre y apellidos</label>
-                        <input type="text" id="clNombre" autocomplete="name" maxlength="80">
-                    </div>
-                    <div class="form-group">
-                        <label for="clCodigoNew" data-i18n="reservar.crea-codigo">Crea tu código</label>
-                        <input type="password" id="clCodigoNew" autocomplete="new-password" maxlength="30">
+                    <div class="form-group"><label for="clNombre" data-i18n="reservar.nombre">Nombre y
+                            apellidos</label><input type="text" id="clNombre" autocomplete="name" maxlength="80"></div>
+                    <div class="form-group"><label for="clCodigoNew" data-i18n="reservar.crea-codigo">Crea tu
+                            código</label><input type="password" id="clCodigoNew" autocomplete="new-password"
+                            maxlength="30">
                         <p class="cl-hint" data-i18n="reservar.codigo-hint">Mínimo 4 caracteres. Lo necesitarás para ver
                             y cancelar tus reservas.</p>
                     </div>
-                    <div class="form-group">
-                        <label for="clCodigoNew2" data-i18n="reservar.repite-codigo">Repite el código</label>
-                        <input type="password" id="clCodigoNew2" autocomplete="new-password" maxlength="30">
-                    </div>
-                    <label class="cl-check"><input type="checkbox" id="clConsent"><span
+                    <div class="form-group"><label for="clCodigoNew2" data-i18n="reservar.repite-codigo">Repite el
+                            código</label><input type="password" id="clCodigoNew2" autocomplete="new-password"
+                            maxlength="30"></div><label class="cl-check"><input type="checkbox" id="clConsent"><span
                             data-i18n="reservar.consentimiento">He leído y acepto la política de
                             privacidad.</span></label>
                 </div>
                 <div id="bloqueConfirmar" hidden>
                     <div id="clHola" class="cl-hola" hidden></div>
-                    <div id="cfTurnstile" hidden></div>
-                    <button type="button" class="btn-submit" id="btnConfirmar"><i class="ri-check-line"
-                            aria-hidden="true"></i><span data-i18n="reservar.confirmar">Confirmar
+                    <div id="cfTurnstile" hidden></div><button type="button" class="btn-submit" id="btnConfirmar"><i
+                            class="ri-check-line" aria-hidden="true"></i><span data-i18n="reservar.confirmar">Confirmar
                             reserva</span></button>
                 </div>
             </div>
@@ -139,14 +127,12 @@
                 <div class="cl-ok-icon"><i class="ri-check-line" aria-hidden="true"></i></div>
                 <h2 data-i18n="reservar.recibida">Reserva recibida</h2>
                 <div id="okDetalle" class="cl-ok-det"></div>
-                <div class="cl-actions">
-                    <button type="button" class="btn-add gray" id="btnICS"><i class="ri-calendar-check-line"
-                            aria-hidden="true"></i><span data-i18n="reservar.calendario">Añadir al
-                            calendario</span></button>
-                    <button type="button" class="btn-add" id="btnOtra" data-i18n="reservar.otra">Reservar otra</button>
-                    <button type="button" class="btn-add blue" id="btnVerMis" data-i18n="reservar.ver-mis">Ver mis
-                        reservas</button>
-                </div>
+                <div class="cl-actions"><button type="button" class="btn-add gray" id="btnICS"><i
+                            class="ri-calendar-check-line" aria-hidden="true"></i><span
+                            data-i18n="reservar.calendario">Añadir al calendario</span></button><button type="button"
+                        class="btn-add" id="btnOtra" data-i18n="reservar.otra">Reservar otra</button><button
+                        type="button" class="btn-add blue" id="btnVerMis" data-i18n="reservar.ver-mis">Ver mis
+                        reservas</button></div>
             </div>
         </section>
         <section id="tab-mis" class="tab-content">
@@ -167,8 +153,7 @@
             </div>
             <div id="cardMisLista" hidden>
                 <div class="cl-mis-head">
-                    <div id="misHola"></div>
-                    <button type="button" class="btn-logout" id="btnSalirMis"
+                    <div id="misHola"></div><button type="button" class="btn-logout" id="btnSalirMis"
                         data-i18n="mis-reservas.salir">Salir</button>
                 </div>
                 <div id="misLista"></div>
@@ -188,13 +173,11 @@
                 href="aviso-legal" data-i18n="footer.aviso">Aviso Legal</a> · <a href="politica-cookies"
                 data-i18n="footer.cookies">Cookies</a></p>
     </main>
-    <div class="contacto-flotante">
-        <a class="btn-whatsapp" id="btnWhatsapp" href="https://wa.me/34646059962?text=Hola%2C" target="_blank"
-            rel="noopener noreferrer">
-            <i class="ri-whatsapp-line" aria-hidden="true"></i><span data-i18n="contacto.whatsapp">Hablar por
-                WhatsApp</span>
-        </a>
-        <p class="contacto-llamar"><span data-i18n="contacto.llamar">¿Prefieres llamar?</span> <a
+    <div class="contacto-flotante"><a class="btn-whatsapp" id="btnWhatsapp"
+            href="https://wa.me/34646059962?text=Hola%2C" target="_blank" rel="noopener noreferrer"><i
+                class="ri-whatsapp-line" aria-hidden="true"></i><span data-i18n="contacto.whatsapp">Hablar por
+                WhatsApp</span></a>
+        <p class="contacto-llamar"><span data-i18n="contacto.llamar">¿Prefieres llamar?</span><a
                 href="tel:+34646059962">646 05 99 62</a></p>
     </div>
 </body>
