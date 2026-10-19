@@ -35,6 +35,8 @@
     A('actualizar-split', () => typeof actualizarVistasJugadoresSplit === 'function' && actualizarVistasJugadoresSplit());
     A('limpieza-seleccionar', el => typeof limpiezaSeleccionarPistas === 'function' && limpiezaSeleccionarPistas(el.dataset.on === 'true'));
     A('cambiar-idioma', () => typeof alternarIdioma === 'function' && alternarIdioma());
+    A('fichar-entrada', el => typeof fichar === 'function' && fichar('Entrada', el));
+    A('fichar-salida', el => typeof fichar === 'function' && fichar('Salida', el));
     A('activar-notificaciones', async () => {
         if (typeof pedirPermisoNotificaciones !== 'function') return;
         const ok = await pedirPermisoNotificaciones();

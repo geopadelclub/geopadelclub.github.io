@@ -400,10 +400,12 @@ header.app-header {
 
 .app-nav {
     position: fixed;
-    left: 50%;
+    left: 12px;
+    right: 12px;
     bottom: calc(12px + env(safe-area-inset-bottom));
-    transform: translateX(-50%);
-    width: min(760px, calc(100% - 24px));
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 760px;
     background: var(--nav-bg);
     -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
@@ -415,6 +417,7 @@ header.app-header {
     z-index: 200;
     display: flex;
     overflow-x: auto;
+    will-change: transform;
 }
 
 .nav-tab {
@@ -643,6 +646,9 @@ select {
     border: 1.5px solid var(--border);
     border-radius: var(--radius-sm);
     font-size: 16px;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .toolbar {
@@ -1136,4 +1142,58 @@ i[class*=" ri-"] {
 :focus-visible {
     outline: 3px solid var(--primary, #4b7a86) !important;
     outline-offset: 2px !important;
+}
+
+.btn-cash {
+    background: #16a34a;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(22, 163, 74, .28);
+}
+
+.btn-cash:hover {
+    background: #15803d;
+}
+
+.btn-cash:active {
+    background: #166534;
+}
+
+.btn-card {
+    background: #3b82f6;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(59, 130, 246, .3);
+}
+
+.btn-card:hover {
+    background: #2563eb;
+}
+
+.btn-card:active {
+    background: #1d4ed8;
+}
+
+.btn-cash i,
+.btn-card i {
+    color: #fff;
+    margin-right: 8px;
+    font-size: 18px;
+    vertical-align: middle;
+}
+
+[data-theme="dark"] .btn-cash {
+    background: #22c55e;
+    box-shadow: 0 4px 14px rgba(34, 197, 94, .35);
+}
+
+[data-theme="dark"] .btn-cash:hover {
+    background: #16a34a;
+}
+
+[data-theme="dark"] .btn-card {
+    background: #60a5fa;
+    box-shadow: 0 4px 14px rgba(96, 165, 250, .35);
+}
+
+[data-theme="dark"] .btn-card:hover {
+    background: #3b82f6;
 }
