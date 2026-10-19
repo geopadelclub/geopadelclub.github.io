@@ -497,11 +497,16 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (c && Array.isArray(c.duraciones)) cfg = { ...cfg, ...c };
     } catch (err) { console.error(err); }
     if (!cfg.duraciones.includes(sel.dur)) sel.dur = cfg.duraciones[0];
-    $('txtIntroReserva').textContent = `Elige día, duración y hora. Se paga en el club. Reserva con ${duracionTxt(antMin())} de antelación; con menos, llama al club.`;
+    actualizarIntroReserva();
     dibujarDias();
     dibujarDuraciones();
     seleccionarDia(fechaLocalISO());
 });
+function actualizarIntroReserva() {
+    const el = $('txtIntroReserva');
+    if (el) el.textContent = t('reservar.subtitulo-completo', { min: duracionTxt(antMin()) });
+}
+document.addEventListener('idioma-cambiado', actualizarIntroReserva);
 let promptInstalacion = null;
 const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
 const yaInstalada = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;

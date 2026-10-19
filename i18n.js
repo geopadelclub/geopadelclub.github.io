@@ -65,7 +65,8 @@ const I18N = {
 
         'tienda.titulo': 'Tienda', 'tienda.subtitulo': 'Esto es lo que tenemos en el club. Se compra en el club.',
         'tienda.vacio': 'Ahora mismo no hay artículos en la tienda. Pregunta en el club.',
-        'tienda.cargando': 'Cargando...', 'tienda.error': 'No se pudo cargar la tienda.'
+        'tienda.cargando': 'Cargando...', 'tienda.error': 'No se pudo cargar la tienda.',
+        'reservar.subtitulo-completo': 'Elige día, duración y hora. Se paga en el club. Reserva con {min} de antelación; con menos, llama al club.'
     },
     en: {
         'nav.tarifas': 'Prices', 'nav.ubicacion': 'Location', 'nav.reservar': 'Book a court',
@@ -105,6 +106,7 @@ const I18N = {
         'footer.privacidad': 'Privacy', 'footer.aviso': 'Legal Notice', 'footer.cookies': 'Cookies', 'footer.acceso': 'Staff access',
         'contacto.whatsapp': 'Chat on WhatsApp', 'contacto.llamar': 'Prefer to call?',
 
+
         'reservar.titulo': 'Book your padel court',
         'reservar.hoy': 'today',
         'reservar.subtitulo': 'Pick day, duration and time. Payment at the club.',
@@ -132,7 +134,8 @@ const I18N = {
 
         'tienda.titulo': 'Shop', 'tienda.subtitulo': 'This is what we have at the club. Purchase at the club.',
         'tienda.vacio': 'There are no items in the shop right now. Ask at the club.',
-        'tienda.cargando': 'Loading...', 'tienda.error': 'Could not load the shop.'
+        'tienda.cargando': 'Loading...', 'tienda.error': 'Could not load the shop.',
+        'reservar.subtitulo-completo': 'Pick day, duration and time. Payment at the club. Book at least {min} in advance; for less, call the club.'
     }
 };
 
@@ -149,7 +152,7 @@ function t(clave, vars) {
 function aplicarIdioma() {
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const v = t(el.dataset.i18n);
-        if (v) el.innerHTML = v; // Cambiado a innerHTML para permitir <a> en consentimiento
+        if (v) el.innerHTML = v;
     });
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
         const v = t(el.dataset.i18nPlaceholder);
@@ -167,6 +170,7 @@ function setIdioma(lang) {
     _idioma = lang;
     try { localStorage.setItem('gp-lang', lang); } catch (e) { }
     aplicarIdioma();
+    document.dispatchEvent(new Event('idioma-cambiado'));
 }
 function alternarIdioma() {
     setIdioma(_idioma === 'es' ? 'en' : 'es');
