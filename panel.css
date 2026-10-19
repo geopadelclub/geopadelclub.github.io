@@ -2212,3 +2212,7 @@ tr.deuda-resuelta td {
     border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(75, 122, 134, 0.2);
 }
+
+.modal-section-box .pistas-checkbox-grid {
+    margin: 8px 0 16px;
+}
