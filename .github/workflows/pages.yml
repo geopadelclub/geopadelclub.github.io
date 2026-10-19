@@ -22,37 +22,75 @@ jobs:
       url: ${{ steps.despliegue.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      
-      - run: node bump-sw.js
+          cache: 'npm'
 
-      - name: Minificar y añadir cabecera de derechos reservados
+      - name: Instalar dependencias
         run: |
-          npm install -g terser clean-css-cli html-minifier-terser
+          npm install --no-save terser clean-css-cli html-minifier-terser
 
+      - name: Minificar y añadir cabecera
+        run: |
+          set -e
+          
           HEADER_CODE="© Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización."
           HEADER_JS="/* $HEADER_CODE */"
           HEADER_HTML="<!-- $HEADER_CODE -->"
 
-          find . -type f -name "*.js" -not -path "*/node_modules/*" -not -path "*/.github/*" | while read -r f; do
-            terser "$f" -o "$f" -c -m --comments false --preamble "$HEADER_JS"
-          done
+          echo "→ Minificando JS (excluyendo sw.js, workers y assets)..."
+          find . -type f -name "*.js" \
+            -not -path "./node_modules/*" \
+            -not -path "./.github/*" \
+            -not -path "./assets/*" \
+            -not -name "sw.js" \
+            -not -name "bump-sw.js" \
+            -not -name "copia-worker.js" \
+            -not -name "copia-zip.js" \
+            | while read -r f; do
+              npx terser "$f" -o "$f" -c -m --comments false --preamble "$HEADER_JS"
+              node -c "$f" || { echo "❌ Error de sintaxis en $f"; exit 1; }
+            done
 
-          find . -type f -name "*.css" -not -path "*/node_modules/*" -not -path "*/.github/*" | while read -r f; do
-            cleancss -o "$f" "$f"
-            printf "%s\n%s" "$HEADER_JS" "$(cat "$f")" > "$f"
-          done
+          echo "→ Minificando CSS (excluyendo assets)..."
+          find . -type f -name "*.css" \
+            -not -path "./node_modules/*" \
+            -not -path "./.github/*" \
+            -not -path "./assets/*" \
+            | while read -r f; do
+              npx cleancss -o "$f" "$f"
+              printf "%s\n%s" "$HEADER_JS" "$(cat "$f")" > "$f.tmp" && mv "$f.tmp" "$f"
+            done
 
-          find . -type f -name "*.html" -not -path "*/node_modules/*" -not -path "*/.github/*" | while read -r f; do
-            html-minifier-terser "$f" -o "$f" --collapse-whitespace --remove-comments --minify-js true --minify-css true
-            printf "%s\n%s" "$HEADER_HTML" "$(cat "$f")" > "$f"
-          done
+          echo "→ Minificando HTML (sin tocar JS/CSS inline)..."
+          find . -type f -name "*.html" \
+            -not -path "./node_modules/*" \
+            -not -path "./.github/*" \
+            | while read -r f; do
+              npx html-minifier-terser "$f" -o "$f" \
+                --collapse-whitespace \
+                --remove-comments \
+                --remove-attribute-quotes \
+                --use-short-doctype \
+                --minify-js false \
+                --minify-css false
+              printf "%s\n%s" "$HEADER_HTML" "$(cat "$f")" > "$f.tmp" && mv "$f.tmp" "$f"
+            done
+
+      - name: Regenerar VERSION del service worker
+        run: node bump-sw.js
+
+      - name: Limpiar archivos innecesarios
+        run: |
+          rm -rf .git .github node_modules package-lock.json bump-sw.js
+          echo "Archivos a subir:"
+          ls -la
 
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .
-      
+
       - id: despliegue
         uses: actions/deploy-pages@v4

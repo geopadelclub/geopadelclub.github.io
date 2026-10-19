@@ -56,6 +56,8 @@ function aplicarTema(t, guardar = true) {
     const meta = $('metaTheme');
     if (meta) meta.setAttribute('content', t === 'dark' ? '#364650' : '#fcfdfc');
     document.querySelectorAll('.theme-toggle').forEach(b => {
+        if (b.id === 'btnIdioma' || b.getAttribute('data-action') === 'cambiar-idioma') return;
+
         b.innerHTML = t === 'dark' ? '<i class="ri-sun-line" aria-hidden="true"></i>' : '<i class="ri-moon-line" aria-hidden="true"></i>';
         b.setAttribute('aria-label', t === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
         b.title = t === 'dark' ? 'Modo claro' : 'Modo oscuro';
