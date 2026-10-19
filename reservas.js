@@ -83,6 +83,8 @@ function obtenerPistasSeleccionadasModal() {
 }
 enlazarBuscadorCliente($('modalCliente'), $('modalTelefono'));
 function renderizarCuadrantePlaytomic(reservas) {
+    const tabReservas = $('tab-reservas');
+    if (!tabReservas || !tabReservas.classList.contains('active')) return;
     const grid = $('playtomicGrid');
     if (!grid) return;
     const wrapper = $('gridWrapper');

@@ -1,6 +1,29 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 :root {
     --slot-h: 56px;
+    --card-normal-striped-bg: var(--blue-soft);
+    --card-normal-striped-color: var(--blue);
+    --card-normal-solid-bg: var(--green-soft);
+    --card-normal-solid-color: var(--green-text);
+    --card-pena-bg: #e3d9f3;
+    --card-pena-color: #46306b;
+    --card-torneo-bg: #f6e3c0;
+    --card-torneo-color: #5e410e;
+    --card-entreno-bg: #c9e8e4;
+    --card-entreno-color: #1b4b47;
+}
+
+[data-theme="dark"] {
+    --card-normal-striped-bg: #3f6283;
+    --card-normal-striped-color: #e9f2fd;
+    --card-normal-solid-bg: #3a6a53;
+    --card-normal-solid-color: #e3f7ec;
+    --card-pena-bg: #594a82;
+    --card-pena-color: #f1ebfc;
+    --card-torneo-bg: #86683a;
+    --card-torneo-color: #fdf0d6;
+    --card-entreno-bg: #36706b;
+    --card-entreno-color: #e0f6f2;
 }
 
 @media (min-width:1024px) and (min-height:760px) {
@@ -429,55 +452,28 @@
 }
 
 .card-normal-striped {
-    background: var(--blue-soft);
-    color: var(--blue);
+    background: var(--card-normal-striped-bg);
+    color: var(--card-normal-striped-color);
 }
 
 .card-normal-solid {
-    background: var(--green-soft);
-    color: var(--green-text);
+    background: var(--card-normal-solid-bg);
+    color: var(--card-normal-solid-color);
 }
 
 .card-pena-striped {
-    background: #e3d9f3;
-    color: #46306b;
+    background: var(--card-pena-bg);
+    color: var(--card-pena-color);
 }
 
 .card-torneo-striped {
-    background: #f6e3c0;
-    color: #5e410e;
+    background: var(--card-torneo-bg);
+    color: var(--card-torneo-color);
 }
 
 .card-entreno-striped {
-    background: #c9e8e4;
-    color: #1b4b47;
-}
-
-@media (prefers-color-scheme:dark) {
-    .card-normal-striped {
-        background: #3f6283;
-        color: #e9f2fd;
-    }
-
-    .card-normal-solid {
-        background: #3a6a53;
-        color: #e3f7ec;
-    }
-
-    .card-pena-striped {
-        background: #594a82;
-        color: #f1ebfc;
-    }
-
-    .card-torneo-striped {
-        background: #86683a;
-        color: #fdf0d6;
-    }
-
-    .card-entreno-striped {
-        background: #36706b;
-        color: #e0f6f2;
-    }
+    background: var(--card-entreno-bg);
+    color: var(--card-entreno-color);
 }
 
 .reserva-top {

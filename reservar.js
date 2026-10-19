@@ -71,6 +71,12 @@ function errorRed(err) {
     toast('No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.', 'err');
 }
 function motivoTexto(m) {
+    if (_idioma === 'en') {
+        if (m === 'plazo') return `Can only be cancelled ${cfg.cancelar_horas} h in advance. Call the club.`;
+        if (m === 'tipo') return 'This booking can only be changed by calling the club.';
+        if (m === 'pagada') return 'It has registered payments. Call the club to change it.';
+        return 'Call the club to change it.';
+    }
     if (m === 'plazo') return `Solo se puede cancelar con ${cfg.cancelar_horas} h de antelación. Llama al club.`;
     if (m === 'tipo') return 'Esta reserva solo se puede cambiar llamando al club.';
     if (m === 'pagada') return 'Tiene pagos registrados. Llama al club para cambiarla.';
@@ -79,30 +85,30 @@ function motivoTexto(m) {
 function textoError(r) {
     const e = r && r.error;
     switch (e) {
-        case 'fecha_invalida': return 'Ese día no está disponible para reservar.';
-        case 'hora_invalida': return 'Esa hora no está disponible.';
-        case 'hora_pasada': return 'Esa hora ya no se puede reservar. Elige otra.';
-        case 'duracion_invalida': return 'La duración elegida no es válida.';
-        case 'telefono_invalido': return 'Revisa el teléfono.';
-        case 'nombre_invalido': return 'Escribe tu nombre y apellidos.';
-        case 'codigo_formato': return 'El código debe tener entre 4 y 30 caracteres.';
-        case 'codigo_incorrecto': return r.restantes === 1 ? 'Código incorrecto. Te queda 1 intento.' : `Código incorrecto. Te quedan ${r.restantes} intentos.`;
+        case 'fecha_invalida': return _idioma === 'en' ? 'That day is not available for booking.' : 'Ese día no está disponible para reservar.';
+        case 'hora_invalida': return _idioma === 'en' ? 'That time is not available.' : 'Esa hora no está disponible.';
+        case 'hora_pasada': return _idioma === 'en' ? 'That time can no longer be booked. Pick another.' : 'Esa hora ya no se puede reservar. Elige otra.';
+        case 'duracion_invalida': return _idioma === 'en' ? 'The selected duration is invalid.' : 'La duración elegida no es válida.';
+        case 'telefono_invalido': return _idioma === 'en' ? 'Check the phone number.' : 'Revisa el teléfono.';
+        case 'nombre_invalido': return _idioma === 'en' ? 'Enter your full name.' : 'Escribe tu nombre y apellidos.';
+        case 'codigo_formato': return _idioma === 'en' ? 'The code must be 4-30 characters long.' : 'El código debe tener entre 4 y 30 caracteres.';
+        case 'codigo_incorrecto': return _idioma === 'en' ? (r.restantes === 1 ? 'Incorrect code. 1 attempt left.' : `Incorrect code. ${r.restantes} attempts left.`) : (r.restantes === 1 ? 'Código incorrecto. Te queda 1 intento.' : `Código incorrecto. Te quedan ${r.restantes} intentos.`);
         case 'bloqueado': {
             const min = Math.max(1, Math.ceil((r.segundos || 0) / 60));
-            return `Demasiados intentos. Inténtalo de nuevo en ${min < 60 ? min + ' min' : Math.ceil(min / 60) + ' h'}.`;
+            return _idioma === 'en' ? `Too many attempts. Try again in ${min < 60 ? min + ' min' : Math.ceil(min / 60) + ' h'}.` : `Demasiados intentos. Inténtalo de nuevo en ${min < 60 ? min + ' min' : Math.ceil(min / 60) + ' h'}.`;
         }
-        case 'sin_disponibilidad': return 'Ese hueco se acaba de ocupar. Elige otra hora.';
-        case 'limite_reservas': return `Ya tienes ${r.max} reservas pendientes. Cancela alguna o llama al club.`;
-        case 'no_encontrada': return 'No se ha encontrado la reserva.';
-        case 'ambiguo': return 'Hay varios clientes con ese nombre. Entra con tu teléfono.';
-        case 'faltan_datos': return 'Rellena todos los campos.';
-        case 'captcha': return 'No hemos podido verificar que eres una persona. Inténtalo de nuevo.';
-        case 'demasiadas_solicitudes': return 'Demasiados intentos desde tu conexión. Espera unos minutos o llama al club.';
-        case 'consentimiento': return 'Debes aceptar la política de privacidad para crear tu código.';
-        case 'cliente_existente': return 'Ya hay un cliente del club con esos datos. Llama al club y te activamos el acceso web.';
-        case 'deuda_pendiente': return 'Tienes un pago pendiente con el club. Llama al club para resolverlo y poder borrar tus datos.';
+        case 'sin_disponibilidad': return _idioma === 'en' ? 'That slot was just taken. Pick another time.' : 'Ese hueco se acaba de ocupar. Elige otra hora.';
+        case 'limite_reservas': return _idioma === 'en' ? `You already have ${r.max} pending bookings. Cancel one or call the club.` : `Ya tienes ${r.max} reservas pendientes. Cancela alguna o llama al club.`;
+        case 'no_encontrada': return _idioma === 'en' ? 'Booking not found.' : 'No se ha encontrado la reserva.';
+        case 'ambiguo': return _idioma === 'en' ? 'Several clients share that name. Log in with your phone.' : 'Hay varios clientes con ese nombre. Entra con tu teléfono.';
+        case 'faltan_datos': return _idioma === 'en' ? 'Fill in all fields.' : 'Rellena todos los campos.';
+        case 'captcha': return _idioma === 'en' ? 'We could not verify you are human. Try again.' : 'No hemos podido verificar que eres una persona. Inténtalo de nuevo.';
+        case 'demasiadas_solicitudes': return _idioma === 'en' ? 'Too many attempts from your connection. Wait a few minutes or call the club.' : 'Demasiados intentos desde tu conexión. Espera unos minutos o llama al club.';
+        case 'consentimiento': return _idioma === 'en' ? 'You must accept the privacy policy to create your code.' : 'Debes aceptar la política de privacidad para crear tu código.';
+        case 'cliente_existente': return _idioma === 'en' ? 'A client with those details already exists. Call the club to enable web access.' : 'Ya hay un cliente del club con esos datos. Llama al club y te activamos el acceso web.';
+        case 'deuda_pendiente': return _idioma === 'en' ? 'You have a pending payment with the club. Call the club to resolve it and be able to delete your data.' : 'Tienes un pago pendiente con el club. Llama al club para resolverlo y poder borrar tus datos.';
         case 'no_cancelable': return motivoTexto(r.motivo);
-        default: return 'No se pudo completar la acción. Inténtalo de nuevo.';
+        default: return _idioma === 'en' ? 'Action could not be completed. Try again.' : 'No se pudo completar la acción. Inténtalo de nuevo.';
     }
 }
 function cambiarPestana(tab) {
@@ -124,7 +130,7 @@ function dibujarDias() {
     let html = '';
     for (let i = 0; i <= cfg.dias_max; i++) {
         const iso = sumarDiasISO(hoy, i), f = fechaDesdeISO(iso);
-        const sem = i === 0 ? 'hoy' : f.toLocaleDateString('es-ES', { weekday: 'short' }).replace('.', '');
+        const sem = i === 0 ? (t('reservar.hoy') || (f.toLocaleDateString(_idioma === 'en' ? 'en-GB' : 'es-ES', { weekday: 'short' }).replace('.', ''))) : f.toLocaleDateString(_idioma === 'en' ? 'en-GB' : 'es-ES', { weekday: 'short' }).replace('.', '');
         const mes = f.toLocaleDateString('es-ES', { month: 'short' }).replace('.', '');
         html += `<button type="button" class="cl-day" data-fecha="${iso}" aria-pressed="false"><small>${esc(sem)}</small><b>${f.getDate()}</b><small>${esc(mes)}</small></button>`;
     }
@@ -177,7 +183,7 @@ async function cargarHuecos() {
     try {
         const r = await rpc('web_disponibilidad', { p_fecha: fecha });
         if (mi !== reqHuecos) return slotsDia;
-        if (!r || !r.ok) { slotsDia = []; cont.innerHTML = `<p class="cl-empty">${esc(textoError(r))}</p>`; return slotsDia; }
+        if (!r || !r.ok) { slotsDia = []; cont.innerHTML = `<p class="cl-empty">${t('reservar.error')} <button type="button" class="cl-link" id="btnReintentar">${t('reservar.reintentar')}</button></p>`; return slotsDia; }
         slotsDia = r.slots || [];
         dibujarHuecos();
         return slotsDia;
@@ -197,8 +203,8 @@ function dibujarHuecos() {
     if (sel.hora && !lista.some(x => x.hora === sel.hora)) { sel.hora = null; $('cardDatos').hidden = true; }
     if (!lista.length) {
         cont.innerHTML = libres.length
-            ? `<p class="cl-empty">${esc(textoAntelacion())} Para reservar con menos antelación, llama al club.</p>`
-            : `<p class="cl-empty">No quedan huecos de ${esc(duracionTxt(sel.dur))} este día. Prueba otro día o duración.</p>`;
+            ? `<p class="cl-empty">${t('reservar.antelacion', { min: duracionTxt(antMin()) })}${t('reservar.antelacion-llama')}</p>`
+            : `<p class="cl-empty">${t('reservar.no-huecos', { dur: duracionTxt(sel.dur) })}</p>`;
         return;
     }
     cont.innerHTML = lista.map(x =>
@@ -328,9 +334,8 @@ function mostrarExito(rv) {
         `<div><i class="ri-calendar-event-line" aria-hidden="true"></i>${esc(fechaWeb(rv.fecha))}</div>` +
         `<div><i class="ri-time-line" aria-hidden="true"></i>${esc(rv.hora)} – ${horaStr(minutos(rv.hora) + rv.duracion)} (${esc(duracionTxt(rv.duracion))})</div>` +
         `<div><i class="ri-map-pin-line" aria-hidden="true"></i>${esc(rv.pista)}</div>` +
-        `<div><i class="ri-money-euro-circle-line" aria-hidden="true"></i>${eur(rv.precio)} · se paga en el club</div>` +
-        `<div><i class="ri-hourglass-line" aria-hidden="true"></i>Pendiente de confirmación del club</div>`;
-    const ok = $('cardOk');
+        `<div><i class="ri-money-euro-circle-line" aria-hidden="true"></i>${eur(rv.precio)} · ${t('reservar.pago')}</div>` +
+        `<div><i class="ri-hourglass-line" aria-hidden="true"></i>${t('reservar.pendiente')}</div>`; const ok = $('cardOk');
     ok.hidden = false;
     ok.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     sel.hora = null;
@@ -371,18 +376,17 @@ function mostrarMis(conLista) {
     $('cardMisLista').hidden = !conLista;
 }
 function dibujarMisReservas(r) {
-    $('misHola').innerHTML = `Hola, <b>${esc(r.nombre)}</b>`;
+    $('misHola').innerHTML = t('mis-reservas.hola', { nombre: `<b>${esc(r.nombre)}</b>` });
     const lista = r.reservas || [];
     $('misLista').innerHTML = lista.length ? lista.map(x => {
         const fin = horaStr(minutos(x.hora) + x.duracion);
         const tipo = x.tipo && x.tipo !== 'Normal' ? `<span class="chip">${esc(x.tipo === 'Pena' ? 'Peña' : x.tipo)}</span>` : '';
         const estado = x.estado === 'Pendiente'
-            ? '<span class="badge-pendiente"><i class="ri-hourglass-line" aria-hidden="true"></i>Pendiente de confirmar</span>'
-            : '<span class="badge-confirmada"><i class="ri-check-line" aria-hidden="true"></i>Confirmada</span>';
-        const repetir = `<button type="button" class="btn-add gray" data-repetir="${esc(x.id)}" data-fecha="${esc(x.fecha)}" data-hora="${esc(x.hora)}" data-dur="${esc(x.duracion)}"><i class="ri-repeat-line" aria-hidden="true"></i>Reservar otra vez</button>`;
-        const accion = x.motivo
+            ? `<span class="badge-pendiente"><i class="ri-hourglass-line" aria-hidden="true"></i>${t('mis-reservas.pendiente')}</span>`
+            : `<span class="badge-confirmada"><i class="ri-check-line" aria-hidden="true"></i>${t('mis-reservas.confirmada')}</span>`;
+        const repetir = `<button type="button" class="btn-add gray" data-repetir="${esc(x.id)}" data-fecha="${esc(x.fecha)}" data-hora="${esc(x.hora)}" data-dur="${esc(x.duracion)}"><i class="ri-repeat-line" aria-hidden="true"></i>${t('mis-reservas.repetir')}</button>`; const accion = x.motivo
             ? `<div class="cl-res-acciones"><p class="cl-hint">${esc(motivoTexto(x.motivo))}</p>${repetir}</div>`
-            : `<div class="cl-res-acciones"><button type="button" class="btn-add danger" data-cancelar="${esc(x.id)}"><i class="ri-delete-bin-line" aria-hidden="true"></i>Cancelar reserva</button>${repetir}</div>`;
+            : `<div class="cl-res-acciones"><button type="button" class="btn-add danger" data-cancelar="${esc(x.id)}"><i class="ri-delete-bin-line" aria-hidden="true"></i>${t('mis-reservas.cancelar')}</button>${repetir}</div>`;
         return `<article class="cl-res"><div class="cl-res-top"><b>${esc(fechaWeb(x.fecha))}</b>${estado}${tipo}</div>` +
             `<div class="cl-res-info"><span><i class="ri-time-line" aria-hidden="true"></i>${esc(x.hora)} – ${fin}</span>` +
             `<span><i class="ri-map-pin-line" aria-hidden="true"></i>${esc(x.pista)}</span>` +

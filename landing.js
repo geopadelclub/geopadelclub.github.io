@@ -55,7 +55,7 @@ async function cargarHuecosHoy(sb) {
         const { data, error } = await sb.rpc('web_disponibilidad', { p_fecha: hoyISO() });
         if (error) throw error;
         if (!data || !data.ok || !Array.isArray(data.slots)) {
-            box.innerHTML = '<p class="huecos-vacio">No se pudo consultar la disponibilidad. <a href="reservar">Ver reservas</a></p>';
+            box.innerHTML = `<p class="huecos-vacio">${t('huecos.error')} <a href="reservar">${t('huecos.ver')}</a></p>`;
             return;
         }
         const slots = data.slots

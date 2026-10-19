@@ -632,8 +632,8 @@
             <div class="hero-content">
                 <h1 data-i18n="hero.titulo">Tu pista de pádel en Ogíjares</h1>
                 <p data-i18n="hero.subtitulo">Consulta disponibilidad al instante, elige tu hora y juega. El pago se
-                    realiza cómodamente en el club.</p><a href="reservar" class="btn-hero" data-i18n="hero.cta">Reservar
-                    pista ahora</a>
+                    realiza cómodamente en el club.</p>
+                <a href="reservar" class="btn-hero" data-i18n="hero.cta">Reservar pista ahora</a>
             </div>
         </section>
         <section class="section" id="beneficios">
@@ -664,12 +664,15 @@
             <div class="tarifas-container">
                 <div class="tarifas-grid">
                     <div class="tarifa-col">
-                        <h3>Entre semana mañana</h3>
-                        <div class="tarifa-item"><span>60 minutos</span><span data-tarifa="semanaManana-60">18 €</span>
+                        <h3 data-i18n="tarifas.manana">Entre semana mañana</h3>
+                        <div class="tarifa-item"><span data-i18n="tarifas.60">60 minutos</span><span
+                                data-tarifa="semanaManana-60">18 €</span>
                         </div>
-                        <div class="tarifa-item"><span>90 minutos</span><span data-tarifa="semanaManana-90">22 €</span>
+                        <div class="tarifa-item"><span data-i18n="tarifas.90">90 minutos</span><span
+                                data-tarifa="semanaManana-90">22 €</span>
                         </div>
-                        <div class="tarifa-item"><span>120 minutos</span><span data-tarifa="semanaManana-120">24
+                        <div class="tarifa-item"><span data-i18n="tarifas.120">120 minutos</span><span
+                                data-tarifa="semanaManana-120">24
                                 €</span></div>
                     </div>
                     <div class="tarifa-col">
@@ -688,7 +691,8 @@
                         <div class="tarifa-item"><span>120 minutos</span><span data-tarifa="finde-120">30 €</span></div>
                     </div>
                 </div>
-                <p class="nota-tarifas">* Precios orientativos. Consulta el precio final en la pantalla de reserva. El
+                <p class="nota-tarifas" data-i18n="tarifas.nota">* Precios orientativos. Consulta el precio final en la
+                    pantalla de reserva. El
                     pago se realiza en el club.</p>
             </div>
         </section>
@@ -696,7 +700,7 @@
             <h2 class="section-title" data-i18n="huecos.titulo">Huecos libres hoy</h2>
             <p class="section-subtitle" data-i18n="huecos.subtitulo">Actualizado en tiempo real. Reserva desde aquí.</p>
             <div id="huecosHoy" class="huecos-grid" aria-live="polite">
-                <p class="huecos-cargando">Cargando disponibilidad...</p>
+                <p class="huecos-cargando" data-i18n="huecos.cargando">Cargando disponibilidad...</p>
             </div>
         </section>
         <section class="section" id="ubicacion">
@@ -705,34 +709,44 @@
             <div class="ubicacion-grid">
                 <div class="ubicacion-info">
                     <h3>Geopadel Ogíjares</h3>
-                    <p><i class="ri-map-pin-line" aria-hidden="true"></i>Polígono Tecnológico Los, C. Zamora, 130, 18151
-                        Ogíjares, Granada</p>
+                    <p><i class="ri-map-pin-line" aria-hidden="true"></i><span data-i18n="ubicacion.direccion">Polígono
+                            Tecnológico Los, C. Zamora, 130, 18151
+                            Ogíjares, Granada</span></p>
                     <p><i class="ri-phone-line" aria-hidden="true"></i><a href="tel:+34646059962"
-                            style="color: inherit; text-decoration: none;">+34 646 059 962</a></p>
+                            style="color: inherit; text-decoration: none;" data-i18n="ubicacion.telefono">+34 646 059
+                            962</a></p>
                     <p><i class="ri-whatsapp-line" aria-hidden="true"></i><a
                             href="https://wa.me/34646059962?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20las%20pistas"
-                            target="_blank" rel="noopener" style="color: inherit; text-decoration: none;">Escríbenos por
+                            target="_blank" rel="noopener" style="color: inherit; text-decoration: none;"
+                            data-i18n="ubicacion.whatsapp">Escríbenos por
                             WhatsApp</a></p>
-                    <p><i class="ri-time-line" aria-hidden="true"></i>Lunes a Jueves: 09:00 a 14:00 y 17:00 a 23:30 //
-                        Viernes a Domingo: 9:00 a 14:00 y 17:00 a 22:00</p>
+                    <p><i class="ri-time-line" aria-hidden="true"></i><span data-i18n="ubicacion.horario">Lunes a
+                            Jueves: 09:00 a 14:00 y 17:00 a 23:30 //
+                            Viernes a Domingo: 9:00 a 14:00 y 17:00 a 22:00</span></p>
                 </div>
                 <a href="https://maps.app.goo.gl/GZXgGoteM9hXp8mP6" target="_blank" rel="noopener" class="mapa-link"
                     aria-label="Abrir ubicación de Geopadel en Google Maps"><i class="ri-map-2-line"
-                        aria-hidden="true"></i><b data-i18n="ubicacion.cta">Ver en Google Maps</b><span>Haz clic para
+                        aria-hidden="true"></i><b data-i18n="ubicacion.cta">Ver en Google Maps</b><span
+                        data-i18n="ubicacion.cta-desc">Haz clic para
                         abrir la ubicación exacta en tu aplicación de mapas.</span></a>
             </div>
         </section>
     </main>
     <footer class="landing-footer">
-        <p>© Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización.
+        <p data-i18n="footer.copyright">© Geopadel · Todos los derechos reservados. Queda prohibida la reproducción
+            total o parcial sin autorización.
         </p>
-        <div class="footer-links"><a href="privacidad">Privacidad</a><a href="aviso-legal">Aviso Legal</a><a
-                href="politica-cookies">Cookies</a><a href="panel" rel="nofollow" class="acceso-trabajadores">Acceso
+        <div class="footer-links"><a href="privacidad" data-i18n="footer.privacidad">Privacidad</a><a href="aviso-legal"
+                data-i18n="footer.aviso">Aviso Legal</a><a href="politica-cookies"
+                data-i18n="footer.cookies">Cookies</a><a href="panel" rel="nofollow" class="acceso-trabajadores"
+                data-i18n="footer.acceso">Acceso
                 trabajadores</a></div>
     </footer>
     <div class="contacto-flotante"><a class="btn-whatsapp" href="https://wa.me/34646059962?text=Hola%2C" target="_blank"
-            rel="noopener noreferrer"><i class="ri-whatsapp-line" aria-hidden="true"></i>Hablar por WhatsApp</a>
-        <p class="contacto-llamar">¿Prefieres llamar? <a href="tel:+34646059962">646 05 99 62</a></p>
+            rel="noopener noreferrer"><i class="ri-whatsapp-line" aria-hidden="true"></i><span
+                data-i18n="contacto.whatsapp">Hablar por WhatsApp</span></a>
+        <p class="contacto-llamar"><span data-i18n="contacto.llamar">¿Prefieres llamar? </span><a
+                href="tel:+34646059962">646 05 99 62</a></p>
     </div>
 </body>
 
