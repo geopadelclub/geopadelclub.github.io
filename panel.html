@@ -653,20 +653,20 @@
                             <label class="cl-check" style="font-size:14px;"><input type="radio" name="modalTipoPago"
                                     value="dividido"> Pago dividido</label>
                         </div>
-
-                        <!-- UI de Pago Único (por defecto) -->
                         <div id="boxPagoUnico">
                             <div style="display:flex; gap:8px;">
                                 <button type="button" class="btn-pay btn-cash" id="btnUnicoEfectivo"
                                     style="flex:1; padding:12px;">Efectivo</button>
                                 <button type="button" class="btn-pay btn-card" id="btnUnicoTarjeta"
                                     style="flex:1; padding:12px;">Tarjeta</button>
+                                <button type="button" class="btn-pay btn-pay-reset" id="btnUnicoReset"
+                                    style="flex:0 0 auto; padding:12px; display:none;" aria-label="Quitar pago"><i
+                                        class="ri-close-line"></i></button>
                             </div>
                             <p id="msgPagoUnico" class="msg-inline"
                                 style="text-align:center; margin-top:8px; font-size:12px;"></p>
                         </div>
 
-                        <!-- UI de Pago Dividido (la que ya tenías) -->
                         <div id="boxCobroDividido" style="display:none;">
                             <h5>Cobro dividido <span id="badgePrecioUnitario"
                                     style="font-size:13px;color:var(--blue);font-weight:800"></span></h5>

@@ -431,19 +431,29 @@ async function procesarPagoUnico(metodo) {
     const nJug = parseInt($('modalNumJugadores').value, 10) || 4;
 
     if (!reservaEnEdicion.id) {
+        if (metodo === '0') {
+            _pendingPagoUnico = null;
+            $('msgPagoUnico').innerText = '';
+            $('btnUnicoEfectivo').classList.remove('active');
+            $('btnUnicoTarjeta').classList.remove('active');
+            $('btnUnicoReset').style.display = 'none';
+            return;
+        }
         _pendingPagoUnico = metodo;
         $('msgPagoUnico').style.color = 'var(--green)';
         $('msgPagoUnico').innerText = `Se cobrará en ${metodo} al guardar`;
         $('btnUnicoEfectivo').classList.toggle('active', metodo === 'Efectivo');
         $('btnUnicoTarjeta').classList.toggle('active', metodo === 'Tarjeta');
+        $('btnUnicoReset').style.display = 'inline-block';
         return;
     }
 
     const btnEf = $('btnUnicoEfectivo');
     const btnTa = $('btnUnicoTarjeta');
-    btnEf.disabled = true; btnTa.disabled = true;
+    const btnRe = $('btnUnicoReset');
+    btnEf.disabled = true; btnTa.disabled = true; btnRe.disabled = true;
     $('msgPagoUnico').style.color = 'var(--muted)';
-    $('msgPagoUnico').innerText = 'Procesando pago...';
+    $('msgPagoUnico').innerText = metodo === '0' ? 'Quitando pago...' : 'Procesando pago...';
 
     try {
         let ultimoData = null;
@@ -455,7 +465,7 @@ async function procesarPagoUnico(metodo) {
                 p_empleado: nombreUsuario()
             });
             if (error) throw error;
-            if (data && data.success === false) throw new Error(data.message || 'Error al cobrar');
+            if (data && data.success === false) throw new Error(data.message || 'Error al procesar');
             ultimoData = data;
         }
 
@@ -464,15 +474,26 @@ async function procesarPagoUnico(metodo) {
             reservaEnEdicion.pagoEstado = ultimoData.pago_estado;
         }
 
-        $('msgPagoUnico').style.color = 'var(--green)';
-        $('msgPagoUnico').innerText = `✔ Cobrado ${eur(reservaEnEdicion.precio)} (${metodo})`;
+        if (metodo === '0') {
+            $('msgPagoUnico').style.color = 'var(--muted)';
+            $('msgPagoUnico').innerText = 'Pago eliminado. Reserva pendiente de cobro.';
+            btnEf.classList.remove('active');
+            btnTa.classList.remove('active');
+            btnRe.style.display = 'none';
+        } else {
+            $('msgPagoUnico').style.color = 'var(--green)';
+            $('msgPagoUnico').innerText = `✔ Cobrado ${eur(reservaEnEdicion.precio)} (${metodo})`;
+            btnEf.classList.toggle('active', metodo === 'Efectivo');
+            btnTa.classList.toggle('active', metodo === 'Tarjeta');
+            btnRe.style.display = 'inline-block';
+        }
         actualizarVistasJugadoresSplit();
     } catch (e) {
         console.error(e);
         $('msgPagoUnico').style.color = 'var(--red)';
         $('msgPagoUnico').innerText = 'Error: ' + (e.message || e);
     } finally {
-        btnEf.disabled = false; btnTa.disabled = false;
+        btnEf.disabled = false; btnTa.disabled = false; btnRe.disabled = false;
     }
 }
 
@@ -481,6 +502,7 @@ document.querySelectorAll('input[name="modalTipoPago"]').forEach(r => {
 });
 $('btnUnicoEfectivo').addEventListener('click', () => procesarPagoUnico('Efectivo'));
 $('btnUnicoTarjeta').addEventListener('click', () => procesarPagoUnico('Tarjeta'));
+$('btnUnicoReset').addEventListener('click', () => procesarPagoUnico('0'));
 
 function abrirModalNuevaReserva(pistas = ["1 PADEL MASTER"], hora = "17:00", tipo = "Normal") {
     if (!Array.isArray(pistas)) pistas = ["1 PADEL MASTER"];
@@ -559,9 +581,11 @@ function abrirModalEditarReserva(res) {
             $('msgPagoUnico').innerText = `✔ Pagado en ${pagados[0]}`;
             $('msgPagoUnico').style.color = 'var(--green)';
             $(pagados[0] === 'Efectivo' ? 'btnUnicoEfectivo' : 'btnUnicoTarjeta').classList.add('active');
+            $('btnUnicoReset').style.display = 'inline-block';
         } else {
             radios[1].checked = true;
             $('msgPagoUnico').innerText = '';
+            $('btnUnicoReset').style.display = 'none';
         }
     } else {
         radios.forEach(r => r.disabled = false);
@@ -569,6 +593,7 @@ function abrirModalEditarReserva(res) {
         $('msgPagoUnico').innerText = '';
         $('btnUnicoEfectivo').classList.remove('active');
         $('btnUnicoTarjeta').classList.remove('active');
+        $('btnUnicoReset').style.display = 'none';
     }
     alCambiarTipoPago();
 
