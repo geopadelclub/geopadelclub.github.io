@@ -225,14 +225,14 @@ $('loginForm').addEventListener('submit', async function (e) {
     loginEnCurso = false;
 });
 const refrescar = {
-    reservas: debounce(() => cargarReservasHoy(), 250),
-    mesas: debounce(() => cargarMesasBar(), 250),
-    ventas: debounce(() => cargarCajaHoy(), 400),
-    productos: debounce(() => cargarProductos(), 300),
-    tarifas: debounce(() => cargarTarifas(), 300),
-    deudas: debounce(() => cargarDeudas(), 300),
-    limpiezas: debounce(() => cargarLimpiezas(false), 300),
-    clientes: debounce(() => cargarClientes(), 500)
+    reservas: debounce(() => cargarReservasHoy(), 500),
+    mesas: debounce(() => cargarMesasBar(), 400),
+    ventas: debounce(() => cargarCajaHoy(), 600),
+    productos: debounce(() => cargarProductos(), 500),
+    tarifas: debounce(() => cargarTarifas(), 500),
+    deudas: debounce(() => cargarDeudas(), 500),
+    limpiezas: debounce(() => cargarLimpiezas(false), 500),
+    clientes: debounce(() => cargarClientes(), 800)
 };
 function iniciarSuscripcionRealtime() {
     if (!supabaseClient) return;

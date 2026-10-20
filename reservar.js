@@ -589,10 +589,22 @@ window.addEventListener('DOMContentLoaded', async () => {
         $('clSlots').innerHTML = '<p class="cl-empty">No se pudo cargar el sistema de reservas. Revisa tu conexión y recarga la página.</p>';
         return;
     }
-    try {
-        const c = await rpc('web_config');
-        if (c && Array.isArray(c.duraciones)) cfg = { ...cfg, ...c };
-    } catch (err) { console.error(err); }
+
+    let configGuardada = null;
+    try { configGuardada = JSON.parse(localStorage.getItem('gp_web_config')); } catch (e) { }
+
+    if (configGuardada && (Date.now() - configGuardada.t < 3600000)) {
+        cfg = { ...cfg, ...configGuardada.data };
+    } else {
+        try {
+            const c = await rpc('web_config');
+            if (c && Array.isArray(c.duraciones)) {
+                cfg = { ...cfg, ...c };
+                localStorage.setItem('gp_web_config', JSON.stringify({ t: Date.now(), data: c }));
+            }
+        } catch (err) { console.error(err); }
+    }
+
     if (!cfg.duraciones.includes(sel.dur)) sel.dur = cfg.duraciones[0];
     actualizarIntroReserva();
     dibujarDias();

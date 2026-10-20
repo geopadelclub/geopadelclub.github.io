@@ -2295,3 +2295,10 @@ tr.deuda-resuelta td {
     cursor: not-allowed;
     opacity: 0.5;
 }
+
+.reserva-card,
+.cl-res,
+.tabla-productos tr {
+    content-visibility: auto;
+    contain-intrinsic-size: 50px;
+}
