@@ -74,9 +74,10 @@
         </div>
     </main>
     <div id="adminView" style="display: none;">
-        <header class="app-header">
-            <div class="gp-brand"><img class="gp-logo" src="./Geopadel.webp" alt="Geopadel" draggable="false"
-                    width="150" height="150"></div>
+                <header class="app-header">
+            <a href="/" class="gp-brand" aria-label="Volver al inicio" style="text-decoration: none;">
+                <img class="gp-logo" src="./Geopadel.webp" alt="Geopadel" draggable="false" width="150" height="150">
+            </a>
             <div class="user-info"><span><strong id="nombreEmpleado">...</strong><span id="rolEmpleado"
                         class="sr-only"></span></span><button type="button" class="theme-toggle" id="btnNotif"
                     data-action="activar-notificaciones" aria-label="Activar notificaciones"
@@ -84,7 +85,7 @@
                         aria-hidden="true"></i></button><button type="button" class="theme-toggle"
                     data-action="alternar-tema" aria-label="Cambiar tema"><i class="ri-moon-line"
                         aria-hidden="true"></i></button><button type="button" class="btn-logout"
-                    data-action="cerrar-sesion">Salir</button></div>
+                data-action="cerrar-sesion">Salir</button></div>
         </header>
         <nav class="app-nav" aria-label="Secciones"><button type="button" id="nav-resumen" class="nav-tab active"
                 data-tab="resumen"><span class="ni"><i class="ri-dashboard-3-line"
