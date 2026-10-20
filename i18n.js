@@ -63,7 +63,21 @@ const I18N = {
         'tienda.titulo': 'Tienda', 'tienda.subtitulo': 'Esto es lo que tenemos en el club. Se compra en el club.',
         'tienda.vacio': 'Ahora mismo no hay artículos en la tienda. Pregunta en el club.',
         'tienda.cargando': 'Cargando...', 'tienda.error': 'No se pudo cargar la tienda.',
-        'reservar.subtitulo-completo': 'Elige día, duración y hora. Se paga en el club. Reserva con {min} de antelación; con menos, llama al club.'
+        'reservar.subtitulo-completo': 'Elige día, duración y hora. Se paga en el club. Reserva con {min} de antelación; con menos, llama al club.',
+        'aviso.pago': 'Las pistas se abonan antes de jugar el partido. Se recomienda llegar 10 minutos antes.',
+        'instalaciones.titulo': 'Nuestras Instalaciones',
+        'instalaciones.subtitulo': 'Descubre todo lo que Geopadel tiene para ti.',
+        'pista1.titulo': 'Pista 1 · Padel Master',
+        'pista1.texto': 'Nuestra pista principal, patrocinada por Padel Master, con las mejores prestaciones.',
+        'pista3.titulo': 'Pistas 2 a 9',
+        'pista3.texto': 'El resto de nuestras pistas, mantenidas a diario en perfecto estado.',
+        'bar.titulo': 'Zona de Bar',
+        'bar.texto': 'Tómate una cerveza con tu tapa mientras ves los mejores partidos de pádel en la televisión o escuchas música.',
+        'entreno.titulo': 'Zona de Calentamiento',
+        'entreno.texto': 'No entres en frío a la pista. Disponemos de zona de entreno para que calientes antes de tu partido.',
+        'palas.titulo': 'Prueba de Palas',
+        'palas.texto': '¿No sabes qué pala comprar? Ven al club y pruébala en tu propio partido antes de decidirte.',
+
     },
     en: {
         'nav.tarifas': 'Prices', 'nav.ubicacion': 'Location', 'nav.reservar': 'Book a court',
@@ -128,7 +142,20 @@ const I18N = {
         'tienda.titulo': 'Shop', 'tienda.subtitulo': 'This is what we have at the club. Purchase at the club.',
         'tienda.vacio': 'There are no items in the shop right now. Ask at the club.',
         'tienda.cargando': 'Loading...', 'tienda.error': 'Could not load the shop.',
-        'reservar.subtitulo-completo': 'Pick day, duration and time. Payment at the club. Book at least {min} in advance; for less, call the club.'
+        'reservar.subtitulo-completo': 'Pick day, duration and time. Payment at the club. Book at least {min} in advance; for less, call the club.',
+        'aviso.pago': 'Courts must be paid before playing. Arriving 10 minutes early is recommended.',
+        'instalaciones.titulo': 'Our Facilities',
+        'instalaciones.subtitulo': 'Discover everything Geopadel has for you.',
+        'pista1.titulo': 'Court 1 · Padel Master',
+        'pista1.texto': 'Our main court, sponsored by Padel Master, with top performance.',
+        'pista3.titulo': 'Courts 2 to 9',
+        'pista3.texto': 'The rest of our courts, maintained daily in perfect condition.',
+        'bar.titulo': 'Bar Area',
+        'bar.texto': 'Have a beer with your tapa while watching the best padel matches on TV or listening to music.',
+        'entreno.titulo': 'Warm-up Area',
+        'entreno.texto': 'Don\'t step on court cold. We have a warm-up area so you can get ready before your match.',
+        'palas.titulo': 'Racket Testing',
+        'palas.texto': 'Not sure which racket to buy? Come to the club and test it in your own match before deciding.'
     }
 };
 let _idioma = 'es';
