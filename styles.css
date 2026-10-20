@@ -1026,6 +1026,7 @@ i[class*=" ri-"] {
     height: 56px;
     width: auto;
     aspect-ratio: 1 / 1;
+    border-radius: 12px;
 }
 
 [data-theme="dark"] .gp-logo {
