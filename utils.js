@@ -9,6 +9,8 @@ function toast(msg, tipo = 'ok', ms = 3500) {
     const el = document.createElement('div');
     el.className = 'toast ' + (tipo === 'ok' ? '' : tipo);
     el.textContent = msg;
+    el.setAttribute('role', tipo === 'err' ? 'alert' : 'status');
+    el.setAttribute('aria-live', tipo === 'err' ? 'assertive' : 'polite');
     box.appendChild(el);
     const dur = tipo === 'err' ? Math.max(ms, 6000) : ms;
     setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 260); }, dur);

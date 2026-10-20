@@ -260,6 +260,15 @@ window.addEventListener('resize', debounce(() => { if (usuarioSesion) renderizar
             abrirModalNuevaReserva([slot.dataset.pista], minToTimeStr(min), esCerrado(min) ? 'Torneo' : 'Normal');
         }
     });
+    grid.addEventListener('keydown', e => {
+        const card = e.target.closest('.reserva-card');
+        if (!card) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            const r = (datosLocales.reservas || []).find(x => String(x.id) === card.dataset.id);
+            if (r) abrirModalEditarReserva(r);
+        }
+    });
     grid.addEventListener('contextmenu', e => { if (e.target.closest('.reserva-card')) e.preventDefault(); });
     grid.addEventListener('dragstart', e => {
         const card = e.target.closest('.reserva-card');
@@ -1038,3 +1047,68 @@ async function verHistorialReserva() {
 }
 
 function cerrarHistorial() { cerrarOverlay('modalHistorial'); }
+
+async function cargarListaEspera() {
+    const tb = $('listaEsperaBody');
+    if (!tb) return;
+    const hoy = fechaLocalISO();
+    const { data, error } = await supabaseClient
+        .from('lista_espera')
+        .select('*')
+        .eq('estado', 'pendiente')
+        .gte('fecha', hoy)
+        .order('fecha', { ascending: true });
+
+    if (error) {
+        tb.innerHTML = '<tr><td colspan="4" class="tabla-empty" style="color:var(--red)">Error al cargar</td></tr>';
+        return;
+    }
+
+    if (!data || data.length === 0) {
+        tb.innerHTML = '<tr><td colspan="4" class="tabla-empty">Nadie en lista de espera</td></tr>';
+        return;
+    }
+
+    const fmtF = iso => { const [y, m, d] = String(iso).split('-'); return `${d}/${m}/${y}`; };
+
+    tb.innerHTML = data.map(x => `
+        <tr>
+            <td><b>${esc(fmtF(x.fecha))}</b></td>
+            <td>${x.duracion} min</td>
+            <td><a href="tel:${esc(x.telefono)}" style="color:var(--blue);font-weight:700">${esc(x.telefono)}</a></td>
+            <td>
+                <button type="button" class="btn-add gray" data-espera-avisar="${esc(x.id)}"><i class="ri-notification-3-line" aria-hidden="true"></i>Avisar manual</button>
+                <button type="button" class="btn-add danger" data-espera-borrar="${esc(x.id)}"><i class="ri-delete-bin-line" aria-hidden="true"></i>Quitar</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+document.addEventListener('click', async e => {
+    const btnAvisar = e.target.closest('[data-espera-avisar]');
+    if (btnAvisar) {
+        if (!(await customConfirm('¿Marcar como avisado? (El cliente deberá reservar por su cuenta)'))) return;
+        await supabaseClient.from('lista_espera').update({ estado: 'avisado' }).eq('id', btnAvisar.dataset.esperaAvisar);
+        toast('Marcado como avisado');
+        cargarListaEspera();
+    }
+
+    const btnBorrar = e.target.closest('[data-espera-borrar]');
+    if (btnBorrar) {
+        if (!(await customConfirm('¿Eliminar de la lista de espera?'))) return;
+        await supabaseClient.from('lista_espera').delete().eq('id', btnBorrar.dataset.esperaBorrar);
+        toast('Eliminado de la lista');
+        cargarListaEspera();
+    }
+});
+
+if ($('btnRefrescarEspera')) {
+    $('btnRefrescarEspera').addEventListener('click', cargarListaEspera);
+}
+
+const navReservasBtn = $('nav-reservas');
+if (navReservasBtn) {
+    navReservasBtn.addEventListener('click', () => {
+        setTimeout(() => { if ($('tab-reservas').classList.contains('active')) cargarListaEspera(); }, 50);
+    });
+}

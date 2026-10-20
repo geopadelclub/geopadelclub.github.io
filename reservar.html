@@ -48,6 +48,7 @@
 </head>
 
 <body>
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
     <div id="bannerOffline" role="alert"><i class="ri-wifi-off-line" aria-hidden="true"></i>Sin conexión · no se podrá
         reservar hasta que vuelva internet</div>
     <div id="toasts" role="status" aria-live="polite"></div>
@@ -69,7 +70,7 @@
                     class="ri-ticket-line" aria-hidden="true"></i></span>Mis reservas</button><button type="button"
             id="nav-tienda" class="nav-tab" data-tab="tienda" aria-label="Pestaña Tienda"><span class="ni"><i
                     class="ri-shopping-bag-3-line" aria-hidden="true"></i></span>Tienda</button></nav>
-    <main class="cl-main">
+    <main class="cl-main" id="main-content">
         <div
             style="background: var(--amber-soft); color: var(--orange-text); text-align: center; padding: 12px 16px; font-weight: 700; font-size: 13px; border-radius: var(--radius-md); margin-bottom: 16px; border: 1px solid var(--amber); line-height: 1.4;">
             <i class="ri-information-line" aria-hidden="true"></i> <span data-i18n="aviso.pago">Las pistas se abonan
@@ -95,9 +96,12 @@
                 <h2><i class="ri-user-line" aria-hidden="true"></i><span data-i18n="reservar.tus-datos">Tus datos</span>
                 </h2>
                 <div id="clResumen" class="cl-resumen"></div>
-                <div class="form-group"><label for="clTel" data-i18n="reservar.telefono">Teléfono</label><input
-                        type="tel" id="clTel" inputmode="tel" autocomplete="tel" maxlength="20"
-                        placeholder="600 123 456"></div>
+                <div class="form-group">
+                    <label for="clTel" data-i18n="reservar.telefono">Teléfono</label>
+                    <input type="tel" id="clTel" inputmode="tel" autocomplete="tel" maxlength="20"
+                        placeholder="600 123 456" aria-describedby="telHint">
+                    <p id="telHint" class="cl-hint" aria-live="polite"></p>
+                </div>
                 <div id="bloqueTel"><button type="button" class="btn-submit" id="btnTel"
                         data-i18n="reservar.continuar">Continuar</button></div>
                 <div id="bloqueExistente" hidden>
@@ -136,10 +140,18 @@
                 <div id="okDetalle" class="cl-ok-det"></div>
                 <div class="cl-actions"><button type="button" class="btn-add gray" id="btnICS"><i
                             class="ri-calendar-check-line" aria-hidden="true"></i><span
-                            data-i18n="reservar.calendario">Añadir al calendario</span></button><button type="button"
-                        class="btn-add" id="btnOtra" data-i18n="reservar.otra">Reservar otra</button><button
-                        type="button" class="btn-add blue" id="btnVerMis" data-i18n="reservar.ver-mis">Ver mis
-                        reservas</button></div>
+                            data-i18n="reservar.calendario">Añadir al calendario</span></button>
+                    <button type="button" class="btn-add gray" id="btnGCal"><i class="ri-google-line"
+                            aria-hidden="true"></i><span>Google Calendar</span></button>
+                    <button type="button" class="btn-add gray" id="btnShare"><i class="ri-share-line"
+                            aria-hidden="true"></i><span>Compartir</span></button>
+                    <button type="button" class="btn-add gray" id="btnPush"><i class="ri-notification-3-line"
+                            aria-hidden="true"></i><span>Recordarme</span></button>
+                    <button type="button" class="btn-add" id="btnOtra" data-i18n="reservar.otra">Reservar
+                        otra</button><button type="button" class="btn-add blue" id="btnVerMis"
+                        data-i18n="reservar.ver-mis">Ver mis
+                        reservas</button>
+                </div>
             </div>
         </section>
         <section id="tab-mis" class="tab-content">

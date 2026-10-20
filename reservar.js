@@ -9,6 +9,9 @@ const flujo = { fase: 'tel', tel: '', codigo: '', nombre: '' };
 let cuenta = null;
 let slotsDia = [];
 let reqHuecos = 0;
+let cacheHuecos = { fecha: null, t: 0, data: null };
+const TTL_HUECOS = 30000;
+
 function fechaDesdeISO(iso) {
     const [y, m, d] = iso.split('-').map(Number);
     return new Date(y, m - 1, d, 12);
@@ -159,7 +162,9 @@ $('clDias').addEventListener('click', e => {
 $('clDur').addEventListener('click', e => {
     const b = e.target.closest('.cl-dur');
     if (!b) return;
-    sel.dur = parseInt(b.dataset.dur, 10);
+    const nuevaDur = parseInt(b.dataset.dur, 10);
+    if (sel.hora && sel.dur !== nuevaDur) toast('Duración actualizada. Vuelve a elegir tu hora.', 'warn');
+    sel.dur = nuevaDur;
     sel.hora = null;
     $('cardDatos').hidden = true;
     dibujarDuraciones();
@@ -179,12 +184,18 @@ async function cargarHuecos() {
     const cont = $('clSlots');
     const fecha = sel.fecha;
     const mi = ++reqHuecos;
+    if (cacheHuecos.fecha === fecha && Date.now() - cacheHuecos.t < TTL_HUECOS) {
+        slotsDia = cacheHuecos.data;
+        dibujarHuecos();
+        return slotsDia;
+    }
     cont.innerHTML = '<p class="cl-empty">Buscando huecos...</p>';
     try {
         const r = await rpc('web_disponibilidad', { p_fecha: fecha });
         if (mi !== reqHuecos) return slotsDia;
         if (!r || !r.ok) { slotsDia = []; cont.innerHTML = `<p class="cl-empty">${t('reservar.error')} <button type="button" class="cl-link" id="btnReintentar">${t('reservar.reintentar')}</button></p>`; return slotsDia; }
         slotsDia = r.slots || [];
+        cacheHuecos = { fecha, t: Date.now(), data: slotsDia };
         dibujarHuecos();
         return slotsDia;
     } catch (err) {
@@ -204,14 +215,24 @@ function dibujarHuecos() {
     if (!lista.length) {
         cont.innerHTML = libres.length
             ? `<p class="cl-empty">${t('reservar.antelacion', { min: duracionTxt(antMin()) })}${t('reservar.antelacion-llama')}</p>`
-            : `<p class="cl-empty">${t('reservar.no-huecos', { dur: duracionTxt(sel.dur) })}</p>`;
+            : `<p class="cl-empty">${t('reservar.no-huecos', { dur: duracionTxt(sel.dur) })}</p><button type="button" class="cl-link" id="btnEspera" style="margin-top:8px">Avísame si se libera</button>`;
         return;
     }
     cont.innerHTML = lista.map(x =>
         `<button type="button" class="cl-slot${x.hora === sel.hora ? ' active' : ''}" data-hora="${esc(x.hora)}" data-precio="${esc(x.op.precio)}" aria-pressed="${x.hora === sel.hora}">${esc(x.hora)}<span>${eur(x.op.precio)}</span></button>`).join('');
 }
-$('clSlots').addEventListener('click', e => {
-    if (e.target.closest('#btnReintentar')) { cargarHuecos(); return; }
+$('clSlots').addEventListener('click', async e => {
+    if (e.target.closest('#btnReintentar')) { cacheHuecos.t = 0; cargarHuecos(); return; }
+    if (e.target.closest('#btnEspera')) {
+        const tel = prompt('Déjanos tu teléfono para avisarte cuando se libere este hueco:');
+        if (!tel || !telefonoValido(tel)) return toast('Teléfono no válido', 'warn');
+        const { error } = await sb.from('lista_espera').insert({
+            fecha: sel.fecha, duracion: sel.dur, telefono: normalizarTelefono(tel), estado: 'pendiente'
+        });
+        if (error) return toast('No se pudo guardar: ' + error.message, 'err');
+        toast('Te avisaremos cuando se libere un hueco similar');
+        return;
+    }
     const b = e.target.closest('.cl-slot');
     if (!b) return;
     sel.hora = b.dataset.hora;
@@ -229,6 +250,11 @@ function mostrarDatos() {
     const card = $('cardDatos');
     card.hidden = false;
     card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    setTimeout(() => {
+        if (flujo.fase === 'tel') $('clTel').focus();
+        else if (flujo.fase === 'existente') $('clCodigoEx').focus();
+        else if (flujo.fase === 'nuevo') $('clNombre').focus();
+    }, 100);
 }
 function mostrarBloques() {
     const f = flujo.fase;
@@ -248,7 +274,20 @@ function resetFlujo() {
     $('clConsent').checked = false;
     mostrarBloques();
 }
-$('clTel').addEventListener('input', () => { if (flujo.fase !== 'tel') resetFlujo(); });
+$('clTel').addEventListener('input', () => {
+    if (flujo.fase !== 'tel') resetFlujo();
+    const val = $('clTel').value.trim();
+    const btn = $('btnTel');
+    const hint = $('telHint');
+    if (!val) { btn.disabled = false; $('clTel').removeAttribute('aria-invalid'); if (hint) hint.textContent = ''; return; }
+    const ok = telefonoValido(val);
+    btn.disabled = !ok;
+    $('clTel').setAttribute('aria-invalid', ok ? 'false' : 'true');
+    if (hint) {
+        hint.textContent = ok ? 'Teléfono válido' : 'Introduce al menos 9 cifras';
+        hint.style.color = ok ? 'var(--green)' : 'var(--red)';
+    }
+});
 async function continuarTelefono() {
     if (!telefonoValido($('clTel').value)) return toast('Revisa el teléfono (mínimo 9 cifras)', 'warn');
     const tel = normalizarTelefono($('clTel').value);
@@ -338,7 +377,9 @@ function mostrarExito(rv) {
         `<div><i class="ri-hourglass-line" aria-hidden="true"></i>${t('reservar.pendiente')}</div>`; const ok = $('cardOk');
     ok.hidden = false;
     ok.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    setTimeout(() => $('btnICS').focus(), 100);
     sel.hora = null;
+    cacheHuecos.t = 0;
     cargarHuecos();
 }
 $('btnTel').addEventListener('click', continuarTelefono);
@@ -484,6 +525,62 @@ window.addEventListener('offline', estadoRed);
 document.addEventListener('visibilitychange', () => {
     if (!document.hidden && navigator.onLine && sel.fecha && $('tab-reservar').classList.contains('active')) cargarHuecos();
 });
+function urlGoogleCalendar(rv) {
+    const ini = minutos(rv.hora), fin = ini + rv.duracion;
+    const f = (iso, min) => {
+        const [y, m, d] = iso.split('-');
+        return `${y}${m}${d}T${String(Math.floor(min / 60)).padStart(2, '0')}${String(min % 60).padStart(2, '0')}00`;
+    };
+    const dates = `${f(rv.fecha, ini)}/${f(rv.fecha, fin)}`;
+    const text = encodeURIComponent(`Pádel en Geopadel · ${rv.pista}`);
+    const loc = encodeURIComponent(`Geopadel, ${rv.pista}`);
+    const details = encodeURIComponent('Reserva pendiente de confirmación. Se paga en el club.');
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${dates}&location=${loc}&details=${details}`;
+}
+$('btnGCal').addEventListener('click', () => {
+    if (ultimaReserva) window.open(urlGoogleCalendar(ultimaReserva), '_blank');
+});
+$('btnShare').addEventListener('click', async () => {
+    if (!ultimaReserva) return;
+    const rv = ultimaReserva;
+    const txt = `¡He reservado pista en Geopadel! ${fechaWeb(rv.fecha)} a las ${rv.hora} en ${rv.pista}. ¿Te apuntas?`;
+    if (navigator.share) {
+        try { await navigator.share({ title: 'Geopadel', text: txt, url: location.origin }); } catch (e) { }
+    } else {
+        try {
+            await navigator.clipboard.writeText(txt);
+            toast('Copiado al portapapeles');
+        } catch (e) { toast('No se pudo copiar', 'err'); }
+    }
+});
+async function suscribirPush() {
+    if (!ultimaReserva) return;
+    const ahora = new Date();
+    const [y, m, d] = ultimaReserva.fecha.split('-').map(Number);
+    const [hh, mm] = ultimaReserva.hora.split(':').map(Number);
+    const fechaPartido = new Date(y, m - 1, d, hh, mm);
+    if (fechaPartido.getTime() - ahora.getTime() < 2 * 60 * 60 * 1000) {
+        return toast('El partido es en menos de 2 horas, no hay tiempo para enviar un recordatorio.', 'warn');
+    }
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return toast('Tu navegador no soporta notificaciones push', 'warn');
+    const permiso = await Notification.requestPermission();
+    if (permiso !== 'granted') return toast('Permiso denegado', 'warn');
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: 'TU_VAPID_PUBLIC_KEY'
+    });
+    const { error } = await sb.from('push_suscripciones').upsert({
+        telefono: flujo.tel,
+        endpoint: sub.endpoint,
+        auth: btoa(String.fromCharCode(...new Uint8Array(sub.getKey('auth')))),
+        p256dh: btoa(String.fromCharCode(...new Uint8Array(sub.getKey('p256dh')))),
+        created_at: new Date().toISOString()
+    }, { onConflict: 'endpoint' });
+    if (error) return toast('Error al guardar suscripción: ' + error.message, 'err');
+    toast('Recordatorio activado. Te avisaremos 2 horas antes.');
+}
+$('btnPush').addEventListener('click', suscribirPush);
 window.addEventListener('DOMContentLoaded', async () => {
     iniciarTema();
     $('btnTema').addEventListener('click', alternarTema);

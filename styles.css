@@ -1199,3 +1199,65 @@ i[class*=" ri-"] {
 [data-theme="dark"] .btn-card:hover {
     background: #3b82f6;
 }
+
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 0;
+    background: var(--primary);
+    color: var(--on-primary);
+    padding: 10px 16px;
+    z-index: 10000;
+    font-weight: 700;
+    border-radius: 0 0 8px 0;
+    text-decoration: none;
+    transition: top .2s
+}
+
+.skip-link:focus {
+    top: 0
+}
+
+.btn-cash {
+    background: #15803d;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(21, 128, 61, .28)
+}
+
+.btn-cash:hover {
+    background: #166534
+}
+
+.btn-cash:active {
+    background: #14532d
+}
+
+.btn-card {
+    background: #2563eb;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, .3)
+}
+
+.btn-card:hover {
+    background: #1d4ed8
+}
+
+.btn-card:active {
+    background: #1e40af
+}
+
+[data-theme="dark"] .btn-cash {
+    background: #16a34a
+}
+
+[data-theme="dark"] .btn-cash:hover {
+    background: #15803d
+}
+
+[data-theme="dark"] .btn-card {
+    background: #3b82f6
+}
+
+[data-theme="dark"] .btn-card:hover {
+    background: #2563eb
+}
