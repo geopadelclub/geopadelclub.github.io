@@ -1029,19 +1029,19 @@ i[class*=" ri-"] {
 }
 
 [data-theme="dark"] .gp-logo {
-    background: #f6f9f4;
-    border-radius: 12px;
-    padding: 3px 9px;
+    background: transparent;
 }
 
 .login-card .gp-logo {
     height: 150px;
-    width: auto;
+    width: 150px;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
 }
 
 [data-theme="dark"] .login-card .gp-logo {
-    padding: 8px 18px;
-    border-radius: 18px;
+    padding: 0;
+    border-radius: 0;
 }
 
 .gp-logo-corner {
