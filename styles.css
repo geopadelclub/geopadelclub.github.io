@@ -1037,11 +1037,12 @@ i[class*=" ri-"] {
     width: 150px;
     aspect-ratio: 1 / 1;
     object-fit: contain;
+    border-radius: 20px;
 }
 
 [data-theme="dark"] .login-card .gp-logo {
     padding: 0;
-    border-radius: 0;
+    border-radius: 20px;
 }
 
 .gp-logo-corner {
