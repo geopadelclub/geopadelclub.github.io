@@ -2284,3 +2284,14 @@ tr.deuda-resuelta td {
     border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(75, 122, 134, 0.2);
 }
+
+.btn-pay.active {
+    box-shadow: inset 0 0 0 3px var(--surface);
+    transform: scale(0.98);
+    opacity: 0.9;
+}
+
+.btn-pay:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}

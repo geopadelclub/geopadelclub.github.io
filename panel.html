@@ -74,7 +74,7 @@
         </div>
     </main>
     <div id="adminView" style="display: none;">
-                <header class="app-header">
+        <header class="app-header">
             <a href="/" class="gp-brand" aria-label="Volver al inicio" style="text-decoration: none;">
                 <img class="gp-logo" src="./Geopadel.webp" alt="Geopadel" draggable="false" width="150" height="150">
             </a>
@@ -85,7 +85,7 @@
                         aria-hidden="true"></i></button><button type="button" class="theme-toggle"
                     data-action="alternar-tema" aria-label="Cambiar tema"><i class="ri-moon-line"
                         aria-hidden="true"></i></button><button type="button" class="btn-logout"
-                data-action="cerrar-sesion">Salir</button></div>
+                    data-action="cerrar-sesion">Salir</button></div>
         </header>
         <nav class="app-nav" aria-label="Secciones"><button type="button" id="nav-resumen" class="nav-tab active"
                 data-tab="resumen"><span class="ni"><i class="ri-dashboard-3-line"
@@ -646,12 +646,35 @@
                 </div>
                 <div class="modal-col">
                     <div class="modal-section-box">
-                        <h5>Cobro dividido <span id="badgePrecioUnitario"
-                                style="font-size:13px;color:var(--blue);font-weight:800">6,50 € / pers</span></h5>
-                        <div id="splitJugadoresContainer" class="jugadores-split-grid"></div>
-                        <div class="estado-global">Estado global: <span id="badgeEstadoPagoGlobal"
-                                style="margin-left:6px" class="badge-sin-pagar"><i class="ri-error-warning-line"
-                                    aria-hidden="true"></i>Sin pagar</span></div>
+                        <h5 style="margin-bottom: 8px;">Método de cobro</h5>
+                        <div style="display:flex; gap:16px; margin-bottom:12px;">
+                            <label class="cl-check" style="font-size:14px;"><input type="radio" name="modalTipoPago"
+                                    value="unico" checked> Pago único</label>
+                            <label class="cl-check" style="font-size:14px;"><input type="radio" name="modalTipoPago"
+                                    value="dividido"> Pago dividido</label>
+                        </div>
+
+                        <!-- UI de Pago Único (por defecto) -->
+                        <div id="boxPagoUnico">
+                            <div style="display:flex; gap:8px;">
+                                <button type="button" class="btn-pay btn-cash" id="btnUnicoEfectivo"
+                                    style="flex:1; padding:12px;">Efectivo</button>
+                                <button type="button" class="btn-pay btn-card" id="btnUnicoTarjeta"
+                                    style="flex:1; padding:12px;">Tarjeta</button>
+                            </div>
+                            <p id="msgPagoUnico" class="msg-inline"
+                                style="text-align:center; margin-top:8px; font-size:12px;"></p>
+                        </div>
+
+                        <!-- UI de Pago Dividido (la que ya tenías) -->
+                        <div id="boxCobroDividido" style="display:none;">
+                            <h5>Cobro dividido <span id="badgePrecioUnitario"
+                                    style="font-size:13px;color:var(--blue);font-weight:800"></span></h5>
+                            <div id="splitJugadoresContainer" class="jugadores-split-grid"></div>
+                            <div class="estado-global">Estado global: <span id="badgeEstadoPagoGlobal"
+                                    style="margin-left:6px" class="badge-sin-pagar"><i class="ri-error-warning-line"
+                                        aria-hidden="true"></i>Sin pagar</span></div>
+                        </div>
                     </div>
                     <div class="modal-section-box nota-box">
                         <h5><span><i class="ri-sticky-note-line" aria-hidden="true"></i>Bloc de notas</span><span

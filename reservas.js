@@ -1,6 +1,8 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 let reqReservas = 0;
 let totalPendientes = 0;
+let _pendingPagoUnico = null;
+
 async function cargarReservasHoy() {
     const iso = $('fechaCuadrante').value || fechaLocalISO();
     const miReq = ++reqReservas;
@@ -34,16 +36,19 @@ async function cargarReservasHoy() {
     renderizarCuadrantePlaytomic(datosLocales.reservas);
     cargarTotalPendientes();
 }
+
 function actualizarChipPendientes() {
     const chip = $('chipPendientes'), n = $('statPendientes');
     if (!chip || !n) return;
     n.innerText = totalPendientes;
     chip.classList.toggle('hay', totalPendientes > 0);
 }
+
 async function cargarTotalPendientes() {
     totalPendientes = (datosLocales.reservas || []).filter(r => r.estado === 'Pendiente').length;
     actualizarChipPendientes();
 }
+
 async function irAPrimeraPendiente() {
     const iso = $('fechaCuadrante').value || fechaLocalISO();
     const { data, error } = await supabaseClient.from('reservas')
@@ -60,6 +65,7 @@ async function irAPrimeraPendiente() {
         card.scrollIntoView({ block: 'nearest', inline: 'center' });
     }
 }
+
 function alCambiarFecha() { scrollAhoraPendiente = true; cargarReservasHoy(); cargarCajaHoy(); }
 function irAFechaHoy() { inicializarFechaHoy(); alCambiarFecha(); }
 function cambiarFechaDias(offset) {
@@ -67,6 +73,7 @@ function cambiarFechaDias(offset) {
     inputF.value = sumarDiasISO(inputF.value || fechaLocalISO(), offset);
     alCambiarFecha();
 }
+
 function pobladorPistasModal(pistasSeleccionadas = []) {
     const container = $('modalPistasContainer');
     container.innerHTML = "";
@@ -78,10 +85,13 @@ function pobladorPistasModal(pistasSeleccionadas = []) {
         container.appendChild(label);
     });
 }
+
 function obtenerPistasSeleccionadasModal() {
     return Array.from(document.querySelectorAll('input[name="chkPistasModal"]:checked')).map(c => c.value);
 }
+
 enlazarBuscadorCliente($('modalCliente'), $('modalTelefono'));
+
 function renderizarCuadrantePlaytomic(reservas) {
     const tabReservas = $('tab-reservas');
     if (!tabReservas || !tabReservas.classList.contains('active')) return;
@@ -219,6 +229,7 @@ ${tieneNota && heightPx >= 150 ? `<div class="reserva-nota-txt">${esc(r.notas)}<
         wrapper.scrollTop = prevScrollTop; wrapper.scrollLeft = prevScrollLeft;
     }
 }
+
 setInterval(() => {
     if (document.hidden || !usuarioSesion) return;
     if ($('fechaCuadrante').value !== fechaLocalISO()) return;
@@ -229,7 +240,9 @@ setInterval(() => {
     const top = (minAhora - horaInicioGrid * 60) * ppm;
     lines.forEach(l => { l.style.top = `${top}px`; });
 }, 60000);
+
 window.addEventListener('resize', debounce(() => { if (usuarioSesion) renderizarCuadrantePlaytomic(datosLocales.reservas || []); }, 200));
+
 (function iniciarInteraccionGrid() {
     const grid = $('playtomicGrid');
     grid.addEventListener('click', e => {
@@ -308,11 +321,13 @@ window.addEventListener('resize', debounce(() => { if (usuarioSesion) renderizar
     grid.addEventListener('touchend', finTouch);
     grid.addEventListener('touchcancel', finTouch);
 })();
+
 function horaDesdeTop(topPx) {
     const ppm = pxPorMin();
     let m = horaInicioGrid * 60 + Math.round(topPx / ppm / 30) * 30;
     return Math.max(horaInicioGrid * 60, Math.min(horaFinGrid * 60, m));
 }
+
 async function buscarConflicto({ pistas, fechas, iniMin, dur, excluirId }) {
     const orden = [...fechas].sort();
     const { data, error } = await leerTodo(() => supabaseClient.from('reservas')
@@ -330,6 +345,7 @@ async function buscarConflicto({ pistas, fechas, iniMin, dur, excluirId }) {
         return iniMin < b && fin > a;
     }) || null;
 }
+
 async function moverReservaAccion(idRes, nuevaHora, nuevaPista) {
     const t = (datosLocales.reservas || []).find(r => String(r.id) === String(idRes));
     if (!t) return;
@@ -363,6 +379,7 @@ async function moverReservaAccion(idRes, nuevaHora, nuevaPista) {
         toast("Error al mover la reserva: " + (err.message || err), 'err');
     }
 }
+
 function precioSugerido() {
     const t = { ...TARIFAS_DEFECTO, ...(datosLocales.tarifas || {}) };
     const iso = $('modalFecha').value || $('fechaCuadrante').value || fechaLocalISO();
@@ -373,11 +390,13 @@ function precioSugerido() {
     const exacto = franja[dur];
     return exacto !== null && exacto !== undefined ? exacto : (dur / 90) * franja[90];
 }
+
 function recalcularPrecioSugerido(forzar = true) {
     if (!forzar && $('modalReservaId').value) return;
     $('modalPrecio').value = precioSugerido().toFixed(2);
     actualizarVistasJugadoresSplit();
 }
+
 function alCambiarTipo() {
     const t = $('modalTipoReserva').value, nueva = !$('modalReservaId').value, tor = t === 'Torneo';
     $('boxTorneoDur').style.display = tor ? 'block' : 'none';
@@ -387,16 +406,88 @@ function alCambiarTipo() {
     $('boxRepetir').style.display = (t === 'Pena' && nueva) ? 'block' : 'none';
     recalcularPrecioSugerido(nueva);
 }
+
 (function () {
     const sel = $('modalNumJugadores');
     for (let i = 1; i <= 16; i++) sel.appendChild(new Option(i === 1 ? '1 jugador' : `${i} jugadores`, i));
     sel.value = '4';
 })();
+
+function alCambiarTipoPago() {
+    const radioSel = document.querySelector('input[name="modalTipoPago"]:checked');
+    const tipo = radioSel ? radioSel.value : 'unico';
+    if (tipo === 'unico') {
+        $('boxPagoUnico').style.display = 'block';
+        $('boxCobroDividido').style.display = 'none';
+    } else {
+        $('boxPagoUnico').style.display = 'none';
+        $('boxCobroDividido').style.display = 'block';
+        actualizarVistasJugadoresSplit();
+    }
+}
+
+async function procesarPagoUnico(metodo) {
+    if (!reservaEnEdicion) return;
+    const nJug = parseInt($('modalNumJugadores').value, 10) || 4;
+
+    if (!reservaEnEdicion.id) {
+        _pendingPagoUnico = metodo;
+        $('msgPagoUnico').style.color = 'var(--green)';
+        $('msgPagoUnico').innerText = `Se cobrará en ${metodo} al guardar`;
+        $('btnUnicoEfectivo').classList.toggle('active', metodo === 'Efectivo');
+        $('btnUnicoTarjeta').classList.toggle('active', metodo === 'Tarjeta');
+        return;
+    }
+
+    const btnEf = $('btnUnicoEfectivo');
+    const btnTa = $('btnUnicoTarjeta');
+    btnEf.disabled = true; btnTa.disabled = true;
+    $('msgPagoUnico').style.color = 'var(--muted)';
+    $('msgPagoUnico').innerText = 'Procesando pago...';
+
+    try {
+        let ultimoData = null;
+        for (let i = 1; i <= nJug; i++) {
+            const { data, error } = await supabaseClient.rpc('cobrar_jugador_atomic', {
+                p_reserva_id: reservaEnEdicion.id,
+                p_num_jugador: i,
+                p_metodo_pago: metodo,
+                p_empleado: nombreUsuario()
+            });
+            if (error) throw error;
+            if (data && data.success === false) throw new Error(data.message || 'Error al cobrar');
+            ultimoData = data;
+        }
+
+        if (ultimoData) {
+            reservaEnEdicion.pagosJugadores = ultimoData.pagos;
+            reservaEnEdicion.pagoEstado = ultimoData.pago_estado;
+        }
+
+        $('msgPagoUnico').style.color = 'var(--green)';
+        $('msgPagoUnico').innerText = `✔ Cobrado ${eur(reservaEnEdicion.precio)} (${metodo})`;
+        actualizarVistasJugadoresSplit();
+    } catch (e) {
+        console.error(e);
+        $('msgPagoUnico').style.color = 'var(--red)';
+        $('msgPagoUnico').innerText = 'Error: ' + (e.message || e);
+    } finally {
+        btnEf.disabled = false; btnTa.disabled = false;
+    }
+}
+
+document.querySelectorAll('input[name="modalTipoPago"]').forEach(r => {
+    r.addEventListener('change', alCambiarTipoPago);
+});
+$('btnUnicoEfectivo').addEventListener('click', () => procesarPagoUnico('Efectivo'));
+$('btnUnicoTarjeta').addEventListener('click', () => procesarPagoUnico('Tarjeta'));
+
 function abrirModalNuevaReserva(pistas = ["1 PADEL MASTER"], hora = "17:00", tipo = "Normal") {
     if (!Array.isArray(pistas)) pistas = ["1 PADEL MASTER"];
     if (typeof hora !== 'string') hora = "17:00";
     if (typeof tipo !== 'string') tipo = "Normal";
     reservaEnEdicion = { id: "", numJugadores: 4, pagosJugadores: "0,0,0,0", numJugadoresOrig: 4, notas: "" };
+    _pendingPagoUnico = null;
     $('modalTitulo').innerText = "Nueva reserva";
     $('modalReservaId').value = "";
     $('modalCliente').value = "";
@@ -414,12 +505,20 @@ function abrirModalNuevaReserva(pistas = ["1 PADEL MASTER"], hora = "17:00", tip
     $('btnConfirmarPendiente').style.display = 'none';
     $('btnHistorialReserva').style.display = 'none';
     $('modalNumJugadores').value = "4";
+
+    document.querySelector('input[name="modalTipoPago"][value="unico"]').checked = true;
+    $('msgPagoUnico').innerText = '';
+    $('btnUnicoEfectivo').classList.remove('active');
+    $('btnUnicoTarjeta').classList.remove('active');
+    alCambiarTipoPago();
+
     alCambiarTipo();
     $('modalPrecio').value = precioSugerido().toFixed(2);
     actualizarVistasJugadoresSplit();
     abrirOverlay('modalReserva');
     setTimeout(() => $('modalCliente').focus(), 60);
 }
+
 function abrirModalEditarReserva(res) {
     reservaEnEdicion = { ...res };
     const nJug = parseInt(res.numJugadores, 10) || 4;
@@ -445,9 +544,38 @@ function abrirModalEditarReserva(res) {
     alCambiarTipo();
     $('modalNumJugadores').value = String(nJug);
     $('modalPrecio').value = parseFloat(res.precio || 0).toFixed(2);
+
+    const pagosArr = String(res.pagosJugadores || '').split(',');
+    const pagados = pagosArr.slice(0, nJug);
+    const totalPagados = pagados.filter(p => p === 'Efectivo' || p === 'Tarjeta').length;
+    const todosMismo = totalPagados === nJug && pagados.every(p => p === pagados[0]);
+    const hayAlgunPago = totalPagados > 0;
+    const radios = document.querySelectorAll('input[name="modalTipoPago"]');
+
+    if (hayAlgunPago) {
+        radios.forEach(r => r.disabled = true);
+        if (todosMismo) {
+            radios[0].checked = true;
+            $('msgPagoUnico').innerText = `✔ Pagado en ${pagados[0]}`;
+            $('msgPagoUnico').style.color = 'var(--green)';
+            $(pagados[0] === 'Efectivo' ? 'btnUnicoEfectivo' : 'btnUnicoTarjeta').classList.add('active');
+        } else {
+            radios[1].checked = true;
+            $('msgPagoUnico').innerText = '';
+        }
+    } else {
+        radios.forEach(r => r.disabled = false);
+        radios[0].checked = true;
+        $('msgPagoUnico').innerText = '';
+        $('btnUnicoEfectivo').classList.remove('active');
+        $('btnUnicoTarjeta').classList.remove('active');
+    }
+    alCambiarTipoPago();
+
     actualizarVistasJugadoresSplit();
     abrirOverlay('modalReserva');
 }
+
 function actualizarVistasJugadoresSplit() {
     if (!reservaEnEdicion) return;
     const nJug = parseInt($('modalNumJugadores').value, 10) || 4;
@@ -492,10 +620,12 @@ ${pagado ? `<button type="button" ${dis} data-j="${j}" data-m="0" class="btn-pay
     else if (pagados > 0) { badge.className = "badge-parcial"; badge.innerText = `Pendiente (${pagados}/${nJug} pagados)`; }
     else { badge.className = "badge-sin-pagar"; badge.innerHTML = `<i class="ri-error-warning-line" aria-hidden="true"></i>Sin pagar (0/${nJug})`; }
 }
+
 $('splitJugadoresContainer').addEventListener('click', e => {
     const b = e.target.closest('button[data-j]');
     if (b && !b.disabled) cambiarPagoJugador(parseInt(b.dataset.j, 10), b.dataset.m, b);
 });
+
 async function cambiarPagoJugador(numJugador, nuevoMetodo, btn) {
     if (!reservaEnEdicion || !reservaEnEdicion.id) return;
     document.querySelectorAll('#splitJugadoresContainer button').forEach(x => x.disabled = true);
@@ -516,7 +646,9 @@ async function cambiarPagoJugador(numJugador, nuevoMetodo, btn) {
         actualizarVistasJugadoresSplit();
     }
 }
-function cerrarModal() { cerrarOverlay('modalReserva'); }
+
+function cerrarModal() { cerrarOverlay('modalReserva'); _pendingPagoUnico = null; }
+
 async function guardarClienteSilencioso(nombre, telefono) {
     const row = { nombre };
     if (telefono) row.telefono = telefono;
@@ -528,6 +660,7 @@ async function guardarClienteSilencioso(nombre, telefono) {
     const ex = datosLocales.clientes.find(c => String(c.nombre).toLowerCase() === nombre.toLowerCase());
     if (ex) { if (telefono) ex.telefono = telefono; } else datosLocales.clientes.push(row);
 }
+
 async function confirmarGuardarReserva() {
     const cliente = $('modalCliente').value.trim();
     if (!cliente) return toast("Introduce el nombre del cliente", 'warn');
@@ -601,8 +734,22 @@ async function confirmarGuardarReserva() {
             pago_estado: 'Sin pagar', pagos_jugadores: Array(numJugadores).fill('0').join(',')
         })));
         if (notas) filas.forEach(fila => { fila.notas = fila.fecha === fechas[0] ? notas : null; });
-        const { error } = await supabaseClient.from('reservas').insert(filas);
+
+        const { data: insertData, error } = await supabaseClient.from('reservas').insert(filas).select('id, jugadores, precio');
         if (error) throw error;
+
+        if (_pendingPagoUnico && insertData && insertData.length > 0) {
+            const metodo = _pendingPagoUnico;
+            for (const r of insertData) {
+                const nJ = parseInt(r.jugadores, 10) || 4;
+                for (let i = 1; i <= nJ; i++) {
+                    await supabaseClient.rpc('cobrar_jugador_atomic', {
+                        p_reserva_id: r.id, p_num_jugador: i, p_metodo_pago: metodo, p_empleado: nombreUsuario()
+                    });
+                }
+            }
+        }
+
         await guardarClienteSilencioso(cliente, telefono);
         toast(filas.length > 1 ? `${filas.length} reservas creadas` : "Reserva creada");
         cerrarModal();
@@ -618,6 +765,7 @@ async function confirmarGuardarReserva() {
         setBusy(btn, false);
     }
 }
+
 async function confirmarReservaPendiente() {
     const id = $('modalReservaId').value; if (!id) return;
     const btn = $('btnConfirmarPendiente');
@@ -636,6 +784,7 @@ async function confirmarReservaPendiente() {
         setBusy(btn, false);
     }
 }
+
 async function eliminarReservaRPC(alcance) {
     const id = $('modalReservaId').value; if (!id) return;
     const msg = alcance === 'serie' ? "¿Eliminar esta reserva y todas las siguientes de la serie?" : "¿Eliminar esta reserva? Se devolverán los pagos registrados.";
@@ -647,9 +796,12 @@ async function eliminarReservaRPC(alcance) {
     toast(alcance === 'serie' ? "Serie eliminada" : "Reserva eliminada");
     cargarReservasHoy(); cargarCajaHoy();
 }
+
 const confirmarEliminarSerie = () => eliminarReservaRPC('serie');
 const confirmarEliminarReserva = () => eliminarReservaRPC('unica');
+
 const PP_TIPO_CLASE = { Pena: 't-pena', Torneo: 't-torneo', Entrenamiento: 't-entreno' };
+
 function estadoPagoReserva(r) {
     const n = parseInt(r.numJugadores, 10) || 4;
     const arr = String(r.pagosJugadores || '').split(',');
@@ -660,8 +812,10 @@ function estadoPagoReserva(r) {
     }
     return { n, pagados, total: pagados >= n };
 }
+
 const PP_PESO_CERRADO = 0.45;
 const PP_ALTO_CUERPO_MM = 162;
+
 function htmlPaginaImpresion(iso, reservas, meta) {
     let mIni = 9 * 60;
     let mFin = obtenerCierreMin(iso);
@@ -722,6 +876,7 @@ function htmlPaginaImpresion(iso, reservas, meta) {
 </div>
 </section>`;
 }
+
 async function imprimirDia() {
     const btn = $('btnImprimir');
     setBusy(btn, true);
@@ -743,7 +898,9 @@ async function imprimirDia() {
         setBusy(btn, false);
     }
 }
+
 window.addEventListener('afterprint', () => { const a = $('printArea'); if (a) a.innerHTML = ''; });
+
 const CAMPOS_BONITOS = {
     fecha: 'Fecha', hora_inicio: 'Hora inicio', hora: 'Hora',
     duracion_min: 'Duración (min)', tipo_reserva: 'Tipo',
@@ -761,7 +918,9 @@ const CAMPOS_BONITOS = {
     vigente_desde: 'Vigente desde', declarado_por: 'Declarado por',
     categoria: 'Categoría', visible: 'Visible'
 };
+
 const campoBonito = c => CAMPOS_BONITOS[c] || c;
+
 function valorBonito(v) {
     if (v === null || v === undefined) return '<span style="color:var(--muted)">—</span>';
     if (typeof v === 'boolean') return v ? 'Sí' : 'No';
@@ -774,14 +933,17 @@ function valorBonito(v) {
     if (!s) return '<span style="color:var(--muted)">—</span>';
     return esc(s.length > 60 ? s.slice(0, 57) + '…' : s);
 }
+
 function iconoAccion(a) {
     if (a === 'INSERT') return '<i class="ri-add-circle-line" aria-hidden="true"></i>';
     if (a === 'DELETE') return '<i class="ri-delete-bin-line" aria-hidden="true"></i>';
     return '<i class="ri-edit-line" aria-hidden="true"></i>';
 }
+
 function textoAccion(a) {
     return a === 'INSERT' ? 'Creada' : (a === 'DELETE' ? 'Eliminada' : 'Modificada');
 }
+
 function agruparCambios(cambios) {
     const grupos = [];
     const mapa = {};
@@ -795,6 +957,7 @@ function agruparCambios(cambios) {
     }
     return grupos;
 }
+
 function dibujarHistorial(cambios) {
     if (!cambios || !cambios.length) {
         return '<p style="color:var(--muted);text-align:center;padding:16px">Sin cambios registrados todavía.</p>';
@@ -817,6 +980,7 @@ ${camposHtml}
 </li>`;
     }).join('')}</ol>`;
 }
+
 async function verHistorialReserva() {
     const id = $('modalReservaId').value;
     if (!id) return;
@@ -836,4 +1000,5 @@ async function verHistorialReserva() {
         $('histCuerpo').innerHTML = `<p style="color:var(--red);text-align:center;padding:16px">No se pudo cargar el historial: ${esc(e.message || e)}</p>`;
     }
 }
+
 function cerrarHistorial() { cerrarOverlay('modalHistorial'); }
