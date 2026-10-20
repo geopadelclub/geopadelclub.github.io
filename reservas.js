@@ -8,7 +8,7 @@ async function cargarReservasHoy() {
     const miReq = ++reqReservas;
     const { data, error } = await conReintento(() =>
         supabaseClient.from('reservas')
-            .select('id, cliente, telefono, fecha, hora_inicio, duracion_min, pista, estado, pago_estado, tipo_reserva, jugadores, pagos_jugadores, precio, empleado, serie, notas, origen')
+            .select('id, cliente, telefono, fecha, hora_inicio, duracion_min, pista, estado, pago_estado, tipo_reserva, jugadores, pagos_jugadores, precio, empleado, serie, notas, origen, tipo_cobro')
             .eq('fecha', iso)
             .or(FILTRO_NO_CANCELADA)
     );
@@ -31,7 +31,8 @@ async function cargarReservasHoy() {
         empleado: r.empleado,
         serie: r.serie,
         notas: r.notas || '',
-        origen: r.origen || 'trabajador'
+        origen: r.origen || 'trabajador',
+        tipoCobro: r.tipo_cobro || 'unico'
     }));
     renderizarCuadrantePlaytomic(datosLocales.reservas);
     cargarTotalPendientes();
@@ -480,6 +481,7 @@ async function procesarPagoUnico(metodo) {
             btnEf.classList.remove('active');
             btnTa.classList.remove('active');
             btnRe.style.display = 'none';
+            document.querySelectorAll('input[name="modalTipoPago"]').forEach(r => r.disabled = false);
         } else {
             $('msgPagoUnico').style.color = 'var(--green)';
             $('msgPagoUnico').innerText = `✔ Cobrado ${eur(reservaEnEdicion.precio)} (${metodo})`;
@@ -532,6 +534,7 @@ function abrirModalNuevaReserva(pistas = ["1 PADEL MASTER"], hora = "17:00", tip
     $('msgPagoUnico').innerText = '';
     $('btnUnicoEfectivo').classList.remove('active');
     $('btnUnicoTarjeta').classList.remove('active');
+    document.querySelectorAll('input[name="modalTipoPago"]').forEach(r => r.disabled = false);
     alCambiarTipoPago();
 
     alCambiarTipo();
@@ -589,7 +592,12 @@ function abrirModalEditarReserva(res) {
         }
     } else {
         radios.forEach(r => r.disabled = false);
-        radios[0].checked = true;
+        const tipoGuardado = res.tipoCobro || 'unico';
+        if (tipoGuardado === 'dividido') {
+            radios[1].checked = true;
+        } else {
+            radios[0].checked = true;
+        }
         $('msgPagoUnico').innerText = '';
         $('btnUnicoEfectivo').classList.remove('active');
         $('btnUnicoTarjeta').classList.remove('active');
@@ -713,9 +721,11 @@ async function confirmarGuardarReserva() {
     const btn = $('btnGuardarReserva');
     setBusy(btn, true, '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Guardando...');
     try {
+        const tipoPagoSeleccionado = document.querySelector('input[name="modalTipoPago"]:checked').value;
         const payloadBase = {
             cliente, telefono: telefono || null, hora_inicio: horaInicio, duracion_min: duracionMin, tipo_reserva: tipo,
-            jugadores: numJugadores, precio: importe, empleado: nombreUsuario()
+            jugadores: numJugadores, precio: importe, empleado: nombreUsuario(),
+            tipo_cobro: tipoPagoSeleccionado
         };
         if (idExistente) {
             if (pistasSel.length !== 1) return toast("Al editar una reserva selecciona una única pista", 'warn');
@@ -738,6 +748,7 @@ async function confirmarGuardarReserva() {
                 upd.pagos_jugadores = nuevos.join(",");
                 upd.pago_estado = nuevos.every(p => p === 'Efectivo' || p === 'Tarjeta') ? 'Pagado' : 'Sin pagar';
             }
+            upd.tipo_cobro = tipoPagoSeleccionado;
             const { error } = await supabaseClient.from('reservas').update(upd).eq('id', idExistente);
             if (error) throw error;
             await guardarClienteSilencioso(cliente, telefono);
