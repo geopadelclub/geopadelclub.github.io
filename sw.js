@@ -3,7 +3,7 @@ const VERSION = 'geopadel-b62b41b5b0';
 const BASE = [
     './', 'index.html', 'styles.css', 'config.js', 'utils.js',
     'acciones.js', 'i18n.js', 'landing.js',
-    'Geopadel.webp', 'Geopadel-512.webp',
+    'Geopadel.webp', 'Geopadel-512.webp', 'Geopadel-128.webp',
     'fondo.webp', 'bar.webp', 'entreno.webp',
     'pista1.webp', 'pista3.webp', 'palastest.webp',
     'assets/remixicon/remixicon.css', 'assets/remixicon/remixicon.woff2',
