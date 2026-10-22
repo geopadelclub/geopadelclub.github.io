@@ -59,7 +59,6 @@ function aplicarTema(t, guardar = true) {
     if (meta) meta.setAttribute('content', t === 'dark' ? '#364650' : '#fcfdfc');
     document.querySelectorAll('.theme-toggle').forEach(b => {
         if (b.id === 'btnIdioma' || b.getAttribute('data-action') === 'cambiar-idioma') return;
-
         b.innerHTML = t === 'dark' ? '<i class="ri-sun-line" aria-hidden="true"></i>' : '<i class="ri-moon-line" aria-hidden="true"></i>';
         b.setAttribute('aria-label', t === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
         b.title = t === 'dark' ? 'Modo claro' : 'Modo oscuro';
@@ -93,7 +92,7 @@ function telefonoValido(t) {
 }
 function esErrorRed(e) {
     if (!e || e.code) return false;
-    return /failed to fetch|networkerror|network request failed|load failed|timeout|timed out/i.test(String(e.message || e));
+    return /failed to fetch|networkerror|network request failed|load failed|timeout|timed out/i.test(String(e.message || ''));
 }
 async function conReintento(fn, intentos = 2, espera = 700) {
     let ultimo = null;
@@ -263,3 +262,32 @@ window.addEventListener('error', e => {
     console.error('Uncaught error:', e.error || e.message);
     if (document.getElementById('toasts')) toast('Ha ocurrido un error inesperado. Inténtalo de nuevo.', 'err');
 });
+const TRAMOS_90MIN_LUNES_JUEVES = [9 * 60, 10 * 60 + 30, 12 * 60, 17 * 60, 18 * 60 + 30, 20 * 60, 21 * 60 + 30];
+const TRAMOS_90MIN_VIERNES_DOMINGO = [9 * 60, 10 * 60 + 30, 12 * 60, 17 * 60, 18 * 60 + 30, 20 * 60];
+const MIN_FIN_MANANA = 14 * 60;
+function diaSemanaDeFecha(iso) {
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Date(y, m - 1, d, 12).getDay();
+}
+function esFinDeSemanaFecha(iso) {
+    const w = diaSemanaDeFecha(iso);
+    return w === 0 || w === 6;
+}
+function tramos90Fecha(iso) {
+    const w = diaSemanaDeFecha(iso);
+    return (w >= 1 && w <= 4) ? TRAMOS_90MIN_LUNES_JUEVES : TRAMOS_90MIN_VIERNES_DOMINGO;
+}
+function duracionesPermitidasFecha(iso) {
+    return esFinDeSemanaFecha(iso) ? [90] : [60, 90, 120];
+}
+function horarioPermitidoReserva(iso, iniMin, dur, tipoReserva = 'Normal') {
+    if (tipoReserva !== 'Normal') return true;
+    if (!iso || typeof iniMin !== 'number' || typeof dur !== 'number') return true;
+    if (esFinDeSemanaFecha(iso)) {
+        return dur === 90 && tramos90Fecha(iso).includes(iniMin);
+    }
+    if (iniMin < MIN_FIN_MANANA) {
+        return dur === 60 || dur === 90 || dur === 120;
+    }
+    return dur === 90 && tramos90Fecha(iso).includes(iniMin);
+}

@@ -140,12 +140,20 @@ function dibujarDias() {
     $('clDias').innerHTML = html;
 }
 function dibujarDuraciones() {
-    $('clDur').innerHTML = cfg.duraciones.map(d =>
+    const fecha = sel.fecha || fechaLocalISO();
+    const permitidas = duracionesPermitidasFecha(fecha);
+    if (!permitidas.includes(sel.dur)) {
+        sel.dur = permitidas[0];
+        sel.hora = null;
+        $('cardDatos').hidden = true;
+    }
+    $('clDur').innerHTML = permitidas.map(d =>
         `<button type="button" class="cl-dur${d === sel.dur ? ' active' : ''}" data-dur="${d}" aria-pressed="${d === sel.dur}">${esc(duracionTxt(d))}</button>`).join('');
 }
 async function seleccionarDia(iso) {
     sel.fecha = iso;
     sel.hora = null;
+    dibujarDuraciones();
     document.querySelectorAll('.cl-day').forEach(b => {
         const on = b.dataset.fecha === iso;
         b.classList.toggle('active', on);
@@ -208,8 +216,12 @@ async function cargarHuecos() {
 function dibujarHuecos() {
     const cont = $('clSlots');
     const libres = slotsDia
-        .map(s => ({ hora: s.hora, op: (s.opciones || []).find(o => o.dur === sel.dur) }))
-        .filter(x => x.op);
+        .map(s => ({
+            hora: s.hora,
+            iniMin: minutos(s.hora),
+            op: (s.opciones || []).find(o => o.dur === sel.dur)
+        }))
+        .filter(x => x.op && horarioPermitidoReserva(sel.fecha, x.iniMin, sel.dur));
     const lista = libres.filter(x => horaReservable(sel.fecha, x.hora));
     if (sel.hora && !lista.some(x => x.hora === sel.hora)) { sel.hora = null; $('cardDatos').hidden = true; }
     if (!lista.length) {
@@ -319,6 +331,11 @@ async function entrarExistente() {
 }
 async function confirmarReserva() {
     if (!sel.hora) return toast('Elige una hora', 'warn');
+    if (!horarioPermitidoReserva(sel.fecha, minutos(sel.hora), sel.dur)) {
+        toast('Ese horario no se puede reservar online. Consulta en el club.', 'err');
+        sel.hora = null; $('cardDatos').hidden = true; dibujarHuecos();
+        return;
+    }
     if (!horaReservable(sel.fecha, sel.hora)) {
         toast(textoAntelacion() + ' Llama al club.', 'err');
         sel.hora = null; $('cardDatos').hidden = true; dibujarHuecos();
@@ -374,7 +391,8 @@ function mostrarExito(rv) {
         `<div><i class="ri-time-line" aria-hidden="true"></i>${esc(rv.hora)} – ${horaStr(minutos(rv.hora) + rv.duracion)} (${esc(duracionTxt(rv.duracion))})</div>` +
         `<div><i class="ri-map-pin-line" aria-hidden="true"></i>${esc(rv.pista)}</div>` +
         `<div><i class="ri-money-euro-circle-line" aria-hidden="true"></i>${eur(rv.precio)} · ${t('reservar.pago')}</div>` +
-        `<div><i class="ri-hourglass-line" aria-hidden="true"></i>${t('reservar.pendiente')}</div>`; const ok = $('cardOk');
+        `<div><i class="ri-hourglass-line" aria-hidden="true"></i>${t('reservar.pendiente')}</div>`;
+    const ok = $('cardOk');
     ok.hidden = false;
     ok.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     setTimeout(() => $('btnICS').focus(), 100);
@@ -425,7 +443,8 @@ function dibujarMisReservas(r) {
         const estado = x.estado === 'Pendiente'
             ? `<span class="badge-pendiente"><i class="ri-hourglass-line" aria-hidden="true"></i>${t('mis-reservas.pendiente')}</span>`
             : `<span class="badge-confirmada"><i class="ri-check-line" aria-hidden="true"></i>${t('mis-reservas.confirmada')}</span>`;
-        const repetir = `<button type="button" class="btn-add gray" data-repetir="${esc(x.id)}" data-fecha="${esc(x.fecha)}" data-hora="${esc(x.hora)}" data-dur="${esc(x.duracion)}"><i class="ri-repeat-line" aria-hidden="true"></i>${t('mis-reservas.repetir')}</button>`; const accion = x.motivo
+        const repetir = `<button type="button" class="btn-add gray" data-repetir="${esc(x.id)}" data-fecha="${esc(x.fecha)}" data-hora="${esc(x.hora)}" data-dur="${esc(x.duracion)}"><i class="ri-repeat-line" aria-hidden="true"></i>${t('mis-reservas.repetir')}</button>`;
+        const accion = x.motivo
             ? `<div class="cl-res-acciones"><p class="cl-hint">${esc(motivoTexto(x.motivo))}</p>${repetir}</div>`
             : `<div class="cl-res-acciones"><button type="button" class="btn-add danger" data-cancelar="${esc(x.id)}"><i class="ri-delete-bin-line" aria-hidden="true"></i>${t('mis-reservas.cancelar')}</button>${repetir}</div>`;
         return `<article class="cl-res"><div class="cl-res-top"><b>${esc(fechaWeb(x.fecha))}</b>${estado}${tipo}</div>` +
@@ -589,10 +608,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         $('clSlots').innerHTML = '<p class="cl-empty">No se pudo cargar el sistema de reservas. Revisa tu conexión y recarga la página.</p>';
         return;
     }
-
     let configGuardada = null;
     try { configGuardada = JSON.parse(localStorage.getItem('gp_web_config')); } catch (e) { }
-
     if (configGuardada && (Date.now() - configGuardada.t < 3600000)) {
         cfg = { ...cfg, ...configGuardada.data };
     } else {
@@ -604,11 +621,9 @@ window.addEventListener('DOMContentLoaded', async () => {
             }
         } catch (err) { console.error(err); }
     }
-
     if (!cfg.duraciones.includes(sel.dur)) sel.dur = cfg.duraciones[0];
     actualizarIntroReserva();
     dibujarDias();
-    dibujarDuraciones();
     seleccionarDia(fechaLocalISO());
 });
 function actualizarIntroReserva() {
