@@ -53,7 +53,7 @@ async function cargarHuecosHoy() {
         }
         box.innerHTML = slots.slice(0, 12).map(s => {
             const precioMin = Math.min(...s.opciones.map(o => Number(o.precio) || 0));
-            return `<a class="hueco-chip" href="reservar" aria-label="Reservar a las ${s.hora} desde ${formatearPrecio(precioMin)}">${s.hora}<span style="font-size:12px;opacity:.8;font-weight:600">desde ${formatearPrecio(precioMin)}</span></a>`;
+            return `<a class="hueco-chip" href="reservar" aria-label="Reservar a las ${s.hora} desde ${formatearPrecio(precioMin)}">${s.hora}<span style="font-size:12px;font-weight:700;letter-spacing:.01em">desde ${formatearPrecio(precioMin)}</span></a>`;
         }).join('');
     } catch (e) {
         console.warn('No se pudo cargar la disponibilidad:', e);
