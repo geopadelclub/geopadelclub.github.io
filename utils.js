@@ -278,7 +278,7 @@ function tramos90Fecha(iso) {
     return (w >= 1 && w <= 4) ? TRAMOS_90MIN_LUNES_JUEVES : TRAMOS_90MIN_VIERNES_DOMINGO;
 }
 function duracionesPermitidasFecha(iso) {
-    return esFinDeSemanaFecha(iso) ? [90] : [60, 90, 120];
+    return esFinDeSemanaFecha(iso) ? [90] : [60, 90];
 }
 function horarioPermitidoReserva(iso, iniMin, dur, tipoReserva = 'Normal') {
     if (tipoReserva !== 'Normal') return true;

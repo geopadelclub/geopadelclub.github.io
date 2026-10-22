@@ -139,18 +139,40 @@ function dibujarDias() {
     }
     $('clDias').innerHTML = html;
 }
+function durationsViableForDay() {
+    const base = duracionesPermitidasFecha(sel.fecha);
+    if (!slotsDia || !slotsDia.length) return base;
+    const viable = base.filter(dur =>
+        slotsDia.some(s =>
+            (s.opciones || []).some(o => o.dur === dur) &&
+            horarioPermitidoReserva(sel.fecha, minutos(s.hora), dur)
+        )
+    );
+    return viable.length ? viable : base;
+}
 function dibujarDuraciones() {
     const fecha = sel.fecha || fechaLocalISO();
-    const permitidas = duracionesPermitidasFecha(fecha);
+    const permitidas = durationsViableForDay();
     if (!permitidas.includes(sel.dur)) {
         sel.dur = permitidas[0];
         sel.hora = null;
         $('cardDatos').hidden = true;
     }
     $('clDur').innerHTML = permitidas.map(d =>
-        `<button type="button" class="cl-dur${d === sel.dur ? ' active' : ''}" data-dur="${d}" aria-pressed="${d === sel.dur}">${esc(duracionTxt(d))}</button>`).join('');
+        `<button type="button" class="cl-dur${d === sel.dur ? ' active' : ''}" data-dur="${d}" aria-pressed="${d === sel.dur}">${esc(duracionTxt(d))}</button>`
+    ).join('');
+
+    let hint = $('clDurHint');
+    if (!hint) {
+        hint = document.createElement('p');
+        hint.id = 'clDurHint';
+        hint.className = 'cl-hint';
+        $('clDur').after(hint);
+    }
+    hint.innerHTML = '¿Necesitas 2 horas? Llama al club: <a href="tel:+34646059962">646 05 99 62</a>.';
 }
 async function seleccionarDia(iso) {
+    if (sel.fecha !== iso) slotsDia = [];
     sel.fecha = iso;
     sel.hora = null;
     dibujarDuraciones();
@@ -161,7 +183,11 @@ async function seleccionarDia(iso) {
         if (on) b.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
     });
     $('cardDatos').hidden = true;
-    return cargarHuecos();
+    const durAntes = sel.dur;
+    const slots = await cargarHuecos();
+    dibujarDuraciones();
+    if (sel.dur !== durAntes) dibujarHuecos();
+    return slots;
 }
 $('clDias').addEventListener('click', e => {
     const b = e.target.closest('.cl-day');
