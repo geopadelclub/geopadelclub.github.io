@@ -297,7 +297,7 @@ document.addEventListener('visibilitychange', () => {
     if (navigator.onLine) cargarDatosGlobales();
 });
 const SUB_DEFAULT = { ventas: 'tienda', equipo: 'fichajes' };
-const SUB_TABS = { tienda: 'ventas', caja: 'ventas', fichajes: 'equipo', limpieza: 'equipo' };
+const SUB_TABS = { tienda: 'ventas', caja: 'ventas', deudas: 'ventas', facturas: 'ventas', fichajes: 'equipo', limpieza: 'equipo' };
 function cambiarPestana(tabName) {
     if (SUB_DEFAULT[tabName]) tabName = SUB_DEFAULT[tabName];
     const padre = SUB_TABS[tabName] || tabName;
@@ -317,7 +317,7 @@ function cambiarPestana(tabName) {
         b.classList.toggle('active', isActive);
         b.setAttribute('aria-selected', isActive ? 'true' : 'false');
     });
-    const titulos = { resumen: 'Resumen', reservas: 'Reservas', tienda: 'Bar / TPV', caja: 'Caja', fichajes: 'Fichaje', limpieza: 'Limpieza', deudas: 'Deudas', ajustes: 'Ajustes' };
+    const titulos = { resumen: 'Resumen', reservas: 'Reservas', tienda: 'Tienda', caja: 'Caja', deudas: 'Deudas', facturas: 'Facturas', fichajes: 'Fichaje', limpieza: 'Limpieza', ajustes: 'Ajustes' };
     document.title = 'Geopadel · ' + (titulos[tabName] || 'Panel');
     if (usuarioSesion) {
         if (tabName === 'resumen' && typeof entrarResumen === 'function') entrarResumen();
@@ -325,8 +325,12 @@ function cambiarPestana(tabName) {
             if (!_formDeudaInit) { iniciarFormDeuda(); _formDeudaInit = true; }
             cargarDeudas();
         }
+        if (tabName === 'facturas' && typeof entrarFacturas === 'function') entrarFacturas();
         if (tabName === 'tienda') { cargarMesasBar(); if (typeof entrarEscaparate === 'function') entrarEscaparate(); }
-        if (tabName === 'ajustes' && typeof entrarAjustes === 'function') entrarAjustes();
+        if (tabName === 'ajustes') {
+            if (typeof entrarAjustes === 'function') entrarAjustes();
+            if (typeof entrarFacturasConfig === 'function') entrarFacturasConfig();
+        }
         if (tabName === 'limpieza') entrarPestanaLimpieza();
         if (tabName === 'caja') { cargarHistorialCaja(); cargarCajaHoy(); }
         if (tabName === 'fichajes') {

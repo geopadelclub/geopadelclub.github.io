@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="assets/remixicon/remixicon.css">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="panel.css">
+    <link rel="stylesheet" href="facturas.css">
     <link rel="stylesheet" href="print.css" media="print">
     <script defer src="config.js"></script>
     <script defer src="utils.js"></script>
@@ -44,6 +45,7 @@
     <script defer src="fichajes.js"></script>
     <script defer src="contrato.js"></script>
     <script defer src="tienda.js"></script>
+    <script defer src="facturas.js"></script>
     <script defer src="ajustes.js"></script>
     <script defer src="resumen.js"></script>
     <script defer src="cookies.js"></script>
@@ -87,19 +89,18 @@
                         aria-hidden="true"></i></button><button type="button" class="btn-logout"
                     data-action="cerrar-sesion">Salir</button></div>
         </header>
-        <nav class="app-nav" aria-label="Secciones"><button type="button" id="nav-resumen" class="nav-tab active"
-                data-tab="resumen"><span class="ni"><i class="ri-dashboard-3-line"
-                        aria-hidden="true"></i></span>Resumen</button><button type="button" id="nav-reservas"
-                class="nav-tab" data-tab="reservas"><span class="ni"><i class="ri-calendar-event-line"
-                        aria-hidden="true"></i></span>Reservas</button><button type="button" id="nav-ventas"
-                class="nav-tab" data-tab="ventas"><span class="ni"><i class="ri-shopping-bag-3-line"
-                        aria-hidden="true"></i></span>Ventas</button><button type="button" id="nav-equipo"
-                class="nav-tab" data-tab="equipo"><span class="ni"><i class="ri-team-line"
-                        aria-hidden="true"></i></span>Equipo</button><button type="button" id="nav-deudas"
-                class="nav-tab" data-tab="deudas"><span class="ni"><i class="ri-wallet-3-line"
-                        aria-hidden="true"></i></span>Deudas</button><button type="button" id="nav-ajustes"
-                class="nav-tab" data-tab="ajustes"><span class="ni"><i class="ri-settings-3-line"
-                        aria-hidden="true"></i></span>Ajustes</button></nav>
+        <nav class="app-nav" aria-label="Secciones">
+            <button type="button" id="nav-resumen" class="nav-tab active" data-tab="resumen"><span class="ni"><i
+                        class="ri-dashboard-3-line" aria-hidden="true"></i></span>Resumen</button>
+            <button type="button" id="nav-reservas" class="nav-tab" data-tab="reservas"><span class="ni"><i
+                        class="ri-calendar-event-line" aria-hidden="true"></i></span>Reservas</button>
+            <button type="button" id="nav-ventas" class="nav-tab" data-tab="ventas"><span class="ni"><i
+                        class="ri-shopping-bag-3-line" aria-hidden="true"></i></span>Ventas</button>
+            <button type="button" id="nav-equipo" class="nav-tab" data-tab="equipo"><span class="ni"><i
+                        class="ri-team-line" aria-hidden="true"></i></span>Equipo</button>
+            <button type="button" id="nav-ajustes" class="nav-tab" data-tab="ajustes"><span class="ni"><i
+                        class="ri-settings-3-line" aria-hidden="true"></i></span>Ajustes</button>
+        </nav>
         <main class="container-fluid">
             <section id="tab-resumen" class="tab-content active">
                 <div id="resumenContenido">
@@ -157,11 +158,16 @@
                 </div>
             </section>
             <section id="tab-ventas" class="tab-content">
-                <div class="subnav" role="tablist" aria-label="Secciones de ventas"><button type="button"
-                        class="subnav-btn active" data-tab="tienda" role="tab" aria-selected="true"><i
-                            class="ri-goblet-line" aria-hidden="true"></i>Bar / TPV</button><button type="button"
-                        class="subnav-btn" data-tab="caja" role="tab" aria-selected="false"><i
-                            class="ri-bar-chart-box-line" aria-hidden="true"></i>Caja</button></div>
+                <div class="subnav" role="tablist" aria-label="Secciones de ventas">
+                    <button type="button" class="subnav-btn active" data-tab="tienda" role="tab" aria-selected="true"><i
+                            class="ri-shopping-bag-3-line" aria-hidden="true"></i>Tienda</button>
+                    <button type="button" class="subnav-btn" data-tab="caja" role="tab" aria-selected="false"><i
+                            class="ri-bar-chart-box-line" aria-hidden="true"></i>Caja</button>
+                    <button type="button" class="subnav-btn" data-tab="deudas" role="tab" aria-selected="false"><i
+                            class="ri-wallet-3-line" aria-hidden="true"></i>Deudas</button>
+                    <button type="button" class="subnav-btn" data-tab="facturas" role="tab" aria-selected="false"><i
+                            class="ri-file-list-3-line" aria-hidden="true"></i>Facturas</button>
+                </div>
                 <div id="sub-tienda" class="subtab-content active">
                     <div id="tab-tpv">
                         <div class="card">
@@ -318,6 +324,133 @@
                         <div id="msgCopia" class="msg-inline"></div>
                     </div>
                 </div>
+                <div id="sub-deudas" class="subtab-content">
+                    <div class="card">
+                        <h3><i class="ri-wallet-3-line" aria-hidden="true"></i>Añadir deuda</h3>
+                        <form id="formDeuda" novalidate>
+                            <div class="form-inline"><label>Nombre<input type="text" id="deudaNombre" maxlength="80"
+                                        autocomplete="off"></label><label>Teléfono<input type="tel" id="deudaTelefono"
+                                        maxlength="20" autocomplete="off"></label><label>Día<input type="date"
+                                        id="deudaFecha"></label><label>Hora<input type="time" id="deudaHora"
+                                        step="1800"></label><label>Debe (€)<input type="number" inputmode="decimal"
+                                        id="deudaImporte" step="0.01" min="0.01" placeholder="0,00"></label></div>
+                            <button type="submit" id="btnAddDeuda" class="btn-add" style="margin-top:14px"><i
+                                    class="ri-add-line" aria-hidden="true"></i>Añadir deuda</button>
+                            <div id="msgDeuda" class="msg-inline"></div>
+                        </form>
+                    </div>
+                    <div class="card">
+                        <div class="card-head">
+                            <h3><i class="ri-list-check-2" aria-hidden="true"></i>Listado de deudas</h3>
+                            <div class="deuda-total">Pendiente de cobro: <b id="deudaTotal">0,00 €</b><button
+                                    type="button" class="btn-cat-filter" data-exp="deudas" style="margin-left:8px"><i
+                                        class="ri-download-2-line" aria-hidden="true"></i>CSV</button></div>
+                        </div>
+                        <div class="toolbar"><select id="deudaFiltro" class="toolbar-select"
+                                data-onchange="dibujar-deudas">
+                                <option value="Pendiente">Pendientes</option>
+                                <option value="Resuelta">Resueltas</option>
+                                <option value="Todas">Todas</option>
+                            </select><input type="search" id="deudaBuscar" class="toolbar-input"
+                                placeholder="Buscar por nombre o teléfono..." data-oninput="dibujar-deudas"></div>
+                        <div class="table-wrap">
+                            <table class="tabla-productos" style="min-width:700px">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Teléfono</th>
+                                        <th>Día y hora</th>
+                                        <th>Debe</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="deudasBody">
+                                    <tr>
+                                        <td colspan="6" class="tabla-empty">Cargando deudas...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div id="sub-facturas" class="subtab-content">
+                    <div class="card">
+                        <h3><i class="ri-file-add-line" aria-hidden="true"></i>Nuevo documento</h3>
+                        <div class="fac-grid">
+                            <label>Tipo<select id="facTipo">
+                                    <option value="Justificante">Justificante de pago</option>
+                                    <option value="Factura">Factura legal</option>
+                                </select></label>
+                            <label>Fecha<input id="facFecha" type="date"></label>
+                            <label>Método de pago<select id="facMetodo">
+                                    <option>Efectivo</option>
+                                    <option>Tarjeta</option>
+                                    <option>Bizum</option>
+                                    <option>Transferencia</option>
+                                    <option>Otro</option>
+                                </select></label>
+                            <label>ID reserva (opcional)<input id="facReservaId" type="text" maxlength="64"></label>
+                        </div>
+                        <div class="fac-grid">
+                            <label>Cliente<input id="facClienteNombre" type="text" maxlength="120"></label>
+                            <label>NIF/CIF<input id="facClienteNif" type="text" maxlength="20"></label>
+                            <label>Teléfono<input id="facClienteTelefono" type="tel" maxlength="30"></label>
+                            <label>Email<input id="facClienteEmail" type="email" maxlength="120"></label>
+                            <label class="fac-span2">Dirección<input id="facClienteDireccion" type="text"
+                                    maxlength="180"></label>
+                        </div>
+                        <div class="fac-lineas-head"><b>Líneas</b><button type="button" id="facAddLinea"
+                                class="btn-add gray"><i class="ri-add-line" aria-hidden="true"></i>Añadir línea</button>
+                        </div>
+                        <div id="facLineas"></div>
+                        <div class="fac-grid">
+                            <label>IVA (%)<input id="facIva" type="number" min="0" max="100" step="0.01"
+                                    value="21"></label>
+                            <label class="fac-span2">Notas<textarea id="facNotas" rows="2"
+                                    maxlength="500"></textarea></label>
+                        </div>
+                        <div id="facTotales" class="fac-totales"></div>
+                        <button type="button" id="facEmitir" class="btn-add blue"><i class="ri-file-check-line"
+                                aria-hidden="true"></i>Emitir documento</button>
+                        <div id="msgFactura" class="msg-inline"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-head">
+                            <h3><i class="ri-file-list-3-line" aria-hidden="true"></i>Documentos emitidos</h3><button
+                                type="button" id="facRefrescar" class="btn-add gray"><i class="ri-refresh-line"
+                                    aria-hidden="true"></i>Refrescar</button>
+                        </div>
+                        <div class="toolbar"><input id="facBuscar" class="toolbar-input" type="search"
+                                placeholder="Buscar por número, cliente o NIF..."><select id="facFiltroTipo"
+                                class="toolbar-select">
+                                <option value="Todos">Todos</option>
+                                <option value="Factura">Facturas</option>
+                                <option value="Justificante">Justificantes</option>
+                            </select></div>
+                        <div class="table-wrap">
+                            <table class="tabla-productos" style="min-width:900px">
+                                <thead>
+                                    <tr>
+                                        <th>Nº</th>
+                                        <th>Fecha</th>
+                                        <th>Tipo</th>
+                                        <th>Cliente</th>
+                                        <th>Pago</th>
+                                        <th>Total</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="facBody">
+                                    <tr>
+                                        <td colspan="8" class="tabla-empty">Cargando...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </section>
             <section id="tab-equipo" class="tab-content">
                 <div class="subnav" role="tablist" aria-label="Secciones de equipo"><button type="button"
@@ -459,55 +592,6 @@
                     </div>
                 </div>
             </section>
-            <section id="tab-deudas" class="tab-content">
-                <div class="card">
-                    <h3><i class="ri-wallet-3-line" aria-hidden="true"></i>Añadir deuda</h3>
-                    <form id="formDeuda" novalidate>
-                        <div class="form-inline"><label>Nombre<input type="text" id="deudaNombre" maxlength="80"
-                                    autocomplete="off"></label><label>Teléfono<input type="tel" id="deudaTelefono"
-                                    maxlength="20" autocomplete="off"></label><label>Día<input type="date"
-                                    id="deudaFecha"></label><label>Hora<input type="time" id="deudaHora"
-                                    step="1800"></label><label>Debe (€)<input type="number" inputmode="decimal"
-                                    id="deudaImporte" step="0.01" min="0.01" placeholder="0,00"></label></div><button
-                            type="submit" id="btnAddDeuda" class="btn-add" style="margin-top:14px"><i
-                                class="ri-add-line" aria-hidden="true"></i>Añadir deuda</button>
-                        <div id="msgDeuda" class="msg-inline"></div>
-                    </form>
-                </div>
-                <div class="card">
-                    <div class="card-head">
-                        <h3><i class="ri-list-check-2" aria-hidden="true"></i>Listado de deudas</h3>
-                        <div class="deuda-total">Pendiente de cobro: <b id="deudaTotal">0,00 €</b><button type="button"
-                                class="btn-cat-filter" data-exp="deudas" style="margin-left:8px"><i
-                                    class="ri-download-2-line" aria-hidden="true"></i>CSV</button></div>
-                    </div>
-                    <div class="toolbar"><select id="deudaFiltro" class="toolbar-select" data-onchange="dibujar-deudas">
-                            <option value="Pendiente">Pendientes</option>
-                            <option value="Resuelta">Resueltas</option>
-                            <option value="Todas">Todas</option>
-                        </select><input type="search" id="deudaBuscar" class="toolbar-input"
-                            placeholder="Buscar por nombre o teléfono..." data-oninput="dibujar-deudas"></div>
-                    <div class="table-wrap">
-                        <table class="tabla-productos" style="min-width:700px">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Teléfono</th>
-                                    <th>Día y hora</th>
-                                    <th>Debe</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="deudasBody">
-                                <tr>
-                                    <td colspan="6" class="tabla-empty">Cargando deudas...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
             <section id="tab-ajustes" class="tab-content">
                 <div class="card">
                     <h3><i class="ri-user-settings-line" aria-hidden="true"></i>Clientes y acceso web</h3>
@@ -612,6 +696,31 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+                <div class="card">
+                    <h3><i class="ri-building-4-line" aria-hidden="true"></i>Datos fiscales</h3>
+                    <p class="limp-leyenda">Aparecen en las facturas y justificantes. Solo la jefa puede modificarlos.
+                    </p>
+                    <div class="fac-grid">
+                        <label>Nombre o razón social<input id="facCfgNombre" type="text" maxlength="120"></label>
+                        <label>NIF/CIF<input id="facCfgNif" type="text" maxlength="20"></label>
+                        <label>Dirección<input id="facCfgDireccion" type="text" maxlength="160"></label>
+                        <label>CP<input id="facCfgCp" type="text" maxlength="10"></label>
+                        <label>Ciudad<input id="facCfgCiudad" type="text" maxlength="80"></label>
+                        <label>Provincia<input id="facCfgProvincia" type="text" maxlength="80"></label>
+                        <label>Email<input id="facCfgEmail" type="email" maxlength="120"></label>
+                        <label>Teléfono<input id="facCfgTelefono" type="tel" maxlength="30"></label>
+                        <label>Web<input id="facCfgWeb" type="text" maxlength="120"></label>
+                        <label>IVA por defecto (%)<input id="facCfgIva" type="number" min="0" max="100" step="0.01"
+                                value="21"></label>
+                        <label class="fac-span2">Texto legal<textarea id="facCfgTextoLegal" rows="3"
+                                maxlength="500"></textarea></label>
+                        <label class="fac-span2">Pie de documento<textarea id="facCfgPie" rows="2"
+                                maxlength="300"></textarea></label>
+                    </div>
+                    <button type="button" id="facCfgGuardar" class="btn-add blue"><i class="ri-save-line"
+                            aria-hidden="true"></i>Guardar datos fiscales</button>
+                    <div id="msgFacCfg" class="msg-inline"></div>
                 </div>
             </section>
         </main>
