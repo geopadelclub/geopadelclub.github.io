@@ -392,13 +392,16 @@
                                 </select></label>
                             <label>ID reserva (opcional)<input id="facReservaId" type="text" maxlength="64"></label>
                         </div>
-                        <div class="fac-grid">
+                        <div id="facBloqueCliente" class="fac-grid">
                             <label>Cliente<input id="facClienteNombre" type="text" maxlength="120"></label>
                             <label>NIF/CIF<input id="facClienteNif" type="text" maxlength="20"></label>
                             <label>Teléfono<input id="facClienteTelefono" type="tel" maxlength="30"></label>
                             <label>Email<input id="facClienteEmail" type="email" maxlength="120"></label>
                             <label class="fac-span2">Dirección<input id="facClienteDireccion" type="text"
                                     maxlength="180"></label>
+                        </div>
+                        <div id="facBloqueEmpleado" class="fac-grid">
+                            <label>Empleado que cobra<input id="facEmpleado" type="text" maxlength="120"></label>
                         </div>
                         <div class="fac-lineas-head"><b>Líneas</b><button type="button" id="facAddLinea"
                                 class="btn-add gray"><i class="ri-add-line" aria-hidden="true"></i>Añadir línea</button>
@@ -435,7 +438,7 @@
                                         <th>Nº</th>
                                         <th>Fecha</th>
                                         <th>Tipo</th>
-                                        <th>Cliente</th>
+                                        <th>Cliente / Empleado</th>
                                         <th>Pago</th>
                                         <th>Total</th>
                                         <th>Estado</th>

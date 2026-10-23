@@ -8,15 +8,16 @@ const facFecha = iso => {
     return d ? `${d}/${m}/${y}` : '';
 };
 const facTipoTxt = t => t === 'Factura' ? 'Factura' : 'Justificante de pago';
-const facMetodoTxt = m => m || '—';
 function facSet(id, v) { const e = $(id); if (e) e.value = v ?? ''; }
 function facVal(id) { const e = $(id); return e ? e.value.trim() : ''; }
 function facNum(id) { const e = $(id); return e ? parseFloat(String(e.value).replace(',', '.')) : NaN; }
 function facConfigIds() { return ['facCfgNombre', 'facCfgNif', 'facCfgDireccion', 'facCfgCp', 'facCfgCiudad', 'facCfgProvincia', 'facCfgEmail', 'facCfgTelefono', 'facCfgWeb', 'facCfgIva', 'facCfgTextoLegal', 'facCfgPie']; }
+
 function facAplicarPermisosConfig() {
     facConfigIds().forEach(id => { const e = $(id); if (e) e.disabled = false; });
     const b = $('facCfgGuardar'); if (b) b.disabled = false;
 }
+
 async function cargarConfigFacturas() {
     if (!supabaseClient) return null;
     const { data, error } = await supabaseClient.from('facturas_config').select('*').eq('id', 1).maybeSingle();
@@ -72,11 +73,27 @@ async function guardarConfigFacturas() {
     }
 }
 
+function facActualizarCamposPorTipo() {
+    const esFactura = $('facTipo').value === 'Factura';
+    const bc = $('facBloqueCliente');
+    const be = $('facBloqueEmpleado');
+    if (bc) bc.style.display = esFactura ? '' : 'none';
+    if (be) be.style.display = esFactura ? 'none' : '';
+}
+
+function nombreEmpleadoActual() {
+    if (!usuarioSesion) return '';
+    return usuarioSesion.nombre || usuarioSesion.user || '';
+}
+
 function iniciarFormFactura() {
     const f = $('facFecha');
     if (f && !f.value) f.value = fechaLocalISO();
     const iva = $('facIva');
     if (iva && !iva.value) iva.value = facConfig && facConfig.iva_default ? facConfig.iva_default : 21;
+    const emp = $('facEmpleado');
+    if (emp && !emp.value) emp.value = nombreEmpleadoActual();
+    facActualizarCamposPorTipo();
     const box = $('facLineas');
     if (box && !box.children.length) agregarLineaFactura();
     actualizarTotalesFactura();
@@ -126,6 +143,7 @@ function actualizarTotalesFactura() {
 
 function limpiarFormFactura() {
     ['facClienteNombre', 'facClienteNif', 'facClienteDireccion', 'facClienteEmail', 'facClienteTelefono', 'facReservaId', 'facNotas'].forEach(id => facSet(id, ''));
+    facSet('facEmpleado', nombreEmpleadoActual());
     const box = $('facLineas');
     if (box) box.innerHTML = '';
     agregarLineaFactura();
@@ -133,23 +151,27 @@ function limpiarFormFactura() {
 
 async function emitirDocumentoFactura() {
     const tipo = $('facTipo').value;
+    const esFactura = tipo === 'Factura';
     const fecha = $('facFecha').value;
     const metodo = $('facMetodo').value;
     const reservaId = facVal('facReservaId') || null;
-    const cliente = {
+    const empleado = facVal('facEmpleado');
+    const cliente = esFactura ? {
         nombre: facVal('facClienteNombre'),
         nif: facVal('facClienteNif'),
         direccion: facVal('facClienteDireccion'),
         email: facVal('facClienteEmail'),
         telefono: facVal('facClienteTelefono')
-    };
+    } : {};
     const notas = facVal('facNotas');
     const iva = facNum('facIva');
     if (!fecha) return toast('Indica la fecha', 'warn');
-    if (!cliente.nombre) return toast('Indica el cliente', 'warn');
-    if (tipo === 'Factura') {
+    if (esFactura) {
+        if (!cliente.nombre) return toast('Indica el cliente', 'warn');
         if (!cliente.nif) return toast('Para una factura legal hace falta el NIF', 'warn');
         if (!cliente.direccion) return toast('Para una factura legal hace falta la dirección', 'warn');
+    } else {
+        if (!empleado) return toast('Indica el empleado que cobra', 'warn');
     }
     if (isNaN(iva) || iva < 0 || iva > 100) return toast('IVA no válido', 'warn');
     const lineas = leerLineasFactura();
@@ -170,12 +192,14 @@ async function emitirDocumentoFactura() {
             p_reserva_id: reservaId,
             p_iva: iva,
             p_lineas: lineas,
-            p_notas: notas || null
+            p_notas: notas || null,
+            p_empleado: esFactura ? null : empleado
         });
         if (error) throw error;
         if (!data || !data.ok) throw new Error(data && data.error ? data.error : 'No se pudo emitir');
         toast(`Documento ${data.numero} emitido`);
         limpiarFormFactura();
+        facActualizarCamposPorTipo();
         await cargarFacturas();
     } catch (e) {
         console.error(e);
@@ -190,7 +214,7 @@ async function cargarFacturas() {
     facCargando = true;
     try {
         const { data, error } = await supabaseClient.from('facturas')
-            .select('id,tipo,numero,fecha,cliente_nombre,cliente_nif,metodo_pago,total,estado,created_at')
+            .select('id,tipo,numero,fecha,cliente_nombre,cliente_nif,metodo_pago,total,estado,empleado,created_at')
             .order('fecha', { ascending: false })
             .order('created_at', { ascending: false })
             .limit(300);
@@ -212,7 +236,7 @@ function dibujarFacturas() {
     const tipo = $('facFiltroTipo') ? $('facFiltroTipo').value : 'Todos';
     const lista = facLista.filter(f =>
         (tipo === 'Todos' || f.tipo === tipo) &&
-        (!q || String(f.numero).toLowerCase().includes(q) || String(f.cliente_nombre).toLowerCase().includes(q) || String(f.cliente_nif || '').toLowerCase().includes(q))
+        (!q || String(f.numero).toLowerCase().includes(q) || String(f.cliente_nombre).toLowerCase().includes(q) || String(f.cliente_nif || '').toLowerCase().includes(q) || String(f.empleado || '').toLowerCase().includes(q))
     );
     if (!lista.length) {
         tb.innerHTML = '<tr><td colspan="8" class="tabla-empty">No hay documentos</td></tr>';
@@ -220,7 +244,12 @@ function dibujarFacturas() {
     }
     tb.innerHTML = lista.map(f => {
         const puede = typeof esJefa === 'function' && esJefa() && f.estado === 'Emitida';
-        return `<tr><td><b>${esc(f.numero)}</b></td><td>${esc(facFecha(f.fecha))}</td><td>${esc(facTipoTxt(f.tipo))}</td><td><b>${esc(f.cliente_nombre)}</b><small class="esc-desc">${esc(f.cliente_nif || '')}</small></td><td>${esc(facMetodoTxt(f.metodo_pago))}</td><td><b>${eur(f.total)}</b></td><td><span class="fac-estado ${f.estado === 'Anulada' ? 'no' : 'ok'}">${esc(f.estado)}</span></td><td><div class="fac-acciones"><button type="button" class="btn-add gray" data-fac="ticket" data-id="${esc(f.id)}">80 mm</button><button type="button" class="btn-add blue" data-fac="a4" data-id="${esc(f.id)}">A4</button>${puede ? `<button type="button" class="btn-add danger" data-fac="anular" data-id="${esc(f.id)}">Anular</button>` : ''}</div></td></tr>`;
+        const esFactura = f.tipo === 'Factura';
+        const persona = esFactura
+            ? `<b>${esc(f.cliente_nombre || '—')}</b><small class="esc-desc">${esc(f.cliente_nif || '')}</small>`
+            : `<b>${esc(f.empleado || '—')}</b><small class="esc-desc">Atendido por</small>`;
+        const btnA4 = esFactura ? `<button type="button" class="btn-add blue" data-fac="a4" data-id="${esc(f.id)}">A4</button>` : '';
+        return `<tr><td><b>${esc(f.numero)}</b></td><td>${esc(facFecha(f.fecha))}</td><td>${esc(facTipoTxt(f.tipo))}</td><td>${persona}</td><td>${esc(f.metodo_pago || '—')}</td><td><b>${eur(f.total)}</b></td><td><span class="fac-estado ${f.estado === 'Anulada' ? 'no' : 'ok'}">${esc(f.estado)}</span></td><td><div class="fac-acciones"><button type="button" class="btn-add gray" data-fac="ticket" data-id="${esc(f.id)}">80 mm</button>${btnA4}${puede ? `<button type="button" class="btn-add danger" data-fac="anular" data-id="${esc(f.id)}">Anular</button>` : ''}</div></td></tr>`;
     }).join('');
 }
 
@@ -238,6 +267,7 @@ async function imprimirFactura(id, formato) {
         if (!facConfig) await cargarConfigFacturas();
         const f = await obtenerFactura(id);
         if (!f) return toast('No se encontró el documento', 'err');
+        if (f.tipo === 'Justificante' && formato === 'a4') formato = 'ticket';
         imprimirHTML(formato === 'ticket' ? htmlTicketFactura(f) : htmlA4Factura(f));
     } catch (e) {
         console.error(e);
@@ -267,7 +297,10 @@ function htmlTicketFactura(f) {
     const esFac = f.tipo === 'Factura';
     const lineas = (f.lineas || []).map(l => `<div class="r"><span>${esc(l.concepto)}</span><span>${eur(l.total)}</span></div><div class="r s"><span>${esc(l.cantidad)} x ${eur(l.precio_unitario)} · IVA ${esc(l.iva_porcentaje)}%</span><span>${eur(l.base)} + ${eur(l.cuota)}</span></div>`).join('');
     const legal = esFac ? esc(c.texto_legal || 'Factura emitida conforme al RD 1619/2012.') : 'Documento no válido como factura. Justificante de pago.';
-    return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{size:80mm auto;margin:0}html,body{margin:0;padding:0;background:#fff;color:#000;font-family:"Courier New",monospace;font-size:12px;line-height:1.25}.t{width:72mm;margin:0 auto;padding:3mm 0}.c{text-align:center}.b{font-weight:700}.r{display:flex;justify-content:space-between;gap:4mm}.hr{border-top:1px dashed #000;margin:2mm 0}.s{font-size:10px}.big{font-size:16px;font-weight:800}.m{text-transform:uppercase}</style></head><body><div class="t"><div class="c b big">${esc(c.nombre || 'GEOPADEL')}</div><div class="c s">${esc(c.nif || '')}</div><div class="c s">${esc(dir)}</div><div class="c s">${esc(c.telefono || '')} · ${esc(c.email || '')}</div><div class="hr"></div><div class="c b m">${esFac ? 'FACTURA' : 'JUSTIFICANTE DE PAGO'}</div><div class="r"><span>Nº ${esc(f.numero)}</span><span>${esc(facFecha(f.fecha))}</span></div><div class="r"><span>Cliente</span><span>${esc(f.cliente_nombre)}</span></div>${f.cliente_nif ? `<div class="r"><span>NIF</span><span>${esc(f.cliente_nif)}</span></div>` : ''}${f.cliente_direccion ? `<div class="r"><span>Dirección</span><span>${esc(f.cliente_direccion)}</span></div>` : ''}<div class="r"><span>Pago</span><span>${esc(f.metodo_pago || '')}</span></div><div class="hr"></div>${lineas}<div class="hr"></div><div class="r"><span>Base</span><span>${eur(f.base_imponible)}</span></div><div class="r"><span>IVA ${esc(f.iva_porcentaje)}%</span><span>${eur(f.cuota_iva)}</span></div><div class="r b big"><span>TOTAL</span><span>${eur(f.total)}</span></div>${f.notas ? `<div class="hr"></div><div class="s">${esc(f.notas)}</div>` : ''}<div class="hr"></div><div class="c s">${legal}</div><div class="c s">${esc(c.pie_factura || '')}</div><div class="c s">${esc(c.web || '')}</div></div></body></html>`;
+    const persona = esFac
+        ? `<div class="r"><span>Cliente</span><span>${esc(f.cliente_nombre)}</span></div>${f.cliente_nif ? `<div class="r"><span>NIF</span><span>${esc(f.cliente_nif)}</span></div>` : ''}${f.cliente_direccion ? `<div class="r"><span>Dirección</span><span>${esc(f.cliente_direccion)}</span></div>` : ''}`
+        : `<div class="r"><span>Atendido por</span><span>${esc(f.empleado || '—')}</span></div>`;
+    return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{size:80mm auto;margin:0}html,body{margin:0;padding:0;background:#fff;color:#000;font-family:"Courier New",monospace;font-size:12px;line-height:1.25}.t{width:72mm;margin:0 auto;padding:3mm 0}.c{text-align:center}.b{font-weight:700}.r{display:flex;justify-content:space-between;gap:4mm}.hr{border-top:1px dashed #000;margin:2mm 0}.s{font-size:10px}.big{font-size:16px;font-weight:800}.m{text-transform:uppercase}</style></head><body><div class="t"><div class="c b big">${esc(c.nombre || 'GEOPADEL')}</div><div class="c s">${esc(c.nif || '')}</div><div class="c s">${esc(dir)}</div><div class="c s">${esc(c.telefono || '')} · ${esc(c.email || '')}</div><div class="hr"></div><div class="c b m">${esFac ? 'FACTURA' : 'JUSTIFICANTE DE PAGO'}</div><div class="r"><span>Nº ${esc(f.numero)}</span><span>${esc(facFecha(f.fecha))}</span></div>${persona}<div class="r"><span>Pago</span><span>${esc(f.metodo_pago || '')}</span></div><div class="hr"></div>${lineas}<div class="hr"></div><div class="r"><span>Base</span><span>${eur(f.base_imponible)}</span></div><div class="r"><span>IVA ${esc(f.iva_porcentaje)}%</span><span>${eur(f.cuota_iva)}</span></div><div class="r b big"><span>TOTAL</span><span>${eur(f.total)}</span></div>${f.notas ? `<div class="hr"></div><div class="s">${esc(f.notas)}</div>` : ''}<div class="hr"></div><div class="c s">${legal}</div><div class="c s">${esc(c.pie_factura || '')}</div><div class="c s">${esc(c.web || '')}</div></div></body></html>`;
 }
 
 function htmlA4Factura(f) {
@@ -277,7 +310,10 @@ function htmlA4Factura(f) {
     const esFac = f.tipo === 'Factura';
     const lineas = (f.lineas || []).map(l => `<tr><td>${esc(l.concepto)}</td><td class="r">${esc(l.cantidad)}</td><td class="r">${eur(l.precio_unitario)}</td><td class="r">${esc(l.iva_porcentaje)}%</td><td class="r">${eur(l.base)}</td><td class="r">${eur(l.cuota)}</td><td class="r b">${eur(l.total)}</td></tr>`).join('');
     const legal = esFac ? esc(c.texto_legal || 'Factura emitida conforme al Real Decreto 1619/2012.') : 'Documento no válido como factura. Justificante de pago.';
-    return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{size:A4 portrait;margin:14mm}html,body{margin:0;padding:0;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif;font-size:11pt;line-height:1.35}.page{width:100%;max-width:186mm;margin:0 auto}.head{display:flex;justify-content:space-between;gap:10mm;border-bottom:2px solid #111;padding-bottom:5mm}.logo{height:18mm;width:auto;border-radius:3mm}.issuer h1{font-size:18pt;margin:0 0 2mm}.issuer p{margin:0 0 1mm;font-size:9.5pt}.doc{text-align:right;min-width:65mm}.doc h2{font-size:18pt;margin:0 0 3mm;text-transform:uppercase}.doc p{margin:0 0 1.5mm;font-size:10pt}.boxes{display:grid;grid-template-columns:1.2fr 1fr;gap:6mm;margin-top:7mm}.box{border:1px solid #bbb;border-radius:2mm;padding:4mm}.box h3{font-size:10pt;margin:0 0 2.5mm;text-transform:uppercase;border-bottom:1px solid #ddd;padding-bottom:1.5mm}.box p{margin:0 0 1.5mm;font-size:10pt}table{width:100%;border-collapse:collapse;margin-top:7mm}th,td{border-bottom:1px solid #ccc;padding:2.5mm 2mm;text-align:left;vertical-align:top}th{background:#eef3ef;font-size:9pt;text-transform:uppercase}.r{text-align:right}.b{font-weight:700}.totals{display:flex;justify-content:flex-end;margin-top:5mm}.totals table{width:80mm;margin:0}.totals td{border:0;padding:1.5mm 2mm}.totals tr:last-child td{border-top:2px solid #111;font-size:13pt;font-weight:800}.legal{margin-top:8mm;padding-top:4mm;border-top:1px solid #bbb;font-size:8.5pt;color:#333}.foot{margin-top:5mm;font-size:8.5pt;color:#555;text-align:center}</style></head><body><div class="page"><div class="head"><div><img class="logo" src="${logo}" alt="Geopadel"><div class="issuer"><h1>${esc(c.nombre || 'Geopadel')}</h1><p>${esc(c.nif || '')}</p><p>${esc(dir)}</p><p>${esc(c.telefono || '')} · ${esc(c.email || '')}</p></div></div><div class="doc"><h2>${esFac ? 'Factura' : 'Justificante de pago'}</h2><p><b>Nº:</b> ${esc(f.numero)}</p><p><b>Fecha:</b> ${esc(facFecha(f.fecha))}</p><p><b>Pago:</b> ${esc(f.metodo_pago || '')}</p></div></div><div class="boxes"><div class="box"><h3>Cliente</h3><p><b>${esc(f.cliente_nombre)}</b></p>${f.cliente_nif ? `<p>NIF: ${esc(f.cliente_nif)}</p>` : ''}${f.cliente_direccion ? `<p>${esc(f.cliente_direccion)}</p>` : ''}${f.cliente_email ? `<p>${esc(f.cliente_email)}</p>` : ''}${f.cliente_telefono ? `<p>${esc(f.cliente_telefono)}</p>` : ''}</div><div class="box"><h3>Documento</h3><p>${esFac ? 'Factura legal' : 'Justificante de pago'}</p><p>${esFac ? 'Válido fiscalmente' : 'No válido como factura'}</p>${f.notas ? `<p><b>Notas:</b> ${esc(f.notas)}</p>` : ''}</div></div><table><thead><tr><th>Concepto</th><th class="r">Cant.</th><th class="r">Precio unit.</th><th class="r">IVA</th><th class="r">Base</th><th class="r">Cuota</th><th class="r">Total</th></tr></thead><tbody>${lineas}</tbody></table><div class="totals"><table><tr><td>Base imponible</td><td class="r">${eur(f.base_imponible)}</td></tr><tr><td>IVA ${esc(f.iva_porcentaje)}%</td><td class="r">${eur(f.cuota_iva)}</td></tr><tr><td>TOTAL</td><td class="r">${eur(f.total)}</td></tr></table></div><div class="legal">${legal}</div><div class="foot">${esc(c.pie_factura || '')}<br>${esc(c.web || '')}</div></div></body></html>`;
+    const boxPersona = esFac
+        ? `<div class="box"><h3>Cliente</h3><p><b>${esc(f.cliente_nombre)}</b></p>${f.cliente_nif ? `<p>NIF: ${esc(f.cliente_nif)}</p>` : ''}${f.cliente_direccion ? `<p>${esc(f.cliente_direccion)}</p>` : ''}${f.cliente_email ? `<p>${esc(f.cliente_email)}</p>` : ''}${f.cliente_telefono ? `<p>${esc(f.cliente_telefono)}</p>` : ''}</div>`
+        : `<div class="box"><h3>Atendido por</h3><p><b>${esc(f.empleado || '—')}</b></p><p>Empleado del club</p></div>`;
+    return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{size:A4 portrait;margin:14mm}html,body{margin:0;padding:0;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif;font-size:11pt;line-height:1.35}.page{width:100%;max-width:186mm;margin:0 auto}.head{display:flex;justify-content:space-between;gap:10mm;border-bottom:2px solid #111;padding-bottom:5mm}.logo{height:18mm;width:auto;border-radius:3mm}.issuer h1{font-size:18pt;margin:0 0 2mm}.issuer p{margin:0 0 1mm;font-size:9.5pt}.doc{text-align:right;min-width:65mm}.doc h2{font-size:18pt;margin:0 0 3mm;text-transform:uppercase}.doc p{margin:0 0 1.5mm;font-size:10pt}.boxes{display:grid;grid-template-columns:1.2fr 1fr;gap:6mm;margin-top:7mm}.box{border:1px solid #bbb;border-radius:2mm;padding:4mm}.box h3{font-size:10pt;margin:0 0 2.5mm;text-transform:uppercase;border-bottom:1px solid #ddd;padding-bottom:1.5mm}.box p{margin:0 0 1.5mm;font-size:10pt}table{width:100%;border-collapse:collapse;margin-top:7mm}th,td{border-bottom:1px solid #ccc;padding:2.5mm 2mm;text-align:left;vertical-align:top}th{background:#eef3ef;font-size:9pt;text-transform:uppercase}.r{text-align:right}.b{font-weight:700}.totals{display:flex;justify-content:flex-end;margin-top:5mm}.totals table{width:80mm;margin:0}.totals td{border:0;padding:1.5mm 2mm}.totals tr:last-child td{border-top:2px solid #111;font-size:13pt;font-weight:800}.legal{margin-top:8mm;padding-top:4mm;border-top:1px solid #bbb;font-size:8.5pt;color:#333}.foot{margin-top:5mm;font-size:8.5pt;color:#555;text-align:center}</style></head><body><div class="page"><div class="head"><div><img class="logo" src="${logo}" alt="Geopadel"><div class="issuer"><h1>${esc(c.nombre || 'Geopadel')}</h1><p>${esc(c.nif || '')}</p><p>${esc(dir)}</p><p>${esc(c.telefono || '')} · ${esc(c.email || '')}</p></div></div><div class="doc"><h2>${esFac ? 'Factura' : 'Justificante de pago'}</h2><p><b>Nº:</b> ${esc(f.numero)}</p><p><b>Fecha:</b> ${esc(facFecha(f.fecha))}</p><p><b>Pago:</b> ${esc(f.metodo_pago || '')}</p></div></div><div class="boxes">${boxPersona}<div class="box"><h3>Documento</h3><p>${esFactura ? 'Factura legal' : 'Justificante de pago'}</p><p>${esFactura ? 'Válido fiscalmente' : 'No válido como factura'}</p>${f.notas ? `<p><b>Notas:</b> ${esc(f.notas)}</p>` : ''}</div></div><table><thead><tr><th>Concepto</th><th class="r">Cant.</th><th class="r">Precio unit.</th><th class="r">IVA</th><th class="r">Base</th><th class="r">Cuota</th><th class="r">Total</th></tr></thead><tbody>${lineas}</tbody></table><div class="totals"><table><tr><td>Base imponible</td><td class="r">${eur(f.base_imponible)}</td></tr><tr><td>IVA ${esc(f.iva_porcentaje)}%</td><td class="r">${eur(f.cuota_iva)}</td></tr><tr><td>TOTAL</td><td class="r">${eur(f.total)}</td></tr></table></div><div class="legal">${legal}</div><div class="foot">${esc(c.pie_factura || '')}<br>${esc(c.web || '')}</div></div></body></html>`;
 }
 
 function imprimirHTML(html) {
@@ -328,6 +364,7 @@ if ($('facLineas')) {
     });
 }
 if ($('facIva')) $('facIva').addEventListener('input', actualizarTotalesFactura);
+if ($('facTipo')) $('facTipo').addEventListener('change', facActualizarCamposPorTipo);
 if ($('facEmitir')) $('facEmitir').addEventListener('click', emitirDocumentoFactura);
 if ($('facCfgGuardar')) $('facCfgGuardar').addEventListener('click', guardarConfigFacturas);
 if ($('facRefrescar')) $('facRefrescar').addEventListener('click', cargarFacturas);
