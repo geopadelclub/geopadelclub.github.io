@@ -13,8 +13,10 @@ function facSet(id, v) { const e = $(id); if (e) e.value = v ?? ''; }
 function facVal(id) { const e = $(id); return e ? e.value.trim() : ''; }
 function facNum(id) { const e = $(id); return e ? parseFloat(String(e.value).replace(',', '.')) : NaN; }
 function facConfigIds() { return ['facCfgNombre', 'facCfgNif', 'facCfgDireccion', 'facCfgCp', 'facCfgCiudad', 'facCfgProvincia', 'facCfgEmail', 'facCfgTelefono', 'facCfgWeb', 'facCfgIva', 'facCfgTextoLegal', 'facCfgPie']; }
-function facAplicarPermisosConfig() { const jefa = typeof esJefa === 'function' && esJefa(); facConfigIds().forEach(id => { const e = $(id); if (e) e.disabled = !jefa; }); const b = $('facCfgGuardar'); if (b) b.disabled = !jefa; }
-
+function facAplicarPermisosConfig() {
+    facConfigIds().forEach(id => { const e = $(id); if (e) e.disabled = false; });
+    const b = $('facCfgGuardar'); if (b) b.disabled = false;
+}
 async function cargarConfigFacturas() {
     if (!supabaseClient) return null;
     const { data, error } = await supabaseClient.from('facturas_config').select('*').eq('id', 1).maybeSingle();
@@ -39,7 +41,6 @@ async function cargarConfigFacturas() {
 }
 
 async function guardarConfigFacturas() {
-    if (!(typeof esJefa === 'function' && esJefa())) return toast('Solo la jefa puede cambiar los datos fiscales', 'err');
     const iva = facNum('facCfgIva');
     const row = {
         id: 1,
