@@ -1,0 +1,47 @@
+name: Verifactu AEAT
+on:
+  repository_dispatch:
+    types: [verifactu-emitida]
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: verifactu
+  cancel-in-progress: false
+
+jobs:
+  enviar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: scripts/requirements.txt
+
+      - name: Instalar dependencias
+        run: pip install -r scripts/requirements.txt
+
+      - name: Decodificar certificado
+        run: |
+          mkdir -p /tmp/verifactu
+          echo "${{ secrets.VERIFACTU_CERT_P12_BASE64 }}" | base64 -d > /tmp/verifactu/cert.p12
+          chmod 600 /tmp/verifactu/cert.p12
+
+      - name: Procesar facturas pendientes
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          VERIFACTU_CERT_PATH: /tmp/verifactu/cert.p12
+          VERIFACTU_CERT_PASSWORD: ${{ secrets.VERIFACTU_CERT_PASSWORD }}
+          VERIFACTU_MODO: test
+          FACTURA_IDS_JSON: ${{ toJson(github.event.client_payload.factura_ids) }}
+        run: python scripts/verifactu_process.py
+
+      - name: Limpiar certificado
+        if: always()
+        run: rm -rf /tmp/verifactu

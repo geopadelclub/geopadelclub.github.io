@@ -401,7 +401,14 @@
                                     maxlength="180"></label>
                         </div>
                         <div id="facBloqueEmpleado" class="fac-grid">
-                            <label>Empleado que cobra<input id="facEmpleado" type="text" maxlength="120"></label>
+                            <label>Empleado que cobra<input id="facEmpleado" type="text" readonly
+                                    style="background:var(--surface-3);cursor:not-allowed"></label>
+                        </div>
+                        <div id="facBoxRectificativa" class="fac-grid" style="display:none">
+                            <label>Factura original<input id="facFacturaOriginal" type="text" readonly
+                                    style="background:var(--surface-3)"></label>
+                            <label class="fac-span2">Motivo de la rectificación<textarea id="facMotivoRectificacion"
+                                    rows="2" maxlength="500"></textarea></label>
                         </div>
                         <div class="fac-lineas-head"><b>Líneas</b><button type="button" id="facAddLinea"
                                 class="btn-add gray"><i class="ri-add-line" aria-hidden="true"></i>Añadir línea</button>
@@ -442,12 +449,13 @@
                                         <th>Pago</th>
                                         <th>Total</th>
                                         <th>Estado</th>
+                                        <th>AEAT</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody id="facBody">
                                     <tr>
-                                        <td colspan="8" class="tabla-empty">Cargando...</td>
+                                        <td colspan="9" class="tabla-empty">Cargando...</td>
                                     </tr>
                                 </tbody>
                             </table>
