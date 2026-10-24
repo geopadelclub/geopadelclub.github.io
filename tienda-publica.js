@@ -6,11 +6,9 @@ const sb = (window.supabase && window.supabase.createClient)
 const TIENDA_CACHE_MS = 60000;
 let tiendaCache = { t: 0, lista: null };
 let tiendaReq = 0;
-
 function tiendaFoto(path) {
     return path && sb ? sb.storage.from('tienda').getPublicUrl(path).data.publicUrl : '';
 }
-
 function tiendaTarjeta(a) {
     const foto = tiendaFoto(a.foto_path);
     const img = foto
@@ -19,13 +17,11 @@ function tiendaTarjeta(a) {
     const abre = foto ? ` data-foto-id="${esc(a.id)}" role="button" tabindex="0" aria-label="Ver foto de ${esc(a.titulo)} más grande"` : '';
     return `<article class="tienda-card${foto ? ' con-foto' : ''}"${abre}><div class="tienda-foto">${img}</div><div class="tienda-info"><h3>${esc(a.titulo)}</h3>${a.descripcion ? `<p>${esc(a.descripcion)}</p>` : ''}<div class="tienda-precio">${eur(a.precio)}</div></div></article>`;
 }
-
 function dibujarTienda(lista) {
     const g = $('tiendaGrid');
     if (!lista.length) { g.innerHTML = '<p class="cl-empty">Ahora mismo no hay artículos en la tienda. Pregunta en el club.</p>'; return; }
     g.innerHTML = lista.map(tiendaTarjeta).join('');
 }
-
 async function cargarTienda(forzar) {
     const g = $('tiendaGrid');
     if (!forzar && tiendaCache.lista && Date.now() - tiendaCache.t < TIENDA_CACHE_MS) { dibujarTienda(tiendaCache.lista); return; }
@@ -45,7 +41,6 @@ async function cargarTienda(forzar) {
         g.innerHTML = '<p class="cl-empty">No se pudo cargar la tienda. <button type="button" class="cl-link" id="btnTiendaReintentar">Reintentar</button></p>';
     }
 }
-
 let visorEl = null, visorPrevFoco = null;
 function crearVisor() {
     if (visorEl) return visorEl;
@@ -59,7 +54,6 @@ function crearVisor() {
     document.body.appendChild(visorEl);
     return visorEl;
 }
-
 function abrirVisor(a) {
     const url = tiendaFoto(a.foto_path);
     if (!url) return;
@@ -74,7 +68,6 @@ function abrirVisor(a) {
     document.body.style.overflow = 'hidden';
     v.querySelector('.tienda-visor-cerrar').focus();
 }
-
 function cerrarVisor() {
     if (!visorEl || visorEl.hidden) return;
     visorEl.hidden = true;
@@ -82,18 +75,15 @@ function cerrarVisor() {
     document.body.style.overflow = '';
     if (visorPrevFoco && visorPrevFoco.focus) visorPrevFoco.focus();
 }
-
 function abrirDesdeTarjeta(card) {
     const a = (tiendaCache.lista || []).find(x => String(x.id) === card.dataset.fotoId);
     if (a) abrirVisor(a);
 }
-
 document.addEventListener('DOMContentLoaded', () => {
     iniciarTema();
     $('btnTema').addEventListener('click', alternarTema);
     cargarTienda(false);
 });
-
 if ($('tiendaGrid')) {
     $('tiendaGrid').addEventListener('click', e => {
         if (e.target.closest('#btnTiendaReintentar')) { cargarTienda(true); return; }
