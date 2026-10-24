@@ -121,11 +121,10 @@ function cambiarPestana(tab) {
     const nav = $('nav-' + tab);
     nav.classList.add('active');
     nav.setAttribute('aria-current', 'page');
-    document.title = 'Geopadel · ' + (tab === 'mis' ? 'Mis reservas' : tab === 'tienda' ? 'Tienda' : 'Reserva tu pista');
+    document.title = 'Geopadel · ' + (tab === 'mis' ? 'Mis reservas' : 'Reserva tu pista');
     window.scrollTo({ top: 0 });
     if (tab === 'reservar' && sel.fecha) cargarHuecos();
     if (tab === 'mis' && cuenta) cargarMisReservas(cuenta.ident, cuenta.codigo);
-    if (tab === 'tienda' && typeof entrarTienda === 'function') entrarTienda();
 }
 document.querySelectorAll('.app-nav .nav-tab').forEach(b => b.addEventListener('click', () => cambiarPestana(b.dataset.tab)));
 function dibujarDias() {

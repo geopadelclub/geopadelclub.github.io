@@ -77,6 +77,7 @@ const I18N = {
         'entreno.texto': 'No entres en frío a la pista. Disponemos de zona de entreno para que calientes antes de tu partido.',
         'palas.titulo': 'Prueba de Palas',
         'palas.texto': '¿No sabes qué pala comprar? Ven al club y pruébala en tu propio partido antes de decidirte.',
+        'nav.tarifas': 'Tarifas', 'nav.ubicacion': 'Ubicación', 'nav.tienda': 'Tienda', 'nav.reservar': 'Reservar pista',
 
     },
     en: {
@@ -155,7 +156,8 @@ const I18N = {
         'entreno.titulo': 'Warm-up Area',
         'entreno.texto': 'Don\'t step on court cold. We have a warm-up area so you can get ready before your match.',
         'palas.titulo': 'Racket Testing',
-        'palas.texto': 'Not sure which racket to buy? Come to the club and test it in your own match before deciding.'
+        'palas.texto': 'Not sure which racket to buy? Come to the club and test it in your own match before deciding.',
+        'nav.tarifas': 'Prices', 'nav.ubicacion': 'Location', 'nav.tienda': 'Shop', 'nav.reservar': 'Book a court',
     }
 };
 let _idioma = 'es';

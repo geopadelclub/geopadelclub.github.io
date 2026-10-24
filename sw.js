@@ -19,7 +19,8 @@ const PANEL = [
     'manifest.webmanifest', 'assets/supabase.min.js'
 ];
 const PUBLICO = [
-    'reservar.html', 'reservar.css', 'reservar.js', 'reservar-tienda.js',
+    'reservar.html', 'reservar.css', 'reservar.js',
+    'tienda.html', 'tienda-publica.js',
     'privacidad.html', 'manifest-reservar.webmanifest', 'assets/supabase.min.js',
     'acciones.js', 'i18n.js'
 ];

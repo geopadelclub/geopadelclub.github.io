@@ -1,0 +1,61 @@
+<!-- © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. -->
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="Tienda oficial del club de pádel Geopadel en Ogíjares (Granada).">
+    <title>Tienda · Geopadel</title>
+    <meta name="theme-color" content="#fcfdfc" id="metaTheme">
+    <meta name="color-scheme" content="light dark">
+    <link rel="manifest" href="manifest-reservar.webmanifest">
+    <link rel="icon" type="image/webp" sizes="192x192" href="./Geopadel.webp">
+    <link rel="apple-touch-icon" href="./Geopadel.webp">
+    <script src="theme-init.js"></script>
+    <link rel="stylesheet" href="assets/remixicon/remixicon.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="reservar.css">
+    <script defer src="assets/supabase.min.js"></script>
+    <script defer src="config.js"></script>
+    <script defer src="utils.js"></script>
+    <script defer src="i18n.js"></script>
+    <script defer src="tienda-publica.js"></script>
+    <script defer src="cookies.js"></script>
+    <script defer src="acciones.js"></script>
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+    <div id="toasts" role="status" aria-live="polite"></div>
+
+    <header class="app-header">
+        <!-- El logo apunta a "/" que es el index.html -->
+        <a href="/" class="gp-brand" aria-label="Volver al inicio" style="text-decoration: none;">
+            <img class="gp-logo" src="./Geopadel.webp" alt="Geopadel" draggable="false" width="150" height="150"
+                style="aspect-ratio: 1/1;">
+        </a>
+        <div class="user-info">
+            <button type="button" class="theme-toggle" id="btnIdioma" data-action="cambiar-idioma"
+                aria-label="Cambiar idioma" style="font-weight:800;font-size:12px">ES</button>
+            <button type="button" class="theme-toggle" id="btnTema" aria-label="Cambiar tema"><i class="ri-moon-line"
+                    aria-hidden="true"></i></button>
+        </div>
+    </header>
+
+    <main class="cl-main" id="main-content" style="padding-bottom: 40px;">
+        <div class="cl-intro">
+            <h1 data-i18n="tienda.titulo">Tienda</h1>
+            <p data-i18n="tienda.subtitulo">Esto es lo que tenemos en el club. Se compra en el club.</p>
+        </div>
+        <div id="tiendaGrid" class="tienda-grid" aria-live="polite"></div>
+
+        <p class="cl-legal cl-hint" style="margin-top: 40px;">
+            <a href="privacidad" data-i18n="footer.privacidad">Privacidad</a> ·
+            <a href="aviso-legal" data-i18n="footer.aviso">Aviso Legal</a> ·
+            <a href="politica-cookies" data-i18n="footer.cookies">Cookies</a>
+        </p>
+    </main>
+</body>
+
+</html>
