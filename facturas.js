@@ -299,7 +299,7 @@ function dibujarFacturas() {
         const btnA4 = esFactura ? `<button type="button" class="btn-add blue" data-fac="a4" data-id="${esc(f.id)}">A4</button>` : '';
         const btnRect = puede && esFactura && !esRect ? `<button type="button" class="btn-add gray" data-fac="rectificar" data-id="${esc(f.id)}">Rectificar</button>` : '';
         const etiqueta = esRect ? '<span class="fac-estado ok" style="margin-left:4px">R</span>' : '';
-        return `<tr><td><b>${esc(f.numero)}</b>${etiqueta}</td><td>${esc(facFecha(f.fecha))}</td><td>${esc(facTipoTxt(f.tipo))}</td><td>${persona}</td><td>${esc(f.metodo_pago || '—')}</td><td><b>${eur(f.total)}</b></td><td><span class="fac-estado ${f.estado === 'Anulada' ? 'no' : 'ok'}">${esc(f.estado)}</span></td><td><small>${f.enviada_aeat ? '✓ AEAT' : '—'}</small></td><td><div class="fac-acciones"><button type="button" class="btn-add gray" data-fac="ticket" data-id="${esc(f.id)}">80 mm</button>${btnA4}${btnRect}</div></td></tr>`;
+        return `<tr><td><b>${esc(f.numero)}</b>${etiqueta}</td><td>${esc(facFecha(f.fecha))}</td><td>${esc(facTipoTxt(f.tipo))}</td><td>${persona}</td><td>${esc(f.metodo_pago || '—')}</td><td><b>${eur(f.total)}</b></td><td><span class="fac-estado ${f.estado === 'Anulada' ? 'no' : 'ok'}">${esc(f.estado)}</span></td><td><small>${f.enviada_aeat ? '✓ AEAT' : '—'}</small></td><td><div class="fac-acciones"><button type="button" class="btn-add gray" data-fac="ticket" data-id="${esc(f.id)}">80 mm (Web)</button><button type="button" class="btn-add blue" data-fac="webusb" data-id="${esc(f.id)}">80 mm (USB)</button>${btnA4}${btnRect}</div></td></tr>`;
     }).join('');
 }
 
@@ -412,5 +412,158 @@ if ($('facBody')) $('facBody').addEventListener('click', async e => {
     const id = b.dataset.id;
     const acc = b.dataset.fac;
     if (acc === 'ticket' || acc === 'a4') await imprimirFactura(id, acc);
+    else if (acc === 'webusb') await imprimirTicketWebUSB(id);
     else if (acc === 'rectificar') prepararRectificativa(id);
 });
+
+let usbDevice = null;
+let usbEndpoint = null;
+
+async function conectarImpresoraUSB() {
+    try {
+        usbDevice = await navigator.usb.requestDevice({ filters: [] });
+
+        await usbDevice.open();
+        if (usbDevice.configuration === null) await usbDevice.selectConfiguration(1);
+
+        for (const iface of usbDevice.configuration.interfaces) {
+            for (const alternate of iface.alternates) {
+                const outEndpoint = alternate.endpoints.find(e => e.direction === 'out');
+                if (outEndpoint) {
+                    await usbDevice.claimInterface(iface.interfaceNumber);
+                    usbEndpoint = outEndpoint.endpointNumber;
+                    break;
+                }
+            }
+            if (usbEndpoint) break;
+        }
+
+        if (!usbEndpoint) throw new Error('No se encontró el puerto de salida de la impresora');
+        toast('Impresora conectada correctamente', 'ok');
+    } catch (error) {
+        console.error('Error al conectar la impresora:', error);
+        toast('No se pudo conectar la impresora: ' + (error.message || error), 'err');
+    }
+}
+
+async function enviarBytesAImpresora(bytes) {
+    if (!usbDevice || !usbEndpoint) {
+        toast('Primero debes conectar la impresora', 'warn');
+        return false;
+    }
+
+    const CHUNK_SIZE = 64;
+    for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
+        const chunk = bytes.slice(i, i + CHUNK_SIZE);
+        await usbDevice.transferOut(usbEndpoint, chunk);
+    }
+    return true;
+}
+
+function textoABytes(texto) {
+    const bytes = new Uint8Array(texto.length);
+    for (let i = 0; i < texto.length; i++) {
+        bytes[i] = texto.charCodeAt(i);
+    }
+    return bytes;
+}
+
+function formatearTicketTexto(f) {
+    const c = facConfig || {};
+    const ancho = 42;
+
+    const centrar = (texto) => {
+        const espacios = Math.max(0, Math.floor((ancho - texto.length) / 2));
+        return ' '.repeat(espacios) + texto;
+    };
+
+    const linea = '-'.repeat(ancho);
+    const dobleLinea = '='.repeat(ancho);
+
+    let ticket = '';
+
+    ticket += '\x1B\x40';
+    ticket += '\x1B\x61\x01';
+    ticket += '\x1D\x21\x11';
+
+    ticket += (c.nombre || 'GEOPADEL') + '\n';
+    ticket += '\x1D\x21\x00';
+
+    if (c.nif) ticket += 'NIF: ' + c.nif + '\n';
+    if (c.direccion) ticket += c.direccion + '\n';
+    if (c.telefono) ticket += 'Tel: ' + c.telefono + '\n';
+
+    ticket += '\x1B\x61\x00';
+    ticket += linea + '\n';
+
+    const esFactura = f.tipo === 'Factura';
+    const titulo = esFactura ? 'FACTURA' : 'JUSTIFICANTE DE PAGO';
+
+    ticket += '\x1B\x61\x01';
+    ticket += titulo + '\n';
+    ticket += `Nº: ${f.numero}` + '\n';
+    ticket += `Fecha: ${facFecha(f.fecha)}` + '\n';
+    ticket += '\x1B\x61\x00';
+    ticket += linea + '\n';
+
+    if (esFactura) {
+        ticket += `Cliente: ${f.cliente_nombre}\n`;
+        if (f.cliente_nif) ticket += `NIF: ${f.cliente_nif}\n`;
+        if (f.cliente_direccion) ticket += `Dirección: ${f.cliente_direccion}\n`;
+    } else {
+        ticket += `Atendido por: ${f.empleado || '—'}\n`;
+    }
+    ticket += `Pago: ${f.metodo_pago || '—'}\n`;
+    ticket += linea + '\n';
+
+    ticket += 'CANT  CONCEPTO                TOTAL\n';
+    ticket += linea + '\n';
+    (f.lineas || []).forEach(l => {
+        const concepto = l.concepto.length > 20 ? l.concepto.substring(0, 20) + '...' : l.concepto;
+        const cantidad = String(l.cantidad).padEnd(5);
+        const total = eur(l.total).padStart(10);
+        ticket += `${cantidad} ${concepto.padEnd(20)} ${total}\n`;
+    });
+    ticket += linea + '\n';
+
+    ticket += `Base Imponible: ${eur(f.base_imponible).padStart(15)}\n`;
+    ticket += `IVA (${f.iva_porcentaje}%):   ${eur(f.cuota_iva).padStart(15)}\n`;
+    ticket += dobleLinea + '\n';
+    ticket += `TOTAL:          ${eur(f.total).padStart(15)}\n`;
+    ticket += dobleLinea + '\n';
+
+    if (f.notas) {
+        ticket += `Notas: ${f.notas}\n`;
+        ticket += linea + '\n';
+    }
+
+    const legal = esFactura ? 'Factura emitida conforme al RD 1619/2012.' : 'Documento no válido como factura.';
+    ticket += '\x1B\x61\x01';
+    ticket += legal + '\n';
+    if (c.pie_factura) ticket += c.pie_factura + '\n';
+
+    ticket += '\n\n\n';
+    ticket += '\x1D\x56\x41\x10';
+
+    return ticket;
+}
+
+async function imprimirTicketWebUSB(id) {
+    try {
+        const f = await obtenerFactura(id);
+        if (!f) return toast('No se encontró el documento', 'err');
+
+        const texto = formatearTicketTexto(f);
+        const bytes = textoABytes(texto);
+
+        const exito = await enviarBytesAImpresora(bytes);
+        if (exito) toast('Ticket enviado a la impresora', 'ok');
+    } catch (error) {
+        console.error('Error al imprimir:', error);
+        toast('No se pudo imprimir: ' + (error.message || error), 'err');
+    }
+}
+
+if (typeof window.accion === 'function') {
+    window.accion('conectar-impresora', () => typeof conectarImpresoraUSB === 'function' && conectarImpresoraUSB());
+}

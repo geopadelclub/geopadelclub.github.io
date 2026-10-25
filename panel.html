@@ -442,41 +442,44 @@
                     </div>
                     <div class="card">
                         <div class="card-head">
-                            <h3><i class="ri-file-list-3-line" aria-hidden="true"></i>Documentos emitidos</h3><button
-                                type="button" id="facRefrescar" class="btn-add gray"><i class="ri-refresh-line"
-                                    aria-hidden="true"></i>Refrescar</button>
-                        </div>
-                        <div class="toolbar"><input id="facBuscar" class="toolbar-input" type="search"
-                                placeholder="Buscar por número, cliente o NIF..."><select id="facFiltroTipo"
-                                class="toolbar-select">
-                                <option value="Todos">Todos</option>
-                                <option value="Factura">Facturas</option>
-                                <option value="Justificante">Justificantes</option>
-                            </select></div>
-                        <div class="table-wrap">
-                            <table class="tabla-productos" style="min-width:900px">
-                                <thead>
-                                    <tr>
-                                        <th>Nº</th>
-                                        <th>Fecha</th>
-                                        <th>Tipo</th>
-                                        <th>Cliente / Empleado</th>
-                                        <th>Pago</th>
-                                        <th>Total</th>
-                                        <th>Estado</th>
-                                        <th>AEAT</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="facBody">
-                                    <tr>
-                                        <td colspan="9" class="tabla-empty">Cargando...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <h3><i class="ri-file-list-3-line" aria-hidden="true"></i>Documentos emitidos</h3>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <button type="button" class="btn-add blue" data-action="conectar-impresora">
+                                    <i class="ri-usb-line" aria-hidden="true"></i> Conectar Impresora Térmica
+                                </button><button type="button" id="facRefrescar" class="btn-add gray"><i
+                                        class="ri-refresh-line" aria-hidden="true"></i>Refrescar</button>
+                            </div>
+                            <div class="toolbar"><input id="facBuscar" class="toolbar-input" type="search"
+                                    placeholder="Buscar por número, cliente o NIF..."><select id="facFiltroTipo"
+                                    class="toolbar-select">
+                                    <option value="Todos">Todos</option>
+                                    <option value="Factura">Facturas</option>
+                                    <option value="Justificante">Justificantes</option>
+                                </select></div>
+                            <div class="table-wrap">
+                                <table class="tabla-productos" style="min-width:900px">
+                                    <thead>
+                                        <tr>
+                                            <th>Nº</th>
+                                            <th>Fecha</th>
+                                            <th>Tipo</th>
+                                            <th>Cliente / Empleado</th>
+                                            <th>Pago</th>
+                                            <th>Total</th>
+                                            <th>Estado</th>
+                                            <th>AEAT</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="facBody">
+                                        <tr>
+                                            <td colspan="9" class="tabla-empty">Cargando...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
-                </div>
             </section>
             <section id="tab-equipo" class="tab-content">
                 <div class="subnav" role="tablist" aria-label="Secciones de equipo"><button type="button"
