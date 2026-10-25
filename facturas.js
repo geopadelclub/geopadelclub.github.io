@@ -299,7 +299,7 @@ function dibujarFacturas() {
         const btnA4 = esFactura ? `<button type="button" class="btn-add blue" data-fac="a4" data-id="${esc(f.id)}">A4</button>` : '';
         const btnRect = puede && esFactura && !esRect ? `<button type="button" class="btn-add gray" data-fac="rectificar" data-id="${esc(f.id)}">Rectificar</button>` : '';
         const etiqueta = esRect ? '<span class="fac-estado ok" style="margin-left:4px">R</span>' : '';
-        return `<tr><td><b>${esc(f.numero)}</b>${etiqueta}</td><td>${esc(facFecha(f.fecha))}</td><td>${esc(facTipoTxt(f.tipo))}</td><td>${persona}</td><td>${esc(f.metodo_pago || '—')}</td><td><b>${eur(f.total)}</b></td><td><span class="fac-estado ${f.estado === 'Anulada' ? 'no' : 'ok'}">${esc(f.estado)}</span></td><td><small>${f.enviada_aeat ? '✓ AEAT' : '—'}</small></td><td><div class="fac-acciones"><button type="button" class="btn-add gray" data-fac="ticket" data-id="${esc(f.id)}">80 mm (Web)</button><button type="button" class="btn-add blue" data-fac="webusb" data-id="${esc(f.id)}">80 mm (USB)</button>${btnA4}${btnRect}</div></td></tr>`;
+        return `<tr><td><b>${esc(f.numero)}</b>${etiqueta}</td><td>${esc(facFecha(f.fecha))}</td><td>${esc(facTipoTxt(f.tipo))}</td><td>${persona}</td><td>${esc(f.metodo_pago || '—')}</td><td><b>${eur(f.total)}</b></td><td><span class="fac-estado ${f.estado === 'Anulada' ? 'no' : 'ok'}">${esc(f.estado)}</span></td><td><small>${f.enviada_aeat ? '✓ AEAT' : '—'}</small></td><td><div class="fac-acciones"><button type="button" class="btn-add blue" data-fac="webusb" data-id="${esc(f.id)}">80 mm (USB)</button>${btnA4}${btnRect}</div></td></tr>`;
     }).join('');
 }
 
@@ -380,6 +380,7 @@ async function entrarFacturas() {
     iniciarFormFactura();
     facActualizarModoRectificativa();
     await cargarFacturas();
+    if (navigator.usb && !usbDevice) await conectarImpresoraUSB(true);
 }
 
 async function entrarFacturasConfig() {
@@ -419,10 +420,19 @@ if ($('facBody')) $('facBody').addEventListener('click', async e => {
 let usbDevice = null;
 let usbEndpoint = null;
 
-async function conectarImpresoraUSB() {
+async function conectarImpresoraUSB(silencioso = false) {
     try {
-        usbDevice = await navigator.usb.requestDevice({ filters: [] });
+        let device = null;
+        const dispositivosPermitidos = await navigator.usb.getDevices();
 
+        if (dispositivosPermitidos.length > 0) {
+            device = dispositivosPermitidos[0];
+        } else {
+            if (silencioso) return;
+            device = await navigator.usb.requestDevice({ filters: [] });
+        }
+
+        usbDevice = device;
         await usbDevice.open();
         if (usbDevice.configuration === null) await usbDevice.selectConfiguration(1);
 
@@ -438,11 +448,11 @@ async function conectarImpresoraUSB() {
             if (usbEndpoint) break;
         }
 
-        if (!usbEndpoint) throw new Error('No se encontró el puerto de salida de la impresora');
-        toast('Impresora conectada correctamente', 'ok');
+        if (!usbEndpoint) throw new Error('No se encontró el puerto de salida');
+        if (!silencioso) toast('Impresora conectada correctamente', 'ok');
     } catch (error) {
         console.error('Error al conectar la impresora:', error);
-        toast('No se pudo conectar la impresora: ' + (error.message || error), 'err');
+        if (!silencioso) toast('No se pudo conectar: ' + (error.message || error), 'err');
     }
 }
 
@@ -461,16 +471,32 @@ async function enviarBytesAImpresora(bytes) {
 }
 
 function textoABytes(texto) {
+    const cp437 = {
+        0x20AC: 0xE1,
+        0x00E1: 0xA0,
+        0x00E9: 0x82,
+        0x00ED: 0xA1,
+        0x00F3: 0xA2,
+        0x00FA: 0xA3,
+        0x00F1: 0xA4,
+        0x00C1: 0xB5,
+        0x00C9: 0x90,
+        0x00CD: 0xD6,
+        0x00D3: 0xE0,
+        0x00DA: 0xE9,
+        0x00D1: 0xA5,
+        0x00FC: 0x81,
+        0x00DC: 0x9A,
+        0x00BA: 0xA7,
+        0x00AA: 0xA6,
+        0x00B7: 0xFA,
+        0x00A0: 0xFF
+    };
+
     const bytes = new Uint8Array(texto.length);
     for (let i = 0; i < texto.length; i++) {
-        let charCode = texto.charCodeAt(i);
-        if (charCode === 8364) {
-            charCode = 128;
-        }
-        else if (charCode > 255) {
-            charCode = 63;
-        }
-        bytes[i] = charCode;
+        const charCode = texto.charCodeAt(i);
+        bytes[i] = cp437[charCode] !== undefined ? cp437[charCode] : (charCode < 256 ? charCode : 63);
     }
     return bytes;
 }
@@ -490,6 +516,7 @@ function formatearTicketTexto(f) {
     let ticket = '';
 
     ticket += '\x1B\x40';
+    ticket += '\x1B\x74\x00';
     ticket += '\x1B\x61\x01';
     ticket += '\x1D\x21\x11';
 
