@@ -486,6 +486,37 @@
         @media (max-width: 700px) {
             .landing-header nav {
                 display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--surface, #fcfdfc);
+                padding: 20px;
+                flex-direction: column;
+                gap: 12px;
+                border-bottom: 1px solid var(--border, #dfe7e3);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+                z-index: 100;
+            }
+
+            .landing-header nav.open {
+                display: flex;
+            }
+
+            .landing-header nav a {
+                width: 100%;
+                text-align: center;
+                padding: 10px;
+                font-size: 16px;
+            }
+
+            .landing-header nav .btn-nav-reservar {
+                margin-top: 4px;
+            }
+
+            #btnMenu {
+                display: inline-flex;
+                /* Muestra el icono hamburguesa solo en móvil */
             }
 
             .hero {
@@ -641,15 +672,20 @@
 
 <body>
     <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
-    <header class="landing-header"><a href="/" aria-label="Ir al principio de la página"><img class="logo"
-                src="geopadel-128.webp" alt="Geopadel" width="128" height="128"></a>
+    <header class="landing-header">
+        <a href="/" aria-label="Ir al principio de la página"><img class="logo" src="geopadel-128.webp" alt="Geopadel"
+                width="128" height="128"></a>
         <div class="header-right">
-            <nav>
+            <nav id="mainNav">
                 <a href="#tarifas" data-i18n="nav.tarifas">Tarifas</a>
                 <a href="#ubicacion" data-i18n="nav.ubicacion">Ubicación</a>
                 <a href="tienda" data-i18n="nav.tienda">Tienda</a>
                 <a href="reservar" class="btn-nav-reservar" data-i18n="nav.reservar">Reservar pista</a>
             </nav>
+            <button type="button" class="theme-toggle" id="btnMenu" aria-label="Abrir menú" style="display:none;">
+                <i class="ri-menu-line" aria-hidden="true"></i>
+            </button>
+
             <button type="button" class="theme-toggle" id="btnIdioma" data-action="cambiar-idioma"
                 aria-label="Cambiar idioma" style="font-weight:800;font-size:12px">ES</button>
             <button type="button" class="theme-toggle" aria-label="Cambiar tema" data-action="alternar-tema"><i
@@ -835,6 +871,22 @@
         <p class="contacto-llamar"><span data-i18n="contacto.llamar">¿Prefieres llamar? </span><a
                 href="tel:+34646059962">646 05 99 62</a></p>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnMenu = document.getElementById('btnMenu');
+            const mainNav = document.getElementById('mainNav');
+            if (btnMenu && mainNav) {
+                btnMenu.addEventListener('click', () => {
+                    mainNav.classList.toggle('open');
+                });
+                mainNav.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        mainNav.classList.remove('open');
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>
