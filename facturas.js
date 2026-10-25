@@ -472,7 +472,7 @@ async function enviarBytesAImpresora(bytes) {
 
 function textoABytes(texto) {
     const cp437 = {
-        0x20AC: 0xE1,
+        0x20AC: 0xD5,
         0x00E1: 0xA0,
         0x00E9: 0x82,
         0x00ED: 0xA1,
