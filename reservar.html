@@ -42,7 +42,6 @@
     <script defer src="utils.js"></script>
     <script defer src="i18n.js"></script>
     <script defer src="reservar.js"></script>
-    <script defer src="reservar-tienda.js"></script>
     <script defer src="cookies.js"></script>
     <script defer src="acciones.js"></script>
 </head>
@@ -69,6 +68,8 @@
                     aria-hidden="true"></i></span>Reservar</button>
         <button type="button" id="nav-mis" class="nav-tab" data-tab="mis" aria-label="Pestaña Mis reservas"><span
                 class="ni"><i class="ri-ticket-line" aria-hidden="true"></i></span>Mis reservas</button>
+        <a href="tienda" class="nav-tab" style="text-decoration:none"><span class="ni"><i class="ri-shopping-bag-3-line"
+                    aria-hidden="true"></i></span>Tienda</a>
     </nav>
     <main class="cl-main" id="main-content">
         <div
@@ -79,7 +80,8 @@
         <section id="tab-reservar" class="tab-content active">
             <div class="cl-intro">
                 <h1 data-i18n="reservar.titulo">Reserva tu pista de pádel</h1>
-                <p id="txtIntroReserva">Elige día, duración y hora. Se paga en el club.</p><noscript>
+                <p id="txtIntroReserva">Elige día, duración y hora. Se paga en el club.</p>
+                <noscript>
                     <p data-i18n="reservar.noscript">Necesitas activar JavaScript para reservar.</p>
                 </noscript>
             </div>
@@ -109,10 +111,30 @@
                             código</label><input type="password" id="clCodigoEx" autocomplete="off" maxlength="30">
                         <p class="cl-hint" data-i18n="reservar.recuperar">¿Lo has olvidado? Llama al club y te lo
                             restablecemos.</p>
-                    </div><button type="button" class="btn-submit" id="btnEntrar"
-                        data-i18n="reservar.entrar">Entrar</button>
+                    </div>
+                    <button type="button" class="btn-submit" id="btnEntrar" data-i18n="reservar.entrar">Entrar</button>
                 </div>
                 <div id="bloqueNuevo" hidden>
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label>¿Para quién es la reserva?</label>
+                        <div style="display: flex; gap: 10px; margin-top: 5px;">
+                            <label class="cl-check"
+                                style="flex: 1; border: 1.5px solid var(--border); padding: 10px; border-radius: var(--radius-sm);">
+                                <input type="radio" name="clTipo" value="Particular" checked> Particular
+                            </label>
+                            <label class="cl-check"
+                                style="flex: 1; border: 1.5px solid var(--border); padding: 10px; border-radius: var(--radius-sm);">
+                                <input type="radio" name="clTipo" value="Peña"> Peña / Club
+                            </label>
+                        </div>
+                    </div>
+                    <div id="avisoPena" class="aviso-limpieza" style="display:none; margin-bottom:16px;">
+                        <i class="ri-information-line" aria-hidden="true"></i> Para reservas de peñas, clubes o grupos
+                        recurrentes, por favor llama al club o escríbenos por WhatsApp.
+                        <br><a href="https://wa.me/34646059962" target="_blank" class="btn-add blue"
+                            style="margin-top:8px; display:inline-block; text-decoration:none;">Contactar por
+                            WhatsApp</a>
+                    </div>
                     <div class="form-group"><label for="clNombre" data-i18n="reservar.nombre">Nombre y
                             apellidos</label><input type="text" id="clNombre" autocomplete="name" maxlength="80"></div>
                     <div class="form-group"><label for="clCodigoNew" data-i18n="reservar.crea-codigo">Crea tu
@@ -123,14 +145,16 @@
                     </div>
                     <div class="form-group"><label for="clCodigoNew2" data-i18n="reservar.repite-codigo">Repite el
                             código</label><input type="password" id="clCodigoNew2" autocomplete="new-password"
-                            maxlength="30"></div><label class="cl-check"><input type="checkbox" id="clConsent"><span
+                            maxlength="30"></div>
+                    <label class="cl-check"><input type="checkbox" id="clConsent"><span
                             data-i18n="reservar.consentimiento">He leído y acepto la política de
                             privacidad.</span></label>
                 </div>
                 <div id="bloqueConfirmar" hidden>
                     <div id="clHola" class="cl-hola" hidden></div>
-                    <div id="cfTurnstile" hidden></div><button type="button" class="btn-submit" id="btnConfirmar"><i
-                            class="ri-check-line" aria-hidden="true"></i><span data-i18n="reservar.confirmar">Confirmar
+                    <div id="cfTurnstile" hidden></div>
+                    <button type="button" class="btn-submit" id="btnConfirmar"><i class="ri-check-line"
+                            aria-hidden="true"></i><span data-i18n="reservar.confirmar">Confirmar
                             reserva</span></button>
                 </div>
             </div>
@@ -140,18 +164,14 @@
                 <div id="okDetalle" class="cl-ok-det"></div>
                 <div class="cl-actions"><button type="button" class="btn-add gray" id="btnICS"><i
                             class="ri-calendar-check-line" aria-hidden="true"></i><span
-                            data-i18n="reservar.calendario">Añadir al calendario</span></button>
-                    <button type="button" class="btn-add gray" id="btnGCal"><i class="ri-google-line"
-                            aria-hidden="true"></i><span>Google Calendar</span></button>
-                    <button type="button" class="btn-add gray" id="btnShare"><i class="ri-share-line"
-                            aria-hidden="true"></i><span>Compartir</span></button>
-                    <button type="button" class="btn-add gray" id="btnPush"><i class="ri-notification-3-line"
-                            aria-hidden="true"></i><span>Recordarme</span></button>
-                    <button type="button" class="btn-add" id="btnOtra" data-i18n="reservar.otra">Reservar
-                        otra</button><button type="button" class="btn-add blue" id="btnVerMis"
-                        data-i18n="reservar.ver-mis">Ver mis
-                        reservas</button>
-                </div>
+                            data-i18n="reservar.calendario">Añadir al calendario</span></button><button type="button"
+                        class="btn-add gray" id="btnGCal"><i class="ri-google-line" aria-hidden="true"></i><span>Google
+                            Calendar</span></button><button type="button" class="btn-add gray" id="btnShare"><i
+                            class="ri-share-line" aria-hidden="true"></i><span>Compartir</span></button><button
+                        type="button" class="btn-add gray" id="btnPush"><i class="ri-notification-3-line"
+                            aria-hidden="true"></i><span>Recordarme</span></button><button type="button" class="btn-add"
+                        id="btnOtra" data-i18n="reservar.otra">Reservar otra</button><button type="button"
+                        class="btn-add blue" id="btnVerMis" data-i18n="reservar.ver-mis">Ver mis reservas</button></div>
             </div>
         </section>
         <section id="tab-mis" class="tab-content">
@@ -180,13 +200,6 @@
                         data-i18n="mis-reservas.borrar">Borrar mis datos</button> · <a href="privacidad" target="_blank"
                         rel="noopener" data-i18n="footer.privacidad">Privacidad</a></p>
             </div>
-        </section>
-        <section id="tab-tienda" class="tab-content">
-            <div class="cl-intro">
-                <h1 data-i18n="tienda.titulo">Tienda</h1>
-                <p data-i18n="tienda.subtitulo">Esto es lo que tenemos en el club. Se compra en el club.</p>
-            </div>
-            <div id="tiendaGrid" class="tienda-grid" aria-live="polite"></div>
         </section>
         <p class="cl-legal cl-hint"><a href="privacidad" data-i18n="footer.privacidad">Privacidad</a> · <a
                 href="aviso-legal" data-i18n="footer.aviso">Aviso Legal</a> · <a href="politica-cookies"

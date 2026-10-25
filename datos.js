@@ -7,7 +7,7 @@ async function cargarDatosGlobales() {
 }
 async function cargarClientes() {
     const { data, error } = await conReintento(() => leerTodo(
-        () => supabaseClient.from('clientes').select('id, nombre, telefono, web_habilitado').order('nombre')
+        () => supabaseClient.from('clientes').select('id, nombre, telefono, web_habilitado, tipo_cliente, nombre_entidad').order('nombre')
     ));
     if (error) { console.error(error); return; }
     datosLocales.clientes = data || [];

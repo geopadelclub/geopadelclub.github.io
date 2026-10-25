@@ -115,7 +115,7 @@ function enlazarBuscadorCliente(inpNombre, inpTel, alElegir) {
     if (!inpNombre || !inpTel) return;
     const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
     const dig = s => String(s || '').replace(/\D/g, '');
-    const MAX = 6;
+    const MAX = 8;
     function buscar() {
         const palabras = norm(inpNombre.value).split(' ').filter(Boolean);
         const usaNombre = norm(inpNombre.value).length >= 2;
@@ -124,7 +124,7 @@ function enlazarBuscadorCliente(inpNombre, inpTel, alElegir) {
         const todos = (typeof datosLocales !== 'undefined' && datosLocales.clientes) || [];
         const res = [];
         for (const c of todos) {
-            const nn = norm(c.nombre);
+            const nn = norm(c.nombre_entidad ? `${c.nombre_entidad} ${c.nombre}` : c.nombre);
             if (usaNombre && !palabras.every(p => nn.includes(p))) continue;
             if (usaTel && !dig(c.telefono).includes(qt)) continue;
             const empieza = usaNombre && nn.startsWith(palabras[0]) ? 0 : 1;
@@ -152,17 +152,20 @@ function enlazarBuscadorCliente(inpNombre, inpTel, alElegir) {
         const cerrar = () => { caja.hidden = true; activo = -1; inp.setAttribute('aria-expanded', 'false'); };
         const marcar = () => caja.querySelectorAll('.cli-op').forEach((e, i) => e.classList.toggle('on', i === activo));
         function elegir(c) {
-            inpNombre.value = c.nombre || '';
+            inpNombre.value = c.nombre_entidad ? c.nombre_entidad : c.nombre;
             inpTel.value = c.telefono || '';
+            inpNombre.dataset.tipo = c.tipo_cliente || 'Particular';
             cerrar();
             if (alElegir) alElegir(c);
         }
         function abrir() {
             lista = buscar();
             if (!lista.length) { cerrar(); return; }
-            caja.innerHTML = lista.map((c, i) =>
-                `<div class="cli-op" role="option" data-i="${i}"><b>${esc(c.nombre)}</b><small>${c.telefono ? esc(c.telefono) : 'Sin teléfono'}</small></div>`
-            ).join('');
+            caja.innerHTML = lista.map((c, i) => {
+                const esPena = c.tipo_cliente === 'Peña' || c.nombre_entidad;
+                const badge = esPena ? '<span style="background:#f6e3c0;color:#5e410e;font-size:10px;padding:2px 4px;border-radius:4px;margin-left:4px;">PEÑA</span>' : '';
+                return `<div class="cli-op" role="option" data-i="${i}"><b>${esc(c.nombre_entidad || c.nombre)} ${badge}</b><small>${c.telefono ? esc(c.telefono) : 'Sin teléfono'}</small></div>`;
+            }).join('');
             activo = -1;
             caja.hidden = false;
             inp.setAttribute('aria-expanded', 'true');

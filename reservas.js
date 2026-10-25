@@ -2,13 +2,12 @@
 let reqReservas = 0;
 let totalPendientes = 0;
 let _pendingPagoUnico = null;
-
 async function cargarReservasHoy() {
     const iso = $('fechaCuadrante').value || fechaLocalISO();
     const miReq = ++reqReservas;
     const { data, error } = await conReintento(() =>
         supabaseClient.from('reservas')
-            .select('id, cliente, telefono, fecha, hora_inicio, duracion_min, pista, estado, pago_estado, tipo_reserva, jugadores, pagos_jugadores, precio, empleado, serie, notas, origen, tipo_cobro')
+            .select('id, cliente, nombre_entidad, telefono, fecha, hora_inicio, duracion_min, pista, estado, pago_estado, tipo_reserva, jugadores, pagos_jugadores, precio, empleado, serie, notas, origen, tipo_cobro')
             .eq('fecha', iso)
             .or(FILTRO_NO_CANCELADA)
     );
@@ -17,6 +16,7 @@ async function cargarReservasHoy() {
     datosLocales.reservas = (data || []).map(r => ({
         id: r.id,
         cliente: r.cliente || '',
+        nombreEntidad: r.nombre_entidad || '',
         telefono: r.telefono,
         fecha: r.fecha,
         horaInicio: String(r.hora_inicio || '00:00').slice(0, 5),
@@ -200,7 +200,7 @@ function renderizarCuadrantePlaytomic(reservas) {
             dots += '</div>';
             card.innerHTML = `
 <div class="reserva-top">${badge}${dots}</div>
-<div class="reserva-title">${r.origen === 'web' ? '<i class="ri-global-line" aria-hidden="true" title="Reserva hecha desde la web"></i>' : ''}${r.serie ? '<i class="ri-repeat-line" aria-hidden="true"></i>' : ''}${esc(r.cliente)}</div>
+<div class="reserva-title">${r.origen === 'web' ? '<i class="ri-global-line" aria-hidden="true" title="Reserva hecha desde la web"></i>' : ''}${r.serie ? '<i class="ri-repeat-line" aria-hidden="true"></i>' : ''}${esc(r.nombreEntidad ? r.nombreEntidad : r.cliente)}</div>
 ${tieneNota && heightPx >= 150 ? `<div class="reserva-nota-txt">${esc(r.notas)}</div>` : ''}
 <div class="reserva-time"><span>${esc(r.horaInicio)} - ${minToTimeStr(iniMin + dur)}</span>${tieneNota ? '<span class="nota-flag"><i class="ri-sticky-note-fill" aria-hidden="true"></i>Nota</span>' : ''}</div>`;
             card.title = `${r.cliente} · ${r.horaInicio}-${minToTimeStr(iniMin + dur)}${tieneNota ? '\nNota: ' + r.notas : ''}`;
@@ -691,16 +691,25 @@ async function cambiarPagoJugador(numJugador, nuevoMetodo, btn) {
 
 function cerrarModal() { cerrarOverlay('modalReserva'); _pendingPagoUnico = null; }
 
-async function guardarClienteSilencioso(nombre, telefono) {
-    const row = { nombre };
+async function guardarClienteSilencioso(nombre, telefono, tipoCliente = 'Particular') {
+    const row = { nombre, tipo_cliente: tipoCliente };
     if (telefono) row.telefono = telefono;
-    const prev = (datosLocales.clientes || []).find(c => String(c.nombre).trim().toLowerCase() === nombre.toLowerCase());
+    if (tipoCliente === 'Peña') row.nombre_entidad = nombre;
+    const prev = (datosLocales.clientes || []).find(c => String(c.nombre).trim().toLowerCase() === nombre.toLowerCase() && c.tipo_cliente === tipoCliente);
     if (prev && telefono && prev.telefono && normalizarTelefono(prev.telefono) !== telefono &&
         !(await customConfirm(`Ya existe un cliente llamado «${nombre}» con el teléfono ${prev.telefono}. ¿Cambiarlo por ${telefono}?\nSi cancelas, su ficha de cliente no se modifica.`))) return;
-    const { error } = await supabaseClient.from('clientes').upsert(row, { onConflict: 'nombre' });
-    if (error) { console.warn('No se pudo guardar el cliente', error.message); return; }
-    const ex = datosLocales.clientes.find(c => String(c.nombre).toLowerCase() === nombre.toLowerCase());
-    if (ex) { if (telefono) ex.telefono = telefono; } else datosLocales.clientes.push(row);
+    const { data: ex } = await supabaseClient.from('clientes').select('id').eq('nombre', nombre).eq('tipo_cliente', tipoCliente).maybeSingle();
+    if (ex) {
+        if (telefono) await supabaseClient.from('clientes').update({ telefono }).eq('id', ex.id);
+    } else {
+        await supabaseClient.from('clientes').insert(row);
+    }
+    const existente = datosLocales.clientes.find(c => String(c.nombre).toLowerCase() === nombre.toLowerCase() && c.tipo_cliente === tipoCliente);
+    if (existente) {
+        if (telefono) existente.telefono = telefono;
+    } else {
+        datosLocales.clientes.push(row);
+    }
 }
 
 async function confirmarGuardarReserva() {
@@ -731,9 +740,19 @@ async function confirmarGuardarReserva() {
     setBusy(btn, true, '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Guardando...');
     try {
         const tipoPagoSeleccionado = document.querySelector('input[name="modalTipoPago"]:checked').value;
+        const tipoCli = $('modalCliente').dataset.tipo || 'Particular';
+        const esPena = tipoCli === 'Peña';
+
         const payloadBase = {
-            cliente, telefono: telefono || null, hora_inicio: horaInicio, duracion_min: duracionMin, tipo_reserva: tipo,
-            jugadores: numJugadores, precio: importe, empleado: nombreUsuario(),
+            cliente,
+            nombre_entidad: esPena ? cliente : null,
+            telefono: telefono || null,
+            hora_inicio: horaInicio,
+            duracion_min: duracionMin,
+            tipo_reserva: tipo,
+            jugadores: numJugadores,
+            precio: importe,
+            empleado: nombreUsuario(),
             tipo_cobro: tipoPagoSeleccionado
         };
         if (idExistente) {
@@ -760,7 +779,7 @@ async function confirmarGuardarReserva() {
             upd.tipo_cobro = tipoPagoSeleccionado;
             const { error } = await supabaseClient.from('reservas').update(upd).eq('id', idExistente);
             if (error) throw error;
-            await guardarClienteSilencioso(cliente, telefono);
+            await guardarClienteSilencioso(cliente, telefono, tipoCli);
             toast("Reserva actualizada");
             cerrarModal();
             cargarReservasHoy();
@@ -795,7 +814,7 @@ async function confirmarGuardarReserva() {
             }
         }
 
-        await guardarClienteSilencioso(cliente, telefono);
+        await guardarClienteSilencioso(cliente, telefono, tipoCli);
         toast(filas.length > 1 ? `${filas.length} reservas creadas` : "Reserva creada");
         cerrarModal();
         cargarReservasHoy();
