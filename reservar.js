@@ -3,7 +3,7 @@ const sb = (window.supabase && window.supabase.createClient) ? window.supabase.c
 const SPIN = '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>';
 let cfg = { dias_max: 30, cancelar_horas: 24, max_futuras: 4, duraciones: [60, 90, 120], anticipacion_min: 120 };
 const sel = { fecha: null, dur: 90, hora: null, precio: 0 };
-const flujo = { fase: 'tel', tel: '', codigo: '', nombre: '', tipo: 'Particular', entidad: '' };
+const flujo = { fase: 'tel', tel: '', codigo: '', nombre: '' };
 let cuenta = null;
 let slotsDia = [];
 let reqHuecos = 0;
@@ -145,22 +145,6 @@ $('clTel').addEventListener('input', () => {
     if (!val) { btn.disabled = false; $('clTel').removeAttribute('aria-invalid'); if (hint) hint.textContent = ''; return; }
     const ok = telefonoValido(val); btn.disabled = !ok; $('clTel').setAttribute('aria-invalid', ok ? 'false' : 'true');
     if (hint) { hint.textContent = ok ? 'Teléfono válido' : 'Introduce al menos 9 cifras'; hint.style.color = ok ? 'var(--green)' : 'var(--red)'; }
-});
-document.querySelectorAll('input[name="clTipo"]').forEach(radio => {
-    radio.addEventListener('change', (e) => {
-        const aviso = $('avisoPena');
-        const btnTel = $('btnTel');
-        const inputs = ['clNombre', 'clCodigoNew', 'clCodigoNew2', 'clConsent'];
-        if (e.target.value === 'Peña') {
-            aviso.style.display = 'block';
-            if (btnTel) btnTel.disabled = true;
-            inputs.forEach(id => { if ($(id)) $(id).disabled = true; });
-        } else {
-            aviso.style.display = 'none';
-            if (btnTel) btnTel.disabled = false;
-            inputs.forEach(id => { if ($(id)) $(id).disabled = false; });
-        }
-    });
 });
 async function continuarTelefono() {
     if (!telefonoValido($('clTel').value)) return toast('Revisa el teléfono', 'warn');
