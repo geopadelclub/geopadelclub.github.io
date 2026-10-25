@@ -112,14 +112,29 @@
                 <div class="playtomic-header-bar"><button type="button" id="btnImprimir" class="btn-imprimir"
                         data-action="imprimir-dia" title="Imprimir las reservas del día (A4 horizontal)"><i
                             class="ri-printer-line" aria-hidden="true"></i><span>Imprimir día</span></button>
-                    <div class="date-nav-group"><button type="button" class="btn-playtomic-nav"
-                            data-action="ir-fecha-hoy">Hoy</button><button type="button" class="btn-playtomic-nav"
-                            data-action="cambiar-fecha" data-offset="-1" aria-label="Día anterior"><i
-                                class="ri-arrow-left-s-line" aria-hidden="true"></i></button><input type="date"
-                            id="fechaCuadrante" class="date-picker-input" aria-label="Fecha"
-                            data-onchange="al-cambiar-fecha"><button type="button" class="btn-playtomic-nav"
-                            data-action="cambiar-fecha" data-offset="1" aria-label="Día siguiente"><i
-                                class="ri-arrow-right-s-line" aria-hidden="true"></i></button></div>
+                    <div class="date-nav-group">
+                        <button type="button" class="btn-playtomic-nav" data-action="ir-fecha-hoy">Hoy</button>
+                        <button type="button" class="btn-playtomic-nav" data-action="cambiar-fecha" data-offset="-7"
+                            aria-label="Semana anterior" title="Semana anterior">
+                            <i class="ri-arrow-left-double-line" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="btn-playtomic-nav" data-action="cambiar-fecha" data-offset="-1"
+                            aria-label="Día anterior" title="Día anterior">
+                            <i class="ri-arrow-left-s-line" aria-hidden="true"></i>
+                        </button>
+
+                        <input type="date" id="fechaCuadrante" class="date-picker-input" aria-label="Fecha"
+                            data-onchange="al-cambiar-fecha">
+
+                        <button type="button" class="btn-playtomic-nav" data-action="cambiar-fecha" data-offset="1"
+                            aria-label="Día siguiente" title="Día siguiente">
+                            <i class="ri-arrow-right-s-line" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="btn-playtomic-nav" data-action="cambiar-fecha" data-offset="7"
+                            aria-label="Semana siguiente" title="Semana siguiente">
+                            <i class="ri-arrow-right-double-line" aria-hidden="true"></i>
+                        </button>
+                    </div>
                     <div class="stats-chips"><span class="chip">Ocupación <b id="statOcupacion">0%</b></span><span
                             class="chip">Reservas <b id="statNumReservas">0</b></span><button type="button"
                             id="chipPendientes" class="chip chip-pendientes" data-action="ir-primera-pendiente"
