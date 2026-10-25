@@ -115,7 +115,17 @@ function dibujarHuecos() {
 }
 $('clSlots').addEventListener('click', async e => {
     if (e.target.closest('#btnReintentar')) { cacheHuecos.t = 0; cargarHuecos(); return; }
-    if (e.target.closest('#btnEspera')) { const tel = prompt('Déjanos tu teléfono para avisarte cuando se libere este hueco:'); if (!tel || !telefonoValido(tel)) return toast('Teléfono no válido', 'warn'); const { error } = await sb.from('lista_espera').insert({ fecha: sel.fecha, duracion: sel.dur, telefono: normalizarTelefono(tel), estado: 'pendiente' }); if (error) return toast('No se pudo guardar', 'err'); toast('Te avisaremos'); return; }
+    if (e.target.closest('#btnEspera')) {
+        const tel = await customPrompt('Déjanos tu teléfono para avisarte cuando se libere este hueco:', '', 'Aviso de disponibilidad');
+        if (tel === null) return;
+        if (!tel || !telefonoValido(tel)) return toast('Teléfono no válido', 'warn');
+        const { error } = await sb.from('lista_espera').insert({
+            fecha: sel.fecha, duracion: sel.dur, telefono: normalizarTelefono(tel), estado: 'pendiente'
+        });
+        if (error) return toast('No se pudo guardar: ' + error.message, 'err');
+        toast('Te avisaremos cuando se libere un hueco similar');
+        return;
+    }
     const b = e.target.closest('.cl-slot'); if (!b) return;
     sel.hora = b.dataset.hora; sel.precio = Number(b.dataset.precio) || 0; dibujarHuecos(); mostrarDatos();
 });
