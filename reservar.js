@@ -73,6 +73,8 @@ function dibujarDuraciones() {
     hint.innerHTML = '¿Necesitas 2 horas? Llama al club: <a href="tel:+34646059962">646 05 99 62</a>.';
 }
 async function seleccionarDia(iso) {
+    resetFlujo();
+    $('cardOk').hidden = true;
     if (sel.fecha !== iso) slotsDia = [];
     sel.fecha = iso; sel.hora = null;
     dibujarDuraciones();
@@ -118,6 +120,7 @@ $('clSlots').addEventListener('click', async e => {
     sel.hora = b.dataset.hora; sel.precio = Number(b.dataset.precio) || 0; dibujarHuecos(); mostrarDatos();
 });
 function mostrarDatos() {
+    if (flujo.fase === 'listo') resetFlujo();
     $('cardOk').hidden = true;
     $('clResumen').innerHTML = `<span><i class="ri-calendar-event-line" aria-hidden="true"></i>${esc(fechaWeb(sel.fecha))}</span><span><i class="ri-time-line" aria-hidden="true"></i>${esc(sel.hora)} – ${horaStr(minutos(sel.hora) + sel.dur)}</span><span><i class="ri-money-euro-circle-line" aria-hidden="true"></i>${eur(sel.precio)}</span>`;
     mostrarBloques();
@@ -219,8 +222,12 @@ function icsTexto(s) { return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\
 function icsFecha(iso, min) { const [y, m, d] = iso.split('-'); return `${y}${m}${d}T${String(Math.floor(min / 60)).padStart(2, '0')}${String(min % 60).padStart(2, '0')}00`; }
 function descargarICS(rv) { const ini = minutos(rv.hora), fin = ini + rv.duracion; const sello = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); const lineas = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Geopadel//Reservas//ES', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'BEGIN:VEVENT', `UID:${rv.id || Date.now()}-${rv.fecha}-${rv.hora}@geopadel`, `DTSTAMP:${sello}`, `DTSTART:${icsFecha(rv.fecha, ini)}`, `DTEND:${icsFecha(rv.fecha, fin)}`, `SUMMARY:${icsTexto('Pádel en Geopadel · ' + rv.pista)}`, `LOCATION:${icsTexto('Geopadel · ' + rv.pista)}`, `DESCRIPTION:${icsTexto('Reserva pendiente de confirmación del club. Se paga en el club.')}`, 'BEGIN:VALARM', 'TRIGGER:-PT60M', 'ACTION:DISPLAY', 'DESCRIPTION:Pádel en 1 hora', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR']; descargarBlob(new Blob([lineas.join('\r\n')], { type: 'text/calendar;charset=utf-8' }), 'reserva-geopadel.ics'); }
 $('btnICS').addEventListener('click', () => { if (ultimaReserva) descargarICS(ultimaReserva); });
-$('btnOtra').addEventListener('click', () => { $('cardOk').hidden = true; window.scrollTo({ top: 0, behavior: 'smooth' }); });
-$('btnVerMis').addEventListener('click', () => { cambiarPestana('mis'); });
+$('btnOtra').addEventListener('click', () => {
+    $('cardOk').hidden = true;
+    resetFlujo();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+$('btnVerMis').addEventListener('click', () => { resetFlujo(); cambiarPestana('mis'); });
 function mostrarMis(conLista) { $('cardMisLogin').hidden = conLista; $('cardMisLista').hidden = !conLista; }
 
 function agruparReservas(lista) {
