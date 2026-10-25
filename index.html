@@ -516,7 +516,6 @@
 
             #btnMenu {
                 display: inline-flex;
-                /* Muestra el icono hamburguesa solo en móvil */
             }
 
             .hero {
@@ -667,6 +666,10 @@
             object-fit: cover;
             border-radius: var(--radius-lg) 0 0 var(--radius-lg);
         }
+
+        #btnMenu {
+            display: none;
+        }
     </style>
 </head>
 
@@ -682,7 +685,7 @@
                 <a href="tienda" data-i18n="nav.tienda">Tienda</a>
                 <a href="reservar" class="btn-nav-reservar" data-i18n="nav.reservar">Reservar pista</a>
             </nav>
-            <button type="button" class="theme-toggle" id="btnMenu" aria-label="Abrir menú" style="display:none;">
+            <button type="button" class="theme-toggle" id="btnMenu" aria-label="Abrir menú">
                 <i class="ri-menu-line" aria-hidden="true"></i>
             </button>
 
