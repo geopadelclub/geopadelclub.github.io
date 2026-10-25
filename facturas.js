@@ -578,6 +578,7 @@ function formatearTicketTexto(f) {
 
     ticket += '\n\n\n';
     ticket += '\x1D\x56\x41\x10';
+    ticket = ticket.replace(/€/g, 'EUR');
 
     return ticket;
 }
