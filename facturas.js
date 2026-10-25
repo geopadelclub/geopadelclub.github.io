@@ -463,7 +463,14 @@ async function enviarBytesAImpresora(bytes) {
 function textoABytes(texto) {
     const bytes = new Uint8Array(texto.length);
     for (let i = 0; i < texto.length; i++) {
-        bytes[i] = texto.charCodeAt(i);
+        let charCode = texto.charCodeAt(i);
+        if (charCode === 8364) {
+            charCode = 128;
+        }
+        else if (charCode > 255) {
+            charCode = 63;
+        }
+        bytes[i] = charCode;
     }
     return bytes;
 }
