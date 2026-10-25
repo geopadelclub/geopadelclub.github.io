@@ -192,6 +192,24 @@
         <p class="contacto-llamar"><span data-i18n="contacto.llamar">¿Prefieres llamar? </span><a
                 href="tel:+34646059962">646 05 99 62</a></p>
     </div>
+    <dialog id="modalConfirmDialog" class="modal-overlay" aria-labelledby="confirmDialogTitle">
+        <form method="dialog" class="modal-card-double small">
+            <div class="modal-header-bar">
+                <h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="confirmDialogTitle">Confirmación</span>
+                </h4><button type="button" class="modal-close" data-action="cerrar-confirm" aria-label="Cerrar"><i
+                        class="ri-close-line" aria-hidden="true"></i></button>
+            </div>
+            <div class="modal-single-body">
+                <p id="confirmDialogMessage"
+                    style="font-size:15px; font-weight:600; color:var(--text); margin-bottom:10px;"></p>
+                <div id="confirmDialogInputBox" style="display:none; margin-top:12px;"><input type="text"
+                        id="confirmDialogInput" class="toolbar-input" style="width:100%" autocomplete="off"></div>
+            </div>
+            <div class="modal-footer-bar"><button type="button" id="confirmDialogCancel"
+                    class="btn-add gray">Cancelar</button><button type="button" id="confirmDialogOk"
+                    class="btn-add blue">Aceptar</button></div>
+        </form>
+    </dialog>
 </body>
 
 </html>
