@@ -105,7 +105,7 @@ async function cargarHuecosHoy() {
         const precioMin = Math.min(
           ...s.opciones.map((o) => Number(o.precio) || 0),
         );
-        return `<a class="hueco-chip" href="reservar?fecha=${hoy}&hora=${s.hora}" aria-label="Reservar a las ${s.hora} ${t("landing.desde")} ${formatearPrecio(precioMin)}">${s.hora}<span style="font-size:12px;font-weight:700;letter-spacing:.01em">${t("landing.desde")} ${formatearPrecio(precioMin)}</span></a>`;
+        return `<a class="hueco-chip" href="reservar?fecha=${hoy}&hora=${s.hora}" aria-label="Reservar a las ${s.hora} ${t("landing.desde")} ${formatearPrecio(precioMin)}">${s.hora}<span class="hueco-chip-precio">${t("landing.desde")} ${formatearPrecio(precioMin)}</span></a>`;
       })
       .join("");
   } catch (err) {

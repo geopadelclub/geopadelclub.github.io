@@ -175,11 +175,10 @@
 
         <button
           type="button"
-          class="theme-toggle"
+          class="theme-toggle btn-idioma"
           id="btnIdioma"
           data-action="cambiar-idioma"
           aria-label="Cambiar idioma"
-          style="font-weight: 800; font-size: 12px"
         >
           ES
         </button>
@@ -194,17 +193,7 @@
       </div>
     </header>
     <main id="main-content">
-      <div
-        style="
-          background: var(--amber-soft);
-          color: var(--orange-text);
-          text-align: center;
-          padding: 12px 16px;
-          font-weight: 700;
-          font-size: 14px;
-          border-bottom: 1px solid var(--amber);
-        "
-      >
+      <div class="aviso-pago-banner">
         <i class="ri-information-line" aria-hidden="true"></i>
         <span data-i18n="aviso.pago"
           >Las pistas se abonan antes de jugar el partido. Se recomienda llegar
@@ -266,18 +255,7 @@
           </div>
         </div>
       </section>
-      <section
-        class="section"
-        id="instalaciones"
-        style="
-          background: var(--surface-2);
-          border-radius: var(--radius-lg);
-          margin: 0 auto 40px;
-          max-width: calc(1200px - 32px);
-          width: calc(100% - 32px);
-          padding: 40px 24px;
-        "
-      >
+      <section class="section instalaciones-section" id="instalaciones">
         <h2 class="section-title" data-i18n="instalaciones.titulo">
           Nuestras Instalaciones
         </h2>
@@ -286,10 +264,7 @@
         </p>
 
         <div class="instalaciones-grid">
-          <div
-            class="feature-card"
-            style="padding: 0; overflow: hidden; text-align: left"
-          >
+          <div class="feature-card feature-card--img">
             <img
               src="pista1.webp"
               alt="Pista 1 Padel Master"
@@ -298,7 +273,7 @@
               loading="lazy"
               decoding="async"
             />
-            <div style="padding: 20px">
+            <div class="feature-card-body">
               <h3 data-i18n="pista1.titulo">Pista 1 · Padel Master</h3>
               <p data-i18n="pista1.texto">
                 Nuestra pista principal, patrocinada por Padel Master, con las
@@ -306,10 +281,7 @@
               </p>
             </div>
           </div>
-          <div
-            class="feature-card"
-            style="padding: 0; overflow: hidden; text-align: left"
-          >
+          <div class="feature-card feature-card--img">
             <img
               src="pista3.webp"
               alt="Pistas en perfecto estado"
@@ -318,7 +290,7 @@
               loading="lazy"
               decoding="async"
             />
-            <div style="padding: 20px">
+            <div class="feature-card-body">
               <h3 data-i18n="pista3.titulo">Pistas 2 a 9</h3>
               <p data-i18n="pista3.texto">
                 El resto de nuestras pistas, mantenidas a diario en perfecto
@@ -326,10 +298,7 @@
               </p>
             </div>
           </div>
-          <div
-            class="feature-card"
-            style="padding: 0; overflow: hidden; text-align: left"
-          >
+          <div class="feature-card feature-card--img">
             <img
               src="bar.webp"
               alt="Zona de Bar"
@@ -338,7 +307,7 @@
               loading="lazy"
               decoding="async"
             />
-            <div style="padding: 20px">
+            <div class="feature-card-body">
               <h3 data-i18n="bar.titulo">Zona de Bar</h3>
               <p data-i18n="bar.texto">
                 Tómate una cerveza con tu tapa mientras ves los mejores partidos
@@ -346,10 +315,7 @@
               </p>
             </div>
           </div>
-          <div
-            class="feature-card"
-            style="padding: 0; overflow: hidden; text-align: left"
-          >
+          <div class="feature-card feature-card--img">
             <img
               src="entreno.webp"
               alt="Zona de Calentamiento"
@@ -358,7 +324,7 @@
               loading="lazy"
               decoding="async"
             />
-            <div style="padding: 20px">
+            <div class="feature-card-body">
               <h3 data-i18n="entreno.titulo">Zona de Calentamiento</h3>
               <p data-i18n="entreno.texto">
                 No entres en frío a la pista. Disponemos de zona de entreno para
@@ -366,19 +332,7 @@
               </p>
             </div>
           </div>
-          <div
-            class="feature-card"
-            style="
-              padding: 0;
-              overflow: hidden;
-              text-align: left;
-              grid-column: 1 / -1;
-              display: flex;
-              flex-direction: row;
-              align-items: stretch;
-              flex-wrap: wrap;
-            "
-          >
+          <div class="feature-card feature-card--wide">
             <img
               src="palastest.webp"
               alt="Prueba de Palas"
@@ -388,15 +342,7 @@
               loading="lazy"
               decoding="async"
             />
-            <div
-              style="
-                flex: 1 1 350px;
-                padding: 30px;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-              "
-            >
+            <div class="feature-card-palas-text">
               <h3 data-i18n="palas.titulo">Prueba de Palas</h3>
               <p data-i18n="palas.texto">
                 ¿No sabes qué pala comprar? Ven al club y pruébala en tu propio
@@ -449,15 +395,15 @@
               <h3 data-i18n="tarifas.finde">Fin de semana</h3>
               <div class="tarifa-item">
                 <span data-i18n="tarifas.60">60 minutos</span
-+                   ><span data-tarifa="finde-60">22 €</span>
+                ><span data-tarifa="finde-60">22 €</span>
               </div>
               <div class="tarifa-item">
                 <span data-i18n="tarifas.90">90 minutos</span
-+                   ><span data-tarifa="finde-90">26 €</span>
+                ><span data-tarifa="finde-90">26 €</span>
               </div>
               <div class="tarifa-item">
                 <span data-i18n="tarifas.120">120 minutos</span
-                    ><span data-tarifa="finde-120">30 €</span>
+                ><span data-tarifa="finde-120">30 €</span>
               </div>
             </div>
           </div>
@@ -501,7 +447,7 @@
               <i class="ri-phone-line" aria-hidden="true"></i
               ><a
                 href="tel:+34646059962"
-                style="color: inherit; text-decoration: none"
+                class="link-inherit"
                 data-i18n="ubicacion.telefono"
                 >+34 646 059 962</a
               >
@@ -512,7 +458,7 @@
                 href="https://wa.me/34646059962?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20las%20pistas"
                 target="_blank"
                 rel="noopener"
-                style="color: inherit; text-decoration: none"
+                class="link-inherit"
                 data-i18n="ubicacion.whatsapp"
                 >Escríbenos por WhatsApp</a
               >

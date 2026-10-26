@@ -1275,8 +1275,64 @@ i[class*=" ri-"] {
   background: #2563eb;
 }
 
+#gpCookieBanner {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  background: var(--surface, #fff);
+  border: 1.5px solid var(--border, #dfe7e3);
+  border-radius: var(--radius-md, 14px);
+  padding: 18px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-family: system-ui, sans-serif;
+  max-width: 600px;
+  margin: 0 auto;
+}
+#gpCookieBanner p {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text, #2a3834);
+  margin: 0;
+  line-height: 1.4;
+}
+#gpCookieBanner a {
+  color: var(--blue, #3f6fa8);
+  text-decoration: underline;
+  font-weight: 700;
+}
+#gpCookieBanner .gp-cookie-btn {
+  background: var(--primary, #4b7a86);
+  color: var(--on-primary, #fff);
+  border: none;
+  padding: 12px 20px;
+  border-radius: var(--radius-sm, 8px);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  align-self: flex-end;
+  transition: opacity 0.15s;
+}
+#gpCookieBanner .gp-cookie-btn:hover {
+  opacity: 0.9;
+}
+
+.hueco-chip-precio {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
 .badge-pena {
   background: var(--card-pena-bg);
   color: var(--card-pena-color);
   font-weight: 700;
+  font-size: 10px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  margin-left: 4px;
 }

@@ -670,3 +670,61 @@ img {
     transition-duration: 0.01ms !important;
   }
 }
+
+.aviso-pago-banner {
+  background: var(--amber-soft);
+  color: var(--orange-text);
+  text-align: center;
+  padding: 12px 16px;
+  font-weight: 700;
+  font-size: 14px;
+  border-bottom: 1px solid var(--amber);
+}
+
+.instalaciones-section {
+  background: var(--surface-2);
+  border-radius: var(--radius-lg);
+  margin: 0 auto 40px;
+  max-width: calc(1200px - 32px);
+  width: calc(100% - 32px);
+  padding: 40px 24px;
+}
+
+.feature-card--img {
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
+}
+
+.feature-card--wide {
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.feature-card-body {
+  padding: 20px;
+}
+
+.feature-card-palas-text {
+  flex: 1 1 350px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.link-inherit {
+  color: inherit;
+  text-decoration: none;
+}
+
+.btn-idioma {
+  font-weight: 800;
+  font-size: 12px;
+}
