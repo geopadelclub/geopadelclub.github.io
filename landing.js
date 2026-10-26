@@ -1,4 +1,4 @@
-/* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
+/* © Geopadel */
 const SB_HEADERS = {
     apikey: SUPABASE_ANON_KEY,
     Authorization: "Bearer " + SUPABASE_ANON_KEY,
@@ -63,53 +63,55 @@ async function cargarTarifas() {
   } catch (e) {}
 }
 async function cargarHuecosHoy() {
-  const e = document.getElementById("huecosHoy");
-  if (!e) return;
+  const box = document.getElementById("huecosHoy");
+  if (!box) return;
   try {
-    const t = hoyISO(),
-      n = await fetch(SUPABASE_URL + "/rest/v1/rpc/web_disponibilidad", {
+    const hoy = hoyISO(),
+      res = await fetch(SUPABASE_URL + "/rest/v1/rpc/web_disponibilidad", {
         method: "POST",
         headers: { ...SB_HEADERS, "Content-Type": "application/json" },
-        body: JSON.stringify({ p_fecha: t }),
+        body: JSON.stringify({ p_fecha: hoy }),
       });
-    if (!n.ok) throw new Error("HTTP " + n.status);
-    const r = await n.json();
-    if (!r || !r.ok || !Array.isArray(r.slots)) {
-      e.innerHTML = `<p class="huecos-vacio">${t("huecos.error")} <a href="reservar">${t("huecos.ver")}</a></p>`;
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    if (!data || !data.ok || !Array.isArray(data.slots)) {
+      box.innerHTML = `<p class="huecos-vacio">${t("huecos.error")} <a href="reservar">${t("huecos.ver")}</a></p>`;
       return;
     }
-    const i = Date.now(),
-      a = r.slots
-        .map((e) => ({
-          hora: e.hora,
-          iniMin: timeToMinLanding(e.hora),
-          opciones: (e.opciones || []).filter(
-            (n) =>
-              horarioPermitidoReserva(t, timeToMinLanding(e.hora), n.dur) &&
-              new Date(`${t}T${e.hora}:00`).getTime() - i >=
+    const ahora = Date.now(),
+      slots = data.slots
+        .map((s) => ({
+          hora: s.hora,
+          iniMin: timeToMinLanding(s.hora),
+          opciones: (s.opciones || []).filter(
+            (o) =>
+              horarioPermitidoReserva(hoy, timeToMinLanding(s.hora), o.dur) &&
+              new Date(`${hoy}T${s.hora}:00`).getTime() - ahora >=
                 _landingAntelacion * 6e4,
           ),
         }))
-        .filter((e) => e.opciones.length);
-    if (!a.length) {
-      e.innerHTML = `<p class="huecos-vacio">${t("landing.sin-huecos")} <a href="reservar">${t("landing.otros-dias")}</a></p>`;
+        .filter((s) => s.opciones.length);
+    if (!slots.length) {
+      box.innerHTML = `<p class="huecos-vacio">${t("landing.sin-huecos")} <a href="reservar">${t("landing.otros-dias")}</a></p>`;
       return;
     }
-    e.innerHTML = a
+    box.innerHTML = slots
       .slice(0, 12)
-      .map((e) => {
-        const n = Math.min(...e.opciones.map((e) => Number(e.precio) || 0));
-        return `<a class="hueco-chip" href="reservar" aria-label="Reservar a las ${e.hora} ${t("landing.desde")} ${formatearPrecio(n)}">${e.hora}<span style="font-size:12px;font-weight:700;letter-spacing:.01em">${t("landing.desde")} ${formatearPrecio(n)}</span></a>`;
+      .map((s) => {
+        const precioMin = Math.min(
+          ...s.opciones.map((o) => Number(o.precio) || 0),
+        );
+        return `<a class="hueco-chip" href="reservar" aria-label="Reservar a las ${s.hora} ${t("landing.desde")} ${formatearPrecio(precioMin)}">${s.hora}<span style="font-size:12px;font-weight:700;letter-spacing:.01em">${t("landing.desde")} ${formatearPrecio(precioMin)}</span></a>`;
       })
       .join("");
-  } catch (t) {
-    console.warn("No se pudo cargar la disponibilidad:", t);
-    e.innerHTML = `<p class="huecos-vacio">${t("landing.no-disponible")} <a href="reservar">${t("huecos.ver")}</a></p>`;
+  } catch (err) {
+    console.warn("No se pudo cargar la disponibilidad:", err);
+    box.innerHTML = `<p class="huecos-vacio">${t("landing.no-disponible")} <a href="reservar">${t("huecos.ver")}</a></p>`;
   }
 }
 function iniciarLanding() {
-  const e = window.requestIdleCallback || ((e) => setTimeout(e, 1200));
-  e(
+  const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1200));
+  idle(
     async () => {
       await cargarAntelacionLanding();
       cargarTarifas();

@@ -1,4 +1,4 @@
-/* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
+/* © Geopadel */
 let supabaseClient = null,
   _sbLoadPromise = null,
   _authListenerRegistrado = !1;
@@ -176,11 +176,13 @@ function mostrarPanelAdmin() {
   renderSelectorMesas();
   iniciarSuscripcionRealtime();
   iniciarVigilanciaSesion();
-  const e = document.getElementById("btnNotif");
-  e &&
+  const bNotif = document.getElementById("btnNotif");
+  if (
+    bNotif &&
     "Notification" in window &&
-    Notification.permission === "granted" &&
-    (e.style.display = "none");
+    Notification.permission === "granted"
+  )
+    bNotif.style.display = "none";
   cargarDatosGlobales();
   if (!esJefa()) cargarMisFichajes();
   if (typeof entrarResumen === "function") entrarResumen();
@@ -422,32 +424,36 @@ const SUB_DEFAULT = { ventas: "tienda", equipo: "fichajes" },
     fichajes: "equipo",
     limpieza: "equipo",
   };
-function cambiarPestana(e) {
-  if ((SUB_DEFAULT[e] && (e = SUB_DEFAULT[e]), SUB_TABS[e])) e = SUB_TABS[e];
+function cambiarPestana(tabName) {
+  if (SUB_DEFAULT[tabName]) tabName = SUB_DEFAULT[tabName];
+  const padre = SUB_TABS[tabName] || tabName;
   document
     .querySelectorAll(".tab-content")
     .forEach((e) => e.classList.remove("active"));
   document
     .querySelectorAll(".subtab-content")
     .forEach((e) => e.classList.remove("active"));
-  const t = $(`tab-${e}`);
-  t && t.classList.add("active");
-  if (SUB_TABS[e]) {
-    const t = $(`sub-${e}`);
-    t && t.classList.add("active");
+  const tabPadre = $(`tab-${padre}`);
+  if (tabPadre) tabPadre.classList.add("active");
+  if (SUB_TABS[tabName]) {
+    const sub = $(`sub-${tabName}`);
+    if (sub) sub.classList.add("active");
   }
   document.querySelectorAll(".nav-tab").forEach((e) => {
     e.classList.remove("active");
     e.removeAttribute("aria-current");
   });
-  const n = $(`nav-${e}`);
-  n && (n.classList.add("active"), n.setAttribute("aria-current", "page"));
-  document.querySelectorAll(".subnav-btn").forEach((t) => {
-    const n = t.dataset.tab === e;
-    t.classList.toggle("active", n);
-    t.setAttribute("aria-selected", n ? "true" : "false");
+  const nav = $(`nav-${padre}`);
+  if (nav) {
+    nav.classList.add("active");
+    nav.setAttribute("aria-current", "page");
+  }
+  document.querySelectorAll(".subnav-btn").forEach((b) => {
+    const isActive = b.dataset.tab === tabName;
+    b.classList.toggle("active", isActive);
+    b.setAttribute("aria-selected", isActive ? "true" : "false");
   });
-  const r = {
+  const titulos = {
     resumen: "Resumen",
     reservas: "Reservas",
     tienda: "Tienda",
@@ -458,39 +464,40 @@ function cambiarPestana(e) {
     limpieza: "Limpieza",
     ajustes: "Ajustes",
   };
-  document.title = "Geopadel · " + (r[e] || "Panel");
+  document.title = "Geopadel · " + (titulos[tabName] || "Panel");
   if (usuarioSesion) {
-    if (e === "resumen" && typeof entrarResumen === "function") entrarResumen();
-    if (e === "deudas") {
+    if (tabName === "resumen" && typeof entrarResumen === "function")
+      entrarResumen();
+    if (tabName === "deudas") {
       if (!_formDeudaInit) {
         iniciarFormDeuda();
         _formDeudaInit = !0;
       }
       cargarDeudas();
     }
-    if (e === "facturas" && typeof entrarFacturas === "function")
+    if (tabName === "facturas" && typeof entrarFacturas === "function")
       entrarFacturas();
-    if (e === "tienda") {
+    if (tabName === "tienda") {
       cargarMesasBar();
       if (typeof entrarEscaparate === "function") entrarEscaparate();
     }
-    if (e === "ajustes") {
+    if (tabName === "ajustes") {
       if (typeof entrarAjustes === "function") entrarAjustes();
       if (typeof entrarFacturasConfig === "function") entrarFacturasConfig();
     }
-    if (e === "limpieza") entrarPestanaLimpieza();
-    if (e === "caja") {
+    if (tabName === "limpieza") entrarPestanaLimpieza();
+    if (tabName === "caja") {
       cargarHistorialCaja();
       cargarCajaHoy();
     }
-    if (e === "fichajes") {
+    if (tabName === "fichajes") {
       if (!esJefa()) {
         cargarMisFichajes();
         if (typeof entrarContrato === "function") entrarContrato();
       }
       if (typeof entrarFichajes === "function") entrarFichajes();
     }
-    if (e === "reservas") {
+    if (tabName === "reservas") {
       scrollAhoraPendiente = !0;
       renderizarCuadrantePlaytomic(datosLocales.reservas || []);
     }
