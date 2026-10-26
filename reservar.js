@@ -577,7 +577,7 @@ async function confirmarReserva() {
       cod2 = $("clCodigoNew2").value.trim();
     if (nombre.split(" ").length < 2)
       return toast(t("reservar.toast.name-required"), "warn");
-    if (cod1.length < 4) return toast(t("reservar.toast.code-short"), "warn");
+    if (cod1.length < 6) return toast(t("reservar.toast.code-short"), "warn");
     if (cod1 !== cod2) return toast(t("reservar.toast.code-mismatch"), "warn");
     if (!$("clConsent").checked)
       return toast(t("reservar.toast.privacy-required"), "warn");

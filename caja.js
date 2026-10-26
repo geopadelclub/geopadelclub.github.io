@@ -1,7 +1,7 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 let reqCaja = 0;
 async function cargarCajaHoy() {
-  const iso = $("fechaCuadrante").value || fechaLocalISO();
+  const iso = $("cajaFecha").value || fechaLocalISO();
   const miReq = ++reqCaja;
   let ef = 0,
     ta = 0;
@@ -50,7 +50,7 @@ function dibujarCaja(caja) {
   $("cajaEfectivo").innerText = eur(caja.totalEfectivo);
   $("cajaTarjeta").innerText = eur(caja.totalTarjeta);
   $("cajaTotal").innerText = eur(caja.totalGeneral);
-  const iso = $("fechaCuadrante").value || fechaLocalISO();
+  const iso = $("cajaFecha").value || fechaLocalISO();
   $("cajaFechaTxt").innerText = fechaBonita(iso);
 }
 const FONDO_CAJA = 100;
@@ -98,7 +98,7 @@ async function cerrarCajaHoy() {
     msg.innerText = "Los importes no pueden ser negativos";
     return;
   }
-  const fecha = $("fechaCuadrante").value || fechaLocalISO();
+  const fecha = $("cajaFecha").value || fechaLocalISO();
   setBusy(
     btn,
     true,
@@ -212,6 +212,15 @@ async function reabrirCierre(fecha, btn) {
   } finally {
     setBusy(btn, false);
   }
+}
+function alCambiarFechaCaja() {
+  cargarCajaHoy();
+}
+function entrarCaja() {
+  const inp = $("cajaFecha");
+  if (inp && !inp.value) inp.value = fechaLocalISO();
+  cargarCajaHoy();
+  cargarHistorialCaja();
 }
 $("histCajaBody").addEventListener("click", (e) => {
   const b = e.target.closest("button[data-reabrir]");

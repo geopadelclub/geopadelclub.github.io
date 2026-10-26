@@ -73,7 +73,7 @@ const I18N = {
     "reservar.crea-codigo": "Crea tu código",
     "reservar.repite-codigo": "Repite el código",
     "reservar.codigo-hint":
-      "Mínimo 4 caracteres. Lo necesitarás para ver y cancelar tus reservas.",
+      "Mínimo 6 caracteres. Lo necesitarás para ver y cancelar tus reservas.",
     "reservar.consentimiento":
       'He leído y acepto la <a href="privacidad" target="_blank" rel="noopener">política de privacidad</a>. Usaremos tu nombre y teléfono solo para gestionar tus reservas.',
     "reservar.confirmar": "Confirmar reserva",
@@ -145,7 +145,7 @@ const I18N = {
     "reservar.toast.choose-hour": "Elige una hora",
     "reservar.toast.no-schedule": "Ese horario no se puede reservar.",
     "reservar.toast.name-required": "Escribe tu nombre y apellidos",
-    "reservar.toast.code-short": "El código debe tener al menos 4 caracteres",
+    "reservar.toast.code-short": "El código debe tener al menos 6 caracteres",
     "reservar.toast.code-mismatch": "Los códigos no coinciden",
     "reservar.toast.privacy-required":
       "Debes aceptar la política de privacidad",
@@ -246,7 +246,7 @@ const I18N = {
     "reservar.crea-codigo": "Create your code",
     "reservar.repite-codigo": "Repeat the code",
     "reservar.codigo-hint":
-      "At least 4 characters. You will need it to view and cancel your bookings.",
+      "At least 6 characters. You will need it to view and cancel your bookings.",
     "reservar.consentimiento":
       'I have read and accept the <a href="privacidad" target="_blank" rel="noopener">privacy policy</a>. We will only use your name and phone to manage your bookings.',
     "reservar.confirmar": "Confirm booking",
@@ -316,7 +316,7 @@ const I18N = {
     "reservar.toast.choose-hour": "Pick a time",
     "reservar.toast.no-schedule": "That time cannot be booked.",
     "reservar.toast.name-required": "Enter your full name",
-    "reservar.toast.code-short": "The code must be at least 4 characters",
+    "reservar.toast.code-short": "The code must be at least 6 characters",
     "reservar.toast.code-mismatch": "The codes don't match",
     "reservar.toast.privacy-required": "You must accept the privacy policy",
     "reservar.toast.captcha": "Complete the anti-spam check",

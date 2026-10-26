@@ -90,7 +90,6 @@ async function irAPrimeraPendiente() {
 function alCambiarFecha() {
   scrollAhoraPendiente = true;
   cargarReservasHoy();
-  cargarCajaHoy();
 }
 function irAFechaHoy() {
   inicializarFechaHoy();
@@ -626,26 +625,21 @@ async function procesarPagoUnico(metodo) {
     metodo === "0" ? "Quitando pago..." : "Procesando pago...";
 
   try {
-    let ultimoData = null;
-    for (let i = 1; i <= nJug; i++) {
-      const { data, error } = await supabaseClient.rpc(
-        "cobrar_jugador_atomic",
-        {
-          p_reserva_id: reservaEnEdicion.id,
-          p_num_jugador: i,
-          p_metodo_pago: metodo,
-          p_empleado: nombreUsuario(),
-        },
-      );
-      if (error) throw error;
-      if (data && data.success === false)
-        throw new Error(data.message || "Error al procesar");
-      ultimoData = data;
-    }
+    const { data, error } = await supabaseClient.rpc(
+      "cobrar_reserva_completa",
+      {
+        p_reserva_id: reservaEnEdicion.id,
+        p_metodo: metodo,
+        p_empleado: nombreUsuario(),
+      },
+    );
+    if (error) throw error;
+    if (data && data.success === false)
+      throw new Error(data.message || "Error al procesar");
 
-    if (ultimoData) {
-      reservaEnEdicion.pagosJugadores = ultimoData.pagos;
-      reservaEnEdicion.pagoEstado = ultimoData.pago_estado;
+    if (data) {
+      reservaEnEdicion.pagosJugadores = data.pagos;
+      reservaEnEdicion.pagoEstado = data.pago_estado;
     }
 
     if (metodo === "0") {
@@ -1124,19 +1118,24 @@ async function confirmarGuardarReserva() {
       .select("id, jugadores, precio");
     if (error) throw error;
 
-    if (_pendingPagoUnico && insertData && insertData.length > 0) {
-      const metodo = _pendingPagoUnico;
-      for (const r of insertData) {
-        const nJ = parseInt(r.jugadores, 10) || 4;
-        for (let i = 1; i <= nJ; i++) {
-          await supabaseClient.rpc("cobrar_jugador_atomic", {
-            p_reserva_id: r.id,
-            p_num_jugador: i,
-            p_metodo_pago: metodo,
-            p_empleado: nombreUsuario(),
-          });
-        }
-      }
+    if (_pendingPagoUnico && insertData && insertData.length === 1) {
+      const { data: c, error: eC } = await supabaseClient.rpc(
+        "cobrar_reserva_completa",
+        {
+          p_reserva_id: insertData[0].id,
+          p_metodo: _pendingPagoUnico,
+          p_empleado: nombreUsuario(),
+        },
+      );
+      if (eC) throw eC;
+      if (c && c.success === false)
+        throw new Error(c.message || "No se pudo cobrar la reserva");
+    } else if (_pendingPagoUnico && insertData && insertData.length > 1) {
+      toast(
+        "Reservas creadas sin cobrar. Cóbralas una a una para evitar errores en series largas.",
+        "warn",
+        6000,
+      );
     }
 
     await guardarClienteSilencioso(cliente, telefono, tipoCli);

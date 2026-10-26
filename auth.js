@@ -487,8 +487,7 @@ function cambiarPestana(tabName) {
     }
     if (tabName === "limpieza") entrarPestanaLimpieza();
     if (tabName === "caja") {
-      cargarHistorialCaja();
-      cargarCajaHoy();
+      if (typeof entrarCaja === "function") entrarCaja();
     }
     if (tabName === "fichajes") {
       if (!esJefa()) {

@@ -89,7 +89,9 @@ self.addEventListener("install", (e) => {
     (async () => {
       const cache = await caches.open(VERSION);
       const lista = [...BASE, ...PANEL, ...PUBLICO];
-      await Promise.allSettled(lista.map((u) => cache.add(u)));
+      await Promise.allSettled(
+        lista.map((u) => cache.add(new Request(u, { cache: "reload" }))),
+      );
       await self.skipWaiting();
     })(),
   );

@@ -110,7 +110,7 @@ function agregarAlTicket(prod) {
       return items;
     },
     "mesa_agregar",
-    { p_mesa: mesa, p_item: prod },
+    { p_mesa: mesa, p_producto_id: prod.id },
   );
 }
 function quitarDelTicket(index) {

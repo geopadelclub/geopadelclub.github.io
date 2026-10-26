@@ -43,6 +43,10 @@
     () => typeof cerrarCajaHoy === "function" && cerrarCajaHoy(),
   );
   A(
+    "cambiar-fecha-caja",
+    () => typeof alCambiarFechaCaja === "function" && alCambiarFechaCaja(),
+  );
+  A(
     "guardar-tarifas",
     () => typeof guardarTarifasUI === "function" && guardarTarifasUI(),
   );

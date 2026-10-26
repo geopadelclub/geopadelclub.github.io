@@ -10,6 +10,16 @@ async function cargarDatosGlobales() {
   ]);
 }
 async function cargarClientes() {
+  const { data, error } = await conReintento(() =>
+    supabaseClient
+      .from("clientes")
+      .select("id, nombre, telefono, tipo_cliente, nombre_entidad")
+      .order("nombre"),
+  );
+  if (error) {
+    console.error(error);
+    return;
+  }
   datosLocales.clientes = data || [];
 }
 async function cargarProductos() {

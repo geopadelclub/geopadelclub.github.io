@@ -60,7 +60,6 @@
     <script defer src="fichajes.js"></script>
     <script defer src="contrato.js"></script>
     <script defer src="tienda.js"></script>
-    <script defer src="assets/qrcode.min.js"></script>
     <script defer src="facturas.js"></script>
     <script defer src="ajustes.js"></script>
     <script defer src="resumen.js"></script>
@@ -545,10 +544,19 @@
           </div>
           <div id="sub-caja" class="subtab-content">
             <div class="card">
-              <h3>
-                <i class="ri-bar-chart-box-line" aria-hidden="true"></i>Resumen
-                de caja · <span id="cajaFechaTxt"></span>
-              </h3>
+              <div class="card-head">
+                <h3>
+                  <i class="ri-bar-chart-box-line" aria-hidden="true"></i
+                  >Resumen de caja · <span id="cajaFechaTxt"></span>
+                </h3>
+                <input
+                  type="date"
+                  id="cajaFecha"
+                  class="date-picker-input"
+                  aria-label="Fecha de caja"
+                  data-onchange="cambiar-fecha-caja"
+                />
+              </div>
               <div class="kpi-row">
                 <div class="kpi ef">
                   <span>Efectivo en cajón</span>
@@ -1001,7 +1009,6 @@
                       <th>Pago</th>
                       <th>Total</th>
                       <th>Estado</th>
-                      <th>AEAT</th>
                       <th>Acciones</th>
                     </tr>
                   </thead>

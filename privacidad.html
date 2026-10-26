@@ -60,8 +60,9 @@
         <li>Nombre y apellidos y teléfono, que nos das al reservar.</li>
         <li>
           El código personal que eliges para ver y cancelar tus reservas (lo
-          guardamos como un <b>hash SHA-256 irreversible</b>: no podemos leerlo
-          ni recuperarlo, solo comprobar que coincide cuando lo escribes).
+          guardamos como un <b>hash bcrypt con sal, irreversible</b>: no podemos
+          leerlo ni recuperarlo, solo comprobar que coincide cuando lo
+          escribes).
         </li>
         <li>
           Los datos de tus reservas: día, hora, pista, duración, precio y su

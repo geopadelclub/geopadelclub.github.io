@@ -9,102 +9,9 @@
     <meta name="theme-color" content="#fcfdfc" id="metaTheme" />
     <link rel="icon" type="image/webp" href="./geopadel.webp" />
     <script src="theme-init.js"></script>
-    <link
-      rel="preload"
-      href="styles.css"
-      as="style"
-      onload="
-        this.onload = null;
-        this.rel = 'stylesheet';
-      "
-    />
-    <noscript>
-      <link rel="stylesheet" href="styles.css" />
-    </noscript>
-    <style>
-      body {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        min-height: 100dvh;
-        padding: 20px;
-        text-align: center;
-        background: var(--bg);
-        color: var(--text);
-      }
-
-      .error-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-lg);
-        padding: 40px 28px;
-        max-width: 460px;
-        width: 100%;
-        box-shadow: var(--shadow-md);
-      }
-
-      .error-code {
-        font-size: 5rem;
-        font-weight: 800;
-        line-height: 1;
-        color: var(--primary);
-        margin: 16px 0 8px;
-      }
-
-      .error-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--heading);
-        margin-bottom: 12px;
-      }
-
-      .error-message {
-        font-size: 1rem;
-        color: var(--muted);
-        margin-bottom: 28px;
-        line-height: 1.5;
-      }
-
-      .btn-group {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-
-      .btn-action {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 12px 20px;
-        background-color: var(--primary);
-        color: var(--on-primary);
-        text-decoration: none;
-        border-radius: var(--radius-md);
-        font-weight: 700;
-        font-size: 14px;
-        transition:
-          background-color 0.15s,
-          transform 0.1s;
-      }
-
-      .btn-action.secondary {
-        background-color: var(--surface-3);
-        color: var(--heading);
-        border: 1px solid var(--border-strong);
-      }
-
-      .btn-action:hover {
-        filter: brightness(0.95);
-      }
-
-      .btn-action:active {
-        transform: scale(0.97);
-      }
-    </style>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="legal.css" />
   </head>
-
   <body>
     <main class="error-card">
       <img src="./geopadel.webp" alt="Geopadel Logo" width="120" height="120" />
@@ -114,8 +21,8 @@
         La dirección que buscas no existe o ha sido movida.
       </p>
       <div class="btn-group">
-        <a href="panel" class="btn-action">Volver al Panel</a
-        ><a href="reservar" class="btn-action secondary">Reservar Pista</a>
+        <a href="/" class="btn-action">Inicio</a>
+        <a href="reservar" class="btn-action secondary">Reservar Pista</a>
       </div>
     </main>
   </body>
