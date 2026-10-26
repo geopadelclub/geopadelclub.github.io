@@ -151,10 +151,40 @@
       </ul>
       <h2>4. Quién más accede a tus datos</h2>
       <p>
-        Usamos proveedores que tratan datos por encargo nuestro: Supabase (base
-        de datos y alojamiento de la aplicación; región <mark>EU-WEST1</mark>) y
-        Cloudflare (verificación anti-spam Turnstile). No vendemos tus datos ni
-        los cedemos a terceros salvo obligación legal.
+        Usamos los siguientes proveedores, que tratan datos por encargo nuestro
+        y con contratos de encargado del tratamiento:
+      </p>
+      <ul>
+        <li>
+          <b>Supabase</b> — base de datos y alojamiento de la aplicación; región
+          <mark>EU-WEST1</mark> (Irlanda).
+        </li>
+        <li>
+          <b>Cloudflare</b> — verificación anti-spam Turnstile y despliegue del
+          sitio.
+        </li>
+        <li>
+          <b>Google Drive</b> — copias de seguridad cifradas (AES-256) que se
+          generan a diario y se conservan 30 días. Solo se suben los datos
+          estrictamente necesarios y el archivo va cifrado con una contraseña
+          que no se guarda en el mismo sitio.
+        </li>
+        <li>
+          <b>GitHub Actions</b> — ejecuta el script que crea y cifra esa copia
+          de seguridad. Los datos se tratan de forma temporal dentro de un
+          runner de GitHub y no persisten allí.
+        </li>
+        <li>
+          <b>Servicios push del navegador</b> (Google FCM, Mozilla autopush o
+          Apple, según tu navegador) — solo si activas los recordatorios de
+          reserva. Guardamos un identificador técnico del dispositivo para poder
+          enviarte el aviso 1–2 h antes del partido.
+        </li>
+      </ul>
+      <p>
+        No vendemos tus datos ni los cedemos a terceros salvo obligación legal.
+        Las facturas emitidas por el club son documentos fiscales y la AEAT
+        puede requerirlas en el ejercicio de sus funciones legales.
       </p>
       <h2>5. Tus derechos</h2>
       <p>
