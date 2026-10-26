@@ -12,10 +12,13 @@ const cliTel = (s) => String(s || "").replace(/[^\d+]/g, "");
 async function dibujarClientesAjustes() {
   const tb = $("cliBody");
   if (!tb) return;
-  const q = cliNorm($("cliBuscar").value);
-  const qt = cliTel($("cliBuscar").value);
+  const raw = $("cliBuscar").value;
+  const q = cliNorm(raw);
+  const qt = cliTel(raw);
+  const tieneLetras = /[a-z]/i.test(q);
+  const tieneNumeros = qt.length >= 3;
 
-  if (!q && qt.length < 3) {
+  if (!tieneLetras && !tieneNumeros) {
     tb.innerHTML =
       '<tr><td colspan="3" class="tabla-empty">Escribe al menos 2 letras o 3 cifras para buscar.</td></tr>';
     $("cliContador").innerText = "";
@@ -29,8 +32,14 @@ async function dibujarClientesAjustes() {
     .order("id", { ascending: true })
     .limit(30);
 
-  if (q) query = query.ilike("nombre", "%" + q + "%");
-  if (qt.length >= 3) query = query.ilike("telefono", "%" + qt + "%");
+  const escLike = (s) => s.replace(/[%_]/g, (m) => "\\" + m);
+  if (tieneLetras && tieneNumeros) {
+    query = query.or(`nombre.ilike.%${escLike(q)}%,telefono.ilike.%${qt}%`);
+  } else if (tieneLetras) {
+    query = query.ilike("nombre", "%" + escLike(q) + "%");
+  } else {
+    query = query.ilike("telefono", "%" + qt + "%");
+  }
 
   const { data, error } = await query;
   if (error) {
