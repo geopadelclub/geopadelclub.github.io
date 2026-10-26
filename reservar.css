@@ -42,6 +42,14 @@
   scroll-snap-type: x proximity;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
+  min-height: 76px;
+}
+
+.cl-durs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-height: 42px;
 }
 
 .cl-day {
@@ -536,6 +544,11 @@
 
 .btn-whatsapp i {
   font-size: 22px;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-whatsapp:hover {

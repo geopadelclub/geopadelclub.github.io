@@ -581,7 +581,11 @@ img {
 
 .btn-whatsapp i {
   font-size: 22px;
-  margin-right: 0;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .contacto-llamar {
