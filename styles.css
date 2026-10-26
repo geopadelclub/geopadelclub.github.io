@@ -1069,6 +1069,7 @@ i[class*=" ri-"] {
 [data-theme="dark"] .gp-logo-corner {
   border-radius: 8px;
   padding: 2px 5px;
+  mix-blend-mode: multiply;
 }
 
 @media (max-width: 700px) {
