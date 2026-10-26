@@ -288,7 +288,7 @@ async function emitirDocumentoFactura() {
     const { data: res, error: err } = await supabaseClient.rpc(
       "gp_emitir_documento_verifactu",
       {
-        p_tipo: t,
+        p_tipo: e,
         p_fecha: n,
         p_cliente: o,
         p_metodo_pago: r,
