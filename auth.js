@@ -514,11 +514,11 @@ document
     e.addEventListener("click", () => cambiarPestana(e.dataset.tab)),
   );
 async function fichar(e, t) {
-  const n = $("msgFichaje");
+  const msg = $("msgFichaje");
   if (esJefa()) return;
   if (typeof asegurarContrato === "function" && !(await asegurarContrato())) {
-    n.style.color = "var(--orange-text)";
-    n.innerText = "Para fichar necesitas indicar tu contrato.";
+    msg.style.color = "var(--orange-text)";
+    msg.innerText = "Para fichar necesitas indicar tu contrato.";
     return;
   }
   if (ultimoFichaje && ultimoFichaje.tipo === e) {
@@ -531,16 +531,16 @@ async function fichar(e, t) {
   }
   setBusy(t, !0);
   try {
-    const { error: n } = await supabaseClient
+    const { error: errInsert } = await supabaseClient
       .from("fichajes")
       .insert({ empleado: usuarioSesion.user, tipo: e });
-    if (n) throw n;
-    n.style.color = "var(--green)";
-    n.innerText = `Fichaje de ${e} registrado correctamente`;
+    if (errInsert) throw errInsert;
+    msg.style.color = "var(--green)";
+    msg.innerText = `Fichaje de ${e} registrado correctamente`;
     await cargarMisFichajes();
-  } catch (e) {
-    n.style.color = "var(--red)";
-    n.innerText = "Error: " + (e.message || e);
+  } catch (err) {
+    msg.style.color = "var(--red)";
+    msg.innerText = "Error: " + (err.message || err);
   } finally {
     setBusy(t, !1);
   }

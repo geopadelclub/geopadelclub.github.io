@@ -415,37 +415,39 @@ function dibujarHuecos() {
     )
     .join("");
 }
-$("clSlots").addEventListener("click", async (e) => {
-  if (e.target.closest("#btnReintentar")) {
+$("clSlots").addEventListener("click", async (ev) => {
+  if (ev.target.closest("#btnReintentar")) {
     cacheHuecos.t = 0;
     cargarHuecos();
     return;
   }
-  if (e.target.closest("#btnEspera")) {
-    const e = await customPrompt(
+  if (ev.target.closest("#btnEspera")) {
+    const telInput = await customPrompt(
       t("reservar.waitlist.prompt"),
       "",
       t("reservar.waitlist.title"),
     );
-    if (e === null) return;
-    if (!e || !telefonoValido(e))
+    if (telInput === null) return;
+    if (!telInput || !telefonoValido(telInput))
       return toast(t("reservar.waitlist.invalid"), "warn");
-    const { error: n } = await sb
-      .from("lista_espera")
-      .insert({
-        fecha: sel.fecha,
-        duracion: sel.dur,
-        telefono: normalizarTelefono(e),
-        estado: "pendiente",
+    try {
+      const res = await llamarEdge("lista_espera", {
+        p_fecha: sel.fecha,
+        p_duracion: sel.dur,
+        p_telefono: normalizarTelefono(telInput),
       });
-    if (n) return toast(t("reservar.waitlist.error") + n.message, "err");
-    toast(t("reservar.waitlist.saved"));
+      if (!res || !res.ok)
+        return toast(t("reservar.waitlist.error") + textoError(res), "err");
+      toast(t("reservar.waitlist.saved"));
+    } catch (err) {
+      errorRed(err);
+    }
     return;
   }
-  const n = e.target.closest(".cl-slot");
-  if (!n) return;
-  sel.hora = n.dataset.hora;
-  sel.precio = Number(n.dataset.precio) || 0;
+  const slot = ev.target.closest(".cl-slot");
+  if (!slot) return;
+  sel.hora = slot.dataset.hora;
+  sel.precio = Number(slot.dataset.precio) || 0;
   dibujarHuecos();
   mostrarDatos();
 });
@@ -565,74 +567,74 @@ async function confirmarReserva() {
     dibujarHuecos();
     return;
   }
-  let e = flujo.nombre,
-    n = flujo.codigo;
+  let nombre = flujo.nombre,
+    codigo = flujo.codigo;
   if (flujo.fase === "nuevo") {
-    e = $("clNombre").value.trim().replace(/\s+/g, " ");
-    const r = $("clCodigoNew").value.trim(),
-      i = $("clCodigoNew2").value.trim();
-    if (e.split(" ").length < 2)
+    nombre = $("clNombre").value.trim().replace(/\s+/g, " ");
+    const cod1 = $("clCodigoNew").value.trim(),
+      cod2 = $("clCodigoNew2").value.trim();
+    if (nombre.split(" ").length < 2)
       return toast(t("reservar.toast.name-required"), "warn");
-    if (r.length < 4) return toast(t("reservar.toast.code-short"), "warn");
-    if (r !== i) return toast(t("reservar.toast.code-mismatch"), "warn");
+    if (cod1.length < 4) return toast(t("reservar.toast.code-short"), "warn");
+    if (cod1 !== cod2) return toast(t("reservar.toast.code-mismatch"), "warn");
     if (!$("clConsent").checked)
       return toast(t("reservar.toast.privacy-required"), "warn");
-    n = r;
+    codigo = cod1;
   }
   if (TURNSTILE_SITEKEY && !tsToken)
     return toast(t("reservar.toast.captcha"), "warn");
-  const r = $("btnConfirmar");
-  setBusy(r, !0, SPIN + "Reservando...");
+  const btn = $("btnConfirmar");
+  setBusy(btn, !0, SPIN + "Reservando...");
   try {
-    const t = await llamarEdge("reservar", {
+    const res = await llamarEdge("reservar", {
       p_telefono: flujo.tel,
-      p_nombre: e,
-      p_codigo: n,
+      p_nombre: nombre,
+      p_codigo: codigo,
       p_fecha: sel.fecha,
       p_hora: sel.hora,
       p_duracion: sel.dur,
       turnstile: tsToken,
       consentimiento: flujo.fase === "nuevo" && $("clConsent").checked,
     });
-    if (!t || !t.ok) {
-      toast(textoError(t), "err");
+    if (!res || !res.ok) {
+      toast(textoError(res), "err");
       if (
-        t &&
-        (t.error === "sin_disponibilidad" || t.error === "hora_pasada")
+        res &&
+        (res.error === "sin_disponibilidad" || res.error === "hora_pasada")
       ) {
         sel.hora = null;
         $("cardDatos").hidden = !0;
         cargarHuecos();
       }
       if (
-        t &&
-        (t.error === "codigo_incorrecto" ||
-          t.error === "bloqueado" ||
-          t.error === "cliente_existente")
+        res &&
+        (res.error === "codigo_incorrecto" ||
+          res.error === "bloqueado" ||
+          res.error === "cliente_existente")
       )
         resetFlujo();
       return;
     }
     flujo.fase = "listo";
-    flujo.nombre = t.reserva.nombre;
-    flujo.codigo = n;
-    cuenta = { ident: flujo.tel, codigo: n, nombre: t.reserva.nombre };
-    mostrarExito(t.reserva);
-  } catch (t) {
-    const e = String((t && t.message) || "");
-    if (/antelacion_insuficiente/i.test(e)) {
+    flujo.nombre = res.reserva.nombre;
+    flujo.codigo = codigo;
+    cuenta = { ident: flujo.tel, codigo: codigo, nombre: res.reserva.nombre };
+    mostrarExito(res.reserva);
+  } catch (err) {
+    const errMsg = String((err && err.message) || "");
+    if (/antelacion_insuficiente/i.test(errMsg)) {
       toast(textoAntelacion() + t("reservar.antelacion-llama"), "err");
       sel.hora = null;
       $("cardDatos").hidden = !0;
       cargarHuecos();
-    } else if (t && t.code === "23P01") {
+    } else if (err && err.code === "23P01") {
       toast(textoError({ error: "sin_disponibilidad" }), "err");
       sel.hora = null;
       $("cardDatos").hidden = !0;
       cargarHuecos();
-    } else errorRed(t);
+    } else errorRed(err);
   } finally {
-    setBusy(r, !1);
+    setBusy(btn, !1);
     reiniciarTurnstile();
   }
 }
@@ -816,11 +818,12 @@ async function cargarMisReservas(e, n) {
 }
 $("formMis").addEventListener("submit", (e) => {
   e.preventDefault();
-  let t = $("misIdent").value.trim();
-  const n = $("misCodigo").value.trim();
-  if (t && /^[+\d\s().-]+$/.test(t)) t = normalizarTelefono(t);
-  if (!t || !n) return toast(t("reservar.toast.ident-required"), "warn");
-  cargarMisReservas(t, n);
+  let ident = $("misIdent").value.trim();
+  const codigo = $("misCodigo").value.trim();
+  if (ident && /^[+\d\s().-]+$/.test(ident)) ident = normalizarTelefono(ident);
+  if (!ident || !codigo)
+    return toast(t("reservar.toast.ident-required"), "warn");
+  cargarMisReservas(ident, codigo);
 });
 $("btnSalirMis").addEventListener("click", () => {
   cuenta = null;
@@ -979,43 +982,36 @@ $("btnShare").addEventListener("click", async () => {
 async function suscribirPush() {
   if (!ultimaReserva) return;
   if (!VAPID_PUBLIC_KEY) return;
-  const e = new Date(),
+  const ahora = new Date(),
     [t, n, r] = ultimaReserva.fecha.split("-").map(Number),
     [i, a] = ultimaReserva.hora.split(":").map(Number),
-    o = new Date(t, n - 1, r, i, a);
-  if (o.getTime() - e.getTime() < 2 * 60 * 60 * 1e3)
+    inicioPartido = new Date(t, n - 1, r, i, a);
+  if (inicioPartido.getTime() - ahora.getTime() < 2 * 60 * 60 * 1e3)
     return toast("El partido es en menos de 2 horas.", "warn");
   if (!("serviceWorker" in navigator) || !("PushManager" in window))
     return toast("Tu navegador no soporta notificaciones", "warn");
   try {
-    const e = await Notification.requestPermission();
-    if (e !== "granted") return toast("Permiso denegado", "warn");
-    const t = await navigator.serviceWorker.ready,
-      n = await t.pushManager.subscribe({
+    const permiso = await Notification.requestPermission();
+    if (permiso !== "granted") return toast("Permiso denegado", "warn");
+    const reg = await navigator.serviceWorker.ready,
+      sub = await reg.pushManager.subscribe({
         userVisibleOnly: !0,
         applicationServerKey: VAPID_PUBLIC_KEY,
-      }),
-      { error: r } = await sb
-        .from("push_suscripciones")
-        .upsert(
-          {
-            telefono: flujo.tel,
-            endpoint: n.endpoint,
-            auth: btoa(
-              String.fromCharCode(...new Uint8Array(n.getKey("auth"))),
-            ),
-            p256dh: btoa(
-              String.fromCharCode(...new Uint8Array(n.getKey("p256dh"))),
-            ),
-            created_at: new Date().toISOString(),
-          },
-          { onConflict: "endpoint" },
-        );
-    if (r) throw r;
+      });
+    const res = await llamarEdge("push_suscribir", {
+      p_telefono: flujo.tel,
+      p_codigo: flujo.codigo,
+      endpoint: sub.endpoint,
+      auth: btoa(String.fromCharCode(...new Uint8Array(sub.getKey("auth")))),
+      p256dh: btoa(
+        String.fromCharCode(...new Uint8Array(sub.getKey("p256dh"))),
+      ),
+    });
+    if (!res || !res.ok) throw new Error((res && res.error) || "no_autorizado");
     toast("Recordatorio activado.");
-  } catch (e) {
-    console.error(e);
-    toast("No se pudo activar el recordatorio: " + (e.message || e), "err");
+  } catch (err) {
+    console.error(err);
+    toast("No se pudo activar el recordatorio: " + (err.message || err), "err");
   }
 }
 $("btnPush").addEventListener("click", suscribirPush);

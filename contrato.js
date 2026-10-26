@@ -155,88 +155,96 @@ function cerrarContrato(e) {
   }
 }
 async function guardarContrato() {
-  const e = $("msgContrato"),
-    t = $("btnGuardarContrato"),
-    n = (e) => {
-      e.style.color = "var(--red)";
-      e.innerText = e;
+  const msg = $("msgContrato"),
+    btn = $("btnGuardarContrato"),
+    mostrarError = (texto) => {
+      msg.style.color = "var(--red)";
+      msg.innerText = texto;
     },
-    r = parseFloat(String($("ctHoras").value).replace(",", ".")),
-    i = ctLeerHorario(),
-    a = $("ctNotas").value.trim(),
-    o = $("ctDesde").value;
-  if (isNaN(r) || r <= 0 || r > CT_HORAS_MAX)
-    return n(
+    horas = parseFloat(String($("ctHoras").value).replace(",", ".")),
+    horario = ctLeerHorario(),
+    notas = $("ctNotas").value.trim(),
+    desde = $("ctDesde").value;
+  if (isNaN(horas) || horas <= 0 || horas > CT_HORAS_MAX)
+    return mostrarError(
       `Indica las horas semanales de tu contrato (entre 0,5 y ${CT_HORAS_MAX})`,
     );
-  if (!o) return n("Indica desde cuándo rige este horario");
-  const s = CT_DIAS.filter(([e]) => i[e].on);
-  if (!s.length) return n("Marca al menos un día de trabajo");
-  for (const [e, t] of s) {
-    const n = i[e];
-    if (!n.ini || !n.fin || ctMin(n.fin) <= ctMin(n.ini))
-      return n(`${t}: revisa la hora de entrada y de salida`);
-    const r = !!n.ini2,
-      a = !!n.fin2;
-    if (r !== a) return n(`${t}: completa el segundo tramo o déjalo vacío`);
-    if (r && ctMin(n.fin2) <= ctMin(n.ini2))
-      return n(`${t}: revisa el segundo tramo`);
-    if (r && ctMin(n.ini2) < ctMin(n.fin))
-      return n(`${t}: el segundo tramo debe empezar después del primero`);
+  if (!desde) return mostrarError("Indica desde cuándo rige este horario");
+  const diasActivos = CT_DIAS.filter(([k]) => horario[k].on);
+  if (!diasActivos.length)
+    return mostrarError("Marca al menos un día de trabajo");
+  for (const [k, nombreDia] of diasActivos) {
+    const slot = horario[k];
+    if (!slot.ini || !slot.fin || ctMin(slot.fin) <= ctMin(slot.ini))
+      return mostrarError(
+        `${nombreDia}: revisa la hora de entrada y de salida`,
+      );
+    const tiene2 = !!slot.ini2,
+      tieneFin2 = !!slot.fin2;
+    if (tiene2 !== tieneFin2)
+      return mostrarError(
+        `${nombreDia}: completa el segundo tramo o déjalo vacío`,
+      );
+    if (tiene2 && ctMin(slot.fin2) <= ctMin(slot.ini2))
+      return mostrarError(`${nombreDia}: revisa el segundo tramo`);
+    if (tiene2 && ctMin(slot.ini2) < ctMin(slot.fin))
+      return mostrarError(
+        `${nombreDia}: el segundo tramo debe empezar después del primero`,
+      );
   }
-  const l = {};
-  CT_DIAS.forEach(([e]) => {
-    const t = i[e];
-    l[e] = t.on
+  const horarioLimpio = {};
+  CT_DIAS.forEach(([k]) => {
+    const slot = horario[k];
+    horarioLimpio[k] = slot.on
       ? {
           on: !0,
-          ini: t.ini,
-          fin: t.fin,
-          ini2: t.ini2 || "",
-          fin2: t.fin2 || "",
+          ini: slot.ini,
+          fin: slot.fin,
+          ini2: slot.ini2 || "",
+          fin2: slot.fin2 || "",
         }
       : { on: !1 };
   });
-  const c = ctMinutosSemana(l) / 60;
+  const horasHorario = ctMinutosSemana(horarioLimpio) / 60;
   if (
-    Math.abs(c - r) > 0.5 &&
+    Math.abs(horasHorario - horas) > 0.5 &&
     !(await customConfirm(
-      `Las horas que has escrito (${ctNum(r)} h) no coinciden con las del horario (${ctNum(Math.round(c * 10) / 10)} h). ¿Guardar igualmente?`,
+      `Las horas que has escrito (${ctNum(horas)} h) no coinciden con las del horario (${ctNum(Math.round(horasHorario * 10) / 10)} h). ¿Guardar igualmente?`,
     ))
   )
     return;
   setBusy(
-    t,
+    btn,
     !0,
     '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Guardando...',
   );
   try {
-    const e = ctUsuario(),
-      { error: n } = await supabaseClient
+    const usuarioActual = ctUsuario(),
+      { error: errInsert } = await supabaseClient
         .from("contratos_jornada")
         .insert({
-          usuario: e,
-          horas_semanales: Math.round(r * 10) / 10,
-          horario: l,
-          notas: a || null,
-          vigente_desde: o,
-          declarado_por: e,
+          usuario: usuarioActual,
+          horas_semanales: Math.round(horas * 10) / 10,
+          horario: horarioLimpio,
+          notas: notas || null,
+          vigente_desde: desde,
+          declarado_por: usuarioActual,
         });
-    if (n) throw n;
+    if (errInsert) throw errInsert;
     ctCache = { usuario: null, data: undefined };
     toast("Contrato guardado");
     cerrarContrato(!0);
     dibujarContratoResumen();
     if (typeof fxAplicarContrato === "function") fxAplicarContrato();
-  } catch (e) {
-    console.error(e);
-    n(
-      esErrorTabla(e)
+  } catch (err) {
+    console.error(err);
+    mostrarError(
+      esErrorTabla(err)
         ? "Falta crear la tabla «contratos_jornada». Ejecuta migracion_tienda_contratos.sql en Supabase."
-        : "No se pudo guardar: " + (e.message || e),
+        : "No se pudo guardar: " + (err.message || err),
     );
   } finally {
-    setBusy(t, !1);
+    setBusy(btn, !1);
   }
 }
 async function asegurarContrato() {

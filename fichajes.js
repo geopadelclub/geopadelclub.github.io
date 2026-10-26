@@ -1,4 +1,4 @@
-/* © Geopadel */
+/* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 const FX_MAX_TRAMO_MIN = 16 * 60;
 let fxEmpleados = {},
   fxEmpleadosListos = !1,
@@ -281,9 +281,9 @@ let fxUltimoState = null;
 async function fxGenerar() {
   const e = $("fxMsg"),
     t = $("fxVer"),
-    n = (t) => {
+    n = (texto) => {
       e.style.color = "var(--red)";
-      e.innerText = t;
+      e.innerText = texto;
       return !1;
     },
     r = $("fxDesde").value,
@@ -300,46 +300,48 @@ async function fxGenerar() {
   );
   e.innerText = "";
   try {
-    const e = new Date(sumarDiasISO(r, -1) + "T00:00:00"),
-      t = new Date(sumarDiasISO(i, 2) + "T00:00:00"),
-      { data: n, error: s } = await leerTodo(() => {
-        let n = supabaseClient
+    const desdeDate = new Date(sumarDiasISO(r, -1) + "T00:00:00"),
+      hastaDate = new Date(sumarDiasISO(i, 2) + "T00:00:00"),
+      { data: filas, error: errLeer } = await leerTodo(() => {
+        let q = supabaseClient
           .from("fichajes")
           .select("empleado,tipo,created_at")
-          .gte("created_at", e.toISOString())
-          .lt("created_at", t.toISOString())
+          .gte("created_at", desdeDate.toISOString())
+          .lt("created_at", hastaDate.toISOString())
           .order("created_at", { ascending: !0 });
-        if (o) n = n.eq("empleado", o);
-        return n;
+        if (o) q = q.eq("empleado", o);
+        return q;
       });
-    if (s) throw s;
-    const l = (n || []).filter((e) => !fxJefas.has(e.empleado)),
+    if (errLeer) throw errLeer;
+    const l = (filas || []).filter((f) => !fxJefas.has(f.empleado)),
       c = await fxCargarContratos(
-        Array.from(new Set(l.map((e) => e.empleado))),
+        Array.from(new Set(l.map((f) => f.empleado))),
       ),
       d = new Set(),
-      u = (e, t) => {
-        const n = c[e] || [];
-        let r = null;
-        for (const e of n)
-          if ((e.vigente_desde || "0000-00-00") <= t) {
-            r = e;
+      u = (emp, fecha) => {
+        const contratos = c[emp] || [];
+        let elegido = null;
+        for (const contrato of contratos) {
+          if ((contrato.vigente_desde || "0000-00-00") <= fecha) {
+            elegido = contrato;
             break;
           }
-        if (!r && n.length) r = n[n.length - 1];
-        const i =
-          r && typeof ctJornadaDeContrato === "function"
-            ? ctJornadaDeContrato(r, t)
+        }
+        if (!elegido && contratos.length)
+          elegido = contratos[contratos.length - 1];
+        const minutosJornada =
+          elegido && typeof ctJornadaDeContrato === "function"
+            ? ctJornadaDeContrato(elegido, fecha)
             : null;
-        if (i === null) {
-          d.add(e);
+        if (minutosJornada === null) {
+          d.add(emp);
           return { min: Infinity, contrato: !1 };
         }
-        return { min: i, contrato: !0 };
+        return { min: minutosJornada, contrato: !0 };
       },
       p = fxCalcular(l, r, i, u);
-    p.sinContrato = Array.from(d).filter((e) =>
-      p.dias.some((t) => t.emp === e),
+    p.sinContrato = Array.from(d).filter((emp) =>
+      p.dias.some((dia) => dia.emp === emp),
     );
     fxUltimoState = {
       res: p,
@@ -352,9 +354,9 @@ async function fxGenerar() {
     e.style.color = "var(--muted)";
     e.innerText = `Generado ${new Date().toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" })}`;
     return !0;
-  } catch (e) {
-    console.error(e);
-    return n("No se pudo generar el registro: " + (e.message || e));
+  } catch (err) {
+    console.error(err);
+    return n("No se pudo generar el registro: " + (err.message || err));
   } finally {
     setBusy(t, !1);
   }
