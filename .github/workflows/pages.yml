@@ -85,6 +85,13 @@ jobs:
           echo "Archivos a subir:"
           ls -la
 
+      - name: Diagnóstico Cloudflare (temporal)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages project list
+
       - name: Desplegar en Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
