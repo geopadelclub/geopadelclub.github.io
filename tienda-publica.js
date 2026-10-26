@@ -18,15 +18,27 @@ function tiendaFoto(path) {
     ? sb.storage.from("tienda").getPublicUrl(path).data.publicUrl
     : "";
 }
-function tiendaTarjeta(a) {
+function tiendaTarjeta(a, index) {
   const foto = tiendaFoto(a.foto_path);
+  const isLcp = index === 0;
+  const imgAttrs = isLcp
+    ? 'loading="eager" fetchpriority="high"'
+    : 'loading="lazy"';
+
   const img = foto
-    ? `<img src="${esc(foto)}" alt="${esc(a.titulo)}" loading="lazy" decoding="async" width="400" height="400">`
+    ? `<img src="${esc(foto)}" alt="${esc(a.titulo)}" ${imgAttrs} decoding="async" width="400" height="400">`
     : '<span class="tienda-sin-foto" aria-hidden="true"><i class="ri-shopping-bag-3-line"></i></span>';
-  const abre = foto
-    ? ` data-foto-id="${esc(a.id)}" role="button" tabindex="0" aria-label="Ver foto de ${esc(a.titulo)} más grande"`
-    : "";
-  return `<article class="tienda-card${foto ? " con-foto" : ""}"${abre}><div class="tienda-foto">${img}</div><div class="tienda-info"><h3>${esc(a.titulo)}</h3>${a.descripcion ? `<p>${esc(a.descripcion)}</p>` : ""}<div class="tienda-precio">${eur(a.precio)}</div></div></article>`;
+  const fotoHtml = foto
+    ? `<button type="button" class="tienda-foto-btn" data-foto-id="${esc(a.id)}" aria-label="Ver foto de ${esc(a.titulo)} más grande">${img}</button>`
+    : img;
+  return `<article class="tienda-card${foto ? " con-foto" : ""}">
+    <div class="tienda-foto">${fotoHtml}</div>
+    <div class="tienda-info">
+      <h2>${esc(a.titulo)}</h2>
+      ${a.descripcion ? `<p>${esc(a.descripcion)}</p>` : ""}
+      <div class="tienda-precio">${eur(a.precio)}</div>
+    </div>
+  </article>`;
 }
 function dibujarTienda(lista) {
   const g = $("tiendaGrid");
@@ -35,7 +47,7 @@ function dibujarTienda(lista) {
       '<p class="cl-empty">Ahora mismo no hay artículos en la tienda. Pregunta en el club.</p>';
     return;
   }
-  g.innerHTML = lista.map(tiendaTarjeta).join("");
+  g.innerHTML = lista.map((a, i) => tiendaTarjeta(a, i)).join("");
 }
 async function cargarTienda(forzar) {
   const g = $("tiendaGrid");
@@ -143,18 +155,7 @@ if ($("tiendaGrid")) {
       cargarTienda(true);
       return;
     }
-    const card = e.target.closest(".tienda-card[data-foto-id]");
-    if (card) abrirDesdeTarjeta(card);
-  });
-  $("tiendaGrid").addEventListener("keydown", (e) => {
-    if (e.key !== "Enter" && e.key !== " ") return;
-    const card = e.target.closest(".tienda-card[data-foto-id]");
-    if (card && e.target === card) {
-      e.preventDefault();
-      abrirDesdeTarjeta(card);
-    }
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") cerrarVisor();
+    const btn = e.target.closest(".tienda-foto-btn");
+    if (btn) abrirDesdeTarjeta(btn);
   });
 }
