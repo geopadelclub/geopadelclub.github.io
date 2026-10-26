@@ -181,6 +181,7 @@ function mostrarPanelAdmin() {
     "Notification" in window &&
     Notification.permission === "granted" &&
     (e.style.display = "none");
+  cargarDatosGlobales();
   if (!esJefa()) cargarMisFichajes();
   if (typeof entrarResumen === "function") entrarResumen();
 }
