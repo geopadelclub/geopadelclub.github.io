@@ -285,7 +285,7 @@ async function emitirDocumentoFactura() {
   const d = $("facEmitir");
   setBusy(d, !0, "Emitiendo...");
   try {
-    const { data: e, error: r } = await supabaseClient.rpc(
+    const { data: res, error: err } = await supabaseClient.rpc(
       "gp_emitir_documento_verifactu",
       {
         p_tipo: t,
@@ -304,18 +304,18 @@ async function emitirDocumentoFactura() {
         p_tipo_rectificativa: facRectificando ? "S" : null,
       },
     );
-    if (r) throw r;
-    if (!e || !e.ok)
-      throw new Error(e && e.error ? e.error : "No se pudo emitir");
-    toast(`Documento ${e.numero} emitido`);
-    if (e.qr_url) await enviarAEAT(e.id, e.qr_url);
+    if (err) throw err;
+    if (!res || !res.ok)
+      throw new Error(res && res.error ? res.error : "No se pudo emitir");
+    toast(`Documento ${res.numero} emitido`);
+    if (res.qr_url) await enviarAEAT(res.id, res.qr_url);
     limpiarFormFactura();
     $("facTipo").disabled = !1;
     facActualizarCamposPorTipo();
     await cargarFacturas();
-  } catch (e) {
-    console.error(e);
-    toast("No se pudo emitir: " + (e.message || e), "err");
+  } catch (err) {
+    console.error(err);
+    toast("No se pudo emitir: " + (err.message || err), "err");
   } finally {
     setBusy(d, !1);
   }
