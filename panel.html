@@ -356,41 +356,59 @@
           <div class="subnav" role="tablist" aria-label="Secciones de ventas">
             <button
               type="button"
+              id="subnav-tienda"
               class="subnav-btn active"
               data-tab="tienda"
               role="tab"
               aria-selected="true"
+              aria-controls="sub-tienda"
+              tabindex="0"
             >
               <i class="ri-shopping-bag-3-line" aria-hidden="true"></i
               >Tienda</button
             ><button
               type="button"
+              id="subnav-caja"
               class="subnav-btn"
               data-tab="caja"
               role="tab"
               aria-selected="false"
+              aria-controls="sub-caja"
+              tabindex="-1"
             >
               <i class="ri-bar-chart-box-line" aria-hidden="true"></i
               >Caja</button
             ><button
               type="button"
+              id="subnav-deudas"
               class="subnav-btn"
               data-tab="deudas"
               role="tab"
               aria-selected="false"
+              aria-controls="sub-deudas"
+              tabindex="-1"
             >
               <i class="ri-wallet-3-line" aria-hidden="true"></i>Deudas</button
             ><button
               type="button"
+              id="subnav-facturas"
               class="subnav-btn"
               data-tab="facturas"
               role="tab"
               aria-selected="false"
+              aria-controls="sub-facturas"
+              tabindex="-1"
             >
               <i class="ri-file-list-3-line" aria-hidden="true"></i>Facturas
             </button>
           </div>
-          <div id="sub-tienda" class="subtab-content active">
+          <div
+            id="sub-tienda"
+            class="subtab-content active"
+            role="tabpanel"
+            aria-labelledby="subnav-tienda"
+            tabindex="0"
+          >
             <div id="tab-tpv">
               <div class="card">
                 <h3><i class="ri-goblet-line" aria-hidden="true"></i>Bar</h3>
@@ -542,7 +560,14 @@
               </div>
             </div>
           </div>
-          <div id="sub-caja" class="subtab-content">
+          <div
+            id="sub-caja"
+            class="subtab-content"
+            role="tabpanel"
+            aria-labelledby="subnav-caja"
+            tabindex="0"
+            hidden
+          >
             <div class="card">
               <div class="card-head">
                 <h3>
@@ -725,7 +750,14 @@
               <div id="msgCopia" class="msg-inline"></div>
             </div>
           </div>
-          <div id="sub-deudas" class="subtab-content">
+          <div
+            id="sub-deudas"
+            class="subtab-content"
+            role="tabpanel"
+            aria-labelledby="subnav-deudas"
+            tabindex="0"
+            hidden
+          >
             <div class="card">
               <h3>
                 <i class="ri-wallet-3-line" aria-hidden="true"></i>Añadir deuda
@@ -826,7 +858,14 @@
               </div>
             </div>
           </div>
-          <div id="sub-facturas" class="subtab-content">
+          <div
+            id="sub-facturas"
+            class="subtab-content"
+            role="tabpanel"
+            aria-labelledby="subnav-facturas"
+            tabindex="0"
+            hidden
+          >
             <div class="card">
               <h3>
                 <i class="ri-file-add-line" aria-hidden="true"></i>Nuevo
@@ -1026,23 +1065,35 @@
           <div class="subnav" role="tablist" aria-label="Secciones de equipo">
             <button
               type="button"
+              id="subnav-fichajes"
               class="subnav-btn active"
               data-tab="fichajes"
               role="tab"
               aria-selected="true"
+              aria-controls="sub-fichajes"
+              tabindex="0"
             >
               <i class="ri-time-line" aria-hidden="true"></i>Fichaje</button
             ><button
               type="button"
+              id="subnav-limpieza"
               class="subnav-btn"
               data-tab="limpieza"
               role="tab"
               aria-selected="false"
+              aria-controls="sub-limpieza"
+              tabindex="-1"
             >
               <i class="ri-brush-line" aria-hidden="true"></i>Limpieza
             </button>
           </div>
-          <div id="sub-fichajes" class="subtab-content active">
+          <div
+            id="sub-fichajes"
+            class="subtab-content active"
+            role="tabpanel"
+            aria-labelledby="subnav-fichajes"
+            tabindex="0"
+          >
             <div class="card card-narrow" id="cardFichar">
               <div style="text-align: center">
                 <h3 style="justify-content: center">
@@ -1178,7 +1229,14 @@
             </div>
             <div id="fxContenido"></div>
           </div>
-          <div id="sub-limpieza" class="subtab-content">
+          <div
+            id="sub-limpieza"
+            class="subtab-content"
+            role="tabpanel"
+            aria-labelledby="subnav-limpieza"
+            tabindex="0"
+            hidden
+          >
             <datalist id="dlTrabajadores"></datalist>
             <div id="avisoLimpiezaBanner" class="aviso-limpieza" hidden></div>
             <div class="card">

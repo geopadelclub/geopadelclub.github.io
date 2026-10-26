@@ -90,7 +90,7 @@
   box-shadow: var(--shadow-sm);
 }
 
-.subtab-content {
+.subtab-content[hidden] {
   display: none;
 }
 

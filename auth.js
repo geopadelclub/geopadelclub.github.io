@@ -430,14 +430,18 @@ function cambiarPestana(tabName) {
   document
     .querySelectorAll(".tab-content")
     .forEach((e) => e.classList.remove("active"));
-  document
-    .querySelectorAll(".subtab-content")
-    .forEach((e) => e.classList.remove("active"));
+  document.querySelectorAll(".subtab-content").forEach((e) => {
+    e.classList.remove("active");
+    e.hidden = true;
+  });
   const tabPadre = $(`tab-${padre}`);
   if (tabPadre) tabPadre.classList.add("active");
   if (SUB_TABS[tabName]) {
     const sub = $(`sub-${tabName}`);
-    if (sub) sub.classList.add("active");
+    if (sub) {
+      sub.classList.add("active");
+      sub.hidden = false;
+    }
   }
   document.querySelectorAll(".nav-tab").forEach((e) => {
     e.classList.remove("active");
@@ -452,6 +456,7 @@ function cambiarPestana(tabName) {
     const isActive = b.dataset.tab === tabName;
     b.classList.toggle("active", isActive);
     b.setAttribute("aria-selected", isActive ? "true" : "false");
+    b.setAttribute("tabindex", isActive ? "0" : "-1");
   });
   const titulos = {
     resumen: "Resumen",
@@ -512,6 +517,24 @@ document
   .forEach((e) =>
     e.addEventListener("click", () => cambiarPestana(e.dataset.tab)),
   );
+document.querySelectorAll(".subnav").forEach((nav) => {
+  nav.addEventListener("keydown", (ev) => {
+    if (!["ArrowRight", "ArrowLeft", "Home", "End"].includes(ev.key)) return;
+    const tabs = Array.from(nav.querySelectorAll(".subnav-btn"));
+    const idx = tabs.indexOf(document.activeElement);
+    if (idx < 0) return;
+    let nuevo = null;
+    if (ev.key === "ArrowRight") nuevo = tabs[(idx + 1) % tabs.length];
+    else if (ev.key === "ArrowLeft")
+      nuevo = tabs[(idx - 1 + tabs.length) % tabs.length];
+    else if (ev.key === "Home") nuevo = tabs[0];
+    else if (ev.key === "End") nuevo = tabs[tabs.length - 1];
+    if (!nuevo) return;
+    ev.preventDefault();
+    nuevo.focus();
+    nuevo.click();
+  });
+});
 async function fichar(e, t) {
   const msg = $("msgFichaje");
   if (esJefa()) return;
