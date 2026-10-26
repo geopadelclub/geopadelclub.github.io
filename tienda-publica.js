@@ -1,21 +1,10 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
-const sb =
-  window.supabase && window.supabase.createClient
-    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false,
-          detectSessionInUrl: false,
-        },
-      })
-    : null;
-
 const TIENDA_CACHE_MS = 60000;
 let tiendaCache = { t: 0, lista: null };
 let tiendaReq = 0;
 function tiendaFoto(path) {
-  return path && sb
-    ? sb.storage.from("tienda").getPublicUrl(path).data.publicUrl
+  return path
+    ? `${SUPABASE_URL}/storage/v1/object/public/tienda/${encodeURI(path)}`
     : "";
 }
 function tiendaTarjeta(a, index) {
@@ -62,15 +51,23 @@ async function cargarTienda(forzar) {
   if (!tiendaCache.lista) g.innerHTML = '<p class="cl-empty">Cargando...</p>';
   const mi = ++tiendaReq;
   try {
-    if (!sb) throw new Error("Sin conexión");
-    const { data, error } = await sb
-      .from("tienda_articulos")
-      .select("id, titulo, descripcion, precio, foto_path")
-      .eq("visible", true)
-      .order("orden", { ascending: true })
-      .order("created_at", { ascending: true });
+    const qs = new URLSearchParams();
+    qs.set("select", "id,titulo,descripcion,precio,foto_path");
+    qs.set("visible", "eq.true");
+    qs.append("order", "orden.asc");
+    qs.append("order", "created_at.asc");
+    const res = await fetch(
+      SUPABASE_URL + "/rest/v1/tienda_articulos?" + qs.toString(),
+      {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: "Bearer " + SUPABASE_ANON_KEY,
+        },
+      },
+    );
     if (mi !== tiendaReq) return;
-    if (error) throw error;
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
     tiendaCache = { t: Date.now(), lista: data || [] };
     dibujarTienda(tiendaCache.lista);
   } catch (err) {

@@ -66,7 +66,6 @@ const PUBLICO = [
   "politica-cookies.html",
   "404.html",
   "manifest-reservar.webmanifest",
-  "assets/supabase.min.js",
   "acciones.js",
   "i18n.js",
   "menu.js",
@@ -79,7 +78,12 @@ async function detectarModo() {
       type: "window",
       includeUncontrolled: true,
     });
-    if (clientes.some((c) => c.url.includes("/panel"))) return "panel";
+    if (
+      clientes.some((c) =>
+        /\/panel(\/|$|\.html$)/.test(new URL(c.url).pathname),
+      )
+    )
+      return "panel";
   } catch (e) {}
   return "public";
 }
@@ -88,11 +92,12 @@ self.addEventListener("install", (e) => {
   e.waitUntil(
     (async () => {
       const cache = await caches.open(VERSION);
-      const lista = [...BASE, ...PANEL, ...PUBLICO];
+      const lista = [...BASE, ...PUBLICO];
+      const modo = await detectarModo();
+      if (modo === "panel") lista.push(...PANEL);
       await Promise.allSettled(
         lista.map((u) => cache.add(new Request(u, { cache: "reload" }))),
       );
-      await self.skipWaiting();
     })(),
   );
 });

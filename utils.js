@@ -448,30 +448,3 @@ window.addEventListener("error", (e) => {
   if (document.getElementById("toasts"))
     toast("Ha ocurrido un error inesperado. Inténtalo de nuevo.", "err");
 });
-const TRAMOS_90MIN_LUNES_JUEVES = [540, 630, 720, 1020, 1110, 1200, 1290],
-  TRAMOS_90MIN_VIERNES_DOMINGO = [540, 630, 720, 1020, 1110, 1200],
-  MIN_FIN_MANANA = 840;
-function diaSemanaDeFecha(e) {
-  const [t, n, r] = e.split("-").map(Number);
-  return new Date(t, n - 1, r, 12).getDay();
-}
-function esFinDeSemanaFecha(e) {
-  const t = diaSemanaDeFecha(e);
-  return t === 0 || t === 6;
-}
-function tramos90Fecha(e) {
-  const t = diaSemanaDeFecha(e);
-  return t >= 1 && t <= 4
-    ? TRAMOS_90MIN_LUNES_JUEVES
-    : TRAMOS_90MIN_VIERNES_DOMINGO;
-}
-function duracionesPermitidasFecha(e) {
-  return esFinDeSemanaFecha(e) ? [90] : [60, 90];
-}
-function horarioPermitidoReserva(e, t, n, r = "Normal") {
-  if (r !== "Normal") return !0;
-  if (!e || typeof t !== "number" || typeof n !== "number") return !0;
-  if (esFinDeSemanaFecha(e)) return n === 90 && tramos90Fecha(e).includes(t);
-  if (t < MIN_FIN_MANANA) return n === 60 || n === 90 || n === 120;
-  return n === 90 && tramos90Fecha(e).includes(t);
-}

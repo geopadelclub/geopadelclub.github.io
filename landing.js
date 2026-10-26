@@ -91,10 +91,7 @@ async function cargarHuecosHoy() {
               Math.floor(ini / 60),
               ini % 60,
             );
-            return (
-              horarioPermitidoReserva(hoy, ini, o.dur) &&
-              iniMs - ahora >= _landingAntelacion * 6e4
-            );
+            return iniMs - ahora >= _landingAntelacion * 6e4;
           }),
         }))
         .filter((s) => s.opciones.length);

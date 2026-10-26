@@ -1,14 +1,4 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
-const sb =
-  window.supabase && window.supabase.createClient
-    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        auth: {
-          persistSession: !1,
-          autoRefreshToken: !1,
-          detectSessionInUrl: !1,
-        },
-      })
-    : null;
 const SPIN = '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>';
 let cfg = {
   dias_max: 30,
@@ -43,16 +33,31 @@ function duracionTxt(e) {
     n = e % 60;
   return t ? (n ? `${t} h ${n} min` : `${t} h`) : `${n} min`;
 }
-async function llamarEdge(e, t) {
-  const n = await fetch(SUPABASE_URL + "/functions/v1/reservar-web", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: SUPABASE_ANON_KEY,
-      Authorization: "Bearer " + SUPABASE_ANON_KEY,
-    },
-    body: JSON.stringify({ accion: e, ...t }),
-  });
+async function llamarEdge(e, t, timeoutMs = 20000) {
+  const ctrl = new AbortController();
+  const tid = setTimeout(() => ctrl.abort(), timeoutMs);
+  let n;
+  try {
+    n = await fetch(SUPABASE_URL + "/functions/v1/reservar-web", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: "Bearer " + SUPABASE_ANON_KEY,
+      },
+      body: JSON.stringify({ accion: e, ...t }),
+      signal: ctrl.signal,
+    });
+  } catch (err) {
+    clearTimeout(tid);
+    if (err && err.name === "AbortError") {
+      const e2 = new Error("timeout");
+      e2.name = "TimeoutError";
+      throw e2;
+    }
+    throw err;
+  }
+  clearTimeout(tid);
   let r = null;
   try {
     r = await n.json();
@@ -121,9 +126,30 @@ async function esperarTokenTurnstile(timeoutMs = 15000) {
   });
 }
 const RPC_LECTURA = ["web_config", "web_disponibilidad"];
+async function rpcFetch(nombre, args) {
+  const res = await fetch(SUPABASE_URL + "/rest/v1/rpc/" + nombre, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: "Bearer " + SUPABASE_ANON_KEY,
+    },
+    body: JSON.stringify(args || {}),
+  });
+  if (!res.ok) {
+    let msg = "";
+    try {
+      const j = await res.json();
+      msg = j.message || j.error || "";
+    } catch (e) {}
+    const err = new Error(msg || "HTTP " + res.status);
+    err.code = res.status;
+    return { data: null, error: err };
+  }
+  return { data: await res.json(), error: null };
+}
 async function rpc(e, t) {
-  if (!sb) throw new Error("Sin conexión");
-  const n = () => sb.rpc(e, t || {}),
+  const n = () => rpcFetch(e, t || {}),
     { data: r, error: i } = RPC_LECTURA.includes(e)
       ? await conReintento(n)
       : await n();
@@ -287,16 +313,12 @@ function dibujarDias() {
   $("clDias").innerHTML = n;
 }
 function durationsViableForDay() {
-  const e = duracionesPermitidasFecha(sel.fecha);
-  if (!slotsDia || !slotsDia.length) return e;
-  const t = e.filter((e) =>
-    slotsDia.some(
-      (t) =>
-        (t.opciones || []).some((t) => t.dur === e) &&
-        horarioPermitidoReserva(sel.fecha, minutos(t.hora), e),
-    ),
+  const todas = cfg.duraciones || [60, 90, 120];
+  if (!slotsDia || !slotsDia.length) return todas;
+  const viables = todas.filter((d) =>
+    slotsDia.some((s) => (s.opciones || []).some((o) => o.dur === d)),
   );
-  return t.length ? t : e;
+  return viables.length ? viables : todas;
 }
 function dibujarDuraciones() {
   const e = sel.fecha || fechaLocalISO(),
@@ -412,9 +434,7 @@ function dibujarHuecos() {
         iniMin: minutos(e.hora),
         op: (e.opciones || []).find((t) => t.dur === sel.dur),
       }))
-      .filter(
-        (e) => e.op && horarioPermitidoReserva(sel.fecha, e.iniMin, sel.dur),
-      ),
+      .filter((e) => e.op),
     r = n.filter((e) => horaReservable(sel.fecha, e.hora));
   if (sel.hora && !r.some((e) => e.hora === sel.hora)) {
     sel.hora = null;
@@ -578,13 +598,6 @@ async function entrarExistente() {
 }
 async function confirmarReserva() {
   if (!sel.hora) return toast(t("reservar.toast.choose-hour"), "warn");
-  if (!horarioPermitidoReserva(sel.fecha, minutos(sel.hora), sel.dur)) {
-    toast(t("reservar.toast.no-schedule"), "err");
-    sel.hora = null;
-    $("cardDatos").hidden = !0;
-    dibujarHuecos();
-    return;
-  }
   if (!horaReservable(sel.fecha, sel.hora)) {
     toast(textoAntelacion() + t("reservar.antelacion-llama"), "err");
     sel.hora = null;
@@ -947,24 +960,23 @@ async function repetirReserva(e) {
     dibujarHuecos();
   }
 }
-setInterval(() => {
-  if (
-    !document.hidden &&
-    sel.fecha &&
-    $("tab-reservar").classList.contains("active")
-  )
-    dibujarHuecos();
-}, 6e4);
-window.addEventListener("online", estadoRed);
+function refrescarHuecosSiToca() {
+  if (document.hidden) return;
+  if (!sel.fecha) return;
+  if (!$("tab-reservar").classList.contains("active")) return;
+  const caducada =
+    cacheHuecos.fecha !== sel.fecha || Date.now() - cacheHuecos.t >= TTL_HUECOS;
+  if (caducada) cargarHuecos();
+  else dibujarHuecos();
+}
+setInterval(refrescarHuecosSiToca, 6e4);
+window.addEventListener("online", () => {
+  estadoRed();
+  refrescarHuecosSiToca();
+});
 window.addEventListener("offline", estadoRed);
 document.addEventListener("visibilitychange", () => {
-  if (
-    !document.hidden &&
-    navigator.onLine &&
-    sel.fecha &&
-    $("tab-reservar").classList.contains("active")
-  )
-    cargarHuecos();
+  if (!document.hidden && navigator.onLine) refrescarHuecosSiToca();
 });
 function urlGoogleCalendar(e) {
   const t = minutos(e.hora),
@@ -1144,5 +1156,7 @@ $("btnInstalar").addEventListener("click", async () => {
 if (esIOS && !yaInstalada()) mostrarInstalar(!0);
 if ("serviceWorker" in navigator)
   window.addEventListener("load", () =>
-    navigator.serviceWorker.register("sw.js").catch(() => {}),
+    navigator.serviceWorker
+      .register("sw.js", { updateViaCache: "none" })
+      .catch(() => {}),
   );
