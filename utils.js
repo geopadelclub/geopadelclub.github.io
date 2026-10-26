@@ -44,7 +44,38 @@ function setBusy(e, t, n) {
     if (e.dataset.txt) e.innerHTML = e.dataset.txt;
   }
 }
-function fechaLocalISO(e = new Date()) {
+function ahoraMadrid() {
+  const partes = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Madrid",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date());
+  const get = (t) => partes.find((p) => p.type === t)?.value ?? "00";
+  const y = +get("year");
+  const m = +get("month");
+  const d = +get("day");
+  const h = +get("hour");
+  const mi = +get("minute");
+  const s = +get("second");
+  return {
+    y,
+    m,
+    d,
+    h,
+    mi,
+    s,
+    fecha: `${get("year")}-${get("month")}-${get("day")}`,
+    minutos: h * 60 + mi,
+    msUTC: Date.UTC(y, m - 1, d, h, mi, s),
+  };
+}
+function fechaLocalISO(e) {
+  if (!(e instanceof Date)) return ahoraMadrid().fecha;
   return `${e.getFullYear()}-${String(e.getMonth() + 1).padStart(2, "0")}-${String(e.getDate()).padStart(2, "0")}`;
 }
 function sumarDiasISO(e, t) {

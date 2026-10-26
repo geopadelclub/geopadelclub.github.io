@@ -18,12 +18,7 @@ function formatearPrecio(e) {
   });
 }
 function hoyISO() {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Madrid",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date());
+  return ahoraMadrid().fecha;
 }
 function timeToMinLanding(e) {
   const [t, n] = String(e).split(":").map(Number);
@@ -82,17 +77,25 @@ async function cargarHuecosHoy() {
       box.innerHTML = `<p class="huecos-vacio">${t("huecos.error")} <a href="reservar">${t("huecos.ver")}</a></p>`;
       return;
     }
-    const ahora = Date.now(),
+    const ahora = ahoraMadrid().msUTC,
       slots = data.slots
         .map((s) => ({
           hora: s.hora,
           iniMin: timeToMinLanding(s.hora),
-          opciones: (s.opciones || []).filter(
-            (o) =>
-              horarioPermitidoReserva(hoy, timeToMinLanding(s.hora), o.dur) &&
-              new Date(`${hoy}T${s.hora}:00`).getTime() - ahora >=
-                _landingAntelacion * 6e4,
-          ),
+          opciones: (s.opciones || []).filter((o) => {
+            const ini = timeToMinLanding(s.hora);
+            const iniMs = Date.UTC(
+              +hoy.slice(0, 4),
+              +hoy.slice(5, 7) - 1,
+              +hoy.slice(8, 10),
+              Math.floor(ini / 60),
+              ini % 60,
+            );
+            return (
+              horarioPermitidoReserva(hoy, ini, o.dur) &&
+              iniMs - ahora >= _landingAntelacion * 6e4
+            );
+          }),
         }))
         .filter((s) => s.opciones.length);
     if (!slots.length) {

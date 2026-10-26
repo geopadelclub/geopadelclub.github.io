@@ -368,8 +368,9 @@ const antMin = () =>
 function horaReservable(e, t) {
   const [n, r, i] = e.split("-").map(Number),
     a = minutos(t),
-    o = new Date(n, r - 1, i, Math.floor(a / 60), a % 60);
-  return o.getTime() - Date.now() >= antMin() * 6e4;
+    objetivo = Date.UTC(n, r - 1, i, Math.floor(a / 60), a % 60),
+    ahora = ahoraMadrid();
+  return objetivo - ahora.msUTC >= antMin() * 6e4;
 }
 function textoAntelacion() {
   return t("reservar.antelacion", { min: duracionTxt(antMin()) });
