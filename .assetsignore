@@ -1,0 +1,7 @@
+.github
+.git
+scripts
+wrangler.toml
+package.json
+bump-sw.js
+node_modules

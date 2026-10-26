@@ -1,625 +1,755 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
-let facConfig = null;
-let facLista = [];
-let facCargando = false;
-let facRectificando = null;
-
-const facFecha = iso => {
-    const [y, m, d] = String(iso || '').slice(0, 10).split('-');
-    return d ? `${d}/${m}/${y}` : '';
-};
-const facTipoTxt = t => t === 'Factura' ? 'Factura' : 'Justificante de pago';
-function facSet(id, v) { const e = $(id); if (e) e.value = v ?? ''; }
-function facVal(id) { const e = $(id); return e ? e.value.trim() : ''; }
-function facNum(id) { const e = $(id); return e ? parseFloat(String(e.value).replace(',', '.')) : NaN; }
-function facConfigIds() { return ['facCfgNombreClub', 'facCfgNombre', 'facCfgNif', 'facCfgDireccion', 'facCfgCp', 'facCfgCiudad', 'facCfgProvincia', 'facCfgEmail', 'facCfgTelefono', 'facCfgWeb', 'facCfgIva', 'facCfgTextoLegal', 'facCfgPie']; } function facAplicarPermisosConfig() {
-    facConfigIds().forEach(id => { const e = $(id); if (e) e.disabled = false; });
-    const b = $('facCfgGuardar'); if (b) b.disabled = false;
+let facConfig = null,
+  facLista = [],
+  facCargando = !1,
+  facRectificando = null;
+const facFecha = (e) => {
+    const [t, n, r] = String(e || "")
+      .slice(0, 10)
+      .split("-");
+    return r ? `${r}/${n}/${t}` : "";
+  },
+  facTipoTxt = (e) => (e === "Factura" ? "Factura" : "Justificante de pago");
+function facSet(e, t) {
+  const n = $(e);
+  if (n) n.value = t ?? "";
 }
-
+function facVal(e) {
+  const t = $(e);
+  return t ? t.value.trim() : "";
+}
+function facNum(e) {
+  const t = $(e);
+  return t ? parseFloat(String(t.value).replace(",", ".")) : NaN;
+}
+function facConfigIds() {
+  return [
+    "facCfgNombreClub",
+    "facCfgNombre",
+    "facCfgNif",
+    "facCfgDireccion",
+    "facCfgCp",
+    "facCfgCiudad",
+    "facCfgProvincia",
+    "facCfgEmail",
+    "facCfgTelefono",
+    "facCfgWeb",
+    "facCfgIva",
+    "facCfgTextoLegal",
+    "facCfgPie",
+  ];
+}
+function facAplicarPermisosConfig() {
+  facConfigIds().forEach((e) => {
+    const t = $(e);
+    if (t) t.disabled = !1;
+  });
+  const e = $("facCfgGuardar");
+  if (e) e.disabled = !1;
+}
+function qrDataURL(e) {
+  if (typeof qrcode !== "function") return "";
+  try {
+    const t = qrcode(0, "M");
+    t.addData(e);
+    t.make();
+    return t.createDataURL(4, 0);
+  } catch (t) {
+    return "";
+  }
+}
 async function cargarConfigFacturas() {
-    if (!supabaseClient) return null;
-    const { data, error } = await supabaseClient.from('facturas_config').select('*').eq('id', 1).maybeSingle();
-    if (error) { console.error(error); return null; }
-    facConfig = data || null;
-    if (facConfig) {
-        facSet('facCfgNombre', facConfig.nombre);
-        facSet('facCfgNombreClub', facConfig.nombre_club || facConfig.nombre);
-        facSet('facCfgNif', facConfig.nif);
-        facSet('facCfgDireccion', facConfig.direccion);
-        facSet('facCfgCp', facConfig.cp);
-        facSet('facCfgCiudad', facConfig.ciudad);
-        facSet('facCfgProvincia', facConfig.provincia);
-        facSet('facCfgEmail', facConfig.email);
-        facSet('facCfgTelefono', facConfig.telefono);
-        facSet('facCfgWeb', facConfig.web);
-        facSet('facCfgIva', facConfig.iva_default ?? 21);
-        facSet('facCfgTextoLegal', facConfig.texto_legal);
-        facSet('facCfgPie', facConfig.pie_factura);
-    }
-    facAplicarPermisosConfig();
-    return facConfig;
+  if (!supabaseClient) return null;
+  const { data: e, error: t } = await supabaseClient
+    .from("facturas_config")
+    .select("*")
+    .eq("id", 1)
+    .maybeSingle();
+  if (t) {
+    console.error(t);
+    return null;
+  }
+  facConfig = e || null;
+  if (facConfig) {
+    facSet("facCfgNombre", facConfig.nombre);
+    facSet("facCfgNombreClub", facConfig.nombre_club || facConfig.nombre);
+    facSet("facCfgNif", facConfig.nif);
+    facSet("facCfgDireccion", facConfig.direccion);
+    facSet("facCfgCp", facConfig.cp);
+    facSet("facCfgCiudad", facConfig.ciudad);
+    facSet("facCfgProvincia", facConfig.provincia);
+    facSet("facCfgEmail", facConfig.email);
+    facSet("facCfgTelefono", facConfig.telefono);
+    facSet("facCfgWeb", facConfig.web);
+    facSet("facCfgIva", facConfig.iva_default ?? 21);
+    facSet("facCfgTextoLegal", facConfig.texto_legal);
+    facSet("facCfgPie", facConfig.pie_factura);
+  }
+  facAplicarPermisosConfig();
+  return facConfig;
 }
-
 async function guardarConfigFacturas() {
-    const iva = facNum('facCfgIva');
-    const row = {
-        id: 1,
-        nombre_club: facVal('facCfgNombreClub'),
-        nombre: facVal('facCfgNombre'),
-        nif: facVal('facCfgNif'),
-        direccion: facVal('facCfgDireccion'),
-        cp: facVal('facCfgCp'),
-        ciudad: facVal('facCfgCiudad'),
-        provincia: facVal('facCfgProvincia'),
-        email: facVal('facCfgEmail'),
-        telefono: facVal('facCfgTelefono'),
-        web: facVal('facCfgWeb'),
-        iva_default: isNaN(iva) ? 21 : iva,
-        texto_legal: facVal('facCfgTextoLegal'),
-        pie_factura: facVal('facCfgPie'),
-        updated_at: new Date().toISOString()
-    };
-    const btn = $('facCfgGuardar');
-    setBusy(btn, true, 'Guardando...');
-    try {
-        const { error } = await supabaseClient.from('facturas_config').upsert(row, { onConflict: 'id' });
-        if (error) throw error;
-        toast('Datos fiscales guardados');
-        await cargarConfigFacturas();
-    } catch (e) {
-        toast('No se pudo guardar: ' + (e.message || e), 'err');
-    } finally {
-        setBusy(btn, false);
-    }
-}
-
-function nombreEmpleadoActual() {
-    if (!usuarioSesion) return '';
-    return usuarioSesion.nombre || usuarioSesion.user || '';
-}
-
-function facActualizarCamposPorTipo() {
-    const esFactura = $('facTipo').value === 'Factura';
-    const bc = $('facBloqueCliente');
-    const be = $('facBloqueEmpleado');
-    if (bc) bc.style.display = esFactura ? '' : 'none';
-    if (be) be.style.display = esFactura ? 'none' : '';
-}
-
-function iniciarFormFactura() {
-    const f = $('facFecha');
-    if (f && !f.value) f.value = fechaLocalISO();
-    const iva = $('facIva');
-    if (iva && !iva.value) iva.value = facConfig && facConfig.iva_default ? facConfig.iva_default : 21;
-    const emp = $('facEmpleado');
-    if (emp) emp.value = nombreEmpleadoActual();
-    facActualizarCamposPorTipo();
-    const box = $('facLineas');
-    if (box && !box.children.length) agregarLineaFactura();
-    actualizarTotalesFactura();
-}
-
-function agregarLineaFactura(concepto = '', cantidad = 1, precio = 0) {
-    const box = $('facLineas');
-    if (!box) return;
-    const div = document.createElement('div');
-    div.className = 'fac-linea';
-    div.dataset.linea = '1';
-    div.innerHTML = `<label>Concepto<input class="fac-concepto" type="text" maxlength="160" value="${esc(concepto)}"></label><label>Cantidad<input class="fac-cantidad" type="number" min="0.01" step="0.01" value="${esc(cantidad)}"></label><label>Precio IVA inc.<input class="fac-precio" type="number" min="0" step="0.01" value="${esc(precio)}"></label><div class="fac-linea-total"><span>Total</span><b>0,00 €</b></div><button type="button" class="btn-add danger" data-fac-quitar aria-label="Quitar línea"><i class="ri-close-line" aria-hidden="true"></i></button>`;
-    box.appendChild(div);
-    actualizarTotalesFactura();
-}
-
-function leerLineasFactura() {
-    const out = [];
-    document.querySelectorAll('#facLineas [data-linea]').forEach(row => {
-        const concepto = row.querySelector('.fac-concepto').value.trim();
-        const cantidad = parseFloat(String(row.querySelector('.fac-cantidad').value).replace(',', '.'));
-        const precio = parseFloat(String(row.querySelector('.fac-precio').value).replace(',', '.'));
-        if (!concepto && (!cantidad || isNaN(cantidad)) && (!precio || isNaN(precio))) return;
-        out.push({ concepto, cantidad, precio_unitario_con_iva: precio });
-    });
-    return out;
-}
-
-function actualizarTotalesFactura() {
-    let total = 0;
-    document.querySelectorAll('#facLineas [data-linea]').forEach(row => {
-        const cantidad = parseFloat(String(row.querySelector('.fac-cantidad').value).replace(',', '.')) || 0;
-        const precio = parseFloat(String(row.querySelector('.fac-precio').value).replace(',', '.')) || 0;
-        const t = redondear2(cantidad * precio);
-        total += t;
-        const b = row.querySelector('.fac-linea-total b');
-        if (b) b.innerText = eur(t);
-    });
-    total = redondear2(total);
-    const ivaRaw = facNum('facIva');
-    const iva = !isNaN(ivaRaw) && ivaRaw >= 0 ? ivaRaw : 21;
-    const base = redondear2(total / (1 + iva / 100));
-    const cuota = redondear2(total - base);
-    const box = $('facTotales');
-    if (box) box.innerHTML = `<span>Base imponible <b>${eur(base)}</b></span><span>IVA (${iva}%) <b>${eur(cuota)}</b></span><span>Total <b>${eur(total)}</b></span>`;
-}
-
-function limpiarFormFactura() {
-    ['facClienteNombre', 'facClienteNif', 'facClienteDireccion', 'facClienteEmail', 'facClienteTelefono', 'facReservaId', 'facNotas', 'facFacturaOriginal', 'facMotivoRectificacion'].forEach(id => facSet(id, ''));
-    facSet('facEmpleado', nombreEmpleadoActual());
-    const box = $('facLineas');
-    if (box) box.innerHTML = '';
-    agregarLineaFactura();
-    facRectificando = null;
-    facActualizarModoRectificativa();
-}
-
-function facActualizarModoRectificativa() {
-    const box = $('facBoxRectificativa');
-    if (!box) return;
-    box.style.display = facRectificando ? '' : 'none';
-}
-
-function prepararRectificativa(id) {
-    const f = facLista.find(x => String(x.id) === String(id));
-    if (!f) return;
-    facRectificando = f;
-    facSet('facTipo', 'Factura');
-    facSet('facClienteNombre', f.cliente_nombre || '');
-    facSet('facClienteNif', f.cliente_nif || '');
-    facSet('facFecha', fechaLocalISO());
-    facActualizarCamposPorTipo();
-    facSet('facFacturaOriginal', f.numero);
-    facSet('facMotivoRectificacion', '');
-    facActualizarModoRectificativa();
-    $('facTipo').disabled = true;
-    toast(`Rectificando factura ${f.numero}`);
-}
-
-async function emitirDocumentoFactura() {
-    const tipo = facRectificando ? 'Factura' : $('facTipo').value;
-    const esFactura = tipo === 'Factura';
-    const fecha = $('facFecha').value;
-    const metodo = $('facMetodo').value;
-    const reservaId = facVal('facReservaId') || null;
-    const empleado = facVal('facEmpleado');
-    const cliente = esFactura ? {
-        nombre: facVal('facClienteNombre'),
-        nif: facVal('facClienteNif'),
-        direccion: facVal('facClienteDireccion'),
-        email: facVal('facClienteEmail'),
-        telefono: facVal('facClienteTelefono')
-    } : {};
-    const notas = facVal('facNotas');
-    const iva = facNum('facIva');
-
-    if (!fecha) return toast('Indica la fecha', 'warn');
-    if (esFactura) {
-        if (!cliente.nombre) return toast('Indica el cliente', 'warn');
-        if (!cliente.nif) return toast('Para una factura legal hace falta el NIF', 'warn');
-        if (!cliente.direccion) return toast('Para una factura legal hace falta la dirección', 'warn');
-        if (facRectificando && !facVal('facMotivoRectificacion')) return toast('Indica el motivo de la rectificación', 'warn');
-    } else {
-        if (!empleado) return toast('No se pudo identificar al empleado', 'err');
-    }
-    if (isNaN(iva) || iva < 0 || iva > 100) return toast('IVA no válido', 'warn');
-
-    const lineas = leerLineasFactura();
-    if (!lineas.length) return toast('Añade al menos una línea', 'warn');
-    for (const l of lineas) {
-        if (!l.concepto) return toast('Cada línea necesita concepto', 'warn');
-        if (!isFinite(l.cantidad) || l.cantidad <= 0) return toast('Cantidad no válida', 'warn');
-        if (!isFinite(l.precio_unitario_con_iva) || l.precio_unitario_con_iva < 0) return toast('Precio no válido', 'warn');
-    }
-
-    const btn = $('facEmitir');
-    setBusy(btn, true, 'Emitiendo...');
-    try {
-        const { data, error } = await supabaseClient.rpc('gp_emitir_documento_verifactu', {
-            p_tipo: tipo,
-            p_fecha: fecha,
-            p_cliente: cliente,
-            p_metodo_pago: metodo,
-            p_reserva_id: reservaId,
-            p_iva: iva,
-            p_lineas: lineas,
-            p_notas: notas || null,
-            p_empleado: esFactura ? null : empleado,
-            p_factura_original_id: facRectificando ? facRectificando.id : null,
-            p_motivo_rectificacion: facRectificando ? facVal('facMotivoRectificacion') : null,
-            p_tipo_rectificativa: facRectificando ? 'S' : null
-        });
-        if (error) throw error;
-        if (!data || !data.ok) throw new Error(data && data.error ? data.error : 'No se pudo emitir');
-        toast(`Documento ${data.numero} emitido`);
-        if (data.qr_url) await enviarAEAT(data.id, data.qr_url);
-        limpiarFormFactura();
-        $('facTipo').disabled = false;
-        facActualizarCamposPorTipo();
-        await cargarFacturas();
-    } catch (e) {
-        console.error(e);
-        toast('No se pudo emitir: ' + (e.message || e), 'err');
-    } finally {
-        setBusy(btn, false);
-    }
-}
-
-async function enviarAEAT(id, qrUrl) {
-    try {
-        const { data, error } = await supabaseClient.functions.invoke("verifactu-send", {
-            body: { factura_ids: [id], qr_url: qrUrl }
-        });
-        if (error || !data || !data.ok) {
-            console.warn("No se pudo disparar el envío AEAT:", error || data);
-        }
-    } catch (e) {
-        console.warn("Error disparando envío AEAT:", e);
-    }
-}
-
-async function cargarFacturas() {
-    if (!supabaseClient || facCargando) return;
-    facCargando = true;
-    try {
-        const { data, error } = await supabaseClient.from('facturas')
-            .select('id,tipo,numero,fecha,cliente_nombre,cliente_nif,metodo_pago,total,estado,empleado,hash_actual,qr_url,tipo_rectificativa,factura_original_id,created_at')
-            .order('fecha', { ascending: false })
-            .order('created_at', { ascending: false })
-            .limit(300);
-        if (error) throw error;
-        facLista = data || [];
-        dibujarFacturas();
-    } catch (e) {
-        console.error(e);
-        toast('No se pudieron cargar las facturas: ' + (e.message || e), 'err');
-    } finally {
-        facCargando = false;
-    }
-}
-
-function dibujarFacturas() {
-    const tb = $('facBody');
-    if (!tb) return;
-    const q = facVal('facBuscar').toLowerCase();
-    const tipo = $('facFiltroTipo') ? $('facFiltroTipo').value : 'Todos';
-    const lista = facLista.filter(f =>
-        (tipo === 'Todos' || f.tipo === tipo) &&
-        (!q || String(f.numero).toLowerCase().includes(q) || String(f.cliente_nombre).toLowerCase().includes(q) || String(f.cliente_nif || '').toLowerCase().includes(q) || String(f.empleado || '').toLowerCase().includes(q))
-    );
-    if (!lista.length) {
-        tb.innerHTML = '<tr><td colspan="9" class="tabla-empty">No hay documentos</td></tr>';
-        return;
-    }
-    tb.innerHTML = lista.map(f => {
-        const puede = typeof esJefa === 'function' && esJefa() && f.estado === 'Emitida';
-        const esFactura = f.tipo === 'Factura';
-        const esRect = !!f.factura_original_id;
-        const persona = esFactura
-            ? `<b>${esc(f.cliente_nombre || '—')}</b><small class="esc-desc">${esc(f.cliente_nif || '')}</small>`
-            : `<b>${esc(f.empleado || '—')}</b><small class="esc-desc">Atendido por</small>`;
-        const btnA4 = esFactura ? `<button type="button" class="btn-add blue" data-fac="a4" data-id="${esc(f.id)}">A4</button>` : '';
-        const btnRect = puede && esFactura && !esRect ? `<button type="button" class="btn-add gray" data-fac="rectificar" data-id="${esc(f.id)}">Rectificar</button>` : '';
-        const etiqueta = esRect ? '<span class="fac-estado ok" style="margin-left:4px">R</span>' : '';
-        return `<tr><td><b>${esc(f.numero)}</b>${etiqueta}</td><td>${esc(facFecha(f.fecha))}</td><td>${esc(facTipoTxt(f.tipo))}</td><td>${persona}</td><td>${esc(f.metodo_pago || '—')}</td><td><b>${eur(f.total)}</b></td><td><span class="fac-estado ${f.estado === 'Anulada' ? 'no' : 'ok'}">${esc(f.estado)}</span></td><td><small>${f.enviada_aeat ? '✓ AEAT' : '—'}</small></td><td><div class="fac-acciones"><button type="button" class="btn-add blue" data-fac="webusb" data-id="${esc(f.id)}">80 mm (USB)</button>${btnA4}${btnRect}</div></td></tr>`;
-    }).join('');
-}
-
-async function obtenerFactura(id) {
-    const { data, error } = await supabaseClient.from('facturas').select('*').eq('id', id).maybeSingle();
-    if (error) throw error;
-    if (!data) return null;
-    const { data: lineas, error: e2 } = await supabaseClient.from('factura_lineas').select('*').eq('factura_id', id).order('orden', { ascending: true });
-    if (e2) throw e2;
-    return { ...data, lineas: lineas || [] };
-}
-
-async function imprimirFactura(id, formato) {
-    try {
-        if (!facConfig) await cargarConfigFacturas();
-        const f = await obtenerFactura(id);
-        if (!f) return toast('No se encontró el documento', 'err');
-        if (f.tipo === 'Justificante' && formato === 'a4') formato = 'ticket';
-        imprimirHTML(formato === 'ticket' ? htmlTicketFactura(f) : htmlA4Factura(f));
-    } catch (e) {
-        console.error(e);
-        toast('No se pudo imprimir: ' + (e.message || e), 'err');
-    }
-}
-
-function htmlTicketFactura(f) {
-    const c = facConfig || {};
-    const dir = [c.direccion, c.cp, c.ciudad, c.provincia].filter(Boolean).join(', ');
-    const esFac = f.tipo === 'Factura';
-    const esRect = !!f.factura_original_id;
-
-    const nombreClub = c.nombre_club || c.nombre || 'GEOPADEL';
-    const razonSocial = (c.nombre && c.nombre !== nombreClub) ? c.nombre : null;
-    const eurSafe = n => eur(n).replace('€', 'EUR');
-
-    const lineas = (f.lineas || []).map(l => `<div class="r"><span>${esc(l.concepto)}</span><span>${eurSafe(l.total)}</span></div><div class="r s"><span>${esc(l.cantidad)} x ${eurSafe(l.precio_unitario)} · IVA ${esc(l.iva_porcentaje)}%</span><span>${eurSafe(l.base)} + ${eurSafe(l.cuota)}</span></div>`).join('');
-    const legal = esFac ? esc(c.texto_legal || 'Factura emitida conforme al RD 1619/2012.') : 'Documento no válido como factura. Justificante de pago.';
-    const persona = esFac
-        ? `<div class="r"><span>Cliente</span><span>${esc(f.cliente_nombre)}</span></div>${f.cliente_nif ? `<div class="r"><span>NIF</span><span>${esc(f.cliente_nif)}</span></div>` : ''}${f.cliente_direccion ? `<div class="r"><span>Dirección</span><span>${esc(f.cliente_direccion)}</span></div>` : ''}`
-        : `<div class="r"><span>Atendido por</span><span>${esc(f.empleado || '—')}</span></div>`;
-    const qr = f.qr_url ? `<div class="c" style="margin:3mm 0"><img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(f.qr_url)}" alt="QR VeriFactu" width="120" height="120"><div class="s">Factura verificable en la sede electrónica de la AEAT</div></div>` : '';
-    const hash = f.hash_actual ? `<div class="r s"><span>Hash</span><span>${esc(f.hash_actual.slice(0, 16))}…</span></div>` : '';
-    const pie = esFac ? `<div class="c s">${esc(c.pie_factura || '')}</div>` : '';
-
-    return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{size:80mm auto;margin:0}html,body{margin:0;padding:0;background:#fff;color:#000;font-family:"Courier New",monospace;font-size:12px;line-height:1.25}.t{width:72mm;margin:0 auto;padding:3mm 0}.c{text-align:center}.b{font-weight:700}.r{display:flex;justify-content:space-between;gap:4mm}.hr{border-top:1px dashed #000;margin:2mm 0}.s{font-size:10px}.big{font-size:16px;font-weight:800}.m{text-transform:uppercase}</style></head><body><div class="t"><div class="c b big">${esc(nombreClub)}</div>${razonSocial ? `<div class="c b" style="font-size:11px">${esc(razonSocial)}</div>` : ''}<div class="c s">${esc(c.nif || '')}</div><div class="c s">${esc(dir)}</div><div class="c s">${esc(c.telefono || '')} · ${esc(c.email || '')}</div><div class="hr"></div><div class="c b m">${esFac ? (esRect ? 'FACTURA RECTIFICATIVA' : 'FACTURA') : 'JUSTIFICANTE DE PAGO'}</div><div class="r"><span>Nº ${esc(f.numero)}</span><span>${esc(facFecha(f.fecha))}</span></div>${persona}<div class="r"><span>Pago</span><span>${esc(f.metodo_pago || '')}</span></div><div class="hr"></div>${lineas}<div class="hr"></div><div class="r"><span>Base</span><span>${eurSafe(f.base_imponible)}</span></div><div class="r"><span>IVA ${esc(f.iva_porcentaje)}%</span><span>${eurSafe(f.cuota_iva)}</span></div><div class="r b big"><span>TOTAL</span><span>${eurSafe(f.total)}</span></div>${f.notas ? `<div class="hr"></div><div class="s">${esc(f.notas)}</div>` : ''}${qr}${hash}<div class="hr"></div><div class="c s">${legal}</div>${pie}<div class="c s">${esc(c.web || '')}</div></div></body></html>`;
-}
-
-function htmlA4Factura(f) {
-    const c = facConfig || {};
-    const logo = new URL('Geopadel.webp', location.href).href;
-    const dir = [c.direccion, c.cp, c.ciudad, c.provincia].filter(Boolean).join(' · ');
-    const esFac = f.tipo === 'Factura';
-    const esRect = !!f.factura_original_id;
-
-    const nombreClub = c.nombre_club || c.nombre || 'Geopadel';
-    const razonSocial = (c.nombre && c.nombre !== nombreClub) ? c.nombre : null;
-    const eurSafe = n => eur(n).replace('€', 'EUR');
-
-    const lineas = (f.lineas || []).map(l => `<tr><td>${esc(l.concepto)}</td><td class="r">${esc(l.cantidad)}</td><td class="r">${eurSafe(l.precio_unitario)}</td><td class="r">${esc(l.iva_porcentaje)}%</td><td class="r">${eurSafe(l.base)}</td><td class="r">${eurSafe(l.cuota)}</td><td class="r b">${eurSafe(l.total)}</td></tr>`).join('');
-    const legal = esFac ? esc(c.texto_legal || 'Factura emitida conforme al Real Decreto 1619/2012.') : 'Documento no válido como factura. Justificante de pago.';
-    const boxPersona = esFac
-        ? `<div class="box"><h3>Cliente</h3><p><b>${esc(f.cliente_nombre)}</b></p>${f.cliente_nif ? `<p>NIF: ${esc(f.cliente_nif)}</p>` : ''}${f.cliente_direccion ? `<p>${esc(f.cliente_direccion)}</p>` : ''}${f.cliente_email ? `<p>${esc(f.cliente_email)}</p>` : ''}${f.cliente_telefono ? `<p>${esc(f.cliente_telefono)}</p>` : ''}</div>`
-        : `<div class="box"><h3>Atendido por</h3><p><b>${esc(f.empleado || '—')}</b></p><p>Empleado del club</p></div>`;
-    const qrBlock = f.qr_url ? `<div style="text-align:center;margin-top:10mm"><img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(f.qr_url)}" alt="QR VeriFactu" width="140" height="140"><p style="font-size:8pt;margin-top:2mm">Factura verificable en la sede electrónica de la AEAT</p></div>` : '';
-    const rectRef = esRect && f.factura_original_id ? `<div class="box" style="margin-top:5mm"><h3>Rectifica a</h3><p>Factura original: ${esc(f.factura_original_id)}</p>${f.motivo_rectificacion ? `<p>Motivo: ${esc(f.motivo_rectificacion)}</p>` : ''}</div>` : '';
-    const pie = esFac && c.pie_factura ? `${esc(c.pie_factura)}<br>` : '';
-
-    return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{size:A4 portrait;margin:14mm}html,body{margin:0;padding:0;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif;font-size:11pt;line-height:1.35}.page{width:100%;max-width:186mm;margin:0 auto}.head{display:flex;justify-content:space-between;gap:10mm;border-bottom:2px solid #111;padding-bottom:5mm}.logo{height:18mm;width:auto;border-radius:3mm}.issuer h1{font-size:18pt;margin:0 0 1mm}.issuer h2{font-size:12pt;margin:0 0 2mm;color:#444;font-weight:700}.issuer p{margin:0 0 1mm;font-size:9.5pt}.doc{text-align:right;min-width:65mm}.doc h2{font-size:18pt;margin:0 0 3mm;text-transform:uppercase}.doc p{margin:0 0 1.5mm;font-size:10pt}.boxes{display:grid;grid-template-columns:1.2fr 1fr;gap:6mm;margin-top:7mm}.box{border:1px solid #bbb;border-radius:2mm;padding:4mm}.box h3{font-size:10pt;margin:0 0 2.5mm;text-transform:uppercase;border-bottom:1px solid #ddd;padding-bottom:1.5mm}.box p{margin:0 0 1.5mm;font-size:10pt}table{width:100%;border-collapse:collapse;margin-top:7mm}th,td{border-bottom:1px solid #ccc;padding:2.5mm 2mm;text-align:left;vertical-align:top}th{background:#eef3ef;font-size:9pt;text-transform:uppercase}.r{text-align:right}.b{font-weight:700}.totals{display:flex;justify-content:flex-end;margin-top:5mm}.totals table{width:80mm;margin:0}.totals td{border:0;padding:1.5mm 2mm}.totals tr:last-child td{border-top:2px solid #111;font-size:13pt;font-weight:800}.legal{margin-top:8mm;padding-top:4mm;border-top:1px solid #bbb;font-size:8.5pt;color:#333}.foot{margin-top:5mm;font-size:8.5pt;color:#555;text-align:center}</style></head><body><div class="page"><div class="head"><div><img class="logo" src="${logo}" alt="Geopadel"><div class="issuer"><h1>${esc(nombreClub)}</h1>${razonSocial ? `<h2>${esc(razonSocial)}</h2>` : ''}<p>${esc(c.nif || '')}</p><p>${esc(dir)}</p><p>${esc(c.telefono || '')} · ${esc(c.email || '')}</p></div></div><div class="doc"><h2>${esFac ? (esRect ? 'Factura rectificativa' : 'Factura') : 'Justificante de pago'}</h2><p><b>Nº:</b> ${esc(f.numero)}</p><p><b>Fecha:</b> ${esc(facFecha(f.fecha))}</p><p><b>Pago:</b> ${esc(f.metodo_pago || '')}</p></div></div><div class="boxes">${boxPersona}<div class="box"><h3>Documento</h3><p>${esFac ? (esRect ? 'Factura rectificativa' : 'Factura legal') : 'Justificante de pago'}</p><p>${esFac ? 'Válido fiscalmente' : 'No válido como factura'}</p>${f.notas ? `<p><b>Notas:</b> ${esc(f.notas)}</p>` : ''}</div></div>${rectRef}<table><thead><tr><th>Concepto</th><th class="r">Cant.</th><th class="r">Precio unit.</th><th class="r">IVA</th><th class="r">Base</th><th class="r">Cuota</th><th class="r">Total</th></tr></thead><tbody>${lineas}</tbody></table><div class="totals"><table><tr><td>Base imponible</td><td class="r">${eurSafe(f.base_imponible)}</td></tr><tr><td>IVA ${esc(f.iva_porcentaje)}%</td><td class="r">${eurSafe(f.cuota_iva)}</td></tr><tr><td>TOTAL</td><td class="r">${eurSafe(f.total)}</td></tr></table></div>${qrBlock}<div class="legal">${legal}</div><div class="foot">${pie}${esc(c.web || '')}</div></div></body></html>`;
-}
-
-function imprimirHTML(html) {
-    const iframe = document.createElement('iframe');
-    iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
-    iframe.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(iframe);
-    iframe.onload = () => {
-        const win = iframe.contentWindow;
-        const doc = win.document;
-        const imgs = Array.from(doc.images);
-        Promise.all(imgs.map(im => im.complete ? Promise.resolve() : new Promise(r => { im.onload = im.onerror = r; }))).then(() => {
-            setTimeout(() => {
-                try { win.focus(); win.print(); } finally { setTimeout(() => iframe.remove(), 3000); }
-            }, 100);
-        });
-    };
-    iframe.srcdoc = html;
-}
-
-async function entrarFacturas() {
-    if (!supabaseClient) return;
-    if (!facConfig) await cargarConfigFacturas();
-    iniciarFormFactura();
-    facActualizarModoRectificativa();
-    await cargarFacturas();
-    if (navigator.usb && !usbDevice) await conectarImpresoraUSB(true);
-}
-
-async function entrarFacturasConfig() {
-    if (!supabaseClient) return;
+  const e = facNum("facCfgIva"),
+    t = {
+      id: 1,
+      nombre_club: facVal("facCfgNombreClub"),
+      nombre: facVal("facCfgNombre"),
+      nif: facVal("facCfgNif"),
+      direccion: facVal("facCfgDireccion"),
+      cp: facVal("facCfgCp"),
+      ciudad: facVal("facCfgCiudad"),
+      provincia: facVal("facCfgProvincia"),
+      email: facVal("facCfgEmail"),
+      telefono: facVal("facCfgTelefono"),
+      web: facVal("facCfgWeb"),
+      iva_default: isNaN(e) ? 21 : e,
+      texto_legal: facVal("facCfgTextoLegal"),
+      pie_factura: facVal("facCfgPie"),
+      updated_at: new Date().toISOString(),
+    },
+    n = $("facCfgGuardar");
+  setBusy(n, !0, "Guardando...");
+  try {
+    const { error: e } = await supabaseClient
+      .from("facturas_config")
+      .upsert(t, { onConflict: "id" });
+    if (e) throw e;
+    toast("Datos fiscales guardados");
     await cargarConfigFacturas();
+  } catch (e) {
+    toast("No se pudo guardar: " + (e.message || e), "err");
+  } finally {
+    setBusy(n, !1);
+  }
 }
-
-if ($('facAddLinea')) $('facAddLinea').addEventListener('click', () => agregarLineaFactura());
-if ($('facLineas')) {
-    $('facLineas').addEventListener('input', actualizarTotalesFactura);
-    $('facLineas').addEventListener('click', e => {
-        const b = e.target.closest('[data-fac-quitar]');
-        if (!b) return;
-        const row = b.closest('[data-linea]');
-        if (row) row.remove();
-        if (!$('facLineas').children.length) agregarLineaFactura();
-        actualizarTotalesFactura();
-    });
+function nombreEmpleadoActual() {
+  if (!usuarioSesion) return "";
+  return usuarioSesion.nombre || usuarioSesion.user || "";
 }
-if ($('facIva')) $('facIva').addEventListener('input', actualizarTotalesFactura);
-if ($('facTipo')) $('facTipo').addEventListener('change', facActualizarCamposPorTipo);
-if ($('facEmitir')) $('facEmitir').addEventListener('click', emitirDocumentoFactura);
-if ($('facCfgGuardar')) $('facCfgGuardar').addEventListener('click', guardarConfigFacturas);
-if ($('facRefrescar')) $('facRefrescar').addEventListener('click', cargarFacturas);
-if ($('facBuscar')) $('facBuscar').addEventListener('input', dibujarFacturas);
-if ($('facFiltroTipo')) $('facFiltroTipo').addEventListener('change', dibujarFacturas);
-if ($('facBody')) $('facBody').addEventListener('click', async e => {
-    const b = e.target.closest('button[data-fac]');
-    if (!b) return;
-    const id = b.dataset.id;
-    const acc = b.dataset.fac;
-    if (acc === 'ticket' || acc === 'a4') await imprimirFactura(id, acc);
-    else if (acc === 'webusb') await imprimirTicketWebUSB(id);
-    else if (acc === 'rectificar') prepararRectificativa(id);
-});
-
-let usbDevice = null;
-let usbEndpoint = null;
-
-async function conectarImpresoraUSB(silencioso = false) {
-    try {
-        let device = null;
-        const dispositivosPermitidos = await navigator.usb.getDevices();
-
-        if (dispositivosPermitidos.length > 0) {
-            device = dispositivosPermitidos[0];
-        } else {
-            if (silencioso) return;
-            device = await navigator.usb.requestDevice({ filters: [] });
+function facActualizarCamposPorTipo() {
+  const e = $("facTipo").value === "Factura",
+    t = $("facBloqueCliente"),
+    n = $("facBloqueEmpleado");
+  if (t) t.style.display = e ? "" : "none";
+  if (n) n.style.display = e ? "none" : "";
+}
+function iniciarFormFactura() {
+  const e = $("facFecha");
+  if (e && !e.value) e.value = fechaLocalISO();
+  const t = $("facIva");
+  if (t && !t.value)
+    t.value = facConfig && facConfig.iva_default ? facConfig.iva_default : 21;
+  const n = $("facEmpleado");
+  if (n) n.value = nombreEmpleadoActual();
+  facActualizarCamposPorTipo();
+  const r = $("facLineas");
+  if (r && !r.children.length) agregarLineaFactura();
+  actualizarTotalesFactura();
+}
+function agregarLineaFactura(e = "", t = 1, n = 0) {
+  const r = $("facLineas");
+  if (!r) return;
+  const i = document.createElement("div");
+  i.className = "fac-linea";
+  i.dataset.linea = "1";
+  i.innerHTML = `<label>Concepto<input class="fac-concepto" type="text" maxlength="160" value="${esc(e)}"></label><label>Cantidad<input class="fac-cantidad" type="number" min="0.01" step="0.01" value="${esc(t)}"></label><label>Precio IVA inc.<input class="fac-precio" type="number" min="0" step="0.01" value="${esc(n)}"></label><div class="fac-linea-total"><span>Total</span><b>0,00 €</b></div><button type="button" class="btn-add danger" data-fac-quitar aria-label="Quitar línea"><i class="ri-close-line" aria-hidden="true"></i></button>`;
+  r.appendChild(i);
+  actualizarTotalesFactura();
+}
+function leerLineasFactura() {
+  const e = [];
+  document.querySelectorAll("#facLineas [data-linea]").forEach((t) => {
+    const n = t.querySelector(".fac-concepto").value.trim(),
+      r = parseFloat(
+        String(t.querySelector(".fac-cantidad").value).replace(",", "."),
+      ),
+      i = parseFloat(
+        String(t.querySelector(".fac-precio").value).replace(",", "."),
+      );
+    if (!n && (!r || isNaN(r)) && (!i || isNaN(i))) return;
+    e.push({ concepto: n, cantidad: r, precio_unitario_con_iva: i });
+  });
+  return e;
+}
+function actualizarTotalesFactura() {
+  let e = 0;
+  document.querySelectorAll("#facLineas [data-linea]").forEach((t) => {
+    const n =
+        parseFloat(
+          String(t.querySelector(".fac-cantidad").value).replace(",", "."),
+        ) || 0,
+      r =
+        parseFloat(
+          String(t.querySelector(".fac-precio").value).replace(",", "."),
+        ) || 0,
+      i = redondear2(n * r);
+    e += i;
+    const a = t.querySelector(".fac-linea-total b");
+    if (a) a.innerText = eur(i);
+  });
+  e = redondear2(e);
+  const t = facNum("facIva"),
+    n = !isNaN(t) && t >= 0 ? t : 21,
+    r = redondear2(e / (1 + n / 100)),
+    i = redondear2(e - r),
+    a = $("facTotales");
+  if (a)
+    a.innerHTML = `<span>Base imponible <b>${eur(r)}</b></span><span>IVA (${n}%) <b>${eur(i)}</b></span><span>Total <b>${eur(e)}</b></span>`;
+}
+function limpiarFormFactura() {
+  [
+    "facClienteNombre",
+    "facClienteNif",
+    "facClienteDireccion",
+    "facClienteEmail",
+    "facClienteTelefono",
+    "facReservaId",
+    "facNotas",
+    "facFacturaOriginal",
+    "facMotivoRectificacion",
+  ].forEach((e) => facSet(e, ""));
+  facSet("facEmpleado", nombreEmpleadoActual());
+  const e = $("facLineas");
+  if (e) e.innerHTML = "";
+  agregarLineaFactura();
+  facRectificando = null;
+  facActualizarModoRectificativa();
+}
+function facActualizarModoRectificativa() {
+  const e = $("facBoxRectificativa");
+  if (!e) return;
+  e.style.display = facRectificando ? "" : "none";
+}
+function prepararRectificativa(e) {
+  const t = facLista.find((t) => String(t.id) === String(e));
+  if (!t) return;
+  facRectificando = t;
+  facSet("facTipo", "Factura");
+  facSet("facClienteNombre", t.cliente_nombre || "");
+  facSet("facClienteNif", t.cliente_nif || "");
+  facSet("facFecha", fechaLocalISO());
+  facActualizarCamposPorTipo();
+  facSet("facFacturaOriginal", t.numero);
+  facSet("facMotivoRectificacion", "");
+  facActualizarModoRectificativa();
+  $("facTipo").disabled = !0;
+  toast(`Rectificando factura ${t.numero}`);
+}
+function cancelarRectificacion() {
+  facRectificando = null;
+  $("facTipo").disabled = !1;
+  facSet("facFacturaOriginal", "");
+  facSet("facMotivoRectificacion", "");
+  facActualizarModoRectificativa();
+  facActualizarCamposPorTipo();
+  toast("Rectificación cancelada");
+}
+async function emitirDocumentoFactura() {
+  const e = facRectificando ? "Factura" : $("facTipo").value,
+    t = e === "Factura",
+    n = $("facFecha").value,
+    r = $("facMetodo").value,
+    i = facVal("facReservaId") || null,
+    a = facVal("facEmpleado"),
+    o = t
+      ? {
+          nombre: facVal("facClienteNombre"),
+          nif: facVal("facClienteNif"),
+          direccion: facVal("facClienteDireccion"),
+          email: facVal("facClienteEmail"),
+          telefono: facVal("facClienteTelefono"),
         }
-
-        usbDevice = device;
-        await usbDevice.open();
-        if (usbDevice.configuration === null) await usbDevice.selectConfiguration(1);
-
-        for (const iface of usbDevice.configuration.interfaces) {
-            for (const alternate of iface.alternates) {
-                const outEndpoint = alternate.endpoints.find(e => e.direction === 'out');
-                if (outEndpoint) {
-                    await usbDevice.claimInterface(iface.interfaceNumber);
-                    usbEndpoint = outEndpoint.endpointNumber;
-                    break;
-                }
-            }
-            if (usbEndpoint) break;
+      : {},
+    s = facVal("facNotas"),
+    l = facNum("facIva");
+  if (!n) return toast("Indica la fecha", "warn");
+  if (t) {
+    if (!o.nombre) return toast("Indica el cliente", "warn");
+    if (!o.nif)
+      return toast("Para una factura legal hace falta el NIF", "warn");
+    if (!o.direccion)
+      return toast("Para una factura legal hace falta la dirección", "warn");
+    if (facRectificando && !facVal("facMotivoRectificacion"))
+      return toast("Indica el motivo de la rectificación", "warn");
+  } else if (!a) return toast("No se pudo identificar al empleado", "err");
+  if (isNaN(l) || l < 0 || l > 100) return toast("IVA no válido", "warn");
+  const c = leerLineasFactura();
+  if (!c.length) return toast("Añade al menos una línea", "warn");
+  for (const e of c) {
+    if (!e.concepto) return toast("Cada línea necesita concepto", "warn");
+    if (!isFinite(e.cantidad) || e.cantidad <= 0)
+      return toast("Cantidad no válida", "warn");
+    if (!isFinite(e.precio_unitario_con_iva) || e.precio_unitario_con_iva < 0)
+      return toast("Precio no válido", "warn");
+  }
+  const d = $("facEmitir");
+  setBusy(d, !0, "Emitiendo...");
+  try {
+    const { data: e, error: r } = await supabaseClient.rpc(
+      "gp_emitir_documento_verifactu",
+      {
+        p_tipo: t,
+        p_fecha: n,
+        p_cliente: o,
+        p_metodo_pago: r,
+        p_reserva_id: i,
+        p_iva: l,
+        p_lineas: c,
+        p_notas: s || null,
+        p_empleado: t ? null : a,
+        p_factura_original_id: facRectificando ? facRectificando.id : null,
+        p_motivo_rectificacion: facRectificando
+          ? facVal("facMotivoRectificacion")
+          : null,
+        p_tipo_rectificativa: facRectificando ? "S" : null,
+      },
+    );
+    if (r) throw r;
+    if (!e || !e.ok)
+      throw new Error(e && e.error ? e.error : "No se pudo emitir");
+    toast(`Documento ${e.numero} emitido`);
+    if (e.qr_url) await enviarAEAT(e.id, e.qr_url);
+    limpiarFormFactura();
+    $("facTipo").disabled = !1;
+    facActualizarCamposPorTipo();
+    await cargarFacturas();
+  } catch (e) {
+    console.error(e);
+    toast("No se pudo emitir: " + (e.message || e), "err");
+  } finally {
+    setBusy(d, !1);
+  }
+}
+async function enviarAEAT(e, t) {
+  try {
+    const { data: n, error: r } = await supabaseClient.functions.invoke(
+      "verifactu-send",
+      { body: { factura_ids: [e], qr_url: t } },
+    );
+    if (r || !n || !n.ok)
+      console.warn("No se pudo disparar el envío AEAT:", r || n);
+  } catch (e) {
+    console.warn("Error disparando envío AEAT:", e);
+  }
+}
+async function cargarFacturas() {
+  if (!supabaseClient || facCargando) return;
+  facCargando = !0;
+  try {
+    const { data: e, error: t } = await supabaseClient
+      .from("facturas")
+      .select(
+        "id,tipo,numero,fecha,cliente_nombre,cliente_nif,metodo_pago,total,estado,empleado,hash_actual,qr_url,tipo_rectificativa,factura_original_id,created_at,enviada_aeat",
+      )
+      .order("fecha", { ascending: !1 })
+      .order("created_at", { ascending: !1 })
+      .limit(300);
+    if (t) throw t;
+    facLista = e || [];
+    dibujarFacturas();
+  } catch (e) {
+    console.error(e);
+    toast("No se pudieron cargar las facturas: " + (e.message || e), "err");
+  } finally {
+    facCargando = !1;
+  }
+}
+function dibujarFacturas() {
+  const e = $("facBody");
+  if (!e) return;
+  const t = facVal("facBuscar").toLowerCase(),
+    n = $("facFiltroTipo") ? $("facFiltroTipo").value : "Todos",
+    r = facLista.filter(
+      (e) =>
+        (n === "Todos" || e.tipo === n) &&
+        (!t ||
+          String(e.numero).toLowerCase().includes(t) ||
+          String(e.cliente_nombre).toLowerCase().includes(t) ||
+          String(e.cliente_nif || "")
+            .toLowerCase()
+            .includes(t) ||
+          String(e.empleado || "")
+            .toLowerCase()
+            .includes(t)),
+    );
+  if (!r.length) {
+    e.innerHTML =
+      '<tr><td colspan="9" class="tabla-empty">No hay documentos</td></tr>';
+    return;
+  }
+  e.innerHTML = r
+    .map((e) => {
+      const t =
+          typeof esJefa === "function" && esJefa() && e.estado === "Emitida",
+        n = e.tipo === "Factura",
+        r = !!e.factura_original_id,
+        i = n
+          ? `<b>${esc(e.cliente_nombre || "—")}</b><small class="esc-desc">${esc(e.cliente_nif || "")}</small>`
+          : `<b>${esc(e.empleado || "—")}</b><small class="esc-desc">Atendido por</small>`,
+        a = n
+          ? `<button type="button" class="btn-add blue" data-fac="a4" data-id="${esc(e.id)}">A4</button>`
+          : "",
+        o =
+          t && n && !r
+            ? `<button type="button" class="btn-add gray" data-fac="rectificar" data-id="${esc(e.id)}">Rectificar</button>`
+            : "",
+        s = r
+          ? '<span class="fac-estado ok" style="margin-left:4px">R</span>'
+          : "";
+      return `<tr><td><b>${esc(e.numero)}</b>${s}</td><td>${esc(facFecha(e.fecha))}</td><td>${esc(facTipoTxt(e.tipo))}</td><td>${i}</td><td>${esc(e.metodo_pago || "—")}</td><td><b>${eur(e.total)}</b></td><td><span class="fac-estado ${e.estado === "Anulada" ? "no" : "ok"}">${esc(e.estado)}</span></td><td><small>${e.enviada_aeat ? "✓ AEAT" : "—"}</small></td><td><div class="fac-acciones"><button type="button" class="btn-add blue" data-fac="webusb" data-id="${esc(e.id)}">80 mm (USB)</button>${a}${o}</div></td></tr>`;
+    })
+    .join("");
+}
+async function obtenerFactura(e) {
+  const { data: t, error: n } = await supabaseClient
+    .from("facturas")
+    .select("*")
+    .eq("id", e)
+    .maybeSingle();
+  if (n) throw n;
+  if (!t) return null;
+  const { data: r, error: i } = await supabaseClient
+    .from("factura_lineas")
+    .select("*")
+    .eq("factura_id", e)
+    .order("orden", { ascending: !0 });
+  if (i) throw i;
+  return { ...t, lineas: r || [] };
+}
+async function imprimirFactura(e, t) {
+  try {
+    if (!facConfig) await cargarConfigFacturas();
+    const n = await obtenerFactura(e);
+    if (!n) return toast("No se encontró el documento", "err");
+    if (n.factura_original_id) {
+      const { data: e } = await supabaseClient
+        .from("facturas")
+        .select("numero")
+        .eq("id", n.factura_original_id)
+        .maybeSingle();
+      n.numero_original = e ? e.numero : null;
+    }
+    if (n.tipo === "Justificante" && t === "a4") t = "ticket";
+    imprimirHTML(t === "ticket" ? htmlTicketFactura(n) : htmlA4Factura(n));
+  } catch (e) {
+    console.error(e);
+    toast("No se pudo imprimir: " + (e.message || e), "err");
+  }
+}
+function htmlTicketFactura(e) {
+  const t = facConfig || {},
+    n = [t.direccion, t.cp, t.ciudad, t.provincia].filter(Boolean).join(", "),
+    r = e.tipo === "Factura",
+    i = !!e.factura_original_id,
+    a = t.nombre_club || t.nombre || "GEOPADEL",
+    o = t.nombre && t.nombre !== a ? t.nombre : null,
+    s = (e) =>
+      (Number(e) || 0)
+        .toLocaleString("es-ES", { style: "currency", currency: "EUR" })
+        .replace("€", "EUR"),
+    l = (e.lineas || [])
+      .map(
+        (e) =>
+          `<div class="r"><span>${esc(e.concepto)}</span><span>${s(e.total)}</span></div><div class="r s"><span>${esc(e.cantidad)} x ${s(e.precio_unitario)} · IVA ${esc(e.iva_porcentaje)}%</span><span>${s(e.base)} + ${s(e.cuota)}</span></div>`,
+      )
+      .join(""),
+    c = r
+      ? esc(t.texto_legal || "Factura emitida conforme al RD 1619/2012.")
+      : "Documento no válido como factura. Justificante de pago.",
+    d = r
+      ? `<div class="r"><span>Cliente</span><span>${esc(e.cliente_nombre)}</span></div>${e.cliente_nif ? `<div class="r"><span>NIF</span><span>${esc(e.cliente_nif)}</span></div>` : ""}${e.cliente_direccion ? `<div class="r"><span>Dirección</span><span>${esc(e.cliente_direccion)}</span></div>` : ""}`
+      : `<div class="r"><span>Atendido por</span><span>${esc(e.empleado || "—")}</span></div>`,
+    u = e.qr_url
+      ? `<div class="c" style="margin:3mm 0"><img src="${qrDataURL(e.qr_url)}" alt="QR VeriFactu" width="120" height="120"><div class="s">Factura verificable en la sede electrónica de la AEAT</div></div>`
+      : "",
+    p = e.hash_actual
+      ? `<div class="r s"><span>Hash</span><span>${esc(e.hash_actual.slice(0, 16))}…</span></div>`
+      : "",
+    m = r ? `<div class="c s">${esc(t.pie_factura || "")}</div>` : "";
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{size:80mm auto;margin:0}html,body{margin:0;padding:0;background:#fff;color:#000;font-family:"Courier New",monospace;font-size:12px;line-height:1.25}.t{width:72mm;margin:0 auto;padding:3mm 0}.c{text-align:center}.b{font-weight:700}.r{display:flex;justify-content:space-between;gap:4mm}.hr{border-top:1px dashed #000;margin:2mm 0}.s{font-size:10px}.big{font-size:16px;font-weight:800}.m{text-transform:uppercase}</style></head><body><div class="t"><div class="c b big">${esc(a)}</div>${o ? `<div class="c b" style="font-size:11px">${esc(o)}</div>` : ""}<div class="c s">${esc(t.nif || "")}</div><div class="c s">${esc(n)}</div><div class="c s">${esc(t.telefono || "")} · ${esc(t.email || "")}</div><div class="hr"></div><div class="c b m">${r ? (i ? "FACTURA RECTIFICATIVA" : "FACTURA") : "JUSTIFICANTE DE PAGO"}</div><div class="r"><span>Nº ${esc(e.numero)}</span><span>${esc(facFecha(e.fecha))}</span></div>${d}<div class="r"><span>Pago</span><span>${esc(e.metodo_pago || "")}</span></div><div class="hr"></div>${l}<div class="hr"></div><div class="r"><span>Base</span><span>${s(e.base_imponible)}</span></div><div class="r"><span>IVA ${esc(e.iva_porcentaje)}%</span><span>${s(e.cuota_iva)}</span></div><div class="r b big"><span>TOTAL</span><span>${s(e.total)}</span></div>${e.notas ? `<div class="hr"></div><div class="s">${esc(e.notas)}</div>` : ""}${u}${p}<div class="hr"></div><div class="c s">${c}</div>${m}<div class="c s">${esc(t.web || "")}</div></div></body></html>`;
+}
+function htmlA4Factura(e) {
+  const t = facConfig || {},
+    n = new URL("geopadel.webp", location.href).href,
+    r = [t.direccion, t.cp, t.ciudad, t.provincia].filter(Boolean).join(" · "),
+    i = e.tipo === "Factura",
+    a = !!e.factura_original_id,
+    o = t.nombre_club || t.nombre || "Geopadel",
+    s = t.nombre && t.nombre !== o ? t.nombre : null,
+    l = (e) =>
+      (Number(e) || 0)
+        .toLocaleString("es-ES", { style: "currency", currency: "EUR" })
+        .replace("€", "EUR"),
+    c = (e.lineas || [])
+      .map(
+        (e) =>
+          `<tr><td>${esc(e.concepto)}</td><td class="r">${esc(e.cantidad)}</td><td class="r">${l(e.precio_unitario)}</td><td class="r">${esc(e.iva_porcentaje)}%</td><td class="r">${l(e.base)}</td><td class="r">${l(e.cuota)}</td><td class="r b">${l(e.total)}</td></tr>`,
+      )
+      .join(""),
+    d = i
+      ? esc(
+          t.texto_legal ||
+            "Factura emitida conforme al Real Decreto 1619/2012.",
+        )
+      : "Documento no válido como factura. Justificante de pago.",
+    u = i
+      ? `<div class="box"><h3>Cliente</h3><p><b>${esc(e.cliente_nombre)}</b></p>${e.cliente_nif ? `<p>NIF: ${esc(e.cliente_nif)}</p>` : ""}${e.cliente_direccion ? `<p>${esc(e.cliente_direccion)}</p>` : ""}${e.cliente_email ? `<p>${esc(e.cliente_email)}</p>` : ""}${e.cliente_telefono ? `<p>${esc(e.cliente_telefono)}</p>` : ""}</div>`
+      : `<div class="box"><h3>Atendido por</h3><p><b>${esc(e.empleado || "—")}</b></p><p>Empleado del club</p></div>`,
+    p = e.qr_url
+      ? `<div style="text-align:center;margin-top:10mm"><img src="${qrDataURL(e.qr_url)}" alt="QR VeriFactu" width="140" height="140"><p style="font-size:8pt;margin-top:2mm">Factura verificable en la sede electrónica de la AEAT</p></div>`
+      : "",
+    m =
+      a && e.factura_original_id
+        ? `<div class="box" style="margin-top:5mm"><h3>Rectifica a</h3><p>Factura original: ${esc(e.numero_original || "—")}</p>${e.motivo_rectificacion ? `<p>Motivo: ${esc(e.motivo_rectificacion)}</p>` : ""}</div>`
+        : "",
+    h = i && t.pie_factura ? `${esc(t.pie_factura)}<br>` : "";
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{size:A4 portrait;margin:14mm}html,body{margin:0;padding:0;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif;font-size:11pt;line-height:1.35}.page{width:100%;max-width:186mm;margin:0 auto}.head{display:flex;justify-content:space-between;gap:10mm;border-bottom:2px solid #111;padding-bottom:5mm}.logo{height:18mm;width:auto;border-radius:3mm}.issuer h1{font-size:18pt;margin:0 0 1mm}.issuer h2{font-size:12pt;margin:0 0 2mm;color:#444;font-weight:700}.issuer p{margin:0 0 1mm;font-size:9.5pt}.doc{text-align:right;min-width:65mm}.doc h2{font-size:18pt;margin:0 0 3mm;text-transform:uppercase}.doc p{margin:0 0 1.5mm;font-size:10pt}.boxes{display:grid;grid-template-columns:1.2fr 1fr;gap:6mm;margin-top:7mm}.box{border:1px solid #bbb;border-radius:2mm;padding:4mm}.box h3{font-size:10pt;margin:0 0 2.5mm;text-transform:uppercase;border-bottom:1px solid #ddd;padding-bottom:1.5mm}.box p{margin:0 0 1.5mm;font-size:10pt}table{width:100%;border-collapse:collapse;margin-top:7mm}th,td{border-bottom:1px solid #ccc;padding:2.5mm 2mm;text-align:left;vertical-align:top}th{background:#eef3ef;font-size:9pt;text-transform:uppercase}.r{text-align:right}.b{font-weight:700}.totals{display:flex;justify-content:flex-end;margin-top:5mm}.totals table{width:80mm;margin:0}.totals td{border:0;padding:1.5mm 2mm}.totals tr:last-child td{border-top:2px solid #111;font-size:13pt;font-weight:800}.legal{margin-top:8mm;padding-top:4mm;border-top:1px solid #bbb;font-size:8.5pt;color:#333}.foot{margin-top:5mm;font-size:8.5pt;color:#555;text-align:center}</style></head><body><div class="page"><div class="head"><div><img class="logo" src="${n}" alt="Geopadel"><div class="issuer"><h1>${esc(o)}</h1>${s ? `<h2>${esc(s)}</h2>` : ""}<p>${esc(t.nif || "")}</p><p>${esc(r)}</p><p>${esc(t.telefono || "")} · ${esc(t.email || "")}</p></div></div><div class="doc"><h2>${i ? (a ? "Factura rectificativa" : "Factura") : "Justificante de pago"}</h2><p><b>Nº:</b> ${esc(e.numero)}</p><p><b>Fecha:</b> ${esc(facFecha(e.fecha))}</p><p><b>Pago:</b> ${esc(e.metodo_pago || "")}</p></div></div><div class="boxes">${u}<div class="box"><h3>Documento</h3><p>${i ? (a ? "Factura rectificativa" : "Factura legal") : "Justificante de pago"}</p><p>${i ? "Válido fiscalmente" : "No válido como factura"}</p>${e.notas ? `<p><b>Notas:</b> ${esc(e.notas)}</p>` : ""}</div></div>${m}<table><thead><tr><th>Concepto</th><th class="r">Cant.</th><th class="r">Precio unit.</th><th class="r">IVA</th><th class="r">Base</th><th class="r">Cuota</th><th class="r">Total</th></tr></thead><tbody>${c}</tbody></table><div class="totals"><table><tr><td>Base imponible</td><td class="r">${l(e.base_imponible)}</td></tr><tr><td>IVA ${esc(e.iva_porcentaje)}%</td><td class="r">${l(e.cuota_iva)}</td></tr><tr><td>TOTAL</td><td class="r">${l(e.total)}</td></tr></table></div>${p}<div class="legal">${d}</div><div class="foot">${h}${esc(t.web || "")}</div></div></body></html>`;
+}
+function imprimirHTML(e) {
+  const t = document.createElement("iframe");
+  t.style.cssText =
+    "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden";
+  t.setAttribute("aria-hidden", "true");
+  document.body.appendChild(t);
+  t.onload = () => {
+    const e = t.contentWindow,
+      n = e.document,
+      r = Array.from(n.images);
+    Promise.all(
+      r.map((e) =>
+        e.complete
+          ? Promise.resolve()
+          : new Promise((t) => {
+              e.onload = e.onerror = t;
+            }),
+      ),
+    ).then(() => {
+      setTimeout(() => {
+        try {
+          e.focus();
+          e.print();
+        } finally {
+          setTimeout(() => t.remove(), 3e3);
         }
-
-        if (!usbEndpoint) throw new Error('No se encontró el puerto de salida');
-        if (!silencioso) toast('Impresora conectada correctamente', 'ok');
-    } catch (error) {
-        console.error('Error al conectar la impresora:', error);
-        if (!silencioso) toast('No se pudo conectar: ' + (error.message || error), 'err');
-    }
-}
-
-async function enviarBytesAImpresora(bytes) {
-    if (!usbDevice || !usbEndpoint) {
-        toast('Primero debes conectar la impresora', 'warn');
-        return false;
-    }
-
-    const CHUNK_SIZE = 64;
-    for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
-        const chunk = bytes.slice(i, i + CHUNK_SIZE);
-        await usbDevice.transferOut(usbEndpoint, chunk);
-    }
-    return true;
-}
-
-function textoABytes(texto) {
-    const cp437 = {
-        0x20AC: 0xD5,
-        0x00E1: 0xA0,
-        0x00E9: 0x82,
-        0x00ED: 0xA1,
-        0x00F3: 0xA2,
-        0x00FA: 0xA3,
-        0x00F1: 0xA4,
-        0x00C1: 0xB5,
-        0x00C9: 0x90,
-        0x00CD: 0xD6,
-        0x00D3: 0xE0,
-        0x00DA: 0xE9,
-        0x00D1: 0xA5,
-        0x00FC: 0x81,
-        0x00DC: 0x9A,
-        0x00BA: 0xA7,
-        0x00AA: 0xA6,
-        0x00B7: 0xFA,
-        0x00A0: 0xFF
-    };
-
-    const bytes = new Uint8Array(texto.length);
-    for (let i = 0; i < texto.length; i++) {
-        const charCode = texto.charCodeAt(i);
-        bytes[i] = cp437[charCode] !== undefined ? cp437[charCode] : (charCode < 256 ? charCode : 63);
-    }
-    return bytes;
-}
-
-function formatearTicketTexto(f) {
-    const c = facConfig || {};
-    const ancho = 42;
-    const esFac = f.tipo === 'Factura';
-    const esRect = !!f.factura_original_id;
-    const nombreClub = c.nombre_club || c.nombre || 'GEOPADEL';
-    const razonSocial = (c.nombre && c.nombre !== nombreClub) ? c.nombre : null;
-    const eurSafe = n => eur(n).replace('€', 'EUR');
-
-    const centrar = (texto) => {
-        const espacios = Math.max(0, Math.floor((ancho - texto.length) / 2));
-        return ' '.repeat(espacios) + texto;
-    };
-
-    const linea = '-'.repeat(ancho);
-    const dobleLinea = '='.repeat(ancho);
-
-    let ticket = '';
-
-    ticket += '\x1B\x40';
-    ticket += '\x1B\x74\x00';
-    ticket += '\x1B\x61\x01';
-    ticket += '\x1D\x21\x11';
-
-    ticket += nombreClub.toUpperCase() + '\n';
-    ticket += '\x1D\x21\x00';
-
-    if (razonSocial) ticket += razonSocial + '\n';
-    if (c.nif) ticket += 'NIF: ' + c.nif + '\n';
-    if (c.direccion) ticket += c.direccion + '\n';
-    if (c.telefono) ticket += 'Tel: ' + c.telefono + '\n';
-
-    ticket += '\x1B\x61\x00';
-    ticket += linea + '\n';
-
-    const titulo = esFac ? (esRect ? 'FACTURA RECTIFICATIVA' : 'FACTURA') : 'JUSTIFICANTE DE PAGO';
-
-    ticket += '\x1B\x61\x01';
-    ticket += titulo + '\n';
-    ticket += `Nº: ${f.numero}` + '\n';
-    ticket += `Fecha: ${facFecha(f.fecha)}` + '\n';
-    ticket += '\x1B\x61\x00';
-    ticket += linea + '\n';
-
-    if (esFac) {
-        ticket += `Cliente: ${f.cliente_nombre}\n`;
-        if (f.cliente_nif) ticket += `NIF: ${f.cliente_nif}\n`;
-        if (f.cliente_direccion) ticket += `Dirección: ${f.cliente_direccion}\n`;
-    } else {
-        ticket += `Atendido por: ${f.empleado || '—'}\n`;
-    }
-    ticket += `Pago: ${f.metodo_pago || '—'}\n`;
-    ticket += linea + '\n';
-
-    ticket += 'CANT  CONCEPTO                TOTAL\n';
-    ticket += linea + '\n';
-    (f.lineas || []).forEach(l => {
-        const concepto = l.concepto.length > 20 ? l.concepto.substring(0, 20) + '...' : l.concepto;
-        const cantidad = String(l.cantidad).padEnd(5);
-        const total = eurSafe(l.total).padStart(10);
-        ticket += `${cantidad} ${concepto.padEnd(20)} ${total}\n`;
+      }, 100);
     });
-    ticket += linea + '\n';
-
-    ticket += `Base Imponible: ${eurSafe(f.base_imponible).padStart(15)}\n`;
-    ticket += `IVA (${f.iva_porcentaje}%):   ${eurSafe(f.cuota_iva).padStart(15)}\n`;
-    ticket += dobleLinea + '\n';
-    ticket += `TOTAL:          ${eurSafe(f.total).padStart(15)}\n`;
-    ticket += dobleLinea + '\n';
-
-    if (f.notas) {
-        ticket += `Notas: ${f.notas}\n`;
-        ticket += linea + '\n';
-    }
-
-    const legal = esFac ? 'Factura emitida conforme al RD 1619/2012.' : 'Documento no válido como factura.';
-    ticket += '\x1B\x61\x01';
-    ticket += legal + '\n';
-
-    if (esFac && c.pie_factura) {
-        ticket += c.pie_factura + '\n';
-    }
-
-    ticket += '\n\n\n';
-    ticket += '\x1D\x56\x41\x10';
-
-    return ticket;
+  };
+  t.srcdoc = e;
 }
-
-async function imprimirTicketWebUSB(id) {
-    try {
-        const f = await obtenerFactura(id);
-        if (!f) return toast('No se encontró el documento', 'err');
-
-        const texto = formatearTicketTexto(f);
-        const bytes = textoABytes(texto);
-
-        const exito = await enviarBytesAImpresora(bytes);
-        if (exito) toast('Ticket enviado a la impresora', 'ok');
-    } catch (error) {
-        console.error('Error al imprimir:', error);
-        toast('No se pudo imprimir: ' + (error.message || error), 'err');
+async function entrarFacturas() {
+  if (!supabaseClient) return;
+  if (!facConfig) await cargarConfigFacturas();
+  iniciarFormFactura();
+  facActualizarModoRectificativa();
+  await cargarFacturas();
+  if (navigator.usb && !usbDevice) await conectarImpresoraUSB(!0);
+}
+async function entrarFacturasConfig() {
+  if (!supabaseClient) return;
+  await cargarConfigFacturas();
+}
+if ($("facAddLinea"))
+  $("facAddLinea").addEventListener("click", () => agregarLineaFactura());
+if ($("facLineas")) {
+  $("facLineas").addEventListener("input", actualizarTotalesFactura);
+  $("facLineas").addEventListener("click", (e) => {
+    const t = e.target.closest("[data-fac-quitar]");
+    if (!t) return;
+    const n = t.closest("[data-linea]");
+    if (n) n.remove();
+    if (!$("facLineas").children.length) agregarLineaFactura();
+    actualizarTotalesFactura();
+  });
+}
+if ($("facIva"))
+  $("facIva").addEventListener("input", actualizarTotalesFactura);
+if ($("facTipo"))
+  $("facTipo").addEventListener("change", facActualizarCamposPorTipo);
+if ($("facEmitir"))
+  $("facEmitir").addEventListener("click", emitirDocumentoFactura);
+if ($("facCfgGuardar"))
+  $("facCfgGuardar").addEventListener("click", guardarConfigFacturas);
+if ($("facRefrescar"))
+  $("facRefrescar").addEventListener("click", cargarFacturas);
+if ($("facBuscar")) $("facBuscar").addEventListener("input", dibujarFacturas);
+if ($("facFiltroTipo"))
+  $("facFiltroTipo").addEventListener("change", dibujarFacturas);
+if ($("facCancelarRect"))
+  $("facCancelarRect").addEventListener("click", cancelarRectificacion);
+if ($("facBody"))
+  $("facBody").addEventListener("click", async (e) => {
+    const t = e.target.closest("button[data-fac]");
+    if (!t) return;
+    const n = t.dataset.id,
+      r = t.dataset.fac;
+    if (r === "ticket" || r === "a4") await imprimirFactura(n, r);
+    else if (r === "webusb") await imprimirTicketWebUSB(n);
+    else if (r === "rectificar") prepararRectificativa(n);
+  });
+let usbDevice = null,
+  usbEndpoint = null;
+async function conectarImpresoraUSB(e = !1) {
+  try {
+    let t = null;
+    const n = await navigator.usb.getDevices();
+    if (n.length > 0) t = n[0];
+    else {
+      if (e) return;
+      t = await navigator.usb.requestDevice({ filters: [] });
     }
+    usbDevice = t;
+    await usbDevice.open();
+    if (usbDevice.configuration === null)
+      await usbDevice.selectConfiguration(1);
+    for (const e of usbDevice.configuration.interfaces)
+      for (const t of e.alternates) {
+        const n = t.endpoints.find((e) => e.direction === "out");
+        if (n) {
+          await usbDevice.claimInterface(e.interfaceNumber);
+          usbEndpoint = n.endpointNumber;
+          break;
+        }
+      }
+    if (!usbEndpoint) throw new Error("No se encontró el puerto de salida");
+    if (!e) toast("Impresora conectada correctamente", "ok");
+  } catch (t) {
+    console.error("Error al conectar la impresora:", t);
+    if (!e) toast("No se pudo conectar: " + (t.message || t), "err");
+  }
 }
-
-if (typeof window.accion === 'function') {
-    window.accion('conectar-impresora', () => typeof conectarImpresoraUSB === 'function' && conectarImpresoraUSB());
+async function enviarBytesAImpresora(e) {
+  if (!usbDevice || !usbEndpoint) {
+    toast("Primero debes conectar la impresora", "warn");
+    return !1;
+  }
+  const t = 64;
+  for (let n = 0; n < e.length; n += t) {
+    const r = e.slice(n, n + t);
+    await usbDevice.transferOut(usbEndpoint, r);
+  }
+  return !0;
 }
+function textoABytes(e) {
+  const t = {
+      8364: 213,
+      225: 160,
+      233: 130,
+      237: 161,
+      243: 162,
+      250: 163,
+      241: 164,
+      193: 181,
+      201: 144,
+      205: 214,
+      211: 224,
+      218: 233,
+      209: 165,
+      252: 129,
+      220: 154,
+      186: 167,
+      170: 166,
+      183: 250,
+      160: 255,
+    },
+    n = new Uint8Array(e.length);
+  for (let r = 0; r < e.length; r++) {
+    const i = e.charCodeAt(r);
+    n[r] = t[i] !== undefined ? t[i] : i < 256 ? i : 63;
+  }
+  return n;
+}
+function formatearTicketTexto(e) {
+  const t = facConfig || {},
+    n = 42,
+    r = e.tipo === "Factura",
+    i = !!e.factura_original_id,
+    a = t.nombre_club || t.nombre || "GEOPADEL",
+    o = t.nombre && t.nombre !== a ? t.nombre : null,
+    s = (e) =>
+      (Number(e) || 0)
+        .toLocaleString("es-ES", { style: "currency", currency: "EUR" })
+        .replace("€", "EUR"),
+    l = " ".repeat,
+    c = Math.max,
+    l2 = "-".repeat(n),
+    c2 = "=".repeat(n);
+  let d = "";
+  d += "\x1B\x40";
+  d += "\x1B\x74\x00";
+  d += "\x1B\x61\x01";
+  d += "\x1D\x21\x11";
+  d += a.toUpperCase() + "\n";
+  d += "\x1D\x21\x00";
+  if (o) d += o + "\n";
+  if (t.nif) d += "NIF: " + t.nif + "\n";
+  if (t.direccion) d += t.direccion + "\n";
+  if (t.telefono) d += "Tel: " + t.telefono + "\n";
+  d += "\x1B\x61\x00";
+  d += l2 + "\n";
+  const u = r
+    ? i
+      ? "FACTURA RECTIFICATIVA"
+      : "FACTURA"
+    : "JUSTIFICANTE DE PAGO";
+  d += "\x1B\x61\x01";
+  d += u + "\n";
+  d += `Nº: ${e.numero}` + "\n";
+  d += `Fecha: ${facFecha(e.fecha)}` + "\n";
+  d += "\x1B\x61\x00";
+  d += l2 + "\n";
+  if (r) {
+    d += `Cliente: ${e.cliente_nombre}\n`;
+    if (e.cliente_nif) d += `NIF: ${e.cliente_nif}\n`;
+    if (e.cliente_direccion) d += `Dirección: ${e.cliente_direccion}\n`;
+  } else d += `Atendido por: ${e.empleado || "—"}\n`;
+  d += `Pago: ${e.metodo_pago || "—"}\n`;
+  d += l2 + "\n";
+  d += "CANT  CONCEPTO                TOTAL\n";
+  d += l2 + "\n";
+  (e.lineas || []).forEach((e) => {
+    const t =
+        e.concepto.length > 20
+          ? e.concepto.substring(0, 20) + "..."
+          : e.concepto,
+      n = String(e.cantidad).padEnd(5),
+      r = s(e.total).padStart(10);
+    d += `${n} ${t.padEnd(20)} ${r}\n`;
+  });
+  d += l2 + "\n";
+  d += `Base Imponible: ${s(e.base_imponible).padStart(15)}\n`;
+  d += `IVA (${e.iva_porcentaje}%):   ${s(e.cuota_iva).padStart(15)}\n`;
+  d += c2 + "\n";
+  d += `TOTAL:          ${s(e.total).padStart(15)}\n`;
+  d += c2 + "\n";
+  if (e.notas) {
+    d += `Notas: ${e.notas}\n`;
+    d += l2 + "\n";
+  }
+  const p = r
+    ? "Factura emitida conforme al RD 1619/2012."
+    : "Documento no válido como factura.";
+  d += "\x1B\x61\x01";
+  d += p + "\n";
+  if (r && t.pie_factura) d += t.pie_factura + "\n";
+  d += "\n\n\n";
+  d += "\x1D\x56\x41\x10";
+  return d;
+}
+async function imprimirTicketWebUSB(e) {
+  try {
+    const t = await obtenerFactura(e);
+    if (!t) return toast("No se encontró el documento", "err");
+    const n = formatearTicketTexto(t),
+      r = textoABytes(n),
+      i = await enviarBytesAImpresora(r);
+    if (i) toast("Ticket enviado a la impresora", "ok");
+  } catch (e) {
+    console.error("Error al imprimir:", e);
+    toast("No se pudo imprimir: " + (e.message || e), "err");
+  }
+}
+if (typeof window.accion === "function")
+  window.accion(
+    "conectar-impresora",
+    () => typeof conectarImpresoraUSB === "function" && conectarImpresoraUSB(),
+  );

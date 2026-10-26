@@ -1,25 +1,25 @@
 {
-    "name": "Geopadel · Gestión del club",
-    "short_name": "Geopadel",
-    "description": "Gestión de reservas, bar, horarios y caja del club Geopadel.",
-    "lang": "es",
-    "start_url": "/panel",
-    "scope": "./",
-    "display": "standalone",
-    "background_color": "#fcfdfc",
-    "theme_color": "#2e464f",
-    "icons": [
-        {
-            "src": "Geopadel.webp",
-            "sizes": "192x192",
-            "type": "image/webp",
-            "purpose": "any"
-        },
-        {
-            "src": "Geopadel-512.webp",
-            "sizes": "512x512",
-            "type": "image/webp",
-            "purpose": "any"
-        }
-    ]
+  "name": "Geopadel · Gestión del club",
+  "short_name": "Geopadel",
+  "description": "Gestión de reservas, bar, horarios y caja del club Geopadel.",
+  "lang": "es",
+  "start_url": "/panel",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fcfdfc",
+  "theme_color": "#2e464f",
+  "icons": [
+    {
+      "src": "geopadel.webp",
+      "sizes": "192x192",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "geopadel-512.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any"
+    }
+  ]
 }

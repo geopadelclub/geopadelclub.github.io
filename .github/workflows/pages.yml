@@ -34,7 +34,7 @@ jobs:
       - name: Minificar y añadir cabecera
         run: |
           set -e
-          
+
           HEADER_CODE="© Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización."
           HEADER_JS="/* $HEADER_CODE */"
           HEADER_HTML="<!-- $HEADER_CODE -->"
@@ -83,7 +83,7 @@ jobs:
 
       - name: Limpiar archivos innecesarios
         run: |
-          rm -rf .git .github node_modules package-lock.json bump-sw.js
+          rm -rf .git .github node_modules package-lock.json bump-sw.js scripts wrangler.toml package.json
           echo "Archivos a subir:"
           ls -la
 

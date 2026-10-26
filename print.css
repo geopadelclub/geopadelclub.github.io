@@ -1,404 +1,412 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 #printArea {
-    display: none;
+  display: none;
 }
 
 @page {
-    size: A4 landscape;
-    margin: 8mm;
+  size: A4 landscape;
+  margin: 8mm;
 }
 
 @media print {
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
 
-    html,
-    body {
-        background: #fff !important;
-        color: #000 !important;
-        height: auto !important;
-        min-height: 0 !important;
-        overflow: visible !important;
-    }
+  body > *:not(#printArea) {
+    display: none !important;
+  }
 
-    body>*:not(#printArea) {
-        display: none !important;
-    }
+  #printArea {
+    display: block !important;
+  }
 
-    #printArea {
-        display: block !important;
-    }
-
-    * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 }
 
 .pp-page {
-    width: 281mm;
-    height: 192mm;
-    display: flex;
-    flex-direction: column;
-    background: #fff;
-    color: #111;
-    overflow: hidden;
+  width: 281mm;
+  height: 192mm;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  color: #111;
+  overflow: hidden;
 }
 
 .pp-head {
-    flex: none;
-    display: flex;
-    align-items: center;
-    gap: 5mm;
-    padding-bottom: 2mm;
-    margin-bottom: 2.5mm;
-    border-bottom: .7mm solid #111;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 5mm;
+  padding-bottom: 2mm;
+  margin-bottom: 2.5mm;
+  border-bottom: 0.7mm solid #111;
 }
 
 .pp-head img {
-    height: 12mm;
-    width: auto;
+  height: 12mm;
+  width: auto;
 }
 
 .pp-title {
-    flex: 1;
+  flex: 1;
 }
 
 .pp-title h1 {
-    font-size: 19pt;
-    line-height: 1.1;
-    font-weight: 800;
+  font-size: 19pt;
+  line-height: 1.1;
+  font-weight: 800;
 }
 
 .pp-title p {
-    font-size: 10.5pt;
-    font-weight: 700;
-    margin-top: .8mm;
-    color: #333;
+  font-size: 10.5pt;
+  font-weight: 700;
+  margin-top: 0.8mm;
+  color: #333;
 }
 
 .pp-meta {
-    text-align: right;
-    font-size: 9.5pt;
-    font-weight: 700;
-    line-height: 1.35;
-    color: #222;
+  text-align: right;
+  font-size: 9.5pt;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #222;
 }
 
 .pp-grid {
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    border: .4mm solid #111;
-    border-radius: 1.5mm;
-    overflow: hidden;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border: 0.4mm solid #111;
+  border-radius: 1.5mm;
+  overflow: hidden;
 }
 
 .pp-cols,
 .pp-body {
-    display: grid;
-    grid-template-columns: 15mm repeat(var(--pp-n), minmax(0, 1fr));
+  display: grid;
+  grid-template-columns: 15mm repeat(var(--pp-n), minmax(0, 1fr));
 }
 
 .pp-cols {
-    flex: none;
-    height: 9mm;
-    background: #e9eeea;
-    border-bottom: .5mm solid #111;
+  flex: none;
+  height: 9mm;
+  background: #e9eeea;
+  border-bottom: 0.5mm solid #111;
 }
 
 .pp-body {
-    flex: 1;
-    min-height: 0;
-    grid-template-rows: minmax(0, 1fr);
+  flex: 1;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr);
 }
 
 .pp-th {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 0 1mm;
-    font-size: 9.5pt;
-    font-weight: 800;
-    line-height: 1.05;
-    border-right: .3mm solid #666;
-    overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 1mm;
+  font-size: 9.5pt;
+  font-weight: 800;
+  line-height: 1.05;
+  border-right: 0.3mm solid #666;
+  overflow: hidden;
 }
 
 .pp-th:first-child {
-    font-size: 7.5pt;
-    border-right: .5mm solid #111;
+  font-size: 7.5pt;
+  border-right: 0.5mm solid #111;
 }
 
 .pp-th:last-child {
-    border-right: 0;
+  border-right: 0;
 }
 
 .pp-axis,
 .pp-col {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    min-height: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 0;
 }
 
 .pp-axis {
-    background: #f1f4f2;
-    border-right: .5mm solid #111;
+  background: #f1f4f2;
+  border-right: 0.5mm solid #111;
 }
 
 .pp-col {
-    border-right: .3mm solid #666;
+  border-right: 0.3mm solid #666;
 }
 
 .pp-col:last-child {
-    border-right: 0;
+  border-right: 0;
 }
 
 .pp-b {
-    min-height: 0;
-    overflow: hidden;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .pp-b.h {
-    background: linear-gradient(#222, #222) top/100% .35mm no-repeat;
+  background: linear-gradient(#222, #222) top/100% 0.35mm no-repeat;
 }
 
 .pp-b.m {
-    background: repeating-linear-gradient(90deg, #999 0 1.2mm, transparent 1.2mm 2.4mm) top/100% .25mm no-repeat;
+  background: repeating-linear-gradient(
+      90deg,
+      #999 0 1.2mm,
+      transparent 1.2mm 2.4mm
+    )
+    top/100% 0.25mm no-repeat;
 }
 
 .pp-b.c {
-    background: repeating-linear-gradient(135deg, #f3f6f4 0 1.6mm, #e0e6e2 1.6mm 3.2mm);
+  background: repeating-linear-gradient(
+    135deg,
+    #f3f6f4 0 1.6mm,
+    #e0e6e2 1.6mm 3.2mm
+  );
 }
 
 .pp-axis .pp-b {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 8pt;
-    font-weight: 700;
-    color: #444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8pt;
+  font-weight: 700;
+  color: #444;
 }
 
 .pp-axis .pp-b.h {
-    font-size: 10pt;
-    font-weight: 800;
-    color: #111;
+  font-size: 10pt;
+  font-weight: 800;
+  color: #111;
 }
 
 .pp-axis .pp-b.c {
-    font-size: 6.5pt;
-    color: #555;
+  font-size: 6.5pt;
+  color: #555;
 }
 
 .pp-res {
-    position: absolute;
-    left: .7mm;
-    right: .7mm;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: .2mm;
-    padding: .6mm 1.4mm;
-    overflow: hidden;
-    background: #d3e3f5;
-    border: .35mm solid #1d1d1d;
-    border-left: 1.3mm solid #4a78ae;
-    border-radius: 1.4mm;
-    z-index: 2;
+  position: absolute;
+  left: 0.7mm;
+  right: 0.7mm;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.2mm;
+  padding: 0.6mm 1.4mm;
+  overflow: hidden;
+  background: #d3e3f5;
+  border: 0.35mm solid #1d1d1d;
+  border-left: 1.3mm solid #4a78ae;
+  border-radius: 1.4mm;
+  z-index: 2;
 }
 
 .pp-res.pagado {
-    background: #d0ead9;
-    border-left-color: #397d5d;
+  background: #d0ead9;
+  border-left-color: #397d5d;
 }
 
 .pp-res.t-pena {
-    background: #e3d9f3;
-    border-left-color: #8466c4;
+  background: #e3d9f3;
+  border-left-color: #8466c4;
 }
 
 .pp-res.t-torneo {
-    background: #f6e3c0;
-    border-left-color: #d19a3a;
+  background: #f6e3c0;
+  border-left-color: #d19a3a;
 }
 
 .pp-res.t-entreno {
-    background: #c9e8e4;
-    border-left-color: #3f9b92;
+  background: #c9e8e4;
+  border-left-color: #3f9b92;
 }
 
 .pp-res.pend {
-    border-style: dashed;
-    border-color: #b07a10;
+  border-style: dashed;
+  border-color: #b07a10;
 }
 
 .pp-res.nota {
-    box-shadow: inset 0 0 0 .5mm #f2b84b;
+  box-shadow: inset 0 0 0 0.5mm #f2b84b;
 }
 
 .pp-name {
-    font-size: 9.5pt;
-    font-weight: 800;
-    line-height: 1.1;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    word-break: break-word;
+  font-size: 9.5pt;
+  font-weight: 800;
+  line-height: 1.1;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
 }
 
 .pp-time {
-    font-size: 8pt;
-    font-weight: 800;
-    line-height: 1.1;
-    white-space: nowrap;
+  font-size: 8pt;
+  font-weight: 800;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
 .pp-sub {
-    font-size: 7.5pt;
-    font-weight: 700;
-    line-height: 1.1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  font-size: 7.5pt;
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .pp-note {
-    font-size: 7.5pt;
-    font-weight: 700;
-    line-height: 1.1;
-    background: #ffe27a;
-    border: .25mm solid #8a6a00;
-    border-radius: .8mm;
-    padding: 0 1mm;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+  font-size: 7.5pt;
+  font-weight: 700;
+  line-height: 1.1;
+  background: #ffe27a;
+  border: 0.25mm solid #8a6a00;
+  border-radius: 0.8mm;
+  padding: 0 1mm;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .pp-s .pp-name {
-    display: block;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+  display: block;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .pp-xs {
-    flex-direction: row;
-    align-items: center;
-    gap: 1.2mm;
-    padding: .2mm 1.2mm;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.2mm;
+  padding: 0.2mm 1.2mm;
 }
 
 .pp-xs .pp-name {
-    display: block;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    font-size: 8.5pt;
-    flex: 1 1 auto;
-    min-width: 0;
+  display: block;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 8.5pt;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .pp-xs .pp-time {
-    font-size: 7pt;
-    flex: none;
+  font-size: 7pt;
+  flex: none;
 }
 
 .fx-page {
-    color: #111;
-    background: #fff;
-    font-size: 9.5pt;
-    break-after: page;
-    page-break-after: always;
+  color: #111;
+  background: #fff;
+  font-size: 9.5pt;
+  break-after: page;
+  page-break-after: always;
 }
 
 .fx-page:last-child {
-    break-after: auto;
-    page-break-after: auto;
+  break-after: auto;
+  page-break-after: auto;
 }
 
 .fx-head {
-    display: flex;
-    align-items: center;
-    gap: 5mm;
-    border-bottom: .7mm solid #111;
-    padding-bottom: 2mm;
-    margin-bottom: 3mm;
+  display: flex;
+  align-items: center;
+  gap: 5mm;
+  border-bottom: 0.7mm solid #111;
+  padding-bottom: 2mm;
+  margin-bottom: 3mm;
 }
 
 .fx-head img {
-    height: 12mm;
-    width: auto;
+  height: 12mm;
+  width: auto;
 }
 
 .fx-head h1 {
-    font-size: 16pt;
-    line-height: 1.1;
+  font-size: 16pt;
+  line-height: 1.1;
 }
 
 .fx-head p {
-    font-size: 10pt;
-    font-weight: 700;
-    margin-top: .8mm;
+  font-size: 10pt;
+  font-weight: 700;
+  margin-top: 0.8mm;
 }
 
 .fx-meta {
-    margin-left: auto;
-    text-align: right;
-    font-size: 9pt;
-    font-weight: 700;
-    line-height: 1.35;
+  margin-left: auto;
+  text-align: right;
+  font-size: 9pt;
+  font-weight: 700;
+  line-height: 1.35;
 }
 
 .fx-page h2 {
-    font-size: 11pt;
-    margin: 3.5mm 0 1.5mm;
+  font-size: 11pt;
+  margin: 3.5mm 0 1.5mm;
 }
 
 .fx-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 9pt;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9pt;
 }
 
 .fx-table th,
 .fx-table td {
-    border: .3mm solid #444;
-    padding: 1mm 1.5mm;
-    text-align: left;
-    vertical-align: top;
+  border: 0.3mm solid #444;
+  padding: 1mm 1.5mm;
+  text-align: left;
+  vertical-align: top;
 }
 
 .fx-table th {
-    background: #e9eeea;
+  background: #e9eeea;
 }
 
 .fx-table tr {
-    break-inside: avoid;
-    page-break-inside: avoid;
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 .fx-nota {
-    font-size: 8pt;
-    margin-top: 2.5mm;
-    color: #333;
-    line-height: 1.35;
+  font-size: 8pt;
+  margin-top: 2.5mm;
+  color: #333;
+  line-height: 1.35;
 }
 
 .fx-firmas {
-    display: flex;
-    gap: 20mm;
-    margin-top: 14mm;
-    break-inside: avoid;
+  display: flex;
+  gap: 20mm;
+  margin-top: 14mm;
+  break-inside: avoid;
 }
 
 .fx-firmas div {
-    flex: 1;
-    border-top: .3mm solid #111;
-    padding-top: 1.5mm;
-    text-align: center;
-    font-size: 9pt;
-    font-weight: 700;
+  flex: 1;
+  border-top: 0.3mm solid #111;
+  padding-top: 1.5mm;
+  text-align: center;
+  font-size: 9pt;
+  font-weight: 700;
 }

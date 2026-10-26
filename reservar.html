@@ -1,42 +1,63 @@
 <!-- © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. -->
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es" data-theme="light">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description"
-        content="Reserva online tu pista de pádel en Geopadel (Ogíjares, Granada). Elige día, duración y hora libre. Se paga en el club.">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta
+      name="description"
+      content="Reserva online tu pista de pádel en Geopadel (Ogíjares, Granada). Elige día, duración y hora libre. Se paga en el club."
+    />
     <title>Reservar pista de pádel en Ogíjares (Granada) · Geopadel</title>
-    <meta name="theme-color" content="#fcfdfc" id="metaTheme">
-    <meta name="color-scheme" content="light dark">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Geopadel">
-    <meta property="og:locale" content="es_ES">
-    <meta property="og:title" content="Geopadel · Reserva tu pista de pádel">
-    <meta property="og:description" content="Elige día, duración y hora y reserva tu pista online. Se paga en el club.">
-    <meta property="og:image" content="https://geopadelclub.com/Geopadel-512.webp">
-    <meta property="og:url" content="https://geopadelclub.com/reservar">
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Reservar pista de pádel · Geopadel">
-    <meta name="twitter:description" content="Elige día, duración y hora y reserva tu pista online.">
-    <meta property="og:image:alt" content="Logotipo de Geopadel">
-    <meta name="application-name" content="Geopadel Reservas">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Geopadel">
-    <meta name="robots" content="index, follow">
-    <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' data: https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://*.challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com https://www.google.com https://maps.google.com; base-uri 'self'; form-action 'self';">
-    <link rel="canonical" href="https://geopadelclub.com/reservar">
-    <link rel="manifest" href="manifest-reservar.webmanifest">
-    <link rel="icon" type="image/webp" sizes="192x192" href="./Geopadel.webp">
-    <link rel="apple-touch-icon" href="./Geopadel.webp">
+    <meta name="theme-color" content="#fcfdfc" id="metaTheme" />
+    <meta name="color-scheme" content="light dark" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Geopadel" />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:title" content="Geopadel · Reserva tu pista de pádel" />
+    <meta
+      property="og:description"
+      content="Elige día, duración y hora y reserva tu pista online. Se paga en el club."
+    />
+    <meta
+      property="og:image"
+      content="https://geopadelclub.com/geopadel-512.webp"
+    />
+    <meta property="og:url" content="https://geopadelclub.com/reservar" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Reservar pista de pádel · Geopadel" />
+    <meta
+      name="twitter:description"
+      content="Elige día, duración y hora y reserva tu pista online."
+    />
+    <meta property="og:image:alt" content="Logotipo de Geopadel" />
+    <meta name="application-name" content="Geopadel Reservas" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Geopadel" />
+    <meta name="robots" content="index, follow" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' data: https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://*.challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com https://www.google.com https://maps.google.com; base-uri 'self'; form-action 'self';"
+    />
+    <link rel="canonical" href="https://geopadelclub.com/reservar" />
+    <link rel="manifest" href="manifest-reservar.webmanifest" />
+    <link rel="icon" type="image/webp" sizes="192x192" href="./geopadel.webp" />
+    <link rel="apple-touch-icon" href="./geopadel.webp" />
     <script src="theme-init.js"></script>
-    <link rel="stylesheet" href="assets/remixicon/remixicon.css">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="reservar.css">
-    <link rel="preload" href="assets/remixicon/remixicon.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="assets/remixicon/remixicon.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="reservar.css" />
+    <link
+      rel="preload"
+      href="assets/remixicon/remixicon.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <script defer src="assets/supabase.min.js"></script>
     <script defer src="config.js"></script>
     <script defer src="utils.js"></script>
@@ -44,172 +65,422 @@
     <script defer src="reservar.js"></script>
     <script defer src="cookies.js"></script>
     <script defer src="acciones.js"></script>
-</head>
+  </head>
 
-<body>
+  <body>
     <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
-    <div id="bannerOffline" role="alert"><i class="ri-wifi-off-line" aria-hidden="true"></i>Sin conexión · no se podrá
-        reservar hasta que vuelva internet</div>
+    <div id="bannerOffline" role="alert">
+      <i class="ri-wifi-off-line" aria-hidden="true"></i>Sin conexión · no se
+      podrá reservar hasta que vuelva internet
+    </div>
     <div id="toasts" role="status" aria-live="polite"></div>
     <header class="app-header">
-        <a href="/" class="gp-brand" aria-label="Volver al inicio" style="text-decoration: none;">
-            <img class="gp-logo" src="./Geopadel.webp" alt="Geopadel" draggable="false" width="150" height="150"
-                style="aspect-ratio: 1/1;">
-        </a>
-        <div class="user-info"><button type="button" class="btn-install" id="btnInstalar"><i class="ri-download-2-line"
-                    aria-hidden="true"></i><span>Instalar</span></button><button type="button" class="theme-toggle"
-                id="btnIdioma" data-action="cambiar-idioma" aria-label="Cambiar idioma"
-                style="font-weight:800;font-size:12px">ES</button><button type="button" class="theme-toggle"
-                id="btnTema" aria-label="Cambiar tema"><i class="ri-moon-line" aria-hidden="true"></i></button></div>
+      <a
+        href="/"
+        class="gp-brand"
+        aria-label="Volver al inicio"
+        style="text-decoration: none"
+      >
+        <img
+          class="gp-logo"
+          src="./geopadel.webp"
+          alt="Geopadel"
+          draggable="false"
+          width="150"
+          height="150"
+          style="aspect-ratio: 1/1"
+        />
+      </a>
+      <div class="user-info">
+        <button type="button" class="btn-install" id="btnInstalar">
+          <i class="ri-download-2-line" aria-hidden="true"></i
+          ><span>Instalar</span></button
+        ><button
+          type="button"
+          class="theme-toggle"
+          id="btnIdioma"
+          data-action="cambiar-idioma"
+          aria-label="Cambiar idioma"
+          style="font-weight: 800; font-size: 12px"
+        >
+          ES</button
+        ><button
+          type="button"
+          class="theme-toggle"
+          id="btnTema"
+          aria-label="Cambiar tema"
+        >
+          <i class="ri-moon-line" aria-hidden="true"></i>
+        </button>
+      </div>
     </header>
     <nav class="app-nav" aria-label="Secciones">
-        <button type="button" id="nav-reservar" class="nav-tab active" data-tab="reservar" aria-current="page"
-            aria-label="Pestaña Reservar"><span class="ni"><i class="ri-calendar-event-line"
-                    aria-hidden="true"></i></span>Reservar</button>
-        <button type="button" id="nav-mis" class="nav-tab" data-tab="mis" aria-label="Pestaña Mis reservas"><span
-                class="ni"><i class="ri-ticket-line" aria-hidden="true"></i></span>Mis reservas</button>
-        <a href="tienda" class="nav-tab" style="text-decoration:none"><span class="ni"><i class="ri-shopping-bag-3-line"
-                    aria-hidden="true"></i></span>Tienda</a>
+      <button
+        type="button"
+        id="nav-reservar"
+        class="nav-tab active"
+        data-tab="reservar"
+        aria-current="page"
+        aria-label="Pestaña Reservar"
+      >
+        <span class="ni"
+          ><i class="ri-calendar-event-line" aria-hidden="true"></i></span
+        >Reservar
+      </button>
+      <button
+        type="button"
+        id="nav-mis"
+        class="nav-tab"
+        data-tab="mis"
+        aria-label="Pestaña Mis reservas"
+      >
+        <span class="ni"><i class="ri-ticket-line" aria-hidden="true"></i></span
+        >Mis reservas
+      </button>
+      <a href="tienda" class="nav-tab" style="text-decoration: none"
+        ><span class="ni"
+          ><i class="ri-shopping-bag-3-line" aria-hidden="true"></i></span
+        >Tienda</a
+      >
     </nav>
     <main class="cl-main" id="main-content">
-        <div
-            style="background: var(--amber-soft); color: var(--orange-text); text-align: center; padding: 12px 16px; font-weight: 700; font-size: 13px; border-radius: var(--radius-md); margin-bottom: 16px; border: 1px solid var(--amber); line-height: 1.4;">
-            <i class="ri-information-line" aria-hidden="true"></i> <span data-i18n="aviso.pago">Las pistas se abonan
-                antes de jugar el partido. Se recomienda llegar 10 minutos antes.</span>
+      <div
+        style="
+          background: var(--amber-soft);
+          color: var(--orange-text);
+          text-align: center;
+          padding: 12px 16px;
+          font-weight: 700;
+          font-size: 13px;
+          border-radius: var(--radius-md);
+          margin-bottom: 16px;
+          border: 1px solid var(--amber);
+          line-height: 1.4;
+        "
+      >
+        <i class="ri-information-line" aria-hidden="true"></i>
+        <span data-i18n="aviso.pago"
+          >Las pistas se abonan antes de jugar el partido. Se recomienda llegar
+          10 minutos antes.</span
+        >
+      </div>
+      <section id="tab-reservar" class="tab-content active">
+        <div class="cl-intro">
+          <h1 data-i18n="reservar.titulo">Reserva tu pista de pádel</h1>
+          <p id="txtIntroReserva">
+            Elige día, duración y hora. Se paga en el club.
+          </p>
+          <noscript>
+            <p data-i18n="reservar.noscript">
+              Necesitas activar JavaScript para reservar.
+            </p>
+          </noscript>
         </div>
-        <section id="tab-reservar" class="tab-content active">
-            <div class="cl-intro">
-                <h1 data-i18n="reservar.titulo">Reserva tu pista de pádel</h1>
-                <p id="txtIntroReserva">Elige día, duración y hora. Se paga en el club.</p>
-                <noscript>
-                    <p data-i18n="reservar.noscript">Necesitas activar JavaScript para reservar.</p>
-                </noscript>
+        <div class="card">
+          <h2>
+            <i class="ri-calendar-event-line" aria-hidden="true"></i
+            ><span data-i18n="reservar.dia">Día y hora</span>
+          </h2>
+          <div id="clDias" class="cl-days" aria-label="Día"></div>
+          <div class="cl-label" id="lblDur" data-i18n="reservar.duracion">
+            Duración
+          </div>
+          <div
+            id="clDur"
+            class="cl-durs"
+            role="group"
+            aria-labelledby="lblDur"
+          ></div>
+          <div class="cl-label" data-i18n="reservar.horas">Horas libres</div>
+          <div id="clSlots" class="cl-slots" aria-live="polite"></div>
+        </div>
+        <div id="cardDatos" class="card" hidden>
+          <h2>
+            <i class="ri-user-line" aria-hidden="true"></i
+            ><span data-i18n="reservar.tus-datos">Tus datos</span>
+          </h2>
+          <div id="clResumen" class="cl-resumen"></div>
+          <div class="form-group">
+            <label for="clTel" data-i18n="reservar.telefono">Teléfono</label>
+            <input
+              type="tel"
+              id="clTel"
+              inputmode="tel"
+              autocomplete="tel"
+              maxlength="20"
+              placeholder="600 123 456"
+              aria-describedby="telHint"
+            />
+            <p id="telHint" class="cl-hint" aria-live="polite"></p>
+          </div>
+          <div id="bloqueTel">
+            <button
+              type="button"
+              class="btn-submit"
+              id="btnTel"
+              data-i18n="reservar.continuar"
+            >
+              Continuar
+            </button>
+          </div>
+          <div id="bloqueExistente" hidden>
+            <div class="form-group">
+              <label for="clCodigoEx" data-i18n="reservar.tu-codigo"
+                >Tu código</label
+              ><input
+                type="password"
+                id="clCodigoEx"
+                autocomplete="off"
+                maxlength="30"
+              />
+              <p class="cl-hint" data-i18n="reservar.recuperar">
+                ¿Lo has olvidado? Llama al club y te lo restablecemos.
+              </p>
             </div>
-            <div class="card">
-                <h2><i class="ri-calendar-event-line" aria-hidden="true"></i><span data-i18n="reservar.dia">Día y
-                        hora</span></h2>
-                <div id="clDias" class="cl-days" aria-label="Día"></div>
-                <div class="cl-label" id="lblDur" data-i18n="reservar.duracion">Duración</div>
-                <div id="clDur" class="cl-durs" role="group" aria-labelledby="lblDur"></div>
-                <div class="cl-label" data-i18n="reservar.horas">Horas libres</div>
-                <div id="clSlots" class="cl-slots" aria-live="polite"></div>
+            <button
+              type="button"
+              class="btn-submit"
+              id="btnEntrar"
+              data-i18n="reservar.entrar"
+            >
+              Entrar
+            </button>
+          </div>
+          <div id="bloqueNuevo" hidden>
+            <div class="form-group">
+              <label for="clNombre" data-i18n="reservar.nombre"
+                >Nombre y apellidos</label
+              ><input
+                type="text"
+                id="clNombre"
+                autocomplete="name"
+                maxlength="80"
+              />
             </div>
-            <div id="cardDatos" class="card" hidden>
-                <h2><i class="ri-user-line" aria-hidden="true"></i><span data-i18n="reservar.tus-datos">Tus datos</span>
-                </h2>
-                <div id="clResumen" class="cl-resumen"></div>
-                <div class="form-group">
-                    <label for="clTel" data-i18n="reservar.telefono">Teléfono</label>
-                    <input type="tel" id="clTel" inputmode="tel" autocomplete="tel" maxlength="20"
-                        placeholder="600 123 456" aria-describedby="telHint">
-                    <p id="telHint" class="cl-hint" aria-live="polite"></p>
-                </div>
-                <div id="bloqueTel"><button type="button" class="btn-submit" id="btnTel"
-                        data-i18n="reservar.continuar">Continuar</button></div>
-                <div id="bloqueExistente" hidden>
-                    <div class="form-group"><label for="clCodigoEx" data-i18n="reservar.tu-codigo">Tu
-                            código</label><input type="password" id="clCodigoEx" autocomplete="off" maxlength="30">
-                        <p class="cl-hint" data-i18n="reservar.recuperar">¿Lo has olvidado? Llama al club y te lo
-                            restablecemos.</p>
-                    </div>
-                    <button type="button" class="btn-submit" id="btnEntrar" data-i18n="reservar.entrar">Entrar</button>
-                </div>
-                <div id="bloqueNuevo" hidden>
-                    <div class="form-group"><label for="clNombre" data-i18n="reservar.nombre">Nombre y
-                            apellidos</label><input type="text" id="clNombre" autocomplete="name" maxlength="80"></div>
-                    <div class="form-group"><label for="clCodigoNew" data-i18n="reservar.crea-codigo">Crea tu
-                            código</label><input type="password" id="clCodigoNew" autocomplete="new-password"
-                            maxlength="30">
-                        <p class="cl-hint" data-i18n="reservar.codigo-hint">Mínimo 4 caracteres. Lo necesitarás para ver
-                            y cancelar tus reservas.</p>
-                    </div>
-                    <div class="form-group"><label for="clCodigoNew2" data-i18n="reservar.repite-codigo">Repite el
-                            código</label><input type="password" id="clCodigoNew2" autocomplete="new-password"
-                            maxlength="30"></div>
-                    <label class="cl-check"><input type="checkbox" id="clConsent"><span
-                            data-i18n="reservar.consentimiento">He leído y acepto la política de
-                            privacidad.</span></label>
-                </div>
-                <div id="bloqueConfirmar" hidden>
-                    <div id="clHola" class="cl-hola" hidden></div>
-                    <div id="cfTurnstile" hidden></div>
-                    <button type="button" class="btn-submit" id="btnConfirmar"><i class="ri-check-line"
-                            aria-hidden="true"></i><span data-i18n="reservar.confirmar">Confirmar
-                            reserva</span></button>
-                </div>
+            <div class="form-group">
+              <label for="clCodigoNew" data-i18n="reservar.crea-codigo"
+                >Crea tu código</label
+              ><input
+                type="password"
+                id="clCodigoNew"
+                autocomplete="new-password"
+                maxlength="30"
+              />
+              <p class="cl-hint" data-i18n="reservar.codigo-hint">
+                Mínimo 4 caracteres. Lo necesitarás para ver y cancelar tus
+                reservas.
+              </p>
             </div>
-            <div id="cardOk" class="card cl-ok" hidden>
-                <div class="cl-ok-icon"><i class="ri-check-line" aria-hidden="true"></i></div>
-                <h2 data-i18n="reservar.recibida">Reserva recibida</h2>
-                <div id="okDetalle" class="cl-ok-det"></div>
-                <div class="cl-actions"><button type="button" class="btn-add gray" id="btnICS"><i
-                            class="ri-calendar-check-line" aria-hidden="true"></i><span
-                            data-i18n="reservar.calendario">Añadir al calendario</span></button><button type="button"
-                        class="btn-add gray" id="btnGCal"><i class="ri-google-line" aria-hidden="true"></i><span>Google
-                            Calendar</span></button><button type="button" class="btn-add gray" id="btnShare"><i
-                            class="ri-share-line" aria-hidden="true"></i><span>Compartir</span></button><button
-                        type="button" class="btn-add gray" id="btnPush"><i class="ri-notification-3-line"
-                            aria-hidden="true"></i><span>Recordarme</span></button><button type="button" class="btn-add"
-                        id="btnOtra" data-i18n="reservar.otra">Reservar otra</button><button type="button"
-                        class="btn-add blue" id="btnVerMis" data-i18n="reservar.ver-mis">Ver mis reservas</button></div>
+            <div class="form-group">
+              <label for="clCodigoNew2" data-i18n="reservar.repite-codigo"
+                >Repite el código</label
+              ><input
+                type="password"
+                id="clCodigoNew2"
+                autocomplete="new-password"
+                maxlength="30"
+              />
             </div>
-        </section>
-        <section id="tab-mis" class="tab-content">
-            <div class="cl-intro">
-                <h1 data-i18n="mis-reservas.titulo">Mis reservas</h1>
-                <p data-i18n="mis-reservas.subtitulo">Solo se muestran las próximas.</p>
+            <label class="cl-check"
+              ><input type="checkbox" id="clConsent" /><span
+                data-i18n="reservar.consentimiento"
+                >He leído y acepto la política de privacidad.</span
+              ></label
+            >
+          </div>
+          <div id="bloqueConfirmar" hidden>
+            <div id="clHola" class="cl-hola" hidden></div>
+            <div id="cfTurnstile" hidden></div>
+            <button type="button" class="btn-submit" id="btnConfirmar">
+              <i class="ri-check-line" aria-hidden="true"></i
+              ><span data-i18n="reservar.confirmar">Confirmar reserva</span>
+            </button>
+          </div>
+        </div>
+        <div id="cardOk" class="card cl-ok" hidden>
+          <div class="cl-ok-icon">
+            <i class="ri-check-line" aria-hidden="true"></i>
+          </div>
+          <h2 data-i18n="reservar.recibida">Reserva recibida</h2>
+          <div id="okDetalle" class="cl-ok-det"></div>
+          <div class="cl-actions">
+            <button type="button" class="btn-add gray" id="btnICS">
+              <i class="ri-calendar-check-line" aria-hidden="true"></i
+              ><span data-i18n="reservar.calendario"
+                >Añadir al calendario</span
+              ></button
+            ><button type="button" class="btn-add gray" id="btnGCal">
+              <i class="ri-google-line" aria-hidden="true"></i
+              ><span>Google Calendar</span></button
+            ><button type="button" class="btn-add gray" id="btnShare">
+              <i class="ri-share-line" aria-hidden="true"></i
+              ><span>Compartir</span></button
+            ><button type="button" class="btn-add gray" id="btnPush">
+              <i class="ri-notification-3-line" aria-hidden="true"></i
+              ><span>Recordarme</span></button
+            ><button
+              type="button"
+              class="btn-add"
+              id="btnOtra"
+              data-i18n="reservar.otra"
+            >
+              Reservar otra</button
+            ><button
+              type="button"
+              class="btn-add blue"
+              id="btnVerMis"
+              data-i18n="reservar.ver-mis"
+            >
+              Ver mis reservas
+            </button>
+          </div>
+        </div>
+      </section>
+      <section id="tab-mis" class="tab-content">
+        <div class="cl-intro">
+          <h1 data-i18n="mis-reservas.titulo">Mis reservas</h1>
+          <p data-i18n="mis-reservas.subtitulo">
+            Solo se muestran las próximas.
+          </p>
+        </div>
+        <div id="cardMisLogin" class="card">
+          <form id="formMis" novalidate>
+            <div class="form-group">
+              <label for="misIdent" data-i18n="mis-reservas.ident"
+                >Teléfono o nombre completo</label
+              ><input
+                type="text"
+                id="misIdent"
+                autocomplete="off"
+                maxlength="80"
+              />
             </div>
-            <div id="cardMisLogin" class="card">
-                <form id="formMis" novalidate>
-                    <div class="form-group"><label for="misIdent" data-i18n="mis-reservas.ident">Teléfono o nombre
-                            completo</label><input type="text" id="misIdent" autocomplete="off" maxlength="80"></div>
-                    <div class="form-group"><label for="misCodigo" data-i18n="mis-reservas.codigo">Tu
-                            código</label><input type="password" id="misCodigo" autocomplete="off" maxlength="30"></div>
-                    <button type="submit" class="btn-submit" id="btnMis" data-i18n="mis-reservas.ver">Ver mis
-                        reservas</button>
-                    <div id="msgMis" class="msg-inline" aria-live="polite"></div>
-                </form>
+            <div class="form-group">
+              <label for="misCodigo" data-i18n="mis-reservas.codigo"
+                >Tu código</label
+              ><input
+                type="password"
+                id="misCodigo"
+                autocomplete="off"
+                maxlength="30"
+              />
             </div>
-            <div id="cardMisLista" hidden>
-                <div class="cl-mis-head">
-                    <div id="misHola"></div><button type="button" class="btn-logout" id="btnSalirMis"
-                        data-i18n="mis-reservas.salir">Salir</button>
-                </div>
-                <div id="misLista"></div>
-                <p class="cl-privacidad"><button type="button" class="cl-link" id="btnBorrarDatos"
-                        data-i18n="mis-reservas.borrar">Borrar mis datos</button> · <a href="privacidad" target="_blank"
-                        rel="noopener" data-i18n="footer.privacidad">Privacidad</a></p>
-            </div>
-        </section>
-        <p class="cl-legal cl-hint"><a href="privacidad" data-i18n="footer.privacidad">Privacidad</a> · <a
-                href="aviso-legal" data-i18n="footer.aviso">Aviso Legal</a> · <a href="politica-cookies"
-                data-i18n="footer.cookies">Cookies</a></p>
+            <button
+              type="submit"
+              class="btn-submit"
+              id="btnMis"
+              data-i18n="mis-reservas.ver"
+            >
+              Ver mis reservas
+            </button>
+            <div id="msgMis" class="msg-inline" aria-live="polite"></div>
+          </form>
+        </div>
+        <div id="cardMisLista" hidden>
+          <div class="cl-mis-head">
+            <div id="misHola"></div>
+            <button
+              type="button"
+              class="btn-logout"
+              id="btnSalirMis"
+              data-i18n="mis-reservas.salir"
+            >
+              Salir
+            </button>
+          </div>
+          <div id="misLista"></div>
+          <p class="cl-privacidad">
+            <button
+              type="button"
+              class="cl-link"
+              id="btnBorrarDatos"
+              data-i18n="mis-reservas.borrar"
+            >
+              Borrar mis datos
+            </button>
+            ·
+            <a
+              href="privacidad"
+              target="_blank"
+              rel="noopener"
+              data-i18n="footer.privacidad"
+              >Privacidad</a
+            >
+          </p>
+        </div>
+      </section>
+      <p class="cl-legal cl-hint">
+        <a href="privacidad" data-i18n="footer.privacidad">Privacidad</a> ·
+        <a href="aviso-legal" data-i18n="footer.aviso">Aviso Legal</a> ·
+        <a href="politica-cookies" data-i18n="footer.cookies">Cookies</a>
+      </p>
     </main>
-    <div class="contacto-flotante"><a class="btn-whatsapp" id="btnWhatsapp"
-            href="https://wa.me/34646059962?text=Hola%2C" target="_blank" rel="noopener noreferrer"><i
-                class="ri-whatsapp-line" aria-hidden="true"></i><span data-i18n="contacto.whatsapp">Hablar por
-                WhatsApp</span></a>
-        <p class="contacto-llamar"><span data-i18n="contacto.llamar">¿Prefieres llamar? </span><a
-                href="tel:+34646059962">646 05 99 62</a></p>
+    <div class="contacto-flotante">
+      <a
+        class="btn-whatsapp"
+        id="btnWhatsapp"
+        href="https://wa.me/34646059962?text=Hola%2C"
+        target="_blank"
+        rel="noopener noreferrer"
+        ><i class="ri-whatsapp-line" aria-hidden="true"></i
+        ><span data-i18n="contacto.whatsapp">Hablar por WhatsApp</span></a
+      >
+      <p class="contacto-llamar">
+        <span data-i18n="contacto.llamar">¿Prefieres llamar? </span
+        ><a href="tel:+34646059962">646 05 99 62</a>
+      </p>
     </div>
-    <dialog id="modalConfirmDialog" class="modal-overlay" aria-labelledby="confirmDialogTitle">
-        <form method="dialog" class="modal-card-double small">
-            <div class="modal-header-bar">
-                <h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="confirmDialogTitle">Confirmación</span>
-                </h4><button type="button" class="modal-close" data-action="cerrar-confirm" aria-label="Cerrar"><i
-                        class="ri-close-line" aria-hidden="true"></i></button>
-            </div>
-            <div class="modal-single-body">
-                <p id="confirmDialogMessage"
-                    style="font-size:15px; font-weight:600; color:var(--text); margin-bottom:10px;"></p>
-                <div id="confirmDialogInputBox" style="display:none; margin-top:12px;"><input type="text"
-                        id="confirmDialogInput" class="toolbar-input" style="width:100%" autocomplete="off"></div>
-            </div>
-            <div class="modal-footer-bar"><button type="button" id="confirmDialogCancel"
-                    class="btn-add gray">Cancelar</button><button type="button" id="confirmDialogOk"
-                    class="btn-add blue">Aceptar</button></div>
-        </form>
+    <dialog
+      id="modalConfirmDialog"
+      class="modal-overlay"
+      aria-labelledby="confirmDialogTitle"
+    >
+      <form method="dialog" class="modal-card-double small">
+        <div class="modal-header-bar">
+          <h4>
+            <span class="gp-modal-brand">GEOPADEL</span> ·
+            <span id="confirmDialogTitle">Confirmación</span>
+          </h4>
+          <button
+            type="button"
+            class="modal-close"
+            data-action="cerrar-confirm"
+            aria-label="Cerrar"
+          >
+            <i class="ri-close-line" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="modal-single-body">
+          <p
+            id="confirmDialogMessage"
+            style="
+              font-size: 15px;
+              font-weight: 600;
+              color: var(--text);
+              margin-bottom: 10px;
+            "
+          ></p>
+          <div
+            id="confirmDialogInputBox"
+            style="display: none; margin-top: 12px"
+          >
+            <input
+              type="text"
+              id="confirmDialogInput"
+              class="toolbar-input"
+              style="width: 100%"
+              autocomplete="off"
+            />
+          </div>
+        </div>
+        <div class="modal-footer-bar">
+          <button type="button" id="confirmDialogCancel" class="btn-add gray">
+            Cancelar</button
+          ><button type="button" id="confirmDialogOk" class="btn-add blue">
+            Aceptar
+          </button>
+        </div>
+      </form>
     </dialog>
-</body>
-
+  </body>
 </html>

@@ -1,172 +1,266 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
-const CT_DIAS = [['lun', 'Lunes'], ['mar', 'Martes'], ['mie', 'Miércoles'], ['jue', 'Jueves'], ['vie', 'Viernes'], ['sab', 'Sábado'], ['dom', 'Domingo']];
-const CT_HORAS_MAX = 48;
-let ctCache = { usuario: null, data: undefined };
-let ctResolver = null;
-const ctMin = h => { const [a, b] = String(h || '').split(':').map(Number); return (isNaN(a) ? 0 : a) * 60 + (isNaN(b) ? 0 : b); };
-const ctHoras = min => { const h = Math.floor(min / 60), m = Math.round(min % 60); return m ? `${h} h ${String(m).padStart(2, '0')} min` : `${h} h`; };
-const ctNum = n => String(Number(n)).replace('.', ',');
-function ctUsuario() { return usuarioSesion ? usuarioSesion.user : null; }
-function ctMinutosDia(d) {
-    if (!d || !d.on) return 0;
-    let t = 0;
-    if (d.ini && d.fin && ctMin(d.fin) > ctMin(d.ini)) t += ctMin(d.fin) - ctMin(d.ini);
-    if (d.ini2 && d.fin2 && ctMin(d.fin2) > ctMin(d.ini2)) t += ctMin(d.fin2) - ctMin(d.ini2);
-    return t;
+const CT_DIAS = [
+    ["lun", "Lunes"],
+    ["mar", "Martes"],
+    ["mie", "Miércoles"],
+    ["jue", "Jueves"],
+    ["vie", "Viernes"],
+    ["sab", "Sábado"],
+    ["dom", "Domingo"],
+  ],
+  CT_HORAS_MAX = 48;
+let ctCache = { usuario: null, data: undefined },
+  ctResolver = null;
+const ctMin = (e) => {
+    const [t, n] = String(e || "")
+      .split(":")
+      .map(Number);
+    return (isNaN(t) ? 0 : t) * 60 + (isNaN(n) ? 0 : n);
+  },
+  ctHoras = (e) => {
+    const t = Math.floor(e / 60),
+      n = Math.round(e % 60);
+    return n ? `${t} h ${String(n).padStart(2, "0")} min` : `${t} h`;
+  },
+  ctNum = (e) => String(Number(e)).replace(".", ",");
+function ctUsuario() {
+  return usuarioSesion ? usuarioSesion.user : null;
 }
-function ctMinutosSemana(horario) {
-    return CT_DIAS.reduce((s, [k]) => s + ctMinutosDia(horario && horario[k]), 0);
+function ctMinutosDia(e) {
+  if (!e || !e.on) return 0;
+  let t = 0;
+  if (e.ini && e.fin && ctMin(e.fin) > ctMin(e.ini))
+    t += ctMin(e.fin) - ctMin(e.ini);
+  if (e.ini2 && e.fin2 && ctMin(e.fin2) > ctMin(e.ini2))
+    t += ctMin(e.fin2) - ctMin(e.ini2);
+  return t;
 }
-async function cargarContrato(forzar) {
-    const u = ctUsuario();
-    if (!u || !supabaseClient) return null;
-    if (!forzar && ctCache.usuario === u && ctCache.data !== undefined) return ctCache.data;
-    const { data, error } = await supabaseClient.from('contratos_jornada').select('usuario, horas_semanales, horario, notas, vigente_desde, created_at').eq('usuario', u).order('created_at', { ascending: false }).limit(1);
-    if (error) { console.error(error); throw error; }
-    ctCache = { usuario: u, data: (data && data[0]) || null };
+function ctMinutosSemana(e) {
+  return CT_DIAS.reduce((t, [n]) => t + ctMinutosDia(e && e[n]), 0);
+}
+async function cargarContrato(e) {
+  const t = ctUsuario();
+  if (!t || !supabaseClient) return null;
+  if (!e && ctCache.usuario === t && ctCache.data !== undefined)
     return ctCache.data;
+  const { data: n, error: r } = await supabaseClient
+    .from("contratos_jornada")
+    .select("usuario,horas_semanales,horario,notas,vigente_desde,created_at")
+    .eq("usuario", t)
+    .order("created_at", { ascending: !1 })
+    .limit(1);
+  if (r) {
+    console.error(r);
+    throw r;
+  }
+  ctCache = { usuario: t, data: (n && n[0]) || null };
+  return ctCache.data;
 }
-function ctJornadaDeContrato(c, fecha) {
-    if (!c) return null;
-    const h = c.horario || {};
-    const act = CT_DIAS.filter(([k]) => h[k] && h[k].on).length;
-    if (!act) return null;
-    const [y, m, d] = fecha.split('-').map(Number);
-    const k = CT_DIAS[(new Date(y, m - 1, d, 12).getDay() + 6) % 7][0];
-    if (!(h[k] && h[k].on)) return 0;
-    return Math.round(Number(c.horas_semanales) / act * 60);
+function ctJornadaDeContrato(e, t) {
+  if (!e) return null;
+  const n = e.horario || {},
+    r = CT_DIAS.filter(([e]) => n[e] && n[e].on).length;
+  if (!r) return null;
+  const [i, a, o] = t.split("-").map(Number),
+    s = CT_DIAS[(new Date(i, a - 1, o, 12).getDay() + 6) % 7][0];
+  if (!(n[s] && n[s].on)) return 0;
+  return ctMinutosDia(n[s]);
 }
-function ctResumenHtml(c) {
-    if (!c) return '<p class="limp-leyenda" style="color:var(--orange-text);font-weight:700"><i class="ri-error-warning-line" aria-hidden="true"></i>Aún no has indicado tu contrato. Se te pedirá al fichar por primera vez.</p>';
-    const filas = CT_DIAS.map(([k, n]) => {
-        const d = (c.horario || {})[k];
-        if (!d || !d.on) return `<tr><td><b>${esc(n)}</b></td><td class="tabla-empty" style="text-align:left !important">Libranza</td></tr>`;
-        const tramos = [d.ini && d.fin ? `${d.ini}–${d.fin}` : '', d.ini2 && d.fin2 ? `${d.ini2}–${d.fin2}` : ''].filter(Boolean).join(' · ');
-        return `<tr><td><b>${esc(n)}</b></td><td>${esc(tramos)}</td></tr>`;
-    }).join('');
-    const desde = new Date(c.created_at);
-    return `<p style="font-size:15px;font-weight:700;color:var(--heading);margin-bottom:6px">${esc(ctNum(c.horas_semanales))} h semanales</p>
-<p class="limp-leyenda">Declarado el ${esc(isNaN(desde.getTime()) ? '' : desde.toLocaleDateString('es-ES'))}${c.vigente_desde ? ' · vigente desde ' + esc(fmtFecha(c.vigente_desde)) : ''}</p>
-${c.notas ? `<p class="limp-leyenda">Nota: ${esc(c.notas)}</p>` : ''}
-<div class="table-wrap"><table class="tabla-productos" style="min-width:260px"><tbody>${filas}</tbody></table></div>`;
+function ctResumenHtml(e) {
+  if (!e)
+    return '<p class="limp-leyenda" style="color:var(--orange-text);font-weight:700"><i class="ri-error-warning-line" aria-hidden="true"></i>Aún no has indicado tu contrato. Se te pedirá al fichar por primera vez.</p>';
+  const t = CT_DIAS.map(([t, n]) => {
+      const r = (e.horario || {})[t];
+      if (!r || !r.on)
+        return `<tr><td><b>${esc(n)}</b></td><td class="tabla-empty" style="text-align:left !important">Libranza</td></tr>`;
+      const i = [
+        r.ini && r.fin ? `${r.ini}–${r.fin}` : "",
+        r.ini2 && r.fin2 ? `${r.ini2}–${r.fin2}` : "",
+      ]
+        .filter(Boolean)
+        .join(" · ");
+      return `<tr><td><b>${esc(n)}</b></td><td>${esc(i)}</td></tr>`;
+    }).join(""),
+    n = new Date(e.created_at);
+  return `<p style="font-size:15px;font-weight:700;color:var(--heading);margin-bottom:6px">${esc(ctNum(e.horas_semanales))} h semanales</p>\n<p class="limp-leyenda">Declarado el ${esc(isNaN(n.getTime()) ? "" : n.toLocaleDateString("es-ES"))}${e.vigente_desde ? " · vigente desde " + esc(fmtFecha(e.vigente_desde)) : ""}</p>\n${e.notas ? `<p class="limp-leyenda">Nota: ${esc(e.notas)}</p>` : ""}\n<div class="table-wrap"><table class="tabla-productos" style="min-width:260px"><tbody>${t}</tbody></table></div>`;
 }
 async function dibujarContratoResumen() {
-    const box = $('contratoResumen');
-    if (!box || !usuarioSesion) return;
-    try { box.innerHTML = ctResumenHtml(await cargarContrato(true)); }
-    catch (e) { box.innerHTML = `<p class="limp-leyenda" style="color:var(--red)">${esc(esErrorTabla(e) ? 'Falta crear la tabla «contratos_jornada». Ejecuta migracion_tienda_contratos.sql en Supabase.' : 'No se pudo cargar tu contrato: ' + (e.message || e))}</p>`; }
+  const e = $("contratoResumen");
+  if (!e || !usuarioSesion) return;
+  try {
+    e.innerHTML = ctResumenHtml(await cargarContrato(!0));
+  } catch (t) {
+    e.innerHTML = `<p class="limp-leyenda" style="color:var(--red)">${esc(esErrorTabla(t) ? "Falta crear la tabla «contratos_jornada». Ejecuta migracion_tienda_contratos.sql en Supabase." : "No se pudo cargar tu contrato: " + (t.message || t))}</p>`;
+  }
 }
-function ctDibujarFilas(c) {
-    const h = (c && c.horario) || {};
-    $('ctFilas').innerHTML = CT_DIAS.map(([k, n]) => {
-        const d = h[k] || {};
-        const on = c ? !!d.on : (k !== 'sab' && k !== 'dom');
-        return `<div class="ct-fila" data-dia="${k}">
-<label class="ct-dia"><input type="checkbox" class="ct-on" ${on ? 'checked' : ''}><span>${esc(n)}</span></label>
-<div class="ct-horas">
-<input type="time" class="ct-ini" value="${esc(d.ini || (on ? '09:00' : ''))}" aria-label="${esc(n)}: entrada">
-<span>–</span>
-<input type="time" class="ct-fin" value="${esc(d.fin || (on ? '14:00' : ''))}" aria-label="${esc(n)}: salida">
-</div>
-<div class="ct-horas">
-<input type="time" class="ct-ini2" value="${esc(d.ini2 || '')}" aria-label="${esc(n)}: segunda entrada (opcional)">
-<span>–</span>
-<input type="time" class="ct-fin2" value="${esc(d.fin2 || '')}" aria-label="${esc(n)}: segunda salida (opcional)">
-</div></div>`;
-    }).join('');
-    ctActualizar();
+function ctDibujarFilas(e) {
+  const t = (e && e.horario) || {};
+  $("ctFilas").innerHTML = CT_DIAS.map(([n, r]) => {
+    const i = t[n] || {},
+      a = e ? !!i.on : n !== "sab" && n !== "dom";
+    return `<div class="ct-fila" data-dia="${n}">\n<label class="ct-dia"><input type="checkbox" class="ct-on" ${a ? "checked" : ""}><span>${esc(r)}</span></label>\n<div class="ct-horas">\n<input type="time" class="ct-ini" value="${esc(i.ini || (a ? "09:00" : ""))}" aria-label="${esc(r)}: entrada">\n<span>–</span>\n<input type="time" class="ct-fin" value="${esc(i.fin || (a ? "14:00" : ""))}" aria-label="${esc(r)}: salida">\n</div>\n<div class="ct-horas">\n<input type="time" class="ct-ini2" value="${esc(i.ini2 || "")}" aria-label="${esc(r)}: segunda entrada (opcional)">\n<span>–</span>\n<input type="time" class="ct-fin2" value="${esc(i.fin2 || "")}" aria-label="${esc(r)}: segunda salida (opcional)">\n</div></div>`;
+  }).join("");
+  ctActualizar();
 }
 function ctLeerHorario() {
-    const h = {};
-    document.querySelectorAll('#ctFilas .ct-fila').forEach(f => {
-        h[f.dataset.dia] = {
-            on: f.querySelector('.ct-on').checked,
-            ini: f.querySelector('.ct-ini').value, fin: f.querySelector('.ct-fin').value,
-            ini2: f.querySelector('.ct-ini2').value, fin2: f.querySelector('.ct-fin2').value
-        };
-    });
-    return h;
+  const e = {};
+  document.querySelectorAll("#ctFilas .ct-fila").forEach((t) => {
+    e[t.dataset.dia] = {
+      on: t.querySelector(".ct-on").checked,
+      ini: t.querySelector(".ct-ini").value,
+      fin: t.querySelector(".ct-fin").value,
+      ini2: t.querySelector(".ct-ini2").value,
+      fin2: t.querySelector(".ct-fin2").value,
+    };
+  });
+  return e;
 }
 function ctActualizar() {
-    document.querySelectorAll('#ctFilas .ct-fila').forEach(f => {
-        const on = f.querySelector('.ct-on').checked;
-        f.classList.toggle('off', !on);
-        f.querySelectorAll('input[type="time"]').forEach(i => { i.disabled = !on; });
+  document.querySelectorAll("#ctFilas .ct-fila").forEach((e) => {
+    const t = e.querySelector(".ct-on").checked;
+    e.classList.toggle("off", !t);
+    e.querySelectorAll('input[type="time"]').forEach((e) => {
+      e.disabled = !t;
     });
-    const min = ctMinutosSemana(ctLeerHorario());
-    $('ctCalculo').innerText = min ? `Según el horario: ${ctHoras(min)} a la semana` : 'Marca los días y las horas que trabajas';
+  });
+  const e = ctMinutosSemana(ctLeerHorario());
+  $("ctCalculo").innerText = e
+    ? `Según el horario: ${ctHoras(e)} a la semana`
+    : "Marca los días y las horas que trabajas";
 }
-async function abrirContrato(obligatorio) {
-    let c = null;
-    try { c = await cargarContrato(false); } catch (e) { toast('No se pudo cargar tu contrato: ' + (e.message || e), 'err'); return false; }
-    $('ctObligatorio').hidden = !obligatorio;
-    $('ctTitulo').innerText = c ? 'Modificar mi contrato' : 'Tu contrato';
-    $('ctHoras').value = c ? c.horas_semanales : '';
-    $('ctNotas').value = c && c.notas ? c.notas : '';
-    $('ctDesde').value = fechaLocalISO();
-    $('msgContrato').innerText = '';
-    ctDibujarFilas(c);
-    abrirOverlay('modalContrato');
-    return true;
+async function abrirContrato(e) {
+  let t = null;
+  try {
+    t = await cargarContrato(!1);
+  } catch (e) {
+    toast("No se pudo cargar tu contrato: " + (e.message || e), "err");
+    return !1;
+  }
+  $("ctObligatorio").hidden = !e;
+  $("ctTitulo").innerText = t ? "Modificar mi contrato" : "Tu contrato";
+  $("ctHoras").value = t ? t.horas_semanales : "";
+  $("ctNotas").value = t && t.notas ? t.notas : "";
+  $("ctDesde").value = fechaLocalISO();
+  $("msgContrato").innerText = "";
+  ctDibujarFilas(t);
+  abrirOverlay("modalContrato");
+  return !0;
 }
-function cerrarContrato(guardado) {
-    cerrarOverlay('modalContrato');
-    if (ctResolver) { const r = ctResolver; ctResolver = null; r(!!guardado); }
+function cerrarContrato(e) {
+  cerrarOverlay("modalContrato");
+  if (ctResolver) {
+    const t = ctResolver;
+    ctResolver = null;
+    t(!!e);
+  }
 }
 async function guardarContrato() {
-    const msg = $('msgContrato'), btn = $('btnGuardarContrato');
-    const err = t => { msg.style.color = 'var(--red)'; msg.innerText = t; };
-    const horas = parseFloat(String($('ctHoras').value).replace(',', '.'));
-    const horario = ctLeerHorario();
-    const notas = $('ctNotas').value.trim();
-    const desde = $('ctDesde').value;
-    if (isNaN(horas) || horas <= 0 || horas > CT_HORAS_MAX) return err(`Indica las horas semanales de tu contrato (entre 0,5 y ${CT_HORAS_MAX})`);
-    if (!desde) return err('Indica desde cuándo rige este horario');
-    const activos = CT_DIAS.filter(([k]) => horario[k].on);
-    if (!activos.length) return err('Marca al menos un día de trabajo');
-    for (const [k, n] of activos) {
-        const d = horario[k];
-        if (!d.ini || !d.fin || ctMin(d.fin) <= ctMin(d.ini)) return err(`${n}: revisa la hora de entrada y de salida`);
-        const uno = !!d.ini2, otro = !!d.fin2;
-        if (uno !== otro) return err(`${n}: completa el segundo tramo o déjalo vacío`);
-        if (uno && ctMin(d.fin2) <= ctMin(d.ini2)) return err(`${n}: revisa el segundo tramo`);
-        if (uno && ctMin(d.ini2) < ctMin(d.fin)) return err(`${n}: el segundo tramo debe empezar después del primero`);
-    }
-    const limpio = {};
-    CT_DIAS.forEach(([k]) => {
-        const d = horario[k];
-        limpio[k] = d.on ? { on: true, ini: d.ini, fin: d.fin, ini2: d.ini2 || '', fin2: d.fin2 || '' } : { on: false };
-    });
-    const calc = ctMinutosSemana(limpio) / 60;
-    if (Math.abs(calc - horas) > 0.5 && !(await customConfirm(`Las horas que has escrito (${ctNum(horas)} h) no coinciden con las del horario (${ctNum(Math.round(calc * 10) / 10)} h). ¿Guardar igualmente?`))) return;
-    setBusy(btn, true, '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Guardando...');
-    try {
-        const u = ctUsuario();
-        const { error } = await supabaseClient.from('contratos_jornada').insert({ usuario: u, horas_semanales: Math.round(horas * 10) / 10, horario: limpio, notas: notas || null, vigente_desde: desde, declarado_por: u });
-        if (error) throw error;
-        ctCache = { usuario: null, data: undefined };
-        toast('Contrato guardado');
-        cerrarContrato(true);
-        dibujarContratoResumen();
-        if (typeof fxAplicarContrato === 'function') fxAplicarContrato();
-    } catch (ex) {
-        console.error(ex);
-        err(esErrorTabla(ex) ? 'Falta crear la tabla «contratos_jornada». Ejecuta migracion_tienda_contratos.sql en Supabase.' : 'No se pudo guardar: ' + (ex.message || ex));
-    } finally { setBusy(btn, false); }
+  const e = $("msgContrato"),
+    t = $("btnGuardarContrato"),
+    n = (e) => {
+      e.style.color = "var(--red)";
+      e.innerText = e;
+    },
+    r = parseFloat(String($("ctHoras").value).replace(",", ".")),
+    i = ctLeerHorario(),
+    a = $("ctNotas").value.trim(),
+    o = $("ctDesde").value;
+  if (isNaN(r) || r <= 0 || r > CT_HORAS_MAX)
+    return n(
+      `Indica las horas semanales de tu contrato (entre 0,5 y ${CT_HORAS_MAX})`,
+    );
+  if (!o) return n("Indica desde cuándo rige este horario");
+  const s = CT_DIAS.filter(([e]) => i[e].on);
+  if (!s.length) return n("Marca al menos un día de trabajo");
+  for (const [e, t] of s) {
+    const n = i[e];
+    if (!n.ini || !n.fin || ctMin(n.fin) <= ctMin(n.ini))
+      return n(`${t}: revisa la hora de entrada y de salida`);
+    const r = !!n.ini2,
+      a = !!n.fin2;
+    if (r !== a) return n(`${t}: completa el segundo tramo o déjalo vacío`);
+    if (r && ctMin(n.fin2) <= ctMin(n.ini2))
+      return n(`${t}: revisa el segundo tramo`);
+    if (r && ctMin(n.ini2) < ctMin(n.fin))
+      return n(`${t}: el segundo tramo debe empezar después del primero`);
+  }
+  const l = {};
+  CT_DIAS.forEach(([e]) => {
+    const t = i[e];
+    l[e] = t.on
+      ? {
+          on: !0,
+          ini: t.ini,
+          fin: t.fin,
+          ini2: t.ini2 || "",
+          fin2: t.fin2 || "",
+        }
+      : { on: !1 };
+  });
+  const c = ctMinutosSemana(l) / 60;
+  if (
+    Math.abs(c - r) > 0.5 &&
+    !(await customConfirm(
+      `Las horas que has escrito (${ctNum(r)} h) no coinciden con las del horario (${ctNum(Math.round(c * 10) / 10)} h). ¿Guardar igualmente?`,
+    ))
+  )
+    return;
+  setBusy(
+    t,
+    !0,
+    '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Guardando...',
+  );
+  try {
+    const e = ctUsuario(),
+      { error: n } = await supabaseClient
+        .from("contratos_jornada")
+        .insert({
+          usuario: e,
+          horas_semanales: Math.round(r * 10) / 10,
+          horario: l,
+          notas: a || null,
+          vigente_desde: o,
+          declarado_por: e,
+        });
+    if (n) throw n;
+    ctCache = { usuario: null, data: undefined };
+    toast("Contrato guardado");
+    cerrarContrato(!0);
+    dibujarContratoResumen();
+    if (typeof fxAplicarContrato === "function") fxAplicarContrato();
+  } catch (e) {
+    console.error(e);
+    n(
+      esErrorTabla(e)
+        ? "Falta crear la tabla «contratos_jornada». Ejecuta migracion_tienda_contratos.sql en Supabase."
+        : "No se pudo guardar: " + (e.message || e),
+    );
+  } finally {
+    setBusy(t, !1);
+  }
 }
 async function asegurarContrato() {
-    if (typeof esJefa === 'function' && esJefa()) return true;
-    let c;
-    try { c = await cargarContrato(false); }
-    catch (e) { console.error(e); return true; }
-    if (c) return true;
-    if (!(await abrirContrato(true))) return false;
-    return new Promise(res => { ctResolver = res; });
+  if (typeof esJefa === "function" && esJefa()) return !0;
+  let e;
+  try {
+    e = await cargarContrato(!1);
+  } catch (e) {
+    console.error(e);
+    return !0;
+  }
+  if (e) return !0;
+  if (!(await abrirContrato(!0))) return !1;
+  return new Promise((e) => {
+    ctResolver = e;
+  });
 }
-function entrarContrato() { if (typeof esJefa === 'function' && esJefa()) return; dibujarContratoResumen(); }
-$('btnEditarContrato').addEventListener('click', () => abrirContrato(false));
-$('btnGuardarContrato').addEventListener('click', guardarContrato);
-$('btnCancelarContrato').addEventListener('click', () => cerrarContrato(false));
-$('btnCerrarContrato').addEventListener('click', () => cerrarContrato(false));
-$('ctFilas').addEventListener('input', ctActualizar);
-$('ctFilas').addEventListener('change', ctActualizar);
+function entrarContrato() {
+  if (typeof esJefa === "function" && esJefa()) return;
+  dibujarContratoResumen();
+}
+$("btnEditarContrato").addEventListener("click", () => abrirContrato(!1));
+$("btnGuardarContrato").addEventListener("click", guardarContrato);
+$("btnCancelarContrato").addEventListener("click", () => cerrarContrato(!1));
+$("btnCerrarContrato").addEventListener("click", () => cerrarContrato(!1));
+$("ctFilas").addEventListener("input", ctActualizar);
+$("ctFilas").addEventListener("change", ctActualizar);
