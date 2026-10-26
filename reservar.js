@@ -68,9 +68,10 @@ async function llamarEdge(e, t) {
 let tsId = null,
   tsToken = "";
 function iniciarTurnstile() {
+  const host = $("cfTurnstile");
+  if (!host) return;
+  host.hidden = false;
   if (!TURNSTILE_SITEKEY || tsId !== null) return;
-  const e = $("cfTurnstile");
-  e.hidden = !1;
   const t = () => {
     if (tsId !== null || !window.turnstile) return;
     tsId = window.turnstile.render("#cfTurnstile", {
@@ -88,12 +89,12 @@ function iniciarTurnstile() {
   };
   if (window.turnstile) t();
   else {
-    const e = document.createElement("script");
-    e.src =
+    const s = document.createElement("script");
+    s.src =
       "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-    e.async = !0;
-    e.onload = t;
-    document.head.appendChild(e);
+    s.async = !0;
+    s.onload = t;
+    document.head.appendChild(s);
   }
 }
 function reiniciarTurnstile() {
@@ -102,6 +103,22 @@ function reiniciarTurnstile() {
     try {
       window.turnstile.reset(tsId);
     } catch (e) {}
+}
+async function esperarTokenTurnstile(timeoutMs = 15000) {
+  if (tsToken) return tsToken;
+  iniciarTurnstile();
+  return new Promise((resolve) => {
+    const start = Date.now();
+    const iv = setInterval(() => {
+      if (tsToken) {
+        clearInterval(iv);
+        resolve(tsToken);
+      } else if (Date.now() - start > timeoutMs) {
+        clearInterval(iv);
+        resolve("");
+      }
+    }, 200);
+  });
 }
 const RPC_LECTURA = ["web_config", "web_disponibilidad"];
 async function rpc(e, t) {
@@ -422,7 +439,6 @@ $("clSlots").addEventListener("click", async (ev) => {
     return;
   }
   if (ev.target.closest("#btnEspera")) {
-    iniciarTurnstile();
     const telInput = await customPrompt(
       t("reservar.waitlist.prompt"),
       "",
@@ -431,18 +447,24 @@ $("clSlots").addEventListener("click", async (ev) => {
     if (telInput === null) return;
     if (!telInput || !telefonoValido(telInput))
       return toast(t("reservar.waitlist.invalid"), "warn");
+
+    const token = await esperarTokenTurnstile();
+    if (!token) return toast(t("reservar.toast.captcha"), "warn");
+
     try {
       const res = await llamarEdge("lista_espera", {
         p_fecha: sel.fecha,
         p_duracion: sel.dur,
         p_telefono: normalizarTelefono(telInput),
-        turnstile: tsToken,
+        turnstile: token,
       });
       if (!res || !res.ok)
         return toast(t("reservar.waitlist.error") + textoError(res), "err");
       toast(t("reservar.waitlist.saved"));
     } catch (err) {
       errorRed(err);
+    } finally {
+      reiniciarTurnstile();
     }
     return;
   }
@@ -1059,6 +1081,11 @@ window.addEventListener("DOMContentLoaded", async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const paramFecha = urlParams.get("fecha");
   const paramHora = urlParams.get("hora");
+  const paramDur = parseInt(urlParams.get("dur"), 10);
+
+  if (Number.isFinite(paramDur) && cfg.duraciones.includes(paramDur)) {
+    sel.dur = paramDur;
+  }
 
   if (
     paramFecha &&
@@ -1067,12 +1094,10 @@ window.addEventListener("DOMContentLoaded", async () => {
   ) {
     await seleccionarDia(paramFecha);
     if (paramHora) {
-      setTimeout(() => {
-        const slotBtn = document.querySelector(
-          `.cl-slot[data-hora="${paramHora}"]`,
-        );
-        if (slotBtn) slotBtn.click();
-      }, 300);
+      const slotBtn = Array.from(document.querySelectorAll(".cl-slot")).find(
+        (b) => b.dataset.hora === paramHora,
+      );
+      if (slotBtn) slotBtn.click();
     }
   } else {
     seleccionarDia(fechaLocalISO());

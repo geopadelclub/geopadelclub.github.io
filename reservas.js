@@ -1,6 +1,7 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 let reqReservas = 0;
 let totalPendientes = 0;
+let primeraPendienteGlobal = null;
 let _pendingPagoUnico = null;
 async function cargarReservasHoy() {
   const iso = $("fechaCuadrante").value || fechaLocalISO();
@@ -51,32 +52,45 @@ function actualizarChipPendientes() {
   if (!chip || !n) return;
   n.innerText = totalPendientes;
   chip.classList.toggle("hay", totalPendientes > 0);
+  chip.title =
+    totalPendientes > 0
+      ? `${totalPendientes} reserva(s) pendiente(s) de confirmar (incluye días futuros). Pulsa para ir a la primera.`
+      : "Sin reservas pendientes";
 }
 
 async function cargarTotalPendientes() {
-  totalPendientes = (datosLocales.reservas || []).filter(
-    (r) => r.estado === "Pendiente",
-  ).length;
-  actualizarChipPendientes();
-}
-
-async function irAPrimeraPendiente() {
-  const iso = $("fechaCuadrante").value || fechaLocalISO();
+  const hoy = fechaLocalISO();
   const { data, error } = await supabaseClient
     .from("reservas")
     .select("id, fecha, hora_inicio")
     .eq("estado", "Pendiente")
-    .eq("fecha", iso)
-    .order("hora_inicio")
-    .limit(1);
-  if (error)
-    return toast(
-      "No se pudieron consultar las pendientes: " + error.message,
-      "err",
-    );
-  if (!data || !data.length)
-    return toast("No hay reservas pendientes este día");
-  const p = data[0];
+    .gte("fecha", hoy)
+    .order("fecha", { ascending: true })
+    .order("hora_inicio", { ascending: true });
+  if (error) {
+    console.error(error);
+    return;
+  }
+  primeraPendienteGlobal = data && data.length ? data[0] : null;
+  totalPendientes = (data || []).length;
+  actualizarChipPendientes();
+}
+
+async function irAPrimeraPendiente() {
+  if (!primeraPendienteGlobal) {
+    await cargarTotalPendientes();
+  }
+  const p = primeraPendienteGlobal;
+  if (!p) return toast("No hay reservas pendientes");
+
+  const isoActual = $("fechaCuadrante").value || fechaLocalISO();
+  if (p.fecha !== isoActual) {
+    $("fechaCuadrante").value = p.fecha;
+    scrollAhoraPendiente = true;
+    await cargarReservasHoy();
+    cargarTotalPendientes();
+  }
+
   const card = document.querySelector(
     `.reserva-card[data-id="${CSS.escape(String(p.id))}"]`,
   );
