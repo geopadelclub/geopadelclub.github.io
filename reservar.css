@@ -727,3 +727,13 @@
   line-height: 1.2;
   overflow-wrap: anywhere;
 }
+
+.gp-brand-link {
+  text-decoration: none;
+}
+.cl-main-tienda {
+  padding-bottom: 40px;
+}
+.cl-legal-tienda {
+  margin-top: 40px;
+}

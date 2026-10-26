@@ -33,11 +33,7 @@
     <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
     <div id="toasts" role="status" aria-live="polite"></div>
     <header class="app-header">
-      <a
-        href="/"
-        class="gp-brand"
-        aria-label="Volver al inicio"
-        style="text-decoration: none"
+      <a href="/" class="gp-brand gp-brand-link" aria-label="Volver al inicio"
         ><img
           class="gp-logo"
           src="./geopadel.webp"
@@ -45,16 +41,14 @@
           draggable="false"
           width="150"
           height="150"
-          style="aspect-ratio: 1/1"
       /></a>
       <div class="user-info">
         <button
           type="button"
-          class="theme-toggle"
+          class="theme-toggle btn-idioma"
           id="btnIdioma"
           data-action="cambiar-idioma"
           aria-label="Cambiar idioma"
-          style="font-weight: 800; font-size: 12px"
         >
           ES</button
         ><button
@@ -67,7 +61,7 @@
         </button>
       </div>
     </header>
-    <main class="cl-main" id="main-content" style="padding-bottom: 40px">
+    <main class="cl-main cl-main-tienda" id="main-content">
       <div class="cl-intro">
         <h1 data-i18n="tienda.titulo">Tienda</h1>
         <p data-i18n="tienda.subtitulo">
@@ -75,7 +69,7 @@
         </p>
       </div>
       <div id="tiendaGrid" class="tienda-grid" aria-live="polite"></div>
-      <p class="cl-legal cl-hint" style="margin-top: 40px">
+      <p class="cl-legal cl-hint cl-legal-tienda">
         <a href="privacidad" data-i18n="footer.privacidad">Privacidad</a> ·
         <a href="aviso-legal" data-i18n="footer.aviso">Aviso Legal</a> ·
         <a href="politica-cookies" data-i18n="footer.cookies">Cookies</a>
