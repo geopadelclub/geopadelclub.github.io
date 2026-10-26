@@ -546,36 +546,41 @@ async function fichar(e, t) {
   }
 }
 async function cargarMisFichajes() {
-  const e = $("tablaFichajesBody");
-  if (!e || !usuarioSesion || !supabaseClient) return;
-  const { data: t, error: n } = await supabaseClient
+  const tb = $("tablaFichajesBody");
+  if (!tb || !usuarioSesion || !supabaseClient) return;
+  const { data: filas, error: errLeer } = await supabaseClient
     .from("fichajes")
     .select("*")
     .eq("empleado", usuarioSesion.user)
     .order("created_at", { ascending: !1 })
     .limit(30);
-  if (n) {
-    e.innerHTML = `<tr><td colspan="3" class="tabla-empty" style="color:var(--red)">Error al cargar fichajes: ${esc(n.message)}</td></tr>`;
+  if (errLeer) {
+    tb.innerHTML = `<tr><td colspan="3" class="tabla-empty" style="color:var(--red)">Error al cargar fichajes: ${esc(errLeer.message)}</td></tr>`;
     return;
   }
-  if (!t || !t.length) {
+  if (!filas || !filas.length) {
     ultimoFichaje = null;
     $("estadoFichaje").innerText = "";
-    e.innerHTML = `<tr><td colspan="3" class="tabla-empty">No hay registros de fichajes aún</td></tr>`;
+    tb.innerHTML = `<tr><td colspan="3" class="tabla-empty">No hay registros de fichajes aún</td></tr>`;
     return;
   }
-  const r = (e) => {
-    const t = new Date(e);
-    return isNaN(t.getTime())
-      ? e || "-"
-      : t.toLocaleString("es-ES", { dateStyle: "short", timeStyle: "medium" });
+  const fmt = (iso) => {
+    const d = new Date(iso);
+    return isNaN(d.getTime())
+      ? iso || "-"
+      : d.toLocaleString("es-ES", { dateStyle: "short", timeStyle: "medium" });
   };
-  ultimoFichaje = { tipo: t[0].tipo };
-  $("estadoFichaje").innerText = `Último fichaje: ${t[0].tipo} · ${r(t[0])}`;
-  e.innerHTML = t
-    .map((e) => {
-      const t = e.tipo === "Entrada";
-      return `<tr>\n<td><b>${esc(r(e))}</b></td>\n<td><span class="badge-fichaje ${t ? "in" : "out"}">${t ? '<i class="ri-login-box-line" aria-hidden="true"></i>Entrada' : '<i class="ri-logout-box-line" aria-hidden="true"></i>Salida'}</span></td>\n<td><b>${esc(e.empleado)}</b></td></tr>`;
+  ultimoFichaje = { tipo: filas[0].tipo };
+  $("estadoFichaje").innerText =
+    `Último fichaje: ${filas[0].tipo} · ${fmt(filas[0].created_at)}`;
+  tb.innerHTML = filas
+    .map((f) => {
+      const esEntrada = f.tipo === "Entrada";
+      return `<tr>
+<td><b>${esc(fmt(f.created_at))}</b></td>
+<td><span class="badge-fichaje ${esEntrada ? "in" : "out"}">${esEntrada ? '<i class="ri-login-box-line" aria-hidden="true"></i>Entrada' : '<i class="ri-logout-box-line" aria-hidden="true"></i>Salida'}</span></td>
+<td><b>${esc(f.empleado)}</b></td>
+</tr>`;
     })
     .join("");
 }
