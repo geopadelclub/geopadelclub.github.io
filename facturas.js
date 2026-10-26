@@ -508,7 +508,7 @@ function htmlA4Factura(e) {
 function imprimirHTML(e) {
   const t = document.createElement("iframe");
   t.style.cssText =
-    "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden";
+    "position:absolute;left:-9999px;top:0;width:1px;height:1px;border:0;";
   t.setAttribute("aria-hidden", "true");
   document.body.appendChild(t);
   t.onload = () => {

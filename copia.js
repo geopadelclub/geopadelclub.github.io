@@ -1,7 +1,7 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 const COPIA_TABLAS = {
     reservas: { etiqueta: "Reservas", orden: ["fecha", "id"] },
-    clientes: { etiqueta: "Clientes", orden: ["nombre"] },
+    clientes: { etiqueta: "Clientes", orden: ["nombre", "id"] },
     ventas: { etiqueta: "Ventas (caja y bar)", orden: ["fecha_hora", "id"] },
     cierres: { etiqueta: "Cierres de caja", orden: ["fecha", "id"] },
     deudas: { etiqueta: "Deudas", orden: ["created_at", "id"] },

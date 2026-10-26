@@ -3,12 +3,7 @@ async function entrarResumen() {
   if (!usuarioSesion) return;
   dibujarResumen();
   try {
-    await Promise.all([
-      cargarReservasHoy(),
-      cargarCajaHoy(),
-      cargarDeudas(),
-      cargarLimpiezas(!1),
-    ]);
+    if (!limpiezas.length) await cargarLimpiezas(false);
   } catch (e) {
     console.error(e);
   }

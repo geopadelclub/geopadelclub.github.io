@@ -422,6 +422,7 @@ $("clSlots").addEventListener("click", async (ev) => {
     return;
   }
   if (ev.target.closest("#btnEspera")) {
+    iniciarTurnstile();
     const telInput = await customPrompt(
       t("reservar.waitlist.prompt"),
       "",
@@ -435,6 +436,7 @@ $("clSlots").addEventListener("click", async (ev) => {
         p_fecha: sel.fecha,
         p_duracion: sel.dur,
         p_telefono: normalizarTelefono(telInput),
+        turnstile: tsToken,
       });
       if (!res || !res.ok)
         return toast(t("reservar.waitlist.error") + textoError(res), "err");

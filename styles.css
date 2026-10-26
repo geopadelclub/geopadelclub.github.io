@@ -1231,50 +1231,6 @@ i[class*=" ri-"] {
   top: 0;
 }
 
-.btn-cash {
-  background: #15803d;
-  color: #fff;
-  box-shadow: 0 4px 14px rgba(21, 128, 61, 0.28);
-}
-
-.btn-cash:hover {
-  background: #166534;
-}
-
-.btn-cash:active {
-  background: #14532d;
-}
-
-.btn-card {
-  background: #2563eb;
-  color: #fff;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
-}
-
-.btn-card:hover {
-  background: #1d4ed8;
-}
-
-.btn-card:active {
-  background: #1e40af;
-}
-
-[data-theme="dark"] .btn-cash {
-  background: #16a34a;
-}
-
-[data-theme="dark"] .btn-cash:hover {
-  background: #15803d;
-}
-
-[data-theme="dark"] .btn-card {
-  background: #3b82f6;
-}
-
-[data-theme="dark"] .btn-card:hover {
-  background: #2563eb;
-}
-
 #gpCookieBanner {
   position: fixed;
   left: 16px;

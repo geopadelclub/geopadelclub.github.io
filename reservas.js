@@ -513,7 +513,6 @@ async function moverReservaAccion(idRes, nuevaHora, nuevaPista) {
       .update({
         hora_inicio: nuevaHora,
         pista: nuevaPista,
-        updated_at: new Date().toISOString(),
       })
       .eq("id", t.id);
     if (error) throw error;
@@ -1059,7 +1058,6 @@ async function confirmarGuardarReserva() {
         ...payloadBase,
         fecha: iso,
         pista: pistasSel[0],
-        updated_at: new Date().toISOString(),
       };
       if (notas !== String(reservaEnEdicion.notas || "").trim())
         upd.notas = notas;
@@ -1194,7 +1192,6 @@ async function confirmarReservaPendiente() {
       .update({
         estado: "Confirmada",
         empleado: nombreUsuario(),
-        updated_at: new Date().toISOString(),
       })
       .eq("id", id)
       .eq("estado", "Pendiente");

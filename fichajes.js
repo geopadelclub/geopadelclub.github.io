@@ -266,7 +266,8 @@ async function fxCargarContratos(e) {
         )
         .in("usuario", e)
         .order("vigente_desde", { ascending: !1 })
-        .order("created_at", { ascending: !1 }),
+        .order("created_at", { ascending: !1 })
+        .order("id", { ascending: !1 }),
     );
     if (r) throw r;
     (n || []).forEach((e) => {

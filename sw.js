@@ -1,5 +1,5 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
-const VERSION = "geopadel-b62b41b5b0"; // bump-sw.js la reemplaza en CI
+const VERSION = "geopadel-b62b41b5b0";
 const BASE = [
   "./",
   "index.html",
@@ -87,10 +87,8 @@ async function detectarModo() {
 self.addEventListener("install", (e) => {
   e.waitUntil(
     (async () => {
-      const modo = await detectarModo();
       const cache = await caches.open(VERSION);
-      const lista =
-        modo === "panel" ? [...BASE, ...PANEL] : [...BASE, ...PUBLICO];
+      const lista = [...BASE, ...PANEL, ...PUBLICO];
       await Promise.allSettled(lista.map((u) => cache.add(u)));
       await self.skipWaiting();
     })(),

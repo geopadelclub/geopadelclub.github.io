@@ -3,6 +3,7 @@ const I18N = {
   es: {
     "nav.tarifas": "Tarifas",
     "nav.ubicacion": "Ubicación",
+    "nav.tienda": "Tienda",
     "nav.reservar": "Reservar pista",
     "hero.titulo": "Tu pista de pádel en Ogíjares",
     "hero.subtitulo":
@@ -133,10 +134,6 @@ const I18N = {
     "palas.titulo": "Prueba de Palas",
     "palas.texto":
       "¿No sabes qué pala comprar? Ven al club y pruébala en tu propio partido antes de decidirte.",
-    "nav.tarifas": "Tarifas",
-    "nav.ubicacion": "Ubicación",
-    "nav.tienda": "Tienda",
-    "nav.reservar": "Reservar pista",
     "reservar.error": "No se pudo cargar la disponibilidad.",
     "reservar.two-hours":
       '¿Necesitas 2 horas? Llama al club: <a href="tel:+34646059962">646 05 99 62</a>.',
@@ -182,6 +179,7 @@ const I18N = {
   en: {
     "nav.tarifas": "Prices",
     "nav.ubicacion": "Location",
+    "nav.tienda": "Shop",
     "nav.reservar": "Book a court",
     "hero.titulo": "Your padel court in Ogíjares",
     "hero.subtitulo":
@@ -307,10 +305,6 @@ const I18N = {
     "palas.titulo": "Racket Testing",
     "palas.texto":
       "Not sure which racket to buy? Come to the club and test it in your own match before deciding.",
-    "nav.tarifas": "Prices",
-    "nav.ubicacion": "Location",
-    "nav.tienda": "Shop",
-    "nav.reservar": "Book a court",
     "reservar.error": "Couldn't load availability.",
     "reservar.two-hours":
       'Need 2 hours? Call the club: <a href="tel:+34646059962">646 05 99 62</a>.',

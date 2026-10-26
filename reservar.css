@@ -100,12 +100,6 @@
   color: var(--on-primary);
 }
 
-.cl-durs {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
 .cl-dur {
   padding: 9px 16px;
   border-radius: var(--radius-full);
