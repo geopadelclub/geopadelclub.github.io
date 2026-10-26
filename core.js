@@ -90,6 +90,11 @@ function marcarInicioSesion() {
     localStorage.setItem(CLAVE_ULT_ACT, ahora);
   } catch (e) {}
 }
+function renovarInactividad() {
+  try {
+    localStorage.setItem(CLAVE_ULT_ACT, String(Date.now()));
+  } catch (e) {}
+}
 function registrarActividad() {
   try {
     localStorage.setItem(CLAVE_ULT_ACT, String(Date.now()));
@@ -121,22 +126,43 @@ function iniciarVigilanciaSesion() {
   if (_intervaloVigilancia) return;
   _intervaloVigilancia = setInterval(async () => {
     if (!usuarioSesion) return;
-    const restante = msSesionRestante();
+    let ini = 0,
+      ult = 0;
+    try {
+      ini = parseInt(localStorage.getItem(CLAVE_SESION_INI), 10) || 0;
+      ult = parseInt(localStorage.getItem(CLAVE_ULT_ACT), 10) || ini;
+    } catch (e) {}
+    const ahora = Date.now();
+    const restanteMax = ini ? ini + SESION_MAX_MS - ahora : Infinity;
+    const restanteInac = ult ? ult + INACTIVIDAD_MAX_MS - ahora : Infinity;
+    const restante = Math.min(restanteMax, restanteInac);
+
     if (restante <= 0) {
+      const motivo =
+        restanteMax <= 0 ? "max" : restanteInac <= 0 ? "inac" : null;
       cerrarSesion();
-      toast("La sesión ha caducado. Vuelve a entrar.", "warn");
+      toast(
+        motivo === "max"
+          ? "La sesión ha alcanzado el máximo de 8 h. Vuelve a entrar."
+          : "La sesión ha caducado por inactividad. Vuelve a entrar.",
+        "warn",
+      );
       return;
     }
-    if (restante <= AVISO_SESION_MS && !_avisoSesionActivo) {
+    if (
+      restanteInac <= AVISO_SESION_MS &&
+      restanteMax > AVISO_SESION_MS &&
+      !_avisoSesionActivo
+    ) {
       _avisoSesionActivo = true;
-      const seg = Math.ceil(restante / 1000);
+      const seg = Math.ceil(restanteInac / 1000);
       const ok = await customConfirm(
         `Tu sesión caducará en ${seg} segundos por inactividad. ¿Quieres seguir conectado?`,
         "Sesión a punto de caducar",
       );
       _avisoSesionActivo = false;
       if (ok) {
-        marcarInicioSesion();
+        renovarInactividad();
         toast("Sesión renovada", "ok");
       } else {
         cerrarSesion();

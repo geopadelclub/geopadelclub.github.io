@@ -41,12 +41,9 @@ const COPIA_TABLAS = {
   COL_PRIVADAS = /codigo|^hash_|pass|salt|token|secret/i,
   CLAVE_ULTIMA_COPIA = "gp-ultima-copia";
 function aplicarPermisosCopia() {
-  const e = typeof esPersonal === "function" && esPersonal(),
-    t = $("cardCopia");
-  if (t) t.hidden = !e;
-  document.querySelectorAll("[data-exp]").forEach((t) => {
-    if (!t.closest("#cardCopia")) t.hidden = !e;
-  });
+  const puede = typeof esJefa === "function" && esJefa();
+  const t = $("cardCopia");
+  if (t) t.hidden = !puede;
   mostrarUltimaCopia();
 }
 async function obtenerTabla(e) {

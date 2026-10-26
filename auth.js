@@ -41,10 +41,48 @@ async function inicializarSupabase() {
   _registrarAuthListener();
   return supabaseClient;
 }
+const CLAVE_LOGIN_ATTEMPTS = "gp-login-attempts";
+const LOGIN_FAILS_MAX = 5;
+const LOGIN_BLOQUEO_MS = 30 * 1000;
+const LOGIN_RESET_MS = 15 * 60 * 1000;
 let intentosFallidos = 0,
   bloqueoHasta = 0,
   tsLoginId = null,
   tsLoginToken = "";
+function cargarIntentosLogin() {
+  try {
+    const raw = localStorage.getItem(CLAVE_LOGIN_ATTEMPTS);
+    if (!raw) return;
+    const o = JSON.parse(raw);
+    if (!o || typeof o !== "object") return;
+    const ahora = Date.now();
+    const ultimo = Number(o.last) || 0;
+    if (ultimo && ahora - ultimo > LOGIN_RESET_MS) {
+      localStorage.removeItem(CLAVE_LOGIN_ATTEMPTS);
+      return;
+    }
+    intentosFallidos = Number(o.fails) || 0;
+    bloqueoHasta = Number(o.until) || 0;
+    if (bloqueoHasta && bloqueoHasta <= ahora) bloqueoHasta = 0;
+  } catch (e) {}
+}
+function guardarIntentosLogin() {
+  try {
+    if (bloqueoHasta && Date.now() >= bloqueoHasta) bloqueoHasta = 0;
+    if (intentosFallidos === 0 && bloqueoHasta === 0) {
+      localStorage.removeItem(CLAVE_LOGIN_ATTEMPTS);
+      return;
+    }
+    localStorage.setItem(
+      CLAVE_LOGIN_ATTEMPTS,
+      JSON.stringify({
+        fails: intentosFallidos,
+        until: bloqueoHasta,
+        last: Date.now(),
+      }),
+    );
+  } catch (e) {}
+}
 function iniciarTurnstileLogin() {
   if (!TURNSTILE_SITEKEY || tsLoginId !== null) return;
   const e = $("cfLogin");
@@ -239,10 +277,11 @@ $("loginForm").addEventListener("submit", async function (e) {
         t.innerText = "No se pudo verificar el anti-spam. Inténtalo de nuevo.";
       } else if (a.status === 400 || /invalid login/i.test(a.message || "")) {
         intentosFallidos++;
-        if (intentosFallidos >= 5) {
-          bloqueoHasta = Date.now() + 3e4;
+        if (intentosFallidos >= LOGIN_FAILS_MAX) {
+          bloqueoHasta = Date.now() + LOGIN_BLOQUEO_MS;
           intentosFallidos = 0;
         }
+        guardarIntentosLogin();
         t.className = "msg-error";
         t.innerText = /not confirmed/i.test(a.message || "")
           ? "Este usuario no está confirmado. Contacta con el administrador."
@@ -257,6 +296,8 @@ $("loginForm").addEventListener("submit", async function (e) {
           "Usuario inactivo o sin perfil. Contacta con el administrador.";
       } else {
         intentosFallidos = 0;
+        bloqueoHasta = 0;
+        guardarIntentosLogin();
         usuarioSesion = a;
         marcarInicioSesion();
         reiniciarTurnstileLogin();
@@ -607,6 +648,7 @@ async function cargarMisFichajes() {
     .join("");
 }
 window.addEventListener("DOMContentLoaded", () => {
+  cargarIntentosLogin();
   iniciarTema();
   estadoRed();
   comprobarSesion();

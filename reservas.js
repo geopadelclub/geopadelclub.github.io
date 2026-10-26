@@ -493,6 +493,19 @@ async function buscarConflicto({ pistas, fechas, iniMin, dur, excluirId }) {
     }) || null
   );
 }
+function precioParaFechaHora(fecha, hora, dur) {
+  const t = { ...TARIFAS_DEFECTO, ...(datosLocales.tarifas || {}) };
+  const franja = esFinde(fecha)
+    ? t.finde
+    : timeToMin(hora) < bloqueDescansoInicio
+      ? t.semanaManana
+      : t.semanaTarde;
+  if (!franja) return null;
+  const exacto = franja[dur];
+  if (exacto !== null && exacto !== undefined) return exacto;
+  if (franja[90] != null) return redondear2((dur / 90) * franja[90]);
+  return null;
+}
 
 async function moverReservaAccion(idRes, nuevaHora, nuevaPista) {
   const t = (datosLocales.reservas || []).find(
@@ -519,18 +532,38 @@ async function moverReservaAccion(idRes, nuevaHora, nuevaPista) {
       `No se puede mover: ${nuevaPista} está ocupada a las ${conflictoLocal.horaInicio} (${conflictoLocal.cliente})`,
       "err",
     );
+
+  if (t.serie) {
+    const ok = await customConfirm(
+      "Esta reserva forma parte de una serie (peña). Si la mueves, solo cambias esta semana; las demás siguen como estaban. ¿Continuar?",
+    );
+    if (!ok) return;
+  }
+
+  const tieneCobros = String(t.pagosJugadores || "")
+    .split(",")
+    .some((p) => p === "Efectivo" || p === "Tarjeta");
+  const nuevoPrecio = tieneCobros
+    ? null
+    : precioParaFechaHora(t.fecha, nuevaHora, dur);
+  const upd = { hora_inicio: nuevaHora, pista: nuevaPista };
+  if (
+    nuevoPrecio != null &&
+    Math.abs(nuevoPrecio - (Number(t.precio) || 0)) > 0.004
+  )
+    upd.precio = nuevoPrecio;
+
   try {
     const { error } = await supabaseClient
       .from("reservas")
-      .update({
-        hora_inicio: nuevaHora,
-        pista: nuevaPista,
-      })
+      .update(upd)
       .eq("id", t.id);
     if (error) throw error;
     t.horaInicio = nuevaHora;
     t.pista = nuevaPista;
-    toast(`Reserva movida a ${nuevaPista} · ${nuevaHora}`);
+    if (upd.precio != null) t.precio = upd.precio;
+    const extra = upd.precio != null ? ` · ${eur(upd.precio)}` : "";
+    toast(`Reserva movida a ${nuevaPista} · ${nuevaHora}${extra}`);
     renderizarCuadrantePlaytomic(datosLocales.reservas);
   } catch (err) {
     console.error(err);
@@ -1168,13 +1201,7 @@ async function confirmarGuardarReserva() {
       cargarReservasHoy();
       return;
     }
-    const msgErr = String(err.message || err);
-    toast(
-      /notas/i.test(msgErr)
-        ? "Falta la columna «notas» en Supabase. Ejecuta migracion_notas.sql en el SQL Editor."
-        : "Error al guardar la reserva: " + msgErr,
-      "err",
-    );
+    toast("Error al guardar la reserva: " + (err.message || err), "err");
   } finally {
     setBusy(btn, false);
   }

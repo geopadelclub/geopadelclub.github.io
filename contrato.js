@@ -91,7 +91,7 @@ async function dibujarContratoResumen() {
   try {
     e.innerHTML = ctResumenHtml(await cargarContrato(!0));
   } catch (t) {
-    e.innerHTML = `<p class="limp-leyenda" style="color:var(--red)">${esc(esErrorTabla(t) ? "Falta crear la tabla «contratos_jornada». Ejecuta migracion_tienda_contratos.sql en Supabase." : "No se pudo cargar tu contrato: " + (t.message || t))}</p>`;
+    e.innerHTML = `<p class="limp-leyenda" style="color:var(--red)">${esc("No se pudo cargar tu contrato. Avisa al administrador.")}</p>`;
   }
 }
 function ctDibujarFilas(e) {
@@ -241,7 +241,7 @@ async function guardarContrato() {
     console.error(err);
     mostrarError(
       esErrorTabla(err)
-        ? "Falta crear la tabla «contratos_jornada». Ejecuta migracion_tienda_contratos.sql en Supabase."
+        ? "No se pudo guardar el contrato. Avisa al administrador."
         : "No se pudo guardar: " + (err.message || err),
     );
   } finally {

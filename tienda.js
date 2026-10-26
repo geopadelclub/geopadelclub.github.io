@@ -13,7 +13,7 @@ const urlFoto = (path) =>
         .publicUrl
     : "";
 const MSG_FALTA_TIENDA =
-  "Falta crear la tabla «tienda_articulos». Ejecuta migracion_tienda_contratos.sql en el SQL Editor de Supabase.";
+  "No se pudo acceder al escaparate. Avisa al administrador.";
 async function cargarArticulos() {
   const tb = $("escaparateBody");
   if (!tb || !supabaseClient) return;

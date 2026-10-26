@@ -1,6 +1,65 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 const totalItems = (items) =>
   redondear2((items || []).reduce((s, i) => s + (Number(i.precio) || 0), 0));
+let historialMesa = {};
+let _ocultarDeshacerTimer = null;
+function guardarHistorialMesa(mesa) {
+  historialMesa[mesa] = {
+    items: (cuentasMesas[mesa] || []).slice(),
+    ts: Date.now(),
+  };
+  clearTimeout(_ocultarDeshacerTimer);
+  _ocultarDeshacerTimer = setTimeout(mostrarBotonDeshacer, 8200);
+}
+function mostrarBotonDeshacer() {
+  const b = $("btnDeshacerTicket");
+  if (!b) return;
+  const h = historialMesa[mesaSeleccionada];
+  const visible = !!(h && Date.now() - h.ts < 8000);
+  if (!visible && h) delete historialMesa[mesaSeleccionada];
+  b.hidden = !visible;
+}
+function crearBotonDeshacer() {
+  if ($("btnDeshacerTicket")) return;
+  const box = document.querySelector(".ticket-box");
+  if (!box) return;
+  const b = document.createElement("button");
+  b.type = "button";
+  b.id = "btnDeshacerTicket";
+  b.className = "btn-add gray btn-deshacer-ticket";
+  b.hidden = true;
+  b.innerHTML =
+    '<i class="ri-arrow-go-back-line" aria-hidden="true"></i>Deshacer último cambio';
+  const target = box.querySelector(".pay-buttons");
+  if (target) target.after(b);
+  else box.appendChild(b);
+  b.addEventListener("click", deshacerUltimoCambio);
+}
+async function deshacerUltimoCambio() {
+  const mesa = mesaSeleccionada;
+  const h = historialMesa[mesa];
+  if (!h) return;
+  const items = h.items.slice();
+  delete historialMesa[mesa];
+  mostrarBotonDeshacer();
+  cuentasMesas[mesa] = items;
+  renderSelectorMesas();
+  colaMesas = colaMesas.then(async () => {
+    try {
+      const r = await supabaseClient.rpc("mesa_set_items", {
+        p_mesa: mesa,
+        p_items: items,
+      });
+      if (r.error) throw r.error;
+      if (Array.isArray(r.data)) cuentasMesas[mesa] = r.data;
+      renderSelectorMesas();
+    } catch (e) {
+      console.error(e);
+      toast("No se pudo deshacer: " + (e.message || e), "err");
+      cargarMesasBar();
+    }
+  });
+}
 $("buscarTPV").addEventListener(
   "input",
   debounce(() => dibujarCatalogo(datosLocales.productos), 150),
@@ -35,21 +94,43 @@ function renderTicketMesaActiva() {
   if (!items.length) {
     list.innerHTML =
       '<li class="ticket-empty">Sin artículos · toca un producto para añadirlo</li>';
+    $("ticketTotal").innerText = eur(0);
+    mostrarBotonDeshacer();
+    return;
   }
-  items.forEach((item, index) => {
+  const grupos = [];
+  const porKey = new Map();
+  items.forEach((it, i) => {
+    const k =
+      it.id != null ? "id:" + it.id : "n:" + it.nombre + "|" + it.precio;
+    if (!porKey.has(k)) {
+      porKey.set(k, grupos.length);
+      grupos.push({ item: it, indices: [i] });
+    } else {
+      grupos[porKey.get(k)].indices.push(i);
+    }
+  });
+  grupos.forEach((g) => {
+    const cant = g.indices.length;
+    const precioUnit = Number(g.item.precio) || 0;
     const li = document.createElement("li");
-    li.dataset.index = index;
-    li.title = "Toca para quitar";
+    li.dataset.index = g.indices[0];
+    li.dataset.cant = cant;
+    li.title =
+      cant > 1
+        ? `Toca para quitar una unidad (quedan ${cant})`
+        : "Toca para quitar";
     li.tabIndex = 0;
     li.setAttribute("role", "button");
     li.setAttribute(
       "aria-label",
-      `Quitar ${item.nombre} (${eur(item.precio)})`,
+      `Quitar ${cant > 1 ? "una unidad de " : ""}${g.item.nombre} (${eur(precioUnit)})`,
     );
-    li.innerHTML = `<span>${esc(item.nombre)}</span> <span>${eur(item.precio)} <i class="ri-close-line" aria-hidden="true"></i></span>`;
+    li.innerHTML = `<span>${esc(g.item.nombre)}${cant > 1 ? ` <small class="ticket-cant">×${cant}</small>` : ""}</span> <span>${eur(precioUnit * cant)} <i class="ri-close-line" aria-hidden="true"></i></span>`;
     list.appendChild(li);
   });
   $("ticketTotal").innerText = eur(totalItems(items));
+  mostrarBotonDeshacer();
 }
 $("ticketItems").addEventListener("click", (e) => {
   const li = e.target.closest("li[data-index]");
@@ -114,6 +195,7 @@ function mutarMesa(mesa, fn, rpcNombre, rpcArgs) {
 }
 function agregarAlTicket(prod) {
   const mesa = mesaSeleccionada;
+  guardarHistorialMesa(mesa);
   cuentasMesas[mesa] = [...(cuentasMesas[mesa] || []), prod];
   renderSelectorMesas();
   return mutarMesa(
@@ -130,6 +212,7 @@ function quitarDelTicket(index) {
   const mesa = mesaSeleccionada;
   const item = (cuentasMesas[mesa] || [])[index];
   if (!item) return;
+  guardarHistorialMesa(mesa);
   cuentasMesas[mesa] = cuentasMesas[mesa].filter((_, i) => i !== index);
   renderSelectorMesas();
   return mutarMesa(
@@ -331,3 +414,4 @@ async function eliminarProductoCat(idProd) {
   toast("Artículo eliminado");
   cargarProductos();
 }
+crearBotonDeshacer();

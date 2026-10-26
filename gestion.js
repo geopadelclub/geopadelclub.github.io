@@ -2,7 +2,7 @@
 const LIMP_TAREAS = ["Estructura", "Césped", "Cristales"];
 const LIMP_DIAS_AVISO = 14;
 const MSG_FALTA_TABLA = (t) =>
-  `Falta crear la tabla «${t}» en Supabase. Ejecuta migracion_deudas_limpieza.sql en el SQL Editor.`;
+  `No se pudo acceder a «${t}». Avisa al administrador.`;
 const esErrorTabla = (err) =>
   /relation|does not exist|schema cache|could not find/i.test(
     String((err && err.message) || ""),

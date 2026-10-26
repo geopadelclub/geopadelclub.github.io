@@ -47,7 +47,6 @@ const PANEL = [
   "acciones.js",
   "notificaciones.js",
   "facturas.js",
-  "assets/qrcode.min.js",
   "styles.css",
   "panel.css",
   "print.css",
