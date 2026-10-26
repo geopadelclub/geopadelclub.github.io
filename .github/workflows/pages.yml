@@ -7,8 +7,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
@@ -87,9 +85,9 @@ jobs:
           echo "Archivos a subir:"
           ls -la
 
-      - uses: actions/upload-pages-artifact@v3
+      - name: Desplegar en Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
         with:
-          path: .
-
-      - id: despliegue
-        uses: actions/deploy-pages@v4
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy . --project-name=geopadel
