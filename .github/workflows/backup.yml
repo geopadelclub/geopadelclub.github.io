@@ -16,9 +16,21 @@ jobs:
           curl https://rclone.org/install.sh | sudo bash
 
       - name: Configurar rclone
+        env:
+          GDRIVE_TOKEN: ${{ secrets.GDRIVE_TOKEN }}
         run: |
           mkdir -p ~/.config/rclone
-          rclone config create gdrive drive scope=drive token='${{ secrets.GDRIVE_TOKEN }}' --non-interactive
+          # Compacta el JSON a una sola línea (elimina \n y \r)
+          TOKEN_ONE_LINE=$(echo "$GDRIVE_TOKEN" | tr -d '\n\r' | jq -c .)
+          cat > ~/.config/rclone/rclone.conf <<EOF
+          [gdrive]
+          type = drive
+          scope = drive
+          token = $TOKEN_ONE_LINE
+          EOF
+          chmod 600 ~/.config/rclone/rclone.conf
+          echo "→ Probando conexión con Google Drive..."
+          rclone lsd gdrive: --max-depth 1
 
       - name: Generar y cifrar backup
         env:
