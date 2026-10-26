@@ -148,8 +148,7 @@ function renderizarCuadrantePlaytomic(reservas) {
   const frag = document.createDocumentFragment();
   const corner = document.createElement("div");
   corner.className = "grid-header-corner";
-  corner.innerHTML =
-    '<img class="gp-logo-corner" src="./geopadel.webp" alt="" draggable="false" width="150" height="150">';
+  corner.textContent = "Hora";
   frag.appendChild(corner);
   listaPistas.forEach((pista) => {
     const hp = document.createElement("div");

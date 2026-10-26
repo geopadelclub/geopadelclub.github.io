@@ -1059,19 +1059,6 @@ i[class*=" ri-"] {
   border-radius: 20px;
 }
 
-.gp-logo-corner {
-  display: block;
-  height: 46px;
-  width: auto;
-  margin: 0 auto;
-}
-
-[data-theme="dark"] .gp-logo-corner {
-  border-radius: 8px;
-  padding: 2px 5px;
-  mix-blend-mode: multiply;
-}
-
 @media (max-width: 700px) {
   .gp-logo {
     height: 46px;
