@@ -18,7 +18,8 @@ async function cargarClientes() {
         .select(
           "id, nombre, telefono, web_habilitado, tipo_cliente, nombre_entidad",
         )
-        .order("nombre"),
+        .order("nombre")
+        .order("id", { ascending: true }),
     ),
   );
   if (error) {

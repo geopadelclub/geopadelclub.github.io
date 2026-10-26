@@ -74,13 +74,13 @@
   --primary-hover: #c6e8d8;
   --on-primary: #14231c;
   --blue: #a9c6f0;
-  --blue-btn: #5585bd;
+  --blue-btn: #6699d6;
   --blue-btn-hover: #6693cb;
   --blue-soft: rgba(130, 170, 230, 0.2);
   --green: #86d4ac;
   --green-text: #86d4ac;
   --green-soft: rgba(134, 212, 172, 0.16);
-  --red: #f09599;
+  --red: #f09ea2;
   --red-dark: #f09599;
   --amber-soft: rgba(232, 189, 111, 0.16);
   --amber: #f3cb7f;
@@ -1273,4 +1273,10 @@ i[class*=" ri-"] {
 
 [data-theme="dark"] .btn-card:hover {
   background: #2563eb;
+}
+
+.badge-pena {
+  background: var(--card-pena-bg);
+  color: var(--card-pena-color);
+  font-weight: 700;
 }

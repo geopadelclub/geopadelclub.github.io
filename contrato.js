@@ -48,6 +48,7 @@ async function cargarContrato(e) {
     .select("usuario,horas_semanales,horario,notas,vigente_desde,created_at")
     .eq("usuario", t)
     .order("created_at", { ascending: !1 })
+    .order("id", { ascending: !1 })
     .limit(1);
   if (r) {
     console.error(r);

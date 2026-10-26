@@ -250,7 +250,7 @@ function enlazarBuscadorCliente(e, t, n) {
         .map((e, t) => {
           const n = e.tipo_cliente === "Peña" || e.nombre_entidad,
             r = n
-              ? '<span style="background:#f6e3c0;color:#5e410e;font-size:10px;padding:2px 4px;border-radius:4px;margin-left:4px;">PEÑA</span>'
+              ? `<span class="badge-pena" style="font-size:10px;padding:2px 4px;border-radius:4px;margin-left:4px;">PEÑA</span>`
               : "";
           return `<div class="cli-op" role="option" data-i="${t}"><b>${esc(e.nombre_entidad || e.nombre)} ${r}</b><small>${e.telefono ? esc(e.telefono) : "Sin teléfono"}</small></div>`;
         })

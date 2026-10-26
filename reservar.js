@@ -690,10 +690,10 @@ function descargarICS(e) {
       "BEGIN:VEVENT",
       `UID:${e.id || Date.now()}-${e.fecha}-${e.hora}@geopadel`,
       `DTSTAMP:${r}`,
-      `DTSTART:${icsFecha(e.fecha, t)}`,
-      `DTEND:${icsFecha(e.fecha, n)}`,
+      `DTSTART;TZID=Europe/Madrid:${icsFecha(e.fecha, t)}`,
+      `DTEND;TZID=Europe/Madrid:${icsFecha(e.fecha, n)}`,
       `SUMMARY:${icsTexto("Pádel en Geopadel · " + e.pista)}`,
-      `LOCATION:${icsTexto("Geopadel · " + e.pista)}`,
+      `LOCATION:${icsTexto("Geopadel, Polígono Tecnológico Los, C. Zamora, 130, 18151 Ogíjares, Granada")}`,
       `DESCRIPTION:${icsTexto("Reserva pendiente de confirmación del club. Se paga en el club.")}`,
       "BEGIN:VALARM",
       "TRIGGER:-PT60M",
@@ -957,7 +957,12 @@ function urlGoogleCalendar(e) {
   return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${a}&dates=${i}&location=${o}&details=${s}`;
 }
 $("btnGCal").addEventListener("click", () => {
-  if (ultimaReserva) window.open(urlGoogleCalendar(ultimaReserva), "_blank");
+  if (ultimaReserva)
+    window.open(
+      urlGoogleCalendar(ultimaReserva),
+      "_blank",
+      "noopener,noreferrer",
+    );
 });
 $("btnShare").addEventListener("click", async () => {
   if (!ultimaReserva) return;
@@ -1049,7 +1054,27 @@ window.addEventListener("DOMContentLoaded", async () => {
   if (!cfg.duraciones.includes(sel.dur)) sel.dur = cfg.duraciones[0];
   actualizarIntroReserva();
   dibujarDias();
-  seleccionarDia(fechaLocalISO());
+  const urlParams = new URLSearchParams(window.location.search);
+  const paramFecha = urlParams.get("fecha");
+  const paramHora = urlParams.get("hora");
+
+  if (
+    paramFecha &&
+    paramFecha >= fechaLocalISO() &&
+    paramFecha <= sumarDiasISO(fechaLocalISO(), cfg.dias_max)
+  ) {
+    await seleccionarDia(paramFecha);
+    if (paramHora) {
+      setTimeout(() => {
+        const slotBtn = document.querySelector(
+          `.cl-slot[data-hora="${paramHora}"]`,
+        );
+        if (slotBtn) slotBtn.click();
+      }, 300);
+    }
+  } else {
+    seleccionarDia(fechaLocalISO());
+  }
 });
 function actualizarIntroReserva() {
   const e = $("txtIntroReserva");

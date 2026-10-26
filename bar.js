@@ -152,62 +152,17 @@ async function cobrarMesaActiva(metodoPago) {
     const rc = await supabaseClient.rpc("cobrar_mesa", {
       p_mesa: mesa,
       p_metodo: metodoPago,
-      p_empleado: nombreUsuario(),
     });
-    if (!rc.error) {
-      cuentasMesas[mesa] = [];
-      renderSelectorMesas();
-      if (!rc.data || !rc.data.ok) {
-        msg.style.color = "var(--muted)";
-        msg.innerText = "La cuenta está vacía";
-        return;
-      }
-      msg.style.color = "var(--green)";
-      msg.innerText = `Cobrado ${eur(rc.data.total)} (${metodoPago})`;
-      setTimeout(() => {
-        if (msg.innerText.startsWith("Cobrado")) msg.innerText = "";
-      }, 5000);
-      cargarCajaHoy();
-      return;
-    }
-    if (!faltaFuncion(rc.error)) throw rc.error;
-    const { data, error } = await supabaseClient
-      .from("mesas_bar")
-      .select("items")
-      .eq("mesa", mesa)
-      .maybeSingle();
-    if (error) throw error;
-    const items = Array.isArray(data?.items) ? data.items : [];
-    if (!items.length) {
+    if (rc.error) throw rc.error;
+    if (!rc.data || !rc.data.ok) {
       msg.style.color = "var(--muted)";
       msg.innerText = "La cuenta está vacía";
       return;
     }
-    const total = totalItems(items);
-    const { error: eVenta } = await supabaseClient.from("ventas").insert({
-      tipo: "Bar",
-      concepto: `${mesa}: ${items.map((i) => i.nombre).join(", ")}`.slice(
-        0,
-        500,
-      ),
-      importe: total,
-      metodo_pago: metodoPago,
-      empleado: nombreUsuario(),
-    });
-    if (eVenta) throw eVenta;
-    const { error: eClear } = await supabaseClient
-      .from("mesas_bar")
-      .upsert({ mesa, items: [] }, { onConflict: "mesa" });
     cuentasMesas[mesa] = [];
     renderSelectorMesas();
-    if (eClear)
-      toast(
-        "Venta registrada, pero no se pudo vaciar la mesa. Vacíala a mano para no cobrar dos veces.",
-        "warn",
-        8000,
-      );
     msg.style.color = "var(--green)";
-    msg.innerText = `Cobrado ${eur(total)} (${metodoPago})`;
+    msg.innerText = `Cobrado ${eur(rc.data.total)} (${metodoPago})`;
     setTimeout(() => {
       if (msg.innerText.startsWith("Cobrado")) msg.innerText = "";
     }, 5000);

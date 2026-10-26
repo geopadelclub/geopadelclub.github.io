@@ -18,8 +18,12 @@ function formatearPrecio(e) {
   });
 }
 function hoyISO() {
-  const e = new Date();
-  return `${e.getFullYear()}-${String(e.getMonth() + 1).padStart(2, "0")}-${String(e.getDate()).padStart(2, "0")}`;
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Madrid",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
 }
 function timeToMinLanding(e) {
   const [t, n] = String(e).split(":").map(Number);
@@ -101,7 +105,7 @@ async function cargarHuecosHoy() {
         const precioMin = Math.min(
           ...s.opciones.map((o) => Number(o.precio) || 0),
         );
-        return `<a class="hueco-chip" href="reservar" aria-label="Reservar a las ${s.hora} ${t("landing.desde")} ${formatearPrecio(precioMin)}">${s.hora}<span style="font-size:12px;font-weight:700;letter-spacing:.01em">${t("landing.desde")} ${formatearPrecio(precioMin)}</span></a>`;
+        return `<a class="hueco-chip" href="reservar?fecha=${hoy}&hora=${s.hora}" aria-label="Reservar a las ${s.hora} ${t("landing.desde")} ${formatearPrecio(precioMin)}">${s.hora}<span style="font-size:12px;font-weight:700;letter-spacing:.01em">${t("landing.desde")} ${formatearPrecio(precioMin)}</span></a>`;
       })
       .join("");
   } catch (err) {
@@ -113,9 +117,11 @@ function iniciarLanding() {
   const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1200));
   idle(
     async () => {
-      await cargarAntelacionLanding();
-      cargarTarifas();
-      cargarHuecosHoy();
+      await Promise.all([
+        cargarAntelacionLanding(),
+        cargarTarifas(),
+        cargarHuecosHoy(),
+      ]);
     },
     { timeout: 3e3 },
   );
