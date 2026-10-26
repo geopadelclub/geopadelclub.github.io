@@ -1,0 +1,154 @@
+/* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
+.legal {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 20px 16px 60px;
+  line-height: 1.55;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.legal h1 {
+  font-size: 26px;
+  color: var(--heading);
+  margin: 8px 0 4px;
+}
+.legal h2 {
+  font-size: 18px;
+  color: var(--heading);
+  margin: 26px 0 8px;
+}
+.legal p,
+.legal li {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.legal ul {
+  padding-left: 22px;
+  margin-bottom: 8px;
+}
+.legal a {
+  color: var(--blue);
+  font-weight: 700;
+}
+.legal .upd {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+.legal .volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+.legal mark {
+  background: var(--amber-soft);
+  color: var(--orange-text);
+  padding: 0 4px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+.legal-footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  text-align: center;
+}
+.legal-footer a {
+  margin: 0 10px;
+}
+.tabla-cookies-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 10px;
+}
+.tabla-cookies {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  min-width: 520px;
+}
+.tabla-cookies th,
+.tabla-cookies td {
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  text-align: left;
+}
+.tabla-cookies th {
+  background: var(--surface-3);
+}
+body:has(.error-card) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 20px;
+  text-align: center;
+  background: var(--bg);
+  color: var(--text);
+}
+.error-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 40px 28px;
+  max-width: 460px;
+  width: 100%;
+  box-shadow: var(--shadow-md);
+}
+.error-code {
+  font-size: 5rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--primary);
+  margin: 16px 0 8px;
+}
+.error-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--heading);
+  margin-bottom: 12px;
+}
+.error-message {
+  font-size: 1rem;
+  color: var(--muted);
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+.btn-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  background-color: var(--primary);
+  color: var(--on-primary);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 14px;
+  transition:
+    background-color 0.15s,
+    transform 0.1s;
+}
+.btn-action.secondary {
+  background-color: var(--surface-3);
+  color: var(--heading);
+  border: 1px solid var(--border-strong);
+}
+.btn-action:hover {
+  filter: brightness(0.95);
+}
+.btn-action:active {
+  transform: scale(0.97);
+}

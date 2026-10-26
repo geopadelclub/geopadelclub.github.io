@@ -17,6 +17,8 @@ const BASE = [
   "bar.webp",
   "entreno.webp",
   "pista1.webp",
+  "index.css",
+  "legal.css",
   "pista3.webp",
   "palastest.webp",
   "assets/remixicon/remixicon.css",
