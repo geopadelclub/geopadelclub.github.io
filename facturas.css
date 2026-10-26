@@ -19,7 +19,7 @@
 .fac-grid select,
 .fac-grid textarea {
   padding: 10px 12px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--border-input);
   border-radius: var(--radius-sm);
   font-size: 16px;
   background: var(--surface);
@@ -70,7 +70,7 @@
 
 .fac-linea input {
   padding: 9px 10px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--border-input);
   border-radius: var(--radius-sm);
   font-size: 15px;
   background: var(--surface);

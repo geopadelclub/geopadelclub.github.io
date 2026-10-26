@@ -1232,7 +1232,7 @@
 
 .cierre-grid input {
   padding: 11px 12px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--border-input);
   border-radius: var(--radius-sm);
   font-size: 16px;
   font-weight: 700;
@@ -1268,7 +1268,7 @@
 .tabla-tarifas input {
   width: 92px;
   padding: 9px 10px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--border-input);
   border-radius: var(--radius-sm);
   font-size: 16px;
   background: var(--surface);
@@ -1640,7 +1640,7 @@ tr.deuda-resuelta td {
   min-width: 0;
   width: 100%;
   padding: 9px 8px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--border-input);
   border-radius: var(--radius-sm);
   font-size: 15px;
   background: var(--surface);

@@ -233,8 +233,7 @@ function filtrarGestionCatalogo() {
 <td><b>${esc(p.nombre)}</b></td>
 <td><b>${eur(p.precio)}</b></td>
 <td>${esc(p.categoria)}</td>
-<td><span style="color:${p.estado === "Activo" ? "var(--green)" : "var(--amber)"};font-weight:800">${p.estado === "Activo" ? '<i class="ri-checkbox-circle-line" aria-hidden="true"></i>Activo' : '<i class="ri-pause-circle-line" aria-hidden="true"></i>Inactivo'}</span></td>
-<td>
+<td><span style="color:${p.estado === "Activo" ? "var(--green)" : "var(--orange-text)"};font-weight:800">${p.estado === "Activo" ? '<i class="ri-checkbox-circle-line" aria-hidden="true"></i>Activo' : '<i class="ri-pause-circle-line" aria-hidden="true"></i>Inactivo'}</span></td><td>
 <button type="button" class="btn-edit-prod" data-act="edit" data-id="${esc(p.id)}"><i class="ri-edit-line" aria-hidden="true"></i>Editar</button>
 <button type="button" class="btn-del-prod" data-act="del" data-id="${esc(p.id)}"><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar</button>
 </td>

@@ -1065,11 +1065,6 @@ window.addEventListener("DOMContentLoaded", async () => {
     const e = $("btnPush");
     if (e) e.hidden = !0;
   }
-  if (!sb) {
-    $("clSlots").innerHTML =
-      '<p class="cl-empty">No se pudo cargar el sistema. Revisa tu conexión.</p>';
-    return;
-  }
   let e = null;
   try {
     e = JSON.parse(localStorage.getItem("gp_web_config"));

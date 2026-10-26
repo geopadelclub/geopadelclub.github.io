@@ -13,6 +13,7 @@
   --muted: #62716b;
   --border: #dfe7e3;
   --border-strong: #cbd7d1;
+  --border-input: #737d78;
   --heading: #33505a;
   --ink: #2a3834;
   --primary: #4b7a86;
@@ -69,6 +70,8 @@
   --muted: #b9c8c3;
   --border: #4e606a;
   --border-strong: #62767f;
+  --border-input: #8a9aa0;
+  --ok-btn: #86d4ac;
   --heading: #f0f5f3;
   --primary: #b4dcc9;
   --primary-hover: #c6e8d8;
@@ -289,7 +292,7 @@ textarea {
 .form-group select {
   width: 100%;
   padding: 12px 14px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--border-input);
   border-radius: var(--radius-md);
   font-size: 16px;
   background: var(--surface);
@@ -571,11 +574,11 @@ header.app-header {
 
 .btn-add.blue {
   background: var(--blue-btn);
-  color: #fff;
+  color: var(--on-primary);
 }
 
 .btn-add.blue:hover {
-  background: var(--blue-btn-hover);
+  filter: brightness(0.92);
 }
 
 .btn-add.gray {
@@ -656,7 +659,7 @@ select {
 .toolbar-input,
 .toolbar-select {
   padding: 10px 12px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--border-input);
   border-radius: var(--radius-sm);
   font-size: 16px;
   width: 100%;
@@ -850,7 +853,7 @@ dialog.modal-overlay::backdrop {
 .modal-section-box select {
   width: 100%;
   padding: 11px 12px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--border-input);
   border-radius: var(--radius-sm);
   font-size: 16px;
 }
@@ -866,7 +869,7 @@ dialog.modal-overlay::backdrop {
   width: 100%;
   min-height: 110px;
   padding: 11px 12px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--border-input);
   border-radius: var(--radius-sm);
   font-size: 16px;
   line-height: 1.4;
@@ -1147,57 +1150,39 @@ i[class*=" ri-"] {
 }
 
 .btn-cash {
-  background: #16a34a;
-  color: #fff;
-  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.28);
+  background: var(--ok-btn);
+  color: var(--on-primary);
+  box-shadow: 0 4px 14px rgba(57, 125, 93, 0.28);
 }
 
 .btn-cash:hover {
-  background: #15803d;
+  filter: brightness(0.92);
 }
 
 .btn-cash:active {
-  background: #166534;
+  filter: brightness(0.85);
 }
 
 .btn-card {
-  background: #3b82f6;
-  color: #fff;
-  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+  background: var(--blue-btn);
+  color: var(--on-primary);
+  box-shadow: 0 4px 14px rgba(74, 120, 174, 0.3);
 }
 
 .btn-card:hover {
-  background: #2563eb;
+  filter: brightness(0.92);
 }
 
 .btn-card:active {
-  background: #1d4ed8;
+  filter: brightness(0.85);
 }
 
 .btn-cash i,
 .btn-card i {
-  color: #fff;
+  color: inherit;
   margin-right: 8px;
   font-size: 18px;
   vertical-align: middle;
-}
-
-[data-theme="dark"] .btn-cash {
-  background: #22c55e;
-  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
-}
-
-[data-theme="dark"] .btn-cash:hover {
-  background: #16a34a;
-}
-
-[data-theme="dark"] .btn-card {
-  background: #60a5fa;
-  box-shadow: 0 4px 14px rgba(96, 165, 250, 0.35);
-}
-
-[data-theme="dark"] .btn-card:hover {
-  background: #3b82f6;
 }
 
 .skip-link {
