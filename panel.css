@@ -7,10 +7,22 @@
   --card-normal-solid-color: var(--green-text);
   --card-pena-bg: #e3d9f3;
   --card-pena-color: #46306b;
+  --card-pena-border: #8466c4;
   --card-torneo-bg: #f6e3c0;
   --card-torneo-color: #5e410e;
+  --card-torneo-border: #d19a3a;
   --card-entreno-bg: #c9e8e4;
   --card-entreno-color: #1b4b47;
+  --card-entreno-border: #3f9b92;
+  --nota-bg: #f2b84b;
+  --nota-fg: #4a3200;
+  --nota-card-bg: #f6d36b;
+  --jugador-efectivo: #16a34a;
+  --jugador-efectivo-hover: #15803d;
+  --jugador-tarjeta: #3b82f6;
+  --jugador-tarjeta-hover: #2563eb;
+  --jugador-reset: #ef4444;
+  --jugador-reset-hover: #dc2626;
 }
 
 [data-theme="dark"] {
@@ -20,10 +32,22 @@
   --card-normal-solid-color: #e3f7ec;
   --card-pena-bg: #594a82;
   --card-pena-color: #f1ebfc;
+  --card-pena-border: #a490d6;
   --card-torneo-bg: #86683a;
   --card-torneo-color: #fdf0d6;
+  --card-torneo-border: #e8b663;
   --card-entreno-bg: #36706b;
   --card-entreno-color: #e0f6f2;
+  --card-entreno-border: #6dc7be;
+  --nota-bg: #f2b84b;
+  --nota-fg: #4a3200;
+  --nota-card-bg: #f6d36b;
+  --jugador-efectivo: #4ade80;
+  --jugador-efectivo-hover: #22c55e;
+  --jugador-tarjeta: #60a5fa;
+  --jugador-tarjeta-hover: #3b82f6;
+  --jugador-reset: #f87171;
+  --jugador-reset-hover: #ef4444;
 }
 
 @media (min-width: 1024px) and (min-height: 760px) {
@@ -476,18 +500,15 @@
 }
 
 .card-pena-striped {
-  background: var(--card-pena-bg);
-  color: var(--card-pena-color);
+  border-left-color: var(--card-pena-border);
 }
 
 .card-torneo-striped {
-  background: var(--card-torneo-bg);
-  color: var(--card-torneo-color);
+  border-left-color: var(--card-torneo-border);
 }
 
 .card-entreno-striped {
-  background: var(--card-entreno-bg);
-  color: var(--card-entreno-color);
+  border-left-color: var(--card-entreno-border);
 }
 
 .reserva-top {
@@ -598,13 +619,13 @@
 
 .reserva-card.has-nota {
   box-shadow:
-    inset 0 0 0 2px #f2b84b,
+    inset 0 0 0 2px var(--nota-bg),
     0 1px 3px rgba(42, 56, 52, 0.14);
 }
 
 .reserva-card.has-nota:hover {
   box-shadow:
-    inset 0 0 0 2px #f2b84b,
+    inset 0 0 0 2px var(--nota-bg),
     0 4px 12px rgba(42, 56, 52, 0.2);
 }
 
@@ -612,8 +633,8 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  background: #f2b84b;
-  color: #4a3200;
+  background: var(--nota-bg);
+  color: var(--nota-fg);
   font-size: 11px;
   font-weight: 800;
   padding: 1px 6px;
@@ -627,8 +648,8 @@
 }
 
 .reserva-nota-txt {
-  background: #f6d36b;
-  color: #4a3200;
+  background: var(--nota-card-bg);
+  color: var(--nota-fg);
   font-size: 12px;
   font-weight: 700;
   line-height: 1.2;
@@ -2148,13 +2169,13 @@ tr.deuda-resuelta td {
 }
 
 .card-jugador-item.estado-efectivo {
-  border-left: 4px solid #16a34a;
-  background: rgba(22, 163, 74, 0.05);
+  border-left: 4px solid var(--jugador-efectivo);
+  background: color-mix(in srgb, var(--jugador-efectivo) 8%, transparent);
 }
 
 .card-jugador-item.estado-tarjeta {
-  border-left: 4px solid #3b82f6;
-  background: rgba(59, 130, 246, 0.05);
+  border-left: 4px solid var(--jugador-tarjeta);
+  background: color-mix(in srgb, var(--jugador-tarjeta) 8%, transparent);
 }
 
 .jugador-info-title {
@@ -2198,29 +2219,29 @@ tr.deuda-resuelta td {
 }
 
 .btn-pay-efectivo {
-  background: #16a34a;
+  background: var(--jugador-efectivo);
 }
 
 .btn-pay-efectivo:hover:not(:disabled) {
-  background: #15803d;
+  background: var(--jugador-efectivo-hover);
   transform: scale(1.05);
 }
 
 .btn-pay-tarjeta {
-  background: #3b82f6;
+  background: var(--jugador-tarjeta);
 }
 
 .btn-pay-tarjeta:hover:not(:disabled) {
-  background: #2563eb;
+  background: var(--jugador-tarjeta-hover);
   transform: scale(1.05);
 }
 
 .btn-pay-reset {
-  background: #ef4444;
+  background: var(--jugador-reset);
 }
 
 .btn-pay-reset:hover:not(:disabled) {
-  background: #dc2626;
+  background: var(--jugador-reset-hover);
   transform: scale(1.05);
 }
 

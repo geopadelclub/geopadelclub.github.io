@@ -18,7 +18,7 @@ function tiendaTarjeta(a, index) {
     ? `<img src="${esc(foto)}" alt="${esc(a.titulo)}" ${imgAttrs} decoding="async" width="400" height="400">`
     : '<span class="tienda-sin-foto" aria-hidden="true"><i class="ri-shopping-bag-3-line"></i></span>';
   const fotoHtml = foto
-    ? `<button type="button" class="tienda-foto-btn" data-foto-id="${esc(a.id)}" aria-label="Ver foto de ${esc(a.titulo)} más grande">${img}</button>`
+    ? `<button type="button" class="tienda-foto-btn" data-foto-id="${esc(a.id)}" aria-label="${esc(t("tienda.foto.ver", { titulo: a.titulo }))}">${img}</button>`
     : img;
   return `<article class="tienda-card${foto ? " con-foto" : ""}">
     <div class="tienda-foto">${fotoHtml}</div>
@@ -32,8 +32,7 @@ function tiendaTarjeta(a, index) {
 function dibujarTienda(lista) {
   const g = $("tiendaGrid");
   if (!lista.length) {
-    g.innerHTML =
-      '<p class="cl-empty">Ahora mismo no hay artículos en la tienda. Pregunta en el club.</p>';
+    g.innerHTML = `<p class="cl-empty">${t("tienda.vacio")}</p>`;
     return;
   }
   g.innerHTML = lista.map((a, i) => tiendaTarjeta(a, i)).join("");
@@ -48,7 +47,8 @@ async function cargarTienda(forzar) {
     dibujarTienda(tiendaCache.lista);
     return;
   }
-  if (!tiendaCache.lista) g.innerHTML = '<p class="cl-empty">Cargando...</p>';
+  if (!tiendaCache.lista)
+    g.innerHTML = `<p class="cl-empty">${t("tienda.cargando")}</p>`;
   const mi = ++tiendaReq;
   try {
     const qs = new URLSearchParams();
@@ -77,8 +77,7 @@ async function cargarTienda(forzar) {
       dibujarTienda(tiendaCache.lista);
       return;
     }
-    g.innerHTML =
-      '<p class="cl-empty">No se pudo cargar la tienda. <button type="button" class="cl-link" id="btnTiendaReintentar">Reintentar</button></p>';
+    g.innerHTML = `<p class="cl-empty">${t("tienda.error")} <button type="button" class="cl-link" id="btnTiendaReintentar">${t("tienda.retry")}</button></p>`;
   }
 }
 let visorEl = null,
@@ -90,8 +89,7 @@ function crearVisor() {
   visorEl.hidden = true;
   visorEl.setAttribute("role", "dialog");
   visorEl.setAttribute("aria-modal", "true");
-  visorEl.innerHTML =
-    '<button type="button" class="tienda-visor-cerrar" aria-label="Cerrar"><i class="ri-close-line" aria-hidden="true"></i></button><figure class="tienda-visor-fig"><img alt=""><figcaption></figcaption></figure>';
+  visorEl.innerHTML = `<button type="button" class="tienda-visor-cerrar" aria-label="${esc(t("tienda.cerrar"))}"><i class="ri-close-line" aria-hidden="true"></i></button><figure class="tienda-visor-fig"><img alt=""><figcaption></figcaption></figure>`;
   visorEl.addEventListener("keydown", (e) => {
     if (e.key !== "Tab") return;
     const focusables = visorEl.querySelectorAll(

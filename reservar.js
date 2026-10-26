@@ -557,7 +557,7 @@ async function continuarTelefono() {
     return toast(t("reservar.toast.phone-invalid"), "warn");
   const e = normalizarTelefono($("clTel").value),
     n = $("btnTel");
-  setBusy(n, !0, SPIN + "Comprobando...");
+  setBusy(n, !0, SPIN + t("reservar.checking"));
   try {
     const t = await conReintento(() => llamarEdge("estado", { p_telefono: e }));
     if (!t || !t.ok) return toast(textoError(t), "warn");
@@ -575,7 +575,7 @@ async function entrarExistente() {
   const e = $("clCodigoEx").value.trim();
   if (!e) return toast(t("reservar.toast.code-empty"), "warn");
   const n = $("btnEntrar");
-  setBusy(n, !0, SPIN + "Entrando...");
+  setBusy(n, !0, SPIN + t("reservar.entering"));
   try {
     const t = await conReintento(() =>
       llamarEdge("identificar", { p_ident: flujo.tel, p_codigo: e }),
@@ -622,7 +622,7 @@ async function confirmarReserva() {
   if (TURNSTILE_SITEKEY && !tsToken)
     return toast(t("reservar.toast.captcha"), "warn");
   const btn = $("btnConfirmar");
-  setBusy(btn, !0, SPIN + "Reservando...");
+  setBusy(btn, !0, SPIN + t("reservar.booking"));
   try {
     const res = await llamarEdge("reservar", {
       p_telefono: flujo.tel,
@@ -1016,9 +1016,9 @@ $("btnShare").addEventListener("click", async () => {
   } else
     try {
       await navigator.clipboard.writeText(t);
-      toast("Copiado al portapapeles");
+      toast(t("reservar.toast.copied"));
     } catch (e) {
-      toast("No se pudo copiar", "err");
+      toast(t("reservar.toast.copy-error"), "err");
     }
 });
 async function suscribirPush() {
@@ -1029,12 +1029,13 @@ async function suscribirPush() {
     [i, a] = ultimaReserva.hora.split(":").map(Number),
     inicioPartido = new Date(t, n - 1, r, i, a);
   if (inicioPartido.getTime() - ahora.getTime() < 2 * 60 * 60 * 1e3)
-    return toast("El partido es en menos de 2 horas.", "warn");
+    return toast(t("reservar.toast.push-soon"), "warn");
   if (!("serviceWorker" in navigator) || !("PushManager" in window))
-    return toast("Tu navegador no soporta notificaciones", "warn");
+    return toast(t("reservar.toast.push-unsupported"), "warn");
   try {
     const permiso = await Notification.requestPermission();
-    if (permiso !== "granted") return toast("Permiso denegado", "warn");
+    if (permiso !== "granted")
+      return toast(t("reservar.toast.push-denied"), "warn");
     const reg = await navigator.serviceWorker.ready,
       sub = await reg.pushManager.subscribe({
         userVisibleOnly: !0,
@@ -1050,10 +1051,10 @@ async function suscribirPush() {
       ),
     });
     if (!res || !res.ok) throw new Error((res && res.error) || "no_autorizado");
-    toast("Recordatorio activado.");
+    toast(t("reservar.toast.push-ok"));
   } catch (err) {
     console.error(err);
-    toast("No se pudo activar el recordatorio: " + (err.message || err), "err");
+    toast(t("reservar.toast.push-error") + (err.message || err), "err");
   }
 }
 $("btnPush").addEventListener("click", suscribirPush);
@@ -1136,11 +1137,7 @@ window.addEventListener("appinstalled", () => {
 });
 $("btnInstalar").addEventListener("click", async () => {
   if (!promptInstalacion) {
-    toast(
-      "En Safari pulsa Compartir y elige «Añadir a pantalla de inicio»",
-      "ok",
-      7e3,
-    );
+    toast(t("app.install-ios"), "ok", 7e3);
     return;
   }
   promptInstalacion.prompt();
