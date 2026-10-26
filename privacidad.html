@@ -14,10 +14,6 @@
     />
     <meta name="theme-color" content="#fcfdfc" id="metaTheme" />
     <meta name="color-scheme" content="light dark" />
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' data: https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://*.challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com https://www.google.com https://maps.google.com; base-uri 'self'; form-action 'self';"
-    />
     <link rel="canonical" href="https://geopadelclub.com/privacidad" />
     <link rel="icon" type="image/webp" sizes="192x192" href="./geopadel.webp" />
     <script src="theme-init.js"></script>
@@ -137,7 +133,8 @@
         <li>Nombre y apellidos y teléfono, que nos das al reservar.</li>
         <li>
           El código personal que eliges para ver y cancelar tus reservas (lo
-          guardamos cifrado, no podemos leerlo).
+          guardamos como un <b>hash SHA-256 irreversible</b>: no podemos leerlo
+          ni recuperarlo, solo comprobar que coincide cuando lo escribes).
         </li>
         <li>
           Los datos de tus reservas: día, hora, pista, duración, precio y su
@@ -150,6 +147,21 @@
           Por seguridad, un identificador técnico anónimo de tu conexión (no
           guardamos tu IP en claro) que usamos solo para frenar el spam, y que
           se borra en 24 horas.
+        </li>
+        <li>
+          <b>Lista de espera:</b> si te apuntas a la lista de espera de un
+          hueco, guardamos tu teléfono, la fecha y la duración solicitadas para
+          avisarte cuando se libere un hueco similar. Puedes pedir que te
+          quitemos en cualquier momento llamando al club o borrando tus datos
+          desde «Mis reservas».
+        </li>
+        <li>
+          <b>Recordatorios push:</b> si activas el recordatorio de una reserva,
+          guardamos el identificador técnico del dispositivo (endpoint, claves
+          públicas y tu teléfono) para enviarte un aviso 1–2 horas antes de tu
+          partido. No usamos este canal para publicidad ni para nada más. Si
+          desinstalas la app o revocas el permiso, la suscripción deja de
+          recibir avisos.
         </li>
       </ul>
       <h2>2. Para qué y con qué base legal</h2>
@@ -174,11 +186,41 @@
       </p>
       <h2>3. Cuánto tiempo los conservamos</h2>
       <p>
-        Tu ficha de cliente y tu código se conservan mientras uses el servicio y
-        puedes pedir que se borren en cualquier momento. Los importes de
-        reservas y cobros se conservan el tiempo que exija la normativa fiscal y
-        mercantil, sin tu nombre ni tu teléfono una vez borrados tus datos.
+        Conservamos tus datos durante los plazos siguientes, que puedes acortar
+        ejerciendo tu derecho de supresión:
       </p>
+      <ul>
+        <li>
+          <b>Ficha de cliente</b> (nombre, teléfono, hash del código): mientras
+          seas cliente activo. Si llevas
+          <b>24 meses sin hacer una reserva ni tener una deuda pendiente</b>, se
+          anonimiza automáticamente.
+        </li>
+        <li>
+          <b>Reservas y cobros:</b> <b>6 años</b> desde la fecha de la
+          operación, por obligación fiscal y mercantil (arts. 29 y 30 del Código
+          de Comercio). Pasado ese plazo se eliminan.
+        </li>
+        <li>
+          <b>Lista de espera:</b> hasta que se libere el hueco o hasta que pasen
+          <b>30 días</b> desde que te apuntaste, lo que ocurra antes.
+        </li>
+        <li>
+          <b>Recordatorios push:</b> mientras el dispositivo siga suscrito y
+          hasta <b>12 meses</b> desde el último uso. Puedes revocarlo cuando
+          quieras desde los ajustes del navegador.
+        </li>
+        <li>
+          <b>Registro de aceptación de esta política</b> (fecha y versión):
+          mientras dure el tratamiento y <b>5 años adicionales</b>, por si
+          surgiera una reclamación.
+        </li>
+        <li>
+          <b>Fichajes del personal:</b> <b>4 años</b>, a disposición del
+          trabajador, de sus representantes y de la Inspección de Trabajo (art.
+          34.9 del Estatuto de los Trabajadores).
+        </li>
+      </ul>
       <h2>4. Quién más accede a tus datos</h2>
       <p>
         Usamos proveedores que tratan datos por encargo nuestro: Supabase (base

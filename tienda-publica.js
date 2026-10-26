@@ -83,6 +83,22 @@ function crearVisor() {
   visorEl.setAttribute("aria-modal", "true");
   visorEl.innerHTML =
     '<button type="button" class="tienda-visor-cerrar" aria-label="Cerrar"><i class="ri-close-line" aria-hidden="true"></i></button><figure class="tienda-visor-fig"><img alt=""><figcaption></figcaption></figure>';
+  visorEl.addEventListener("keydown", (e) => {
+    if (e.key !== "Tab") return;
+    const focusables = visorEl.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+    if (!focusables.length) return;
+    const primero = focusables[0];
+    const ultimo = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === primero) {
+      e.preventDefault();
+      ultimo.focus();
+    } else if (!e.shiftKey && document.activeElement === ultimo) {
+      e.preventDefault();
+      primero.focus();
+    }
+  });
   visorEl.addEventListener("click", (e) => {
     if (!e.target.closest(".tienda-visor-fig img")) cerrarVisor();
   });

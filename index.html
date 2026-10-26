@@ -41,10 +41,6 @@
       name="twitter:image"
       content="https://geopadelclub.com/geopadel-512.webp"
     />
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' data: https://*.supabase.co wss://*.supabase.co; base-uri 'self'; form-action 'self';"
-    />
     <link rel="icon" type="image/webp" href="geopadel.webp" />
     <link
       rel="preload"
@@ -60,7 +56,7 @@
       type="image/webp"
       fetchpriority="high"
     />
-    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="manifest" href="manifest-reservar.webmanifest" />
     <link
       rel="preconnect"
       href="https://gprpyxeamjmvmqtkjvtn.supabase.co"
@@ -833,6 +829,8 @@
           class="theme-toggle"
           id="btnMenu"
           aria-label="Abrir menú"
+          aria-controls="mainNav"
+          aria-expanded="false"
         >
           <i class="ri-menu-line" aria-hidden="true"></i>
         </button>
@@ -1095,31 +1093,33 @@
               </div>
             </div>
             <div class="tarifa-col">
-              <h3>Entre semana tarde</h3>
+              <h3 data-i18n="tarifas.tarde">Entre semana tarde</h3>
               <div class="tarifa-item">
-                <span>60 minutos</span
+                <span data-i18n="tarifas.60">60 minutos</span
                 ><span data-tarifa="semanaTarde-60">22 €</span>
               </div>
               <div class="tarifa-item">
-                <span>90 minutos</span
+                <span data-i18n="tarifas.90">90 minutos</span
                 ><span data-tarifa="semanaTarde-90">26 €</span>
               </div>
               <div class="tarifa-item">
-                <span>120 minutos</span
+                <span data-i18n="tarifas.120">120 minutos</span
                 ><span data-tarifa="semanaTarde-120">30 €</span>
               </div>
             </div>
             <div class="tarifa-col">
-              <h3>Fin de semana</h3>
+              <h3 data-i18n="tarifas.finde">Fin de semana</h3>
               <div class="tarifa-item">
-                <span>60 minutos</span><span data-tarifa="finde-60">22 €</span>
+                <span data-i18n="tarifas.60">60 minutos</span
++                   ><span data-tarifa="finde-60">22 €</span>
               </div>
               <div class="tarifa-item">
-                <span>90 minutos</span><span data-tarifa="finde-90">26 €</span>
+                <span data-i18n="tarifas.90">90 minutos</span
++                   ><span data-tarifa="finde-90">26 €</span>
               </div>
               <div class="tarifa-item">
-                <span>120 minutos</span
-                ><span data-tarifa="finde-120">30 €</span>
+                <span data-i18n="tarifas.120">120 minutos</span
+                    ><span data-tarifa="finde-120">30 €</span>
               </div>
             </div>
           </div>
