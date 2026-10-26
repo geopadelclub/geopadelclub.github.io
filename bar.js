@@ -40,6 +40,12 @@ function renderTicketMesaActiva() {
     const li = document.createElement("li");
     li.dataset.index = index;
     li.title = "Toca para quitar";
+    li.tabIndex = 0;
+    li.setAttribute("role", "button");
+    li.setAttribute(
+      "aria-label",
+      `Quitar ${item.nombre} (${eur(item.precio)})`,
+    );
     li.innerHTML = `<span>${esc(item.nombre)}</span> <span>${eur(item.precio)} <i class="ri-close-line" aria-hidden="true"></i></span>`;
     list.appendChild(li);
   });
@@ -48,6 +54,13 @@ function renderTicketMesaActiva() {
 $("ticketItems").addEventListener("click", (e) => {
   const li = e.target.closest("li[data-index]");
   if (li) quitarDelTicket(parseInt(li.dataset.index, 10));
+});
+$("ticketItems").addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const li = e.target.closest("li[data-index]");
+  if (!li) return;
+  e.preventDefault();
+  quitarDelTicket(parseInt(li.dataset.index, 10));
 });
 $("catTPVBotones").addEventListener("click", (e) => {
   const b = e.target.closest(".btn-cat-filter");

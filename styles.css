@@ -1145,8 +1145,12 @@ i[class*=" ri-"] {
 }
 
 :focus-visible {
-  outline: 3px solid var(--primary, #4b7a86) !important;
-  outline-offset: 2px !important;
+  outline: 3px solid var(--gp-lime);
+  outline-offset: 2px;
+}
+
+[data-theme="light"]:focus-visible {
+  outline-color: var(--blue);
 }
 
 .btn-cash {

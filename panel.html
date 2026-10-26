@@ -421,6 +421,7 @@
                         id="buscarTPV"
                         class="toolbar-input"
                         placeholder="Buscar producto..."
+                        aria-label="Buscar producto"
                       />
                     </div>
                     <div class="tpv-tools">
@@ -585,15 +586,15 @@
               <div class="kpi-row">
                 <div class="kpi ef">
                   <span>Efectivo en cajón</span>
-                  <h2 id="cajaEfectivo">0,00 €</h2>
+                  <p id="cajaEfectivo" class="kpi-value">0,00 €</p>
                 </div>
                 <div class="kpi ta">
                   <span>Total datáfono</span>
-                  <h2 id="cajaTarjeta">0,00 €</h2>
+                  <p id="cajaTarjeta" class="kpi-value">0,00 €</p>
                 </div>
                 <div class="kpi">
                   <span>Total general</span>
-                  <h2 id="cajaTotal">0,00 €</h2>
+                  <p id="cajaTotal" class="kpi-value">0,00 €</p>
                 </div>
               </div>
             </div>
@@ -823,6 +824,7 @@
                   id="deudaFiltro"
                   class="toolbar-select"
                   data-onchange="dibujar-deudas"
+                  aria-label="Filtrar deudas"
                 >
                   <option value="Pendiente">Pendientes</option>
                   <option value="Resuelta">Resueltas</option>
@@ -1031,7 +1033,11 @@
                   class="toolbar-input"
                   type="search"
                   placeholder="Buscar por número, cliente o NIF..."
-                /><select id="facFiltroTipo" class="toolbar-select">
+                /><select
+                  id="facFiltroTipo"
+                  class="toolbar-select"
+                  aria-label="Filtrar por tipo de documento"
+                >
                   <option value="Todos">Todos</option>
                   <option value="Factura">Facturas</option>
                   <option value="Justificante">Justificantes</option>
@@ -1561,6 +1567,7 @@
                 id="catFilterGestion"
                 class="toolbar-select"
                 data-onchange="filtrar-gestion"
+                aria-label="Filtrar por categoría"
               >
                 <option value="Todos">Todas las categorías</option>
                 <option value="Bebidas">Bebidas</option>
@@ -1906,6 +1913,7 @@
                 rows="4"
                 maxlength="1000"
                 placeholder="Apuntes de esta reserva: debe dinero, trae pala prestada, avisar si llega tarde..."
+                aria-label="Notas de la reserva"
               ></textarea>
             </div>
           </div>
@@ -2279,6 +2287,7 @@
               class="toolbar-input"
               style="width: 100%"
               autocomplete="off"
+              aria-label="Respuesta"
             />
           </div>
         </div>
