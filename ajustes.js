@@ -9,28 +9,48 @@ const cliNorm = (s) =>
     .replace(/[\u0300-\u036f]/g, "")
     .trim();
 const cliTel = (s) => String(s || "").replace(/[^\d+]/g, "");
-function dibujarClientesAjustes() {
+async function dibujarClientesAjustes() {
   const tb = $("cliBody");
   if (!tb) return;
-  const q = cliNorm($("cliBuscar").value),
-    qt = cliTel($("cliBuscar").value);
-  const todos = datosLocales.clientes || [];
-  cliFiltrados = todos.filter(
-    (c) =>
-      !q ||
-      cliNorm(c.nombre).includes(q) ||
-      (qt.length >= 3 && cliTel(c.telefono).includes(qt)),
-  );
-  const lista = cliFiltrados.slice(0, CLI_MAX_FILAS);
-  $("cliContador").innerText =
-    cliFiltrados.length > lista.length
-      ? `Mostrando ${lista.length} de ${cliFiltrados.length} clientes. Escribe más letras para afinar.`
-      : `${cliFiltrados.length} ${cliFiltrados.length === 1 ? "cliente" : "clientes"}`;
-  if (!lista.length) {
+  const q = cliNorm($("cliBuscar").value);
+  const qt = cliTel($("cliBuscar").value);
+
+  if (!q && qt.length < 3) {
     tb.innerHTML =
-      '<tr><td colspan="3" class="tabla-empty">No hay clientes con ese nombre o teléfono</td></tr>';
+      '<tr><td colspan="3" class="tabla-empty">Escribe al menos 2 letras o 3 cifras para buscar.</td></tr>';
+    $("cliContador").innerText = "";
     return;
   }
+
+  let query = supabaseClient
+    .from("clientes")
+    .select("id, nombre, telefono, tipo_cliente, nombre_entidad")
+    .order("nombre")
+    .order("id", { ascending: true })
+    .limit(30);
+
+  if (q) query = query.ilike("nombre", "%" + q + "%");
+  if (qt.length >= 3) query = query.ilike("telefono", "%" + qt + "%");
+
+  const { data, error } = await query;
+  if (error) {
+    tb.innerHTML = `<tr><td colspan="3" class="tabla-empty" style="color:var(--red)">Error al buscar: ${esc(error.message)}</td></tr>`;
+    return;
+  }
+
+  cliFiltrados = data || [];
+  const lista = cliFiltrados;
+  $("cliContador").innerText =
+    lista.length === 30
+      ? "Mostrando los primeros 30. Escribe más letras para afinar."
+      : `${lista.length} ${lista.length === 1 ? "cliente" : "clientes"}`;
+
+  if (!lista.length) {
+    tb.innerHTML =
+      '<tr><td colspan="3" class="tabla-empty">No hay clientes con ese nombre o teléfono.</td></tr>';
+    return;
+  }
+
   tb.innerHTML = lista
     .map((c, i) => {
       const tel = c.telefono
@@ -49,10 +69,10 @@ ${soloJefa ? `<button type="button" class="btn-add danger" data-cli="borrar" dat
     .join("");
 }
 async function entrarAjustes() {
-  dibujarClientesAjustes();
-  await cargarClientes();
-  dibujarClientesAjustes();
+  $("cliBuscar").value = "";
+  await dibujarClientesAjustes();
 }
+$("cliBuscar").addEventListener("input", debounce(dibujarClientesAjustes, 300));
 async function cliResetearCodigo(c, btn) {
   if (!esJefa()) return toast("Solo la jefa puede restablecer códigos", "err");
   if (
@@ -152,7 +172,6 @@ async function cliBorrarDatos(c, btn) {
     setBusy(btn, false);
   }
 }
-$("cliBuscar").addEventListener("input", debounce(dibujarClientesAjustes, 150));
 $("cliBody").addEventListener("click", (e) => {
   const b = e.target.closest("button[data-cli]");
   if (!b || b.disabled) return;

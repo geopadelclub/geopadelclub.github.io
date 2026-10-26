@@ -1,7 +1,6 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 async function cargarDatosGlobales() {
   await Promise.all([
-    cargarClientes(),
     cargarProductos(),
     cargarTarifas(),
     cargarMesasBar(),
@@ -11,21 +10,6 @@ async function cargarDatosGlobales() {
   ]);
 }
 async function cargarClientes() {
-  const { data, error } = await conReintento(() =>
-    leerTodo(() =>
-      supabaseClient
-        .from("clientes")
-        .select(
-          "id, nombre, telefono, web_habilitado, tipo_cliente, nombre_entidad",
-        )
-        .order("nombre")
-        .order("id", { ascending: true }),
-    ),
-  );
-  if (error) {
-    console.error(error);
-    return;
-  }
   datosLocales.clientes = data || [];
 }
 async function cargarProductos() {

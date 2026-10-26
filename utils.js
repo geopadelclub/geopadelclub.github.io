@@ -173,117 +173,130 @@ async function conReintento(e, t = 2, n = 700) {
 }
 function enlazarBuscadorCliente(e, t, n) {
   if (!e || !t) return;
-  const r = (e) =>
-      String(e || "")
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/\s+/g, " ")
-        .trim(),
-    i = (e) => String(e || "").replace(/\D/g, ""),
-    a = 8;
-  function o() {
-    const n = r(e.value).split(" ").filter(Boolean),
-      a = r(e.value).length >= 2,
-      o = i(t.value),
-      s = o.length >= 3;
-    if (!a && !s) return [];
-    const l =
-        (typeof datosLocales !== "undefined" && datosLocales.clientes) || [],
-      c = [];
-    for (const e of l) {
-      const t = r(
-        e.nombre_entidad ? `${e.nombre_entidad} ${e.nombre}` : e.nombre,
-      );
-      if (a && !n.every((e) => t.includes(e))) continue;
-      if (s && !i(e.telefono).includes(o)) continue;
-      const l = a && t.startsWith(n[0]) ? 0 : 1;
-      c.push({ c: e, empieza: l });
+  const norm = (s) =>
+    String(s || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  const soloDig = (s) => String(s || "").replace(/\D/g, "");
+  const cache = new Map();
+
+  async function buscar(q, qTel) {
+    const key = q + "|" + qTel;
+    if (cache.has(key)) return cache.get(key);
+
+    let query = supabaseClient
+      .from("clientes")
+      .select("id, nombre, telefono, tipo_cliente, nombre_entidad")
+      .limit(20);
+
+    if (q) query = query.ilike("nombre", "%" + q + "%");
+    if (qTel) query = query.ilike("telefono", "%" + qTel + "%");
+
+    const { data, error } = await query;
+    if (error) {
+      console.error("Error buscando clientes:", error);
+      return [];
     }
-    c.sort(
-      (e, t) =>
-        e.empieza - t.empieza ||
-        String(e.c.nombre).localeCompare(String(t.c.nombre), "es"),
-    );
-    return c.slice(0, a).map((e) => e.c);
+    cache.set(key, data || []);
+    return data || [];
   }
+
   function s(i) {
     if (i.dataset.cliBound) return;
     i.dataset.cliBound = "1";
-    const a = document.createElement("div");
-    a.className = "cli-wrap";
-    i.parentNode.insertBefore(a, i);
-    a.appendChild(i);
-    const s = document.createElement("div");
-    s.className = "cli-sug";
-    s.setAttribute("role", "listbox");
-    s.hidden = !0;
-    a.appendChild(s);
+    const wrap = document.createElement("div");
+    wrap.className = "cli-wrap";
+    i.parentNode.insertBefore(wrap, i);
+    wrap.appendChild(i);
+    const sug = document.createElement("div");
+    sug.className = "cli-sug";
+    sug.setAttribute("role", "listbox");
+    sug.hidden = !0;
+    wrap.appendChild(sug);
     i.setAttribute("role", "combobox");
     i.setAttribute("aria-autocomplete", "list");
     i.setAttribute("aria-expanded", "false");
-    let l = [],
-      c = -1;
-    const d = () => {
-        s.hidden = !0;
-        c = -1;
-        i.setAttribute("aria-expanded", "false");
-      },
-      u = () =>
-        s
-          .querySelectorAll(".cli-op")
-          .forEach((e, t) => e.classList.toggle("on", t === c));
-    function p(r) {
-      e.value = r.nombre_entidad ? r.nombre_entidad : r.nombre;
-      t.value = r.telefono || "";
-      e.dataset.tipo = r.tipo_cliente || "Particular";
-      d();
-      if (n) n(r);
+    let lista = [],
+      idx = -1,
+      tmr = null;
+
+    const cerrar = () => {
+      sug.hidden = !0;
+      idx = -1;
+      i.setAttribute("aria-expanded", "false");
+    };
+    const pintar = () =>
+      sug
+        .querySelectorAll(".cli-op")
+        .forEach((el, k) => el.classList.toggle("on", k === idx));
+
+    function elegir(c) {
+      e.value = c.nombre_entidad ? c.nombre_entidad : c.nombre;
+      t.value = c.telefono || "";
+      e.dataset.tipo = c.tipo_cliente || "Particular";
+      cerrar();
+      if (n) n(c);
     }
-    function m() {
-      l = o();
-      if (!l.length) {
-        d();
+
+    async function ejecutar() {
+      const q = norm(e.value);
+      const qTel = soloDig(t.value);
+      const hasQ = q.length >= 2;
+      const hasTel = qTel.length >= 3;
+      if (!hasQ && !hasTel) {
+        cerrar();
         return;
       }
-      s.innerHTML = l
-        .map((e, t) => {
-          const n = e.tipo_cliente === "Peña" || e.nombre_entidad,
-            r = n ? '<span class="badge-pena">PEÑA</span>' : "";
-          return `<div class="cli-op" role="option" data-i="${t}"><b>${esc(e.nombre_entidad || e.nombre)} ${r}</b><small>${e.telefono ? esc(e.telefono) : "Sin teléfono"}</small></div>`;
+      lista = await buscar(hasQ ? q : "", hasTel ? qTel : "");
+      if (!lista.length) {
+        cerrar();
+        return;
+      }
+      sug.innerHTML = lista
+        .map((c, k) => {
+          const esPena = c.tipo_cliente === "Peña" || c.nombre_entidad;
+          const badge = esPena ? '<span class="badge-pena">PEÑA</span>' : "";
+          return `<div class="cli-op" role="option" data-i="${k}"><b>${esc(c.nombre_entidad || c.nombre)} ${badge}</b><small>${c.telefono ? esc(c.telefono) : "Sin teléfono"}</small></div>`;
         })
         .join("");
-      c = -1;
-      s.hidden = !1;
+      idx = -1;
+      sug.hidden = !1;
       i.setAttribute("aria-expanded", "true");
     }
-    i.addEventListener("input", m);
-    i.addEventListener("focus", () => {
-      if (i.value.trim()) m();
+
+    i.addEventListener("input", () => {
+      clearTimeout(tmr);
+      tmr = setTimeout(ejecutar, 300);
     });
-    i.addEventListener("blur", () => setTimeout(d, 150));
-    i.addEventListener("keydown", (e) => {
-      if (s.hidden) return;
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        c = (c + 1) % l.length;
-        u();
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        c = (c - 1 + l.length) % l.length;
-        u();
-      } else if (e.key === "Enter" && c >= 0) {
-        e.preventDefault();
-        p(l[c]);
-      } else if (e.key === "Escape") {
-        e.stopPropagation();
-        d();
+    i.addEventListener("focus", () => {
+      if (i.value.trim()) ejecutar();
+    });
+    i.addEventListener("blur", () => setTimeout(cerrar, 150));
+    i.addEventListener("keydown", (ev) => {
+      if (sug.hidden) return;
+      if (ev.key === "ArrowDown") {
+        ev.preventDefault();
+        idx = (idx + 1) % lista.length;
+        pintar();
+      } else if (ev.key === "ArrowUp") {
+        ev.preventDefault();
+        idx = (idx - 1 + lista.length) % lista.length;
+        pintar();
+      } else if (ev.key === "Enter" && idx >= 0) {
+        ev.preventDefault();
+        elegir(lista[idx]);
+      } else if (ev.key === "Escape") {
+        ev.stopPropagation();
+        cerrar();
       }
     });
-    s.addEventListener("mousedown", (e) => e.preventDefault());
-    s.addEventListener("click", (e) => {
-      const t = e.target.closest(".cli-op");
-      if (t && l[+t.dataset.i]) p(l[+t.dataset.i]);
+    sug.addEventListener("mousedown", (ev) => ev.preventDefault());
+    sug.addEventListener("click", (ev) => {
+      const op = ev.target.closest(".cli-op");
+      if (op && lista[+op.dataset.i]) elegir(lista[+op.dataset.i]);
     });
   }
   s(e);

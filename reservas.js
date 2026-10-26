@@ -916,28 +916,29 @@ async function guardarClienteSilencioso(
   const row = { nombre, tipo_cliente: tipoCliente };
   if (telefono) row.telefono = telefono;
   if (tipoCliente === "Peña") row.nombre_entidad = nombre;
-  const prev = (datosLocales.clientes || []).find(
-    (c) =>
-      String(c.nombre).trim().toLowerCase() === nombre.toLowerCase() &&
-      c.tipo_cliente === tipoCliente,
-  );
-  if (
-    prev &&
-    telefono &&
-    prev.telefono &&
-    normalizarTelefono(prev.telefono) !== telefono &&
-    !(await customConfirm(
-      `Ya existe un cliente llamado «${nombre}» con el teléfono ${prev.telefono}. ¿Cambiarlo por ${telefono}?\nSi cancelas, su ficha de cliente no se modifica.`,
-    ))
-  )
-    return;
-  const { data: ex } = await supabaseClient
+
+  const { data: ex, error: errEx } = await supabaseClient
     .from("clientes")
-    .select("id")
+    .select("id, telefono")
     .eq("nombre", nombre)
     .eq("tipo_cliente", tipoCliente)
     .maybeSingle();
+
+  if (errEx) {
+    console.error(errEx);
+    return;
+  }
+
   if (ex) {
+    if (
+      telefono &&
+      ex.telefono &&
+      normalizarTelefono(ex.telefono) !== telefono &&
+      !(await customConfirm(
+        `Ya existe un cliente llamado «${nombre}» con el teléfono ${ex.telefono}. ¿Cambiarlo por ${telefono}?\nSi cancelas, su ficha de cliente no se modifica.`,
+      ))
+    )
+      return;
     if (telefono)
       await supabaseClient
         .from("clientes")
@@ -945,16 +946,6 @@ async function guardarClienteSilencioso(
         .eq("id", ex.id);
   } else {
     await supabaseClient.from("clientes").insert(row);
-  }
-  const existente = datosLocales.clientes.find(
-    (c) =>
-      String(c.nombre).toLowerCase() === nombre.toLowerCase() &&
-      c.tipo_cliente === tipoCliente,
-  );
-  if (existente) {
-    if (telefono) existente.telefono = telefono;
-  } else {
-    datosLocales.clientes.push(row);
   }
 }
 
