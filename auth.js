@@ -1,4 +1,4 @@
-/* © Geopadel */
+/* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 let supabaseClient = null,
   _sbLoadPromise = null,
   _authListenerRegistrado = !1;
