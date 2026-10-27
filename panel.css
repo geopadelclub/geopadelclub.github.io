@@ -291,16 +291,6 @@
     width: 100%;
   }
 
-  .date-nav-group {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .date-picker-input {
-    flex: 1;
-    text-align: center;
-  }
-
   .stats-chips {
     width: 100%;
   }
@@ -308,6 +298,30 @@
   .stats-chips .chip {
     flex: 1;
     text-align: center;
+  }
+
+  .date-nav-group {
+    flex-wrap: wrap;
+    gap: 6px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .date-picker-input {
+    order: -1;
+    flex: 1 1 100%;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 9px 10px;
+    font-size: 16px;
+    text-align: center;
+  }
+
+  .btn-playtomic-nav {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 9px 4px;
   }
 }
 
