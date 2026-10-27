@@ -164,4 +164,15 @@
       if (b) b.style.display = "none";
     } else toast("No se pudieron activar las notificaciones", "warn");
   });
+  A(
+    "emitir-justificante-tpv",
+    () =>
+      typeof emitirJustificanteTPV === "function" && emitirJustificanteTPV(),
+  );
+  A(
+    "emitir-justificante-reserva",
+    () =>
+      typeof emitirJustificanteReserva === "function" &&
+      emitirJustificanteReserva(),
+  );
 })();

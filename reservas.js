@@ -6,22 +6,33 @@ let _pendingPagoUnico = null;
 async function cargarReservasHoy() {
   const iso = $("fechaCuadrante").value || fechaLocalISO();
   const miReq = ++reqReservas;
-  const { data, error } = await conReintento(() =>
-    supabaseClient
-      .from("reservas")
-      .select(
-        "id, cliente, nombre_entidad, telefono, fecha, hora_inicio, duracion_min, pista, estado, pago_estado, tipo_reserva, jugadores, pagos_jugadores, precio, empleado, serie, notas, origen, tipo_cobro",
-      )
-      .eq("fecha", iso)
-      .or(FILTRO_NO_CANCELADA),
-  );
+  const [resR, resB] = await Promise.all([
+    conReintento(() =>
+      supabaseClient
+        .from("reservas")
+        .select(
+          "id, cliente, nombre_entidad, telefono, fecha, hora_inicio, duracion_min, pista, estado, pago_estado, tipo_reserva, jugadores, pagos_jugadores, precio, empleado, serie, notas, origen, tipo_cobro",
+        )
+        .eq("fecha", iso)
+        .or(FILTRO_NO_CANCELADA),
+    ),
+    conReintento(() =>
+      supabaseClient
+        .from("bloqueos_pistas")
+        .select("id, pista, fecha, hora_inicio, hora_fin, motivo")
+        .eq("fecha", iso)
+        .order("hora_inicio"),
+    ),
+  ]);
   if (miReq !== reqReservas) return;
-  if (error) {
-    console.error(error);
+  if (resR.error) {
+    console.error(resR.error);
     toast("No se pudieron cargar las reservas", "err");
     return;
   }
-  datosLocales.reservas = (data || []).map((r) => ({
+  if (resB.error) console.error(resB.error);
+  datosLocales.bloqueos = resB.data || [];
+  datosLocales.reservas = (resR.data || []).map((r) => ({
     id: r.id,
     cliente: r.cliente || "",
     nombreEntidad: r.nombre_entidad || "",
@@ -43,6 +54,7 @@ async function cargarReservasHoy() {
     tipoCobro: r.tipo_cobro || "unico",
   }));
   renderizarCuadrantePlaytomic(datosLocales.reservas);
+  dibujarBloqueos();
   cargarTotalPendientes();
 }
 
@@ -155,6 +167,12 @@ function renderizarCuadrantePlaytomic(reservas) {
       b = a + (parseInt(r.duracionMin, 10) || 90);
     if (a < rIni) rIni = a;
     if (b > rFin) rFin = b;
+  });
+  (datosLocales.bloqueos || []).forEach((b) => {
+    const a = timeToMin(b.hora_inicio);
+    if (a < rIni) rIni = a;
+    const f = timeToMin(b.hora_fin);
+    if (f > rFin) rFin = f;
   });
   horaInicioGrid = Math.floor(rIni / 60);
   horaFinGrid = (Math.ceil(rFin / 30) * 30 - 30) / 60;
@@ -273,6 +291,31 @@ ${tieneNota && heightPx >= 150 ? `<div class="reserva-nota-txt">${esc(r.notas)}<
         card.title = `${r.cliente} · ${r.horaInicio}-${minToTimeStr(iniMin + dur)}${tieneNota ? "\nNota: " + r.notas : ""}`;
         colPista.appendChild(card);
       });
+    (datosLocales.bloqueos || [])
+      .filter((b) => b.pista === pista)
+      .forEach((b) => {
+        const iniMin = timeToMin(b.hora_inicio);
+        const finMin = timeToMin(b.hora_fin);
+        const dur = finMin - iniMin;
+        const topPx = (iniMin - horaInicioGrid * 60) * ppm;
+        const heightPx = dur * ppm - 2;
+        const card = document.createElement("div");
+        card.className =
+          "reserva-card card-bloqueo" + (heightPx < 100 ? " compact" : "");
+        card.style.top = `${topPx}px`;
+        card.style.height = `${heightPx}px`;
+        card.dataset.bloqueoId = b.id;
+        card.setAttribute(
+          "aria-label",
+          `Pista ${pista} bloqueada de ${String(b.hora_inicio).slice(0, 5)} a ${String(b.hora_fin).slice(0, 5)}${b.motivo ? ": " + b.motivo : ""}`,
+        );
+        card.title = b.motivo || "Pista bloqueada";
+        card.innerHTML = `
+<div class="reserva-top"><div class="badge-bloqueo"><i class="ri-lock-line" aria-hidden="true"></i>Bloqueada</div></div>
+<div class="reserva-title">${esc(b.motivo || "No disponible")}</div>
+<div class="reserva-time"><span>${esc(String(b.hora_inicio).slice(0, 5))} - ${esc(String(b.hora_fin).slice(0, 5))}</span></div>`;
+        colPista.appendChild(card);
+      });
     frag.appendChild(colPista);
   });
   grid.innerHTML = "";
@@ -335,6 +378,7 @@ window.addEventListener(
     if (suprimirClick) return;
     const card = e.target.closest(".reserva-card");
     if (card) {
+      if (card.classList.contains("card-bloqueo")) return;
       const r = (datosLocales.reservas || []).find(
         (x) => String(x.id) === card.dataset.id,
       );
@@ -353,7 +397,7 @@ window.addEventListener(
   });
   grid.addEventListener("keydown", (e) => {
     const card = e.target.closest(".reserva-card");
-    if (!card) return;
+    if (!card || card.classList.contains("card-bloqueo")) return;
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       const r = (datosLocales.reservas || []).find(
@@ -367,7 +411,7 @@ window.addEventListener(
   });
   grid.addEventListener("dragstart", (e) => {
     const card = e.target.closest(".reserva-card");
-    if (!card) return;
+    if (!card || card.classList.contains("card-bloqueo")) return;
     dragGrabOffsetY = e.clientY - card.getBoundingClientRect().top;
     e.dataTransfer.setData("text/plain", card.dataset.id);
     e.dataTransfer.effectAllowed = "move";
@@ -393,7 +437,12 @@ window.addEventListener(
     "touchstart",
     (e) => {
       const card = e.target.closest(".reserva-card");
-      if (!card || card.dataset.tipo === "Torneo" || e.touches.length !== 1)
+      if (
+        !card ||
+        card.dataset.tipo === "Torneo" ||
+        card.classList.contains("card-bloqueo") ||
+        e.touches.length !== 1
+      )
         return;
       const t = e.touches[0];
       tdrag = {
@@ -532,6 +581,17 @@ async function moverReservaAccion(idRes, nuevaHora, nuevaPista) {
       `No se puede mover: ${nuevaPista} está ocupada a las ${conflictoLocal.horaInicio} (${conflictoLocal.cliente})`,
       "err",
     );
+  const conflictoBloqueo = (datosLocales.bloqueos || []).find((b) => {
+    if (b.pista !== nuevaPista || b.fecha !== t.fecha) return false;
+    const a = timeToMin(b.hora_inicio),
+      bF = timeToMin(b.hora_fin);
+    return iniMin < bF && finMin > a;
+  });
+  if (conflictoBloqueo)
+    return toast(
+      `No se puede mover: ${nuevaPista} está bloqueada a las ${String(conflictoBloqueo.hora_inicio).slice(0, 5)} (${conflictoBloqueo.motivo || "sin motivo"})`,
+      "err",
+    );
 
   if (t.serie) {
     const ok = await customConfirm(
@@ -572,6 +632,11 @@ async function moverReservaAccion(idRes, nuevaHora, nuevaPista) {
         `No se puede mover: ${nuevaPista} ya está ocupada en ese horario`,
         "err",
       );
+      cargarReservasHoy();
+      return;
+    }
+    if (err && err.code === "23P02") {
+      toast("La pista está bloqueada en ese horario", "err");
       cargarReservasHoy();
       return;
     }
@@ -762,6 +827,8 @@ function abrirModalNuevaReserva(
   $("btnEliminarReserva").style.display = "none";
   $("btnConfirmarPendiente").style.display = "none";
   $("btnHistorialReserva").style.display = "none";
+  const btnJ = $("btnJustificanteReserva");
+  if (btnJ) btnJ.style.display = "none";
   $("modalNumJugadores").value = "4";
 
   document.querySelector('input[name="modalTipoPago"][value="unico"]').checked =
@@ -906,6 +973,12 @@ ${pagado ? `<button type="button" ${dis} data-j="${j}" data-m="0" class="btn-pay
     badge.className = "badge-sin-pagar";
     badge.innerHTML = `<i class="ri-error-warning-line" aria-hidden="true"></i>Sin pagar (0/${nJug})`;
   }
+  const btnJ = $("btnJustificanteReserva");
+  if (btnJ)
+    btnJ.style.display =
+      pagados >= nJug && reservaEnEdicion && reservaEnEdicion.id
+        ? "inline-block"
+        : "none";
 }
 
 $("splitJugadoresContainer").addEventListener("click", (e) => {
@@ -1201,6 +1274,10 @@ async function confirmarGuardarReserva() {
       cargarReservasHoy();
       return;
     }
+    if (err && err.code === "23P02") {
+      toast("La pista está bloqueada en ese horario", "err");
+      return;
+    }
     toast("Error al guardar la reserva: " + (err.message || err), "err");
   } finally {
     setBusy(btn, false);
@@ -1264,6 +1341,68 @@ async function eliminarReservaRPC(alcance) {
 
 const confirmarEliminarSerie = () => eliminarReservaRPC("serie");
 const confirmarEliminarReserva = () => eliminarReservaRPC("unica");
+
+async function emitirJustificanteReserva() {
+  if (!reservaEnEdicion || !reservaEnEdicion.id)
+    return toast("Guarda la reserva antes de emitir el justificante", "warn");
+  const nJug = parseInt(reservaEnEdicion.numJugadores, 10) || 4;
+  const pagosArr = String(reservaEnEdicion.pagosJugadores || "").split(",");
+  const pagados = pagosArr
+    .slice(0, nJug)
+    .filter((p) => p === "Efectivo" || p === "Tarjeta").length;
+  if (pagados < nJug)
+    return toast("La reserva no está totalmente pagada", "warn");
+  const metodos = [...new Set(pagosArr.slice(0, nJug))];
+  const metodo = metodos.length === 1 ? metodos[0] : "Varios";
+  const precio = parseFloat(reservaEnEdicion.precio) || 0;
+  if (precio <= 0) return toast("La reserva no tiene precio", "warn");
+  const ini = timeToMin(reservaEnEdicion.horaInicio);
+  const fin = ini + (parseInt(reservaEnEdicion.duracionMin, 10) || 90);
+  const lineas = [
+    {
+      concepto: `Pista ${reservaEnEdicion.pista} · ${reservaEnEdicion.horaInicio}-${minToTimeStr(fin)}`,
+      cantidad: 1,
+      precio_unitario_con_iva: precio,
+    },
+  ];
+  const btn = $("btnJustificanteReserva");
+  setBusy(
+    btn,
+    true,
+    '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Emitiendo...',
+  );
+  try {
+    const { data, error } = await supabaseClient.rpc("gp_emitir_documento", {
+      p_tipo: "Justificante",
+      p_fecha: fechaLocalISO(),
+      p_cliente: {},
+      p_metodo_pago: metodo,
+      p_reserva_id: reservaEnEdicion.id,
+      p_iva: 21,
+      p_lineas: lineas,
+      p_notas: `Reserva ${reservaEnEdicion.cliente}`,
+      p_empleado: nombreUsuario(),
+    });
+    if (error) throw error;
+    if (!data || !data.ok)
+      throw new Error((data && data.error) || "No se pudo emitir");
+    toast(`Justificante ${data.numero} emitido (${eur(data.total)})`);
+    const usbReady =
+      typeof usbDevice !== "undefined" &&
+      usbDevice &&
+      typeof usbEndpoint !== "undefined" &&
+      usbEndpoint;
+    if (usbReady && typeof imprimirTicketWebUSB === "function")
+      await imprimirTicketWebUSB(data.id);
+    else if (typeof imprimirFactura === "function")
+      await imprimirFactura(data.id, "ticket");
+  } catch (e) {
+    console.error(e);
+    toast("No se pudo emitir el justificante: " + (e.message || e), "err");
+  } finally {
+    setBusy(btn, false);
+  }
+}
 
 const PP_TIPO_CLASE = {
   Pena: "t-pena",
@@ -1677,3 +1816,115 @@ if (navReservasBtn) {
     }, 50);
   });
 }
+
+function dibujarBloqueos() {
+  const tb = $("bloqueosBody");
+  const ftxt = $("bloqueosFechaTxt");
+  const iso = $("fechaCuadrante").value || fechaLocalISO();
+  if (ftxt) ftxt.innerText = fechaBonita(iso);
+  if (!tb) return;
+  const lista = (datosLocales.bloqueos || [])
+    .slice()
+    .sort((a, b) => String(a.hora_inicio).localeCompare(String(b.hora_inicio)));
+  if (!lista.length) {
+    tb.innerHTML =
+      '<tr><td colspan="4" class="tabla-empty">Sin bloqueos para este día</td></tr>';
+    return;
+  }
+  tb.innerHTML = lista
+    .map(
+      (b) => `<tr>
+<td><b>${esc(b.pista)}</b></td>
+<td>${esc(String(b.hora_inicio).slice(0, 5))} – ${esc(String(b.hora_fin).slice(0, 5))}</td>
+<td>${esc(b.motivo || "—")}</td>
+<td><button type="button" class="btn-del-prod" data-bloqueo-del="${esc(b.id)}" aria-label="Desbloquear"><i class="ri-lock-unlock-line" aria-hidden="true"></i></button></td>
+</tr>`,
+    )
+    .join("");
+}
+
+async function crearBloqueo() {
+  const pista = $("bloqueoPista").value;
+  const fecha = $("fechaCuadrante").value || fechaLocalISO();
+  const ini = $("bloqueoIni").value;
+  const fin = $("bloqueoFin").value;
+  const motivo = $("bloqueoMotivo").value.trim();
+  if (!ini || !fin) return toast("Indica el horario del bloqueo", "warn");
+  const iniMin = timeToMin(ini);
+  const finMin = timeToMin(fin);
+  if (finMin <= iniMin)
+    return toast("La hora fin debe ser mayor que la de inicio", "warn");
+  const pistas = pista ? [pista] : listaPistas;
+  const btn = $("btnBloquear");
+  setBusy(
+    btn,
+    true,
+    '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Guardando...',
+  );
+  let ok = 0;
+  let solape = 0;
+  let conReserva = 0;
+  let errores = 0;
+  for (const p of pistas) {
+    const { error } = await supabaseClient.from("bloqueos_pistas").insert({
+      pista: p,
+      fecha,
+      hora_inicio: ini,
+      hora_fin: fin,
+      motivo: motivo || null,
+    });
+    if (!error) ok++;
+    else if (error.code === "23P03") solape++;
+    else if (error.code === "23P04") conReserva++;
+    else {
+      errores++;
+      console.error(error);
+    }
+  }
+  setBusy(btn, false);
+  const partes = [];
+  if (ok)
+    partes.push(`${ok} ${ok === 1 ? "pista bloqueada" : "pistas bloqueadas"}`);
+  if (solape) partes.push(`${solape} ya tenían bloqueo`);
+  if (conReserva) partes.push(`${conReserva} tenían reservas`);
+  if (errores) partes.push(`${errores} fallos`);
+  if (partes.length)
+    toast(
+      partes.join(" · "),
+      errores || solape || conReserva ? "warn" : "ok",
+      6000,
+    );
+  if (ok) {
+    $("bloqueoIni").value = "";
+    $("bloqueoFin").value = "";
+    $("bloqueoMotivo").value = "";
+    cargarReservasHoy();
+  }
+}
+
+async function eliminarBloqueo(id) {
+  if (!(await customConfirm("¿Desbloquear esta pista en ese tramo?"))) return;
+  const { error } = await supabaseClient
+    .from("bloqueos_pistas")
+    .delete()
+    .eq("id", id);
+  if (error) return toast("No se pudo eliminar: " + error.message, "err");
+  toast("Bloqueo eliminado");
+  cargarReservasHoy();
+}
+
+(function initBloqueos() {
+  const sel = $("bloqueoPista");
+  if (!sel) return;
+  listaPistas.forEach((p) => {
+    const o = document.createElement("option");
+    o.value = p;
+    o.textContent = p;
+    sel.appendChild(o);
+  });
+  $("btnBloquear").addEventListener("click", crearBloqueo);
+  $("bloqueosBody").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-bloqueo-del]");
+    if (b) eliminarBloqueo(b.dataset.bloqueoDel);
+  });
+})();

@@ -414,4 +414,77 @@ async function eliminarProductoCat(idProd) {
   toast("Artículo eliminado");
   cargarProductos();
 }
+
+async function emitirJustificanteTPV() {
+  const mesa = mesaSeleccionada;
+  const items = cuentasMesas[mesa] || [];
+  if (!items.length) return toast("La cuenta está vacía", "warn");
+
+  const metodoRaw = await customPrompt(
+    "¿Método de pago? (Efectivo o Tarjeta)",
+    "Efectivo",
+    "Emitir justificante",
+  );
+  if (metodoRaw === null) return;
+  const metodo = String(metodoRaw).trim();
+  if (metodo !== "Efectivo" && metodo !== "Tarjeta")
+    return toast("Método no válido. Escribe Efectivo o Tarjeta", "warn");
+
+  const grupos = new Map();
+  items.forEach((it) => {
+    const k =
+      (it.id != null ? "id:" + it.id : "n:" + it.nombre) + "|" + it.precio;
+    if (!grupos.has(k))
+      grupos.set(k, {
+        nombre: it.nombre,
+        precio: Number(it.precio) || 0,
+        cant: 1,
+      });
+    else grupos.get(k).cant += 1;
+  });
+  const lineas = Array.from(grupos.values()).map((g) => ({
+    concepto: g.nombre,
+    cantidad: g.cant,
+    precio_unitario_con_iva: g.precio,
+  }));
+
+  const btn = $("btnJustificante");
+  setBusy(
+    btn,
+    true,
+    '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Emitiendo...',
+  );
+  try {
+    const { data, error } = await supabaseClient.rpc("gp_emitir_documento", {
+      p_tipo: "Justificante",
+      p_fecha: fechaLocalISO(),
+      p_cliente: {},
+      p_metodo_pago: metodo,
+      p_reserva_id: null,
+      p_iva: 21,
+      p_lineas: lineas,
+      p_notas: mesa,
+      p_empleado: nombreUsuario(),
+    });
+    if (error) throw error;
+    if (!data || !data.ok)
+      throw new Error((data && data.error) || "No se pudo emitir");
+    toast(`Justificante ${data.numero} emitido (${eur(data.total)})`);
+    const usbReady =
+      typeof usbDevice !== "undefined" &&
+      usbDevice &&
+      typeof usbEndpoint !== "undefined" &&
+      usbEndpoint;
+    if (usbReady && typeof imprimirTicketWebUSB === "function")
+      await imprimirTicketWebUSB(data.id);
+    else if (typeof imprimirFactura === "function")
+      await imprimirFactura(data.id, "ticket");
+  } catch (e) {
+    console.error(e);
+    toast("No se pudo emitir el justificante: " + (e.message || e), "err");
+  } finally {
+    setBusy(btn, false);
+  }
+}
+
 crearBotonDeshacer();

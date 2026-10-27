@@ -54,6 +54,7 @@ let datosLocales = {
   clientes: [],
   reservas: [],
   tarifas: {},
+  bloqueos: [],
   caja: { totalEfectivo: 0, totalTarjeta: 0, totalGeneral: 0 },
 };
 let reservaEnEdicion = null;

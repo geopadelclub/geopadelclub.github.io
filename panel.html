@@ -351,6 +351,66 @@
               </table>
             </div>
           </div>
+          <div class="card" id="cardBloqueos" style="margin-top: 20px">
+            <div class="card-head">
+              <h3>
+                <i class="ri-lock-line" aria-hidden="true"></i>Bloqueos de
+                pistas ·
+                <span id="bloqueosFechaTxt"></span>
+              </h3>
+            </div>
+            <p class="limp-leyenda">
+              Bloquea una o varias pistas en un tramo horario. No se podrán
+              reservar desde la web ni desde el panel mientras el bloqueo esté
+              activo.
+            </p>
+            <div class="form-inline">
+              <label
+                >Pista<select id="bloqueoPista" class="toolbar-select">
+                  <option value="">Todas las pistas</option>
+                </select></label
+              >
+              <label
+                >Desde<input type="time" id="bloqueoIni" step="1800"
+              /></label>
+              <label
+                >Hasta<input type="time" id="bloqueoFin" step="1800"
+              /></label>
+              <label
+                >Motivo<input
+                  type="text"
+                  id="bloqueoMotivo"
+                  maxlength="80"
+                  placeholder="Torneo, mantenimiento…"
+              /></label>
+            </div>
+            <button
+              type="button"
+              class="btn-add"
+              id="btnBloquear"
+              style="margin-top: 14px"
+            >
+              <i class="ri-lock-line" aria-hidden="true"></i>Bloquear en este
+              día
+            </button>
+            <div class="table-wrap" style="margin-top: 14px">
+              <table class="tabla-productos" style="min-width: 560px">
+                <thead>
+                  <tr>
+                    <th>Pista</th>
+                    <th>Horario</th>
+                    <th>Motivo</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="bloqueosBody">
+                  <tr>
+                    <td colspan="4" class="tabla-empty">Cargando bloqueos…</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </section>
         <section id="tab-ventas" class="tab-content">
           <div class="subnav" role="tablist" aria-label="Secciones de ventas">
@@ -505,6 +565,15 @@
                           >Tarjeta
                         </button>
                       </div>
+                      <button
+                        type="button"
+                        id="btnJustificante"
+                        class="btn-pay btn-justificante"
+                        data-action="emitir-justificante-tpv"
+                      >
+                        <i class="ri-receipt-line" aria-hidden="true"></i>Emitir
+                        justificante 80mm
+                      </button>
                       <div
                         id="msgVenta"
                         class="msg-inline"
@@ -1935,6 +2004,14 @@
             class="btn-add"
           >
             <i class="ri-save-line" aria-hidden="true"></i>Guardar reserva</button
+          ><button
+            type="button"
+            id="btnJustificanteReserva"
+            data-action="emitir-justificante-reserva"
+            class="btn-add blue"
+            style="display: none"
+          >
+            <i class="ri-receipt-line" aria-hidden="true"></i>Justificante 80mm</button
           ><button
             type="button"
             id="btnEliminarSerie"
