@@ -2421,3 +2421,28 @@ tr.deuda-resuelta td {
   margin-right: 8px;
   font-size: 18px;
 }
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+.container-fluid,
+.tab-content {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.playtomic-header-bar > *,
+.date-nav-group,
+.date-picker-input,
+.stats-chips {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.grid-playtomic-wrapper {
+  max-width: 100%;
+  contain: inline-size;
+}

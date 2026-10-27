@@ -109,7 +109,6 @@ async function irAPrimeraPendiente() {
   if (card) {
     const wrapper = $("gridWrapper");
     wrapper.scrollTop = Math.max(0, card.offsetTop - 80);
-    card.scrollIntoView({ block: "nearest", inline: "center" });
   }
 }
 
