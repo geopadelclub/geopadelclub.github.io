@@ -430,7 +430,15 @@ header.app-header {
   z-index: 200;
   display: flex;
   overflow-x: auto;
-  will-change: transform;
+}
+
+@media (max-width: 1023px) {
+  .app-nav {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    will-change: auto;
+  }
 }
 
 .nav-tab {
@@ -510,7 +518,6 @@ header.app-header {
 
 .table-wrap {
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
 }
 
 .tabla-productos {
