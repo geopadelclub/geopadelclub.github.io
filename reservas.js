@@ -1437,7 +1437,7 @@ const PP_PESO_CERRADO = 0.45;
 const PP_ALTO_CUERPO_MM = 162;
 
 function htmlPaginaImpresion(iso, reservas, meta) {
-  let mIni = 9 * 60;
+  let mIni = RESERVA_INI_MIN;
   let mFin = obtenerCierreMin(iso);
   reservas.forEach((r) => {
     const a = timeToMin(r.horaInicio),
@@ -1581,8 +1581,10 @@ async function imprimirDia() {
 }
 
 window.addEventListener("afterprint", () => {
-  const a = $("printArea");
-  if (a) a.innerHTML = "";
+  setTimeout(() => {
+    const a = $("printArea");
+    if (a) a.innerHTML = "";
+  }, 1000);
 });
 
 const CAMPOS_BONITOS = {
