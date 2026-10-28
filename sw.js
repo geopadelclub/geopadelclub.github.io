@@ -47,6 +47,7 @@ const PANEL = [
   "acciones.js",
   "notificaciones.js",
   "facturas.js",
+  "modales.js",
   "styles.css",
   "panel.css",
   "print.css",
