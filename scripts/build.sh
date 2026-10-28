@@ -42,7 +42,6 @@ git ls-files -z '*.html' \
       "$BIN/html-minifier-terser" "$f" -o "$f" \
         --collapse-whitespace \
         --remove-comments \
-        --remove-attribute-quotes \
         --use-short-doctype \
         --minify-js false \
         --minify-css false
