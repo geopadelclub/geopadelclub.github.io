@@ -29,6 +29,16 @@ echo "  ✓ reservar-bundle.js"
 cat config.js utils.js i18n.js cookies.js acciones.js tienda-publica.js | "$BIN/esbuild" --minify > tienda-bundle.js
 echo "  ✓ tienda-bundle.js"
 
+echo "→ Agrupando CSS..."
+cat styles.css panel.css facturas.css | "$BIN/cleancss" -o panel-styles.css
+echo "  ✓ panel-styles.css"
+
+cat styles.css index.css legal.css | "$BIN/cleancss" -o landing-styles.css
+echo "  ✓ landing-styles.css"
+
+cat styles.css reservar.css | "$BIN/cleancss" -o reservar-styles.css
+echo "  ✓ reservar-styles.css"
+
 echo "→ Minificando JS (restantes)..."
 EXCLUDE_PATTERN='^(assets|node_modules|\.git|\.github)/|^(sw|bump-sw|copia-worker|copia-zip)\.js$|^(panel|landing|reservar|tienda)-bundle\.js$|\.min\.(js|css)$'
 for f in $BUNDLE_FILES; do
@@ -43,9 +53,9 @@ git ls-files -z '*.js' \
       echo "  ✓ $f"
     done
 
-echo "→ Minificando CSS..."
+echo "→ Minificando CSS (restantes)..."
 git ls-files -z '*.css' \
-  | grep -zvE '^(assets|node_modules|\.git|\.github)/|\.min\.css$' \
+  | grep -zvE '^(assets|node_modules|\.git|\.github)/|\.min\.css$|^(panel|landing|reservar)-styles\.css$' \
   | while IFS= read -r -d '' f; do
       "$BIN/cleancss" -o "$f" "$f"
       { printf '%s\n' "$HEADER_CSS"; cat "$f"; } > "$f.tmp" && mv "$f.tmp" "$f"

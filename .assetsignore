@@ -33,3 +33,9 @@ menu.js
 utils.js
 i18n.js
 acciones.js
+styles.css
+panel.css
+facturas.css
+index.css
+legal.css
+reservar.css

@@ -3,9 +3,7 @@ const VERSION = "geopadel-b62b41b5b0";
 const BASE = [
   "./",
   "index.html",
-  "styles.css",
-  "index.css",
-  "legal.css",
+  "landing-styles.css",
   "landing-bundle.js",
   "theme-init.js",
   "cookies.js",
@@ -24,19 +22,17 @@ const BASE = [
 const PANEL = [
   "panel.html",
   "panel-bundle.js",
+  "panel-styles.css",
+  "print.css",
   "copia-zip.js",
   "copia-worker.js",
   "notificaciones.js",
-  "styles.css",
-  "panel.css",
-  "print.css",
-  "facturas.css",
   "manifest.webmanifest",
   "assets/supabase.min.js",
 ];
 const PUBLICO = [
   "reservar.html",
-  "reservar.css",
+  "reservar-styles.css",
   "reservar-bundle.js",
   "tienda.html",
   "tienda-bundle.js",
