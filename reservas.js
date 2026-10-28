@@ -32,27 +32,7 @@ async function cargarReservasHoy() {
   }
   if (resB.error) console.error(resB.error);
   datosLocales.bloqueos = resB.data || [];
-  datosLocales.reservas = (resR.data || []).map((r) => ({
-    id: r.id,
-    cliente: r.cliente || "",
-    nombreEntidad: r.nombre_entidad || "",
-    telefono: r.telefono,
-    fecha: r.fecha,
-    horaInicio: String(r.hora_inicio || "00:00").slice(0, 5),
-    duracionMin: r.duracion_min,
-    pista: r.pista,
-    estado: r.estado,
-    pagoEstado: r.pago_estado,
-    tipoReserva: r.tipo_reserva,
-    numJugadores: r.jugadores,
-    pagosJugadores: r.pagos_jugadores,
-    precio: r.precio,
-    empleado: r.empleado,
-    serie: r.serie,
-    notas: r.notas || "",
-    origen: r.origen || "trabajador",
-    tipoCobro: r.tipo_cobro || "unico",
-  }));
+  datosLocales.reservas = (resR.data || []).map(mapearReserva);
   renderizarCuadrantePlaytomic(datosLocales.reservas);
   dibujarBloqueos();
   cargarTotalPendientes();

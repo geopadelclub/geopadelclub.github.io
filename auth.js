@@ -459,7 +459,8 @@ document.addEventListener("visibilitychange", () => {
     toast("La sesión ha caducado. Vuelve a entrar.", "warn");
     return;
   }
-  if (navigator.onLine) cargarDatosGlobales();
+  if (navigator.onLine && Date.now() - _ultimaCargaDatos > RECARGA_DATOS_MIN_MS)
+    cargarDatosGlobales();
 });
 const SUB_DEFAULT = { ventas: "tienda", equipo: "fichajes" },
   SUB_TABS = {

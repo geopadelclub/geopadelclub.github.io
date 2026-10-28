@@ -1,5 +1,6 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 async function cargarDatosGlobales() {
+  await cargarConfigPanel();
   const fechaReservas = $("fechaCuadrante")?.value || fechaLocalISO();
   const fechaCaja = $("cajaFecha")?.value || fechaLocalISO();
   const { data, error } = await supabaseClient.rpc("get_panel_data", {
@@ -36,27 +37,7 @@ async function cargarDatosGlobales() {
   });
   if (typeof renderSelectorMesas === "function") renderSelectorMesas();
   datosLocales.bloqueos = data.bloqueos || [];
-  datosLocales.reservas = (data.reservas || []).map((r) => ({
-    id: r.id,
-    cliente: r.cliente || "",
-    nombreEntidad: r.nombre_entidad || "",
-    telefono: r.telefono,
-    fecha: r.fecha,
-    horaInicio: String(r.hora_inicio || "00:00").slice(0, 5),
-    duracionMin: r.duracion_min,
-    pista: r.pista,
-    estado: r.estado,
-    pagoEstado: r.pago_estado,
-    tipoReserva: r.tipo_reserva,
-    numJugadores: r.jugadores,
-    pagosJugadores: r.pagos_jugadores,
-    precio: r.precio,
-    empleado: r.empleado,
-    serie: r.serie,
-    notas: r.notas || "",
-    origen: r.origen || "trabajador",
-    tipoCobro: r.tipo_cobro || "unico",
-  }));
+  datosLocales.reservas = (data.reservas || []).map(mapearReserva);
   if (typeof renderizarCuadrantePlaytomic === "function")
     renderizarCuadrantePlaytomic(datosLocales.reservas);
   if (typeof dibujarBloqueos === "function") dibujarBloqueos();
@@ -80,6 +61,7 @@ async function cargarDatosGlobales() {
     $("deudaTotal").innerText = eur(total);
     dibujarDeudas();
   }
+  _ultimaCargaDatos = Date.now();
 }
 async function cargarClientes() {
   const { data, error } = await conReintento(() =>

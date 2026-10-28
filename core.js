@@ -5,10 +5,17 @@ const INACTIVIDAD_MAX_MS = 8 * 3600 * 1000;
 const AVISO_SESION_MS = 2 * 60 * 1000;
 const CLAVE_ULT_ACT = "gp-ult-actividad";
 const CLAVE_SESION_INI = "gp-sesion-ini";
-const APERT_MIN = 8 * 60;
-const bloqueDescansoInicio = 14 * 60;
-const bloqueDescansoFin = 17 * 60;
-const listaPistas = [
+let APERT_MIN = 8 * 60;
+let RESERVA_INI_MIN = 9 * 60;
+let CIERRE_SEMANA_MIN = 23 * 60 + 30;
+let CIERRE_FINDE_MIN = 22 * 60;
+let bloqueDescansoInicio = 14 * 60;
+let bloqueDescansoFin = 17 * 60;
+let FONDO_CAJA_DEF = 100;
+let CFG_PANEL_CARGADA = false;
+let _ultimaCargaDatos = 0;
+const RECARGA_DATOS_MIN_MS = 30000;
+let listaPistas = [
   "1 PADEL MASTER",
   "Pista 2",
   "Pista 3",
@@ -19,7 +26,7 @@ const listaPistas = [
   "Pista 8",
   "Pista 9",
 ];
-const listaMesas = [
+let listaMesas = [
   "Suelto",
   "Mesa 1",
   "Mesa 2",
@@ -84,6 +91,61 @@ const esPersonal = () =>
       .trim()
       .toLowerCase(),
   );
+
+async function cargarConfigPanel() {
+  if (CFG_PANEL_CARGADA || !supabaseClient) return;
+  try {
+    const { data, error } = await supabaseClient.rpc("panel_config");
+    if (error || !data) return;
+    if (Array.isArray(data.pistas) && data.pistas.length)
+      listaPistas = data.pistas;
+    if (Array.isArray(data.mesas) && data.mesas.length) {
+      listaMesas = data.mesas;
+      cuentasMesas = {};
+      listaMesas.forEach((m) => (cuentasMesas[m] = []));
+    }
+    const h = data.horarios || {};
+    if (Number.isFinite(h.apertura_min)) APERT_MIN = h.apertura_min;
+    if (Number.isFinite(h.reserva_inicio_min))
+      RESERVA_INI_MIN = h.reserva_inicio_min;
+    if (Number.isFinite(h.descanso_inicio_min))
+      bloqueDescansoInicio = h.descanso_inicio_min;
+    if (Number.isFinite(h.descanso_fin_min))
+      bloqueDescansoFin = h.descanso_fin_min;
+    if (Number.isFinite(h.cierre_semana_min))
+      CIERRE_SEMANA_MIN = h.cierre_semana_min;
+    if (Number.isFinite(h.cierre_finde_min))
+      CIERRE_FINDE_MIN = h.cierre_finde_min;
+    if (Number.isFinite(data.fondo_caja)) FONDO_CAJA_DEF = data.fondo_caja;
+    CFG_PANEL_CARGADA = true;
+    if (typeof renderSelectorMesas === "function") renderSelectorMesas();
+  } catch (e) {
+    console.error("config panel", e);
+  }
+}
+function mapearReserva(r) {
+  return {
+    id: r.id,
+    cliente: r.cliente || "",
+    nombreEntidad: r.nombre_entidad || "",
+    telefono: r.telefono,
+    fecha: r.fecha,
+    horaInicio: String(r.hora_inicio || "00:00").slice(0, 5),
+    duracionMin: r.duracion_min,
+    pista: r.pista,
+    estado: r.estado,
+    pagoEstado: r.pago_estado,
+    tipoReserva: r.tipo_reserva,
+    numJugadores: r.jugadores,
+    pagosJugadores: r.pagos_jugadores,
+    precio: r.precio,
+    empleado: r.empleado,
+    serie: r.serie,
+    notas: r.notas || "",
+    origen: r.origen || "trabajador",
+    tipoCobro: r.tipo_cobro || "unico",
+  };
+}
 function marcarInicioSesion() {
   try {
     const ahora = String(Date.now());
@@ -186,8 +248,8 @@ function obtenerCierreMin(iso) {
     iso || ($("fechaCuadrante") ? $("fechaCuadrante").value : fechaLocalISO());
   const [y, m, d] = dateIso.split("-").map(Number);
   const day = new Date(y, m - 1, d, 12).getDay();
-  if (day >= 1 && day <= 4) return 23 * 60 + 30;
-  return 22 * 60;
+  if (day >= 1 && day <= 4) return CIERRE_SEMANA_MIN;
+  return CIERRE_FINDE_MIN;
 }
 function debounce(fn, ms) {
   let t;
@@ -215,15 +277,15 @@ function minToTimeStr(min) {
 function esCerrado(min, iso) {
   const cierre = obtenerCierreMin(iso);
   return (
-    min < 9 * 60 ||
+    min < RESERVA_INI_MIN ||
     (min >= bloqueDescansoInicio && min < bloqueDescansoFin) ||
     min >= cierre
   );
 }
 function esFranjaBloqueada(iniMin, finMin, tipoReserva = "Normal", iso) {
   const cierre = obtenerCierreMin(iso);
-  if (tipoReserva === "Torneo") return iniMin < 8 * 60 || finMin > 24 * 60;
-  if (iniMin < 9 * 60 || finMin > cierre) return true;
+  if (tipoReserva === "Torneo") return iniMin < APERT_MIN || finMin > 24 * 60;
+  if (iniMin < RESERVA_INI_MIN || finMin > cierre) return true;
   if (iniMin < bloqueDescansoFin && finMin > bloqueDescansoInicio) return true;
   return false;
 }

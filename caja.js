@@ -33,8 +33,11 @@ function dibujarCaja(caja) {
   const iso = $("cajaFecha").value || fechaLocalISO();
   $("cajaFechaTxt").innerText = fechaBonita(iso);
 }
-const FONDO_CAJA = 100;
+function getFondoCaja() {
+  return Number.isFinite(FONDO_CAJA_DEF) ? FONDO_CAJA_DEF : 100;
+}
 function calcularCierre(bil, mon, efSistema) {
+  const FONDO_CAJA = getFondoCaja();
   const efContado = redondear2(bil + mon);
   const dejarBilletes = Math.max(0, redondear2(FONDO_CAJA - mon));
   const sobreBruto = redondear2(bil - dejarBilletes);
@@ -49,6 +52,7 @@ function calcularCierre(bil, mon, efSistema) {
   };
 }
 function calcCierre() {
+  const FONDO_CAJA = getFondoCaja();
   const v = (id) => parseFloat($(id).value) || 0,
     c = datosLocales.caja || {};
   const r = calcularCierre(
@@ -87,6 +91,7 @@ async function cerrarCajaHoy() {
   try {
     await cargarCajaHoy();
     const c = datosLocales.caja;
+    const FONDO_CAJA = getFondoCaja();
     const r = calcularCierre(bil, mon, c.totalEfectivo);
     const dE = r.dE,
       dD = redondear2(dat - c.totalTarjeta);
