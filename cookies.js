@@ -1,10 +1,7 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
-document.addEventListener("DOMContentLoaded", () => {
+(function () {
   const CLAVE = "gp-cookies-accepted";
   if (localStorage.getItem(CLAVE)) return;
-
-  // Si ya existe el banner (porque se cargó varias veces), no hacer nada
-  if (document.getElementById("gpCookieBanner")) return;
 
   const banner = document.createElement("div");
   banner.id = "gpCookieBanner";
@@ -17,4 +14,4 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem(CLAVE, "1");
     banner.remove();
   });
-});
+})();

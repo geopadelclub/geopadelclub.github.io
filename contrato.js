@@ -130,7 +130,6 @@ function ctActualizar() {
     : "Marca los días y las horas que trabajas";
 }
 async function abrirContrato(e) {
-  cargarModalContrato();
   let t = null;
   try {
     t = await cargarContrato(!1);

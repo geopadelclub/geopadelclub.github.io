@@ -830,7 +830,6 @@ function abrirModalNuevaReserva(
   hora = "17:00",
   tipo = "Normal",
 ) {
-  cargarModalReserva();
   if (!Array.isArray(pistas)) pistas = ["1 PADEL MASTER"];
   if (typeof hora !== "string") hora = "17:00";
   if (typeof tipo !== "string") tipo = "Normal";
@@ -880,7 +879,6 @@ function abrirModalNuevaReserva(
 }
 
 function abrirModalEditarReserva(res) {
-  cargarModalReserva();
   reservaEnEdicion = { ...res };
   const nJug = parseInt(res.numJugadores, 10) || 4;
   reservaEnEdicion.numJugadoresOrig = nJug;
@@ -1735,7 +1733,6 @@ ${camposHtml}
 }
 
 async function verHistorialReserva() {
-  cargarModalHistorial();
   const id = $("modalReservaId").value;
   if (!id) return;
   $("histTitulo").innerText = "Historial de la reserva";

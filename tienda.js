@@ -142,7 +142,6 @@ function ponerPreview(src) {
   }
 }
 function abrirModalArticulo(id) {
-  cargarModalArticulo();
   const a = id ? articulos.find((x) => String(x.id) === String(id)) : null;
   articuloEdit = a || null;
   fotoNueva = null;

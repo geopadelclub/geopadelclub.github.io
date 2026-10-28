@@ -346,7 +346,6 @@ $("tablaProductosBody").addEventListener("click", (e) => {
   else eliminarProductoCat(b.dataset.id);
 });
 function abrirModalNuevoProducto() {
-  cargarModalProducto();
   $("modalProductoTitulo").innerText = "Nuevo artículo";
   $("modalProdId").value = "";
   $("modalProdNombre").value = "";
@@ -357,7 +356,6 @@ function abrirModalNuevoProducto() {
   setTimeout(() => $("modalProdNombre").focus(), 60);
 }
 function abrirModalEditarProducto(id) {
-  cargarModalProducto();
   const p = (datosLocales.productos || []).find(
     (x) => String(x.id) === String(id),
   );
