@@ -30,9 +30,11 @@ function crearBotonDeshacer() {
   b.hidden = true;
   b.innerHTML =
     '<i class="ri-arrow-go-back-line" aria-hidden="true"></i>Deshacer último cambio';
-  const target = box.querySelector(".pay-buttons");
+
+  const target = box.querySelector(".ticket-total");
   if (target) target.after(b);
   else box.appendChild(b);
+
   b.addEventListener("click", deshacerUltimoCambio);
 }
 async function deshacerUltimoCambio() {

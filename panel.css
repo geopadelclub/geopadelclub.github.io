@@ -2403,8 +2403,12 @@ tr.deuda-resuelta td {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin-top: 8px;
+  margin: 6px 0 14px;
   width: 100%;
+}
+
+.btn-deshacer-ticket[hidden] {
+  display: none;
 }
 
 .card-bloqueo {
