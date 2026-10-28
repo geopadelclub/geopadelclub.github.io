@@ -1216,48 +1216,73 @@ i[class*=" ri-"] {
 
 #gpCookieBanner {
   position: fixed;
-  left: 16px;
-  right: 16px;
-  bottom: calc(16px + env(safe-area-inset-bottom));
+  left: 12px;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
   background: var(--surface, #fff);
   border: 1.5px solid var(--border, #dfe7e3);
   border-radius: var(--radius-md, 14px);
-  padding: 18px;
+  padding: 12px 14px;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15);
   z-index: 9999;
   display: flex;
-  flex-direction: column;
-  gap: 14px;
+  align-items: center;
+  gap: 12px;
   font-family: system-ui, sans-serif;
-  max-width: 600px;
+  max-width: 720px;
   margin: 0 auto;
 }
+
+#gpCookieBanner .gp-cookie-text {
+  flex: 1;
+  min-width: 0;
+}
+
 #gpCookieBanner p {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text, #2a3834);
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.35;
 }
+
 #gpCookieBanner a {
   color: var(--blue, #3f6fa8);
   text-decoration: underline;
   font-weight: 700;
 }
+
 #gpCookieBanner .gp-cookie-btn {
   background: var(--primary, #4b7a86);
   color: var(--on-primary, #fff);
   border: none;
-  padding: 12px 20px;
+  padding: 10px 16px;
   border-radius: var(--radius-sm, 8px);
   font-weight: 700;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
-  align-self: flex-end;
+  white-space: nowrap;
+  flex: 0 0 auto;
   transition: opacity 0.15s;
 }
+
 #gpCookieBanner .gp-cookie-btn:hover {
   opacity: 0.9;
+}
+
+@media (max-width: 480px) {
+  #gpCookieBanner {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  #gpCookieBanner p {
+    font-size: 12px;
+    line-height: 1.3;
+  }
+  #gpCookieBanner .gp-cookie-btn {
+    padding: 9px 12px;
+    font-size: 12px;
+  }
 }
 
 .hueco-chip-precio {
@@ -1274,4 +1299,28 @@ i[class*=" ri-"] {
   padding: 2px 4px;
   border-radius: 4px;
   margin-left: 4px;
+}
+
+@media (max-width: 700px) {
+  .btn-add,
+  .subnav-btn,
+  .btn-cat-filter,
+  .btn-del-prod,
+  .btn-edit-prod,
+  .btn-imprimir,
+  .btn-playtomic-nav {
+    min-height: 44px;
+  }
+  .btn-cat-filter {
+    padding: 10px 14px;
+  }
+  .btn-del-prod,
+  .btn-edit-prod {
+    padding: 10px 14px;
+  }
+  .modal-close,
+  .theme-toggle {
+    width: 44px;
+    height: 44px;
+  }
 }

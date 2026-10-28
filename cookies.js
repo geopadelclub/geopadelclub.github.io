@@ -6,8 +6,10 @@
   const banner = document.createElement("div");
   banner.id = "gpCookieBanner";
   banner.innerHTML = `
-<p>Utilizamos cookies técnicas y de almacenamiento local para el correcto funcionamiento de la web y para recordar tus preferencias. No usamos cookies publicitarias. Puedes leer más en nuestra <a href="politica-cookies.html">Política de Cookies</a>.</p>
-<button type="button" class="gp-cookie-btn" id="gpCookieBtn">Aceptar y continuar</button>
+<div class="gp-cookie-text">
+  <p>Usamos cookies técnicas para el funcionamiento de la web. <a href="politica-cookies.html">Política de Cookies</a>.</p>
+</div>
+<button type="button" class="gp-cookie-btn" id="gpCookieBtn">Aceptar</button>
 `;
   document.body.appendChild(banner);
   document.getElementById("gpCookieBtn").addEventListener("click", function () {

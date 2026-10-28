@@ -13,7 +13,8 @@
   margin: 4px 2px 16px;
 }
 
-.cl-intro h1 {
+.cl-intro h1,
+.cl-intro h2 {
   font-size: 26px;
   font-weight: 800;
   color: var(--heading);

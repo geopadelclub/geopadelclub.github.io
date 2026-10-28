@@ -2527,3 +2527,32 @@ body {
     text-align: center;
   }
 }
+
+@media (max-width: 700px) {
+  .stats-chips {
+    flex-wrap: wrap;
+    width: 100%;
+    min-width: 0;
+  }
+  .stats-chips .chip {
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
+    padding: 10px 12px;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .mesas-bar {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: 8px;
+  }
+  .btn-mesa {
+    flex: 0 1 auto;
+    min-height: 40px;
+    padding: 9px 14px;
+    font-size: 13px;
+  }
+}

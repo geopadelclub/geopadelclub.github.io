@@ -146,8 +146,7 @@ self.addEventListener("fetch", (e) => {
   if (NO_CACHEAR(url)) return;
 
   const mismoOrigen = url.origin === self.location.origin;
-  const esLibreria = url.hostname === "cdn.jsdelivr.net";
-  if (!mismoOrigen && !esLibreria) return;
+  if (!mismoOrigen) return;
 
   if (ES_HTML(req)) {
     e.respondWith(
@@ -179,7 +178,7 @@ self.addEventListener("fetch", (e) => {
     return;
   }
 
-  if (ES_ESTATICO(req) || esLibreria) {
+  if (ES_ESTATICO(req)) {
     e.respondWith(
       (async () => {
         const cache = await caches.open(VERSION);
