@@ -46,9 +46,16 @@ git ls-files -z '*.html' \
         --use-short-doctype \
         --minify-js false \
         --minify-css false
-      
-      if head -n1 "$f" | grep -qi '^<!doctype'; then
-        { head -n1 "$f"; printf '%s\n' "$HEADER_HTML"; tail -n +2 "$f"; } > "$f.tmp" && mv "$f.tmp" "$f"
+
+      if grep -qi '<!doctype html>' "$f"; then
+        awk -v header="$HEADER_HTML" '
+          BEGIN { inserted = 0 }
+          !inserted && tolower($0) ~ /<!doctype html>/ {
+            sub(/<!doctype html>/, "&" ORS header, $0)
+            inserted = 1
+          }
+          { print }
+        ' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
       else
         { printf '%s\n' "$HEADER_HTML"; cat "$f"; } > "$f.tmp" && mv "$f.tmp" "$f"
       fi
