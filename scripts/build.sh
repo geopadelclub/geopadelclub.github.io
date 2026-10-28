@@ -14,18 +14,21 @@ for t in terser cleancss html-minifier-terser esbuild; do
   fi
 done
 
-BUNDLE_FILES="config.js utils.js i18n.js acciones.js notificaciones.js core.js auth.js datos.js reservas.js bar.js caja.js tarifas.js gestion.js copia.js fichajes.js contrato.js tienda.js facturas.js ajustes.js resumen.js cookies.js modales.js landing.js reservar.js tienda-publica.js menu.js"
+BUNDLE_FILES="config.js utils.js core.js i18n.js acciones.js notificaciones.js cookies.js modales.js datos.js bar.js reservas.js caja.js tarifas.js gestion.js copia.js fichajes.js contrato.js tienda.js facturas.js ajustes.js resumen.js auth.js landing.js reservar.js tienda-publica.js menu.js"
 
 echo "→ Agrupando JS con esbuild..."
-cat config.js utils.js i18n.js acciones.js notificaciones.js core.js auth.js datos.js reservas.js bar.js caja.js tarifas.js gestion.js copia.js fichajes.js contrato.js tienda.js facturas.js ajustes.js resumen.js cookies.js modales.js | "$BIN/esbuild" --minify > panel-bundle.js
+cat config.js utils.js core.js i18n.js acciones.js notificaciones.js cookies.js modales.js datos.js bar.js reservas.js caja.js tarifas.js gestion.js copia.js fichajes.js contrato.js tienda.js facturas.js ajustes.js resumen.js auth.js | "$BIN/esbuild" --minify > panel-bundle.js
 echo "  ✓ panel-bundle.js"
 
+# LANDING
 cat config.js menu.js utils.js i18n.js acciones.js landing.js cookies.js | "$BIN/esbuild" --minify > landing-bundle.js
 echo "  ✓ landing-bundle.js"
 
+# RESERVAR
 cat config.js utils.js i18n.js reservar.js cookies.js acciones.js | "$BIN/esbuild" --minify > reservar-bundle.js
 echo "  ✓ reservar-bundle.js"
 
+# TIENDA
 cat config.js utils.js i18n.js cookies.js acciones.js tienda-publica.js | "$BIN/esbuild" --minify > tienda-bundle.js
 echo "  ✓ tienda-bundle.js"
 
