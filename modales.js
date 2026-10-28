@@ -316,6 +316,10 @@ const HTML_MODAL_HISTORIAL = `
 
 function inyectarModal(id, htmlString) {
   if (document.getElementById(id)) return;
+  if (!document.body) {
+    console.warn("El body no está listo todavía para inyectar el modal " + id);
+    return;
+  }
   const div = document.createElement("div");
   div.innerHTML = htmlString.trim();
   const modal = div.firstChild;
