@@ -647,16 +647,6 @@ img {
 }
 
 @media (max-width: 600px) {
-  .contacto-flotante {
-    position: static;
-    margin: 24px auto 0;
-    max-width: 100%;
-    align-items: center;
-    flex-direction: row;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
   .btn-whatsapp {
     padding: 10px 16px;
     font-size: 14px;
@@ -728,7 +718,8 @@ img {
   text-decoration: none;
 }
 
-.btn-idioma {
-  font-weight: 800;
-  font-size: 12px;
+@media (max-width: 600px) {
+  .landing-footer {
+    padding-bottom: calc(40px + 110px + env(safe-area-inset-bottom));
+  }
 }

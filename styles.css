@@ -1324,3 +1324,9 @@ i[class*=" ri-"] {
     height: 44px;
   }
 }
+
+.btn-idioma {
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
