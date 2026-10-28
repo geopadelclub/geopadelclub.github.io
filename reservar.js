@@ -1021,19 +1021,19 @@ $("btnGCal").addEventListener("click", () => {
 });
 $("btnShare").addEventListener("click", async () => {
   if (!ultimaReserva) return;
-  const e = ultimaReserva,
-    t = `¡He reservado pista en Geopadel! ${fechaWeb(e.fecha)} a las ${e.hora} en ${e.pista}. ¿Te apuntas?`;
+  const r = ultimaReserva;
+  const texto = `¡He reservado pista en Geopadel! ${fechaWeb(r.fecha)} a las ${r.hora} en ${r.pista}. ¿Te apuntas?`;
   if (navigator.share) {
     try {
       await navigator.share({
         title: "Geopadel",
-        text: t,
+        text: texto,
         url: location.origin,
       });
     } catch (e) {}
   } else
     try {
-      await navigator.clipboard.writeText(t);
+      await navigator.clipboard.writeText(texto);
       toast(t("reservar.toast.copied"));
     } catch (e) {
       toast(t("reservar.toast.copy-error"), "err");
@@ -1042,10 +1042,10 @@ $("btnShare").addEventListener("click", async () => {
 async function suscribirPush() {
   if (!ultimaReserva) return;
   if (!VAPID_PUBLIC_KEY) return;
-  const ahora = new Date(),
-    [t, n, r] = ultimaReserva.fecha.split("-").map(Number),
-    [i, a] = ultimaReserva.hora.split(":").map(Number),
-    inicioPartido = new Date(t, n - 1, r, i, a);
+  const ahora = new Date();
+  const [anio, mes, dia] = ultimaReserva.fecha.split("-").map(Number);
+  const [hh, mm] = ultimaReserva.hora.split(":").map(Number);
+  const inicioPartido = new Date(anio, mes - 1, dia, hh, mm);
   if (inicioPartido.getTime() - ahora.getTime() < 2 * 60 * 60 * 1e3)
     return toast(t("reservar.toast.push-soon"), "warn");
   if (!("serviceWorker" in navigator) || !("PushManager" in window))

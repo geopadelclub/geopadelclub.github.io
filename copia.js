@@ -46,32 +46,34 @@ function aplicarPermisosCopia() {
   if (t) t.hidden = !puede;
   mostrarUltimaCopia();
 }
-async function obtenerTabla(e) {
-  const t = COPIA_TABLAS[e],
-    n = [t.orden, t.orden.slice(0, 1)];
-  let r = null;
-  for (const e of n) {
-    const t = [];
-    let n = 0,
-      i = !1;
-    while (!0) {
-      let r = supabaseClient.from(e).select("*");
-      e.forEach((e) => {
-        r = r.order(e, { ascending: !0 });
+async function obtenerTabla(nombreTabla) {
+  const def = COPIA_TABLAS[nombreTabla];
+  if (!def) throw new Error("Tabla desconocida: " + nombreTabla);
+  const intentos = [def.orden, def.orden.slice(0, 1)];
+  let ultimoError = null;
+
+  for (const columnas of intentos) {
+    const filas = [];
+    let desde = 0;
+    let fallo = false;
+    while (true) {
+      let q = supabaseClient.from(nombreTabla).select("*");
+      columnas.forEach((c) => {
+        q = q.order(c, { ascending: true });
       });
-      const { data: a, error: o } = await r.range(n, n + 999);
-      if (o) {
-        r = o;
-        i = !0;
+      const { data, error } = await q.range(desde, desde + 999);
+      if (error) {
+        ultimoError = error;
+        fallo = true;
         break;
       }
-      if (!a || !a.length) break;
-      t.push(...a);
-      n += a.length;
+      if (!data || !data.length) break;
+      filas.push(...data);
+      desde += data.length;
     }
-    if (!i) return t;
+    if (!fallo) return filas;
   }
-  throw r;
+  throw ultimoError || new Error("No se pudo leer " + nombreTabla);
 }
 function celdaCSV(e) {
   if (e === null || e === undefined) return "";

@@ -1817,10 +1817,11 @@ document.addEventListener("click", async (e) => {
       ))
     )
       return;
-    await supabaseClient
+    const { error } = await supabaseClient
       .from("lista_espera")
       .update({ estado: "avisado" })
       .eq("id", btnAvisar.dataset.esperaAvisar);
+    if (error) return toast("No se pudo marcar: " + error.message, "err");
     toast("Marcado como avisado");
     cargarListaEspera();
   }
@@ -1828,10 +1829,11 @@ document.addEventListener("click", async (e) => {
   const btnBorrar = e.target.closest("[data-espera-borrar]");
   if (btnBorrar) {
     if (!(await customConfirm("¿Eliminar de la lista de espera?"))) return;
-    await supabaseClient
+    const { error } = await supabaseClient
       .from("lista_espera")
       .delete()
       .eq("id", btnBorrar.dataset.esperaBorrar);
+    if (error) return toast("No se pudo eliminar: " + error.message, "err");
     toast("Eliminado de la lista");
     cargarListaEspera();
   }

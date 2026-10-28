@@ -7,34 +7,14 @@ async function cargarCajaHoy() {
     ta = 0;
   const r = await supabaseClient.rpc("caja_dia", { p_fecha: iso });
   if (miReq !== reqCaja) return;
-  if (!r.error && r.data && r.data.ok) {
+  if (r.error) {
+    console.error(r.error);
+    toast("No se pudo cargar la caja", "err");
+    return;
+  }
+  if (r.data && r.data.ok) {
     ef = Number(r.data.efectivo) || 0;
     ta = Number(r.data.tarjeta) || 0;
-  } else {
-    if (r.error)
-      console.warn(
-        "caja_dia no disponible, se suma en el navegador:",
-        r.error.message,
-      );
-    const [ini, fin] = rangoDiaISO(iso);
-    const { data, error } = await leerTodo(() =>
-      supabaseClient
-        .from("ventas")
-        .select("id, importe, metodo_pago")
-        .gte("fecha_hora", ini)
-        .lt("fecha_hora", fin)
-        .order("id"),
-    );
-    if (miReq !== reqCaja) return;
-    if (error) {
-      console.error(error);
-      toast("No se pudo cargar la caja", "err");
-      return;
-    }
-    data.forEach((v) => {
-      if (v.metodo_pago === "Efectivo") ef += Number(v.importe) || 0;
-      if (v.metodo_pago === "Tarjeta") ta += Number(v.importe) || 0;
-    });
   }
   ef = redondear2(ef);
   ta = redondear2(ta);

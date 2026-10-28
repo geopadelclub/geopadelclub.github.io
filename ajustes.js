@@ -2,12 +2,7 @@
 const CLI_MAX_FILAS = 30;
 const CLI_SPIN = '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>';
 let cliFiltrados = [];
-const cliNorm = (s) =>
-  String(s || "")
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim();
+const cliNorm = (s) => String(s || "").trim();
 const cliTel = (s) => String(s || "").replace(/[^\d+]/g, "");
 async function dibujarClientesAjustes() {
   const tb = $("cliBody");
@@ -25,23 +20,11 @@ async function dibujarClientesAjustes() {
     return;
   }
 
-  let query = supabaseClient
-    .from("clientes")
-    .select("id, nombre, telefono, tipo_cliente, nombre_entidad")
-    .order("nombre")
-    .order("id", { ascending: true })
-    .limit(30);
+  const { data, error } = await supabaseClient.rpc("gp_buscar_clientes", {
+    p_q: tieneLetras ? q : "",
+    p_tel: tieneNumeros ? qt : "",
+  });
 
-  const escLike = (s) => s.replace(/[%_]/g, (m) => "\\" + m);
-  if (tieneLetras && tieneNumeros) {
-    query = query.or(`nombre.ilike.%${escLike(q)}%,telefono.ilike.%${qt}%`);
-  } else if (tieneLetras) {
-    query = query.ilike("nombre", "%" + escLike(q) + "%");
-  } else {
-    query = query.ilike("telefono", "%" + qt + "%");
-  }
-
-  const { data, error } = await query;
   if (error) {
     tb.innerHTML = `<tr><td colspan="3" class="tabla-empty" style="color:var(--red)">Error al buscar: ${esc(error.message)}</td></tr>`;
     return;

@@ -155,37 +155,12 @@ $("catTPVBotones").addEventListener("click", (e) => {
   b.classList.add("active");
   dibujarCatalogo(datosLocales.productos);
 });
-const faltaFuncion = (err) =>
-  !!err &&
-  (err.code === "PGRST202" ||
-    err.code === "42883" ||
-    /could not find the function|does not exist/i.test(
-      String(err.message || ""),
-    ));
-function mutarMesa(mesa, fn, rpcNombre, rpcArgs) {
+function mutarMesa(mesa, rpcNombre, rpcArgs) {
   colaMesas = colaMesas.then(async () => {
     try {
-      if (rpcNombre) {
-        const r = await supabaseClient.rpc(rpcNombre, rpcArgs);
-        if (!r.error) {
-          cuentasMesas[mesa] = Array.isArray(r.data) ? r.data : [];
-          renderSelectorMesas();
-          return;
-        }
-        if (!faltaFuncion(r.error)) throw r.error;
-      }
-      const { data, error } = await supabaseClient
-        .from("mesas_bar")
-        .select("items")
-        .eq("mesa", mesa)
-        .maybeSingle();
-      if (error) throw error;
-      const items = fn(Array.isArray(data?.items) ? [...data.items] : []);
-      const { error: e2 } = await supabaseClient
-        .from("mesas_bar")
-        .upsert({ mesa, items }, { onConflict: "mesa" });
-      if (e2) throw e2;
-      cuentasMesas[mesa] = items;
+      const r = await supabaseClient.rpc(rpcNombre, rpcArgs);
+      if (r.error) throw r.error;
+      cuentasMesas[mesa] = Array.isArray(r.data) ? r.data : [];
       renderSelectorMesas();
     } catch (err) {
       console.error(err);
@@ -200,15 +175,10 @@ function agregarAlTicket(prod) {
   guardarHistorialMesa(mesa);
   cuentasMesas[mesa] = [...(cuentasMesas[mesa] || []), prod];
   renderSelectorMesas();
-  return mutarMesa(
-    mesa,
-    (items) => {
-      items.push(prod);
-      return items;
-    },
-    "mesa_agregar",
-    { p_mesa: mesa, p_producto_id: prod.id },
-  );
+  return mutarMesa(mesa, "mesa_agregar", {
+    p_mesa: mesa,
+    p_producto_id: prod.id,
+  });
 }
 function quitarDelTicket(index) {
   const mesa = mesaSeleccionada;
@@ -217,26 +187,12 @@ function quitarDelTicket(index) {
   guardarHistorialMesa(mesa);
   cuentasMesas[mesa] = cuentasMesas[mesa].filter((_, i) => i !== index);
   renderSelectorMesas();
-  return mutarMesa(
-    mesa,
-    (items) => {
-      let i =
-        items[index] && items[index].nombre === item.nombre
-          ? index
-          : items.findIndex(
-              (x) => x.nombre === item.nombre && x.precio === item.precio,
-            );
-      if (i >= 0) items.splice(i, 1);
-      return items;
-    },
-    "mesa_quitar",
-    {
-      p_mesa: mesa,
-      p_index: index,
-      p_nombre: item.nombre,
-      p_precio: Number(item.precio) || 0,
-    },
-  );
+  return mutarMesa(mesa, "mesa_quitar", {
+    p_mesa: mesa,
+    p_index: index,
+    p_nombre: item.nombre,
+    p_precio: Number(item.precio) || 0,
+  });
 }
 async function cobrarMesaActiva(metodoPago) {
   if (cobrando) return;
@@ -418,21 +374,52 @@ async function eliminarProductoCat(idProd) {
   toast("Artículo eliminado");
   cargarProductos();
 }
-
+function elegirMetodoPago() {
+  return new Promise((resolve) => {
+    const dlg = document.createElement("dialog");
+    dlg.className = "modal-overlay";
+    dlg.innerHTML = `
+      <div class="modal-card-double small">
+        <div class="modal-header-bar">
+          <h4><span class="gp-modal-brand">GEOPADEL</span> · Método de pago</h4>
+        </div>
+        <div class="modal-single-body">
+          <p style="font-size:15px;font-weight:600;color:var(--text)">¿Con qué método se ha cobrado el justificante?</p>
+        </div>
+        <div class="modal-footer-bar">
+          <button type="button" class="btn-add" data-m="Efectivo"><i class="ri-money-euro-circle-line" aria-hidden="true"></i>Efectivo</button>
+          <button type="button" class="btn-add blue" data-m="Tarjeta"><i class="ri-bank-card-line" aria-hidden="true"></i>Tarjeta</button>
+          <button type="button" class="btn-add gray" data-m="">Cancelar</button>
+        </div>
+      </div>`;
+    document.body.appendChild(dlg);
+    const cerrar = (v) => {
+      try {
+        dlg.close();
+      } catch (e) {}
+      dlg.remove();
+      resolve(v);
+    };
+    dlg.addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-m]");
+      if (!b) return;
+      e.preventDefault();
+      cerrar(b.dataset.m || null);
+    });
+    dlg.addEventListener("cancel", (e) => {
+      e.preventDefault();
+      cerrar(null);
+    });
+    dlg.showModal();
+  });
+}
 async function emitirJustificanteTPV() {
   const mesa = mesaSeleccionada;
   const items = cuentasMesas[mesa] || [];
   if (!items.length) return toast("La cuenta está vacía", "warn");
 
-  const metodoRaw = await customPrompt(
-    "¿Método de pago? (Efectivo o Tarjeta)",
-    "Efectivo",
-    "Emitir justificante",
-  );
-  if (metodoRaw === null) return;
-  const metodo = String(metodoRaw).trim();
-  if (metodo !== "Efectivo" && metodo !== "Tarjeta")
-    return toast("Método no válido. Escribe Efectivo o Tarjeta", "warn");
+  const metodo = await elegirMetodoPago();
+  if (!metodo) return;
 
   const grupos = new Map();
   items.forEach((it) => {
