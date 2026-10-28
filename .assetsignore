@@ -5,3 +5,5 @@ wrangler.toml
 package.json
 bump-sw.js
 node_modules
+.wrangler
+.DS_Store

@@ -1,48 +1,61 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 HEADER_CODE="© Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización."
 HEADER_JS="/* $HEADER_CODE */"
+HEADER_CSS="/* $HEADER_CODE */"
 HEADER_HTML="<!-- $HEADER_CODE -->"
 
-echo "→ Minificando JS (excluyendo sw.js, workers y assets)..."
-find . -type f -name "*.js" \
-  -not -path "./node_modules/*" \
-  -not -path "./.github/*" \
-  -not -path "./assets/*" \
-  -not -name "sw.js" \
-  -not -name "bump-sw.js" \
-  -not -name "copia-worker.js" \
-  -not -name "copia-zip.js" \
-  | while read -r f; do
-    npx terser "$f" -o "$f" -c -m --comments false --preamble "$HEADER_JS"
-    node -c "$f" || { echo "❌ Error de sintaxis en $f"; exit 1; }
-  done
+BIN="./node_modules/.bin"
+for t in terser cleancss html-minifier-terser; do
+  if [[ ! -x "$BIN/$t" ]]; then
+    echo "❌ Error: No se encuentra $BIN/$t"
+    echo "👉 Ejecuta 'npm install' para instalar las dependencias"
+    exit 1
+  fi
+done
 
-echo "→ Minificando CSS (excluyendo assets)..."
-find . -type f -name "*.css" \
-  -not -path "./node_modules/*" \
-  -not -path "./.github/*" \
-  -not -path "./assets/*" \
-  | while read -r f; do
-    npx cleancss -o "$f" "$f"
-    printf "%s\n%s" "$HEADER_JS" "$(cat "$f")" > "$f.tmp" && mv "$f.tmp" "$f"
-  done
+EXCLUDE_PATTERN='^(assets|node_modules|\.git|\.github)/|^(sw|bump-sw|copia-worker|copia-zip)\.js$|\.min\.(js|css)$'
 
-echo "→ Minificando HTML (sin tocar JS/CSS inline)..."
-find . -type f -name "*.html" \
-  -not -path "./node_modules/*" \
-  -not -path "./.github/*" \
-  | while read -r f; do
-    npx html-minifier-terser "$f" -o "$f" \
-      --collapse-whitespace \
-      --remove-comments \
-      --remove-attribute-quotes \
-      --use-short-doctype \
-      --minify-js false \
-      --minify-css false
-    printf "%s\n%s" "$HEADER_HTML" "$(cat "$f")" > "$f.tmp" && mv "$f.tmp" "$f"
-  done
+echo "→ Minificando JS..."
+git ls-files -z '*.js' \
+  | grep -zvE "$EXCLUDE_PATTERN" \
+  | while IFS= read -r -d '' f; do
+      "$BIN/terser" "$f" -o "$f" -c -m --comments false --preamble "$HEADER_JS"
+      node -c "$f" || { echo "❌ Error de sintaxis en $f"; exit 1; }
+      echo "  ✓ $f"
+    done
+
+echo "→ Minificando CSS..."
+git ls-files -z '*.css' \
+  | grep -zvE "$EXCLUDE_PATTERN" \
+  | while IFS= read -r -d '' f; do
+      "$BIN/cleancss" -o "$f" "$f"
+      { printf '%s\n' "$HEADER_CSS"; cat "$f"; } > "$f.tmp" && mv "$f.tmp" "$f"
+      echo "  ✓ $f"
+    done
+
+echo "→ Minificando HTML..."
+git ls-files -z '*.html' \
+  | grep -zvE "$EXCLUDE_PATTERN" \
+  | while IFS= read -r -d '' f; do
+      "$BIN/html-minifier-terser" "$f" -o "$f" \
+        --collapse-whitespace \
+        --remove-comments \
+        --remove-attribute-quotes \
+        --use-short-doctype \
+        --minify-js false \
+        --minify-css false
+      
+      if head -n1 "$f" | grep -qi '^<!doctype'; then
+        { head -n1 "$f"; printf '%s\n' "$HEADER_HTML"; tail -n +2 "$f"; } > "$f.tmp" && mv "$f.tmp" "$f"
+      else
+        { printf '%s\n' "$HEADER_HTML"; cat "$f"; } > "$f.tmp" && mv "$f.tmp" "$f"
+      fi
+      echo "  ✓ $f"
+    done
 
 echo "→ Regenerando versión del Service Worker..."
 node bump-sw.js
+
+echo "✅ Build completado con éxito."
