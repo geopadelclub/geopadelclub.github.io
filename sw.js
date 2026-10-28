@@ -26,7 +26,6 @@ const PANEL = [
   "print.css",
   "copia-zip.js",
   "copia-worker.js",
-  "notificaciones.js",
   "manifest.webmanifest",
   "assets/supabase.min.js",
 ];

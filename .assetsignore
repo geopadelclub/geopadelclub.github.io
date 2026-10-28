@@ -34,9 +34,4 @@ utils.js
 i18n.js
 acciones.js
 modales.js
-styles.css
-panel.css
-facturas.css
-index.css
-legal.css
-reservar.css
+notificaciones.js
