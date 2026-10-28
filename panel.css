@@ -2465,3 +2465,65 @@ body {
   max-width: 100%;
   contain: inline-size;
 }
+
+.date-picker-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 200px;
+}
+
+.date-picker-wrap .date-picker-input {
+  width: 100%;
+  min-width: 200px;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.date-picker-wrap .date-picker-input:focus {
+  -webkit-text-fill-color: var(--heading);
+  color: var(--heading);
+}
+
+.date-picker-wrap .date-picker-input:focus + .date-picker-label {
+  visibility: hidden;
+}
+
+.date-picker-wrap .date-picker-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.85;
+}
+
+.date-picker-label {
+  position: absolute;
+  left: 12px;
+  right: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 700px) {
+  .date-picker-wrap {
+    order: -1;
+    flex: 1 1 100%;
+    width: 100%;
+    min-width: 0;
+    justify-content: center;
+  }
+  .date-picker-wrap .date-picker-input {
+    min-width: 0;
+    text-align: center;
+  }
+  .date-picker-label {
+    left: 30px;
+    right: 30px;
+    text-align: center;
+  }
+}

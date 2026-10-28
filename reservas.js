@@ -98,6 +98,7 @@ async function irAPrimeraPendiente() {
   const isoActual = $("fechaCuadrante").value || fechaLocalISO();
   if (p.fecha !== isoActual) {
     $("fechaCuadrante").value = p.fecha;
+    actualizarLabelFecha();
     scrollAhoraPendiente = true;
     await cargarReservasHoy();
     cargarTotalPendientes();
@@ -112,8 +113,38 @@ async function irAPrimeraPendiente() {
   }
 }
 
+function actualizarLabelFecha() {
+  const input = $("fechaCuadrante");
+  const label = $("fechaCuadranteLabel");
+  if (!input || !label) return;
+  const iso = input.value;
+  if (!iso) {
+    label.textContent = "";
+    return;
+  }
+  const [y, m, d] = iso.split("-").map(Number);
+  const fecha = new Date(y, m - 1, d, 12);
+  const dias = [
+    "Domingo",
+    "Lunes",
+    "Martes",
+    "Miércoles",
+    "Jueves",
+    "Viernes",
+    "Sábado",
+  ];
+  const dd = String(d).padStart(2, "0");
+  const mm = String(m).padStart(2, "0");
+  const yy = String(y).slice(-2);
+  label.textContent = `${dias[fecha.getDay()]}, ${dd}/${mm}/${yy}`;
+}
+function inicializarFechaHoy() {
+  $("fechaCuadrante").value = fechaLocalISO();
+  actualizarLabelFecha();
+}
 function alCambiarFecha() {
   scrollAhoraPendiente = true;
+  actualizarLabelFecha();
   cargarReservasHoy();
 }
 function irAFechaHoy() {

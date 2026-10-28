@@ -266,13 +266,18 @@
                 title="Día anterior"
               >
                 <i class="ri-arrow-left-s-line" aria-hidden="true"></i></button
-              ><input
-                type="date"
-                id="fechaCuadrante"
-                class="date-picker-input"
-                aria-label="Fecha"
-                data-onchange="al-cambiar-fecha"
-              /><button
+              ><span class="date-picker-wrap"
+                ><input
+                  type="date"
+                  id="fechaCuadrante"
+                  class="date-picker-input"
+                  aria-label="Fecha"
+                  data-onchange="al-cambiar-fecha" /><span
+                  id="fechaCuadranteLabel"
+                  class="date-picker-label"
+                  aria-hidden="true"
+                ></span></span
+              ><button
                 type="button"
                 class="btn-playtomic-nav"
                 data-action="cambiar-fecha"
