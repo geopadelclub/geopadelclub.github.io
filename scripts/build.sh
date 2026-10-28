@@ -14,10 +14,10 @@ for t in terser cleancss html-minifier-terser esbuild; do
   fi
 done
 
-BUNDLE_FILES="core.js auth.js datos.js reservas.js bar.js caja.js tarifas.js gestion.js copia.js fichajes.js contrato.js tienda.js facturas.js ajustes.js resumen.js landing.js reservar.js tienda-publica.js config.js menu.js utils.js i18n.js acciones.js"
+BUNDLE_FILES="core.js auth.js datos.js reservas.js bar.js caja.js tarifas.js gestion.js copia.js fichajes.js contrato.js tienda.js facturas.js ajustes.js resumen.js landing.js reservar.js tienda-publica.js config.js menu.js utils.js i18n.js acciones.js modales.js"
 
 echo "→ Agrupando JS con esbuild..."
-cat core.js auth.js datos.js reservas.js bar.js caja.js tarifas.js gestion.js copia.js fichajes.js contrato.js tienda.js facturas.js ajustes.js resumen.js | "$BIN/esbuild" --minify > panel-bundle.js
+cat core.js auth.js datos.js reservas.js bar.js caja.js tarifas.js gestion.js copia.js fichajes.js contrato.js tienda.js facturas.js ajustes.js resumen.js modales.js | "$BIN/esbuild" --minify > panel-bundle.js
 echo "  ✓ panel-bundle.js"
 
 cat config.js menu.js utils.js i18n.js acciones.js landing.js cookies.js | "$BIN/esbuild" --minify > landing-bundle.js

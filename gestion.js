@@ -340,6 +340,7 @@ function dibujarLimpieza() {
   } else banner.hidden = true;
 }
 function mostrarAvisoLimpieza() {
+  cargarModalAvisoLimpieza();
   const venc = limpiezasVencidas();
   if (!venc.length) return;
   $("avisoLimpCuerpo").innerHTML =
