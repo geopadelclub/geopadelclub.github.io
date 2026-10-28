@@ -221,3 +221,10 @@ function cargarModalContrato() {
 function cargarModalHistorial() {
   inyectarModal("modalHistorial", HTML_MODAL_HISTORIAL);
 }
+
+cargarModalReserva();
+cargarModalProducto();
+cargarModalAvisoLimpieza();
+cargarModalArticulo();
+cargarModalContrato();
+cargarModalHistorial();
