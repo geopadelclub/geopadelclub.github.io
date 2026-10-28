@@ -17,16 +17,16 @@ done
 BUNDLE_FILES="core.js auth.js datos.js reservas.js bar.js caja.js tarifas.js gestion.js copia.js fichajes.js contrato.js tienda.js facturas.js ajustes.js resumen.js landing.js reservar.js tienda-publica.js config.js menu.js utils.js i18n.js acciones.js"
 
 echo "→ Agrupando JS con esbuild..."
-cat core.js auth.js datos.js reservas.js bar.js caja.js tarifas.js gestion.js copia.js fichajes.js contrato.js tienda.js facturas.js ajustes.js resumen.js | "$BIN/esbuild" --minify --outfile=panel-bundle.js
+cat core.js auth.js datos.js reservas.js bar.js caja.js tarifas.js gestion.js copia.js fichajes.js contrato.js tienda.js facturas.js ajustes.js resumen.js | "$BIN/esbuild" --minify > panel-bundle.js
 echo "  ✓ panel-bundle.js"
 
-cat config.js menu.js utils.js i18n.js acciones.js landing.js cookies.js | "$BIN/esbuild" --minify --outfile=landing-bundle.js
+cat config.js menu.js utils.js i18n.js acciones.js landing.js cookies.js | "$BIN/esbuild" --minify > landing-bundle.js
 echo "  ✓ landing-bundle.js"
 
-cat config.js utils.js i18n.js reservar.js cookies.js acciones.js | "$BIN/esbuild" --minify --outfile=reservar-bundle.js
+cat config.js utils.js i18n.js reservar.js cookies.js acciones.js | "$BIN/esbuild" --minify > reservar-bundle.js
 echo "  ✓ reservar-bundle.js"
 
-cat config.js utils.js i18n.js cookies.js acciones.js tienda-publica.js | "$BIN/esbuild" --minify --outfile=tienda-bundle.js
+cat config.js utils.js i18n.js cookies.js acciones.js tienda-publica.js | "$BIN/esbuild" --minify > tienda-bundle.js
 echo "  ✓ tienda-bundle.js"
 
 echo "→ Minificando JS (restantes)..."
