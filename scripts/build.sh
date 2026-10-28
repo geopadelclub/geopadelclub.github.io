@@ -7,17 +7,34 @@ HEADER_CSS="/* $HEADER_CODE */"
 HEADER_HTML="<!-- $HEADER_CODE -->"
 
 BIN="./node_modules/.bin"
-for t in terser cleancss html-minifier-terser; do
+for t in terser cleancss html-minifier-terser esbuild; do
   if [[ ! -x "$BIN/$t" ]]; then
     echo "❌ Error: No se encuentra $BIN/$t"
-    echo "👉 Ejecuta 'npm install' para instalar las dependencias"
     exit 1
   fi
 done
 
-EXCLUDE_PATTERN='^(assets|node_modules|\.git|\.github)/|^(sw|bump-sw|copia-worker|copia-zip)\.js$|\.min\.(js|css)$'
+BUNDLE_FILES="core.js auth.js datos.js reservas.js bar.js caja.js tarifas.js gestion.js copia.js fichajes.js contrato.js tienda.js facturas.js ajustes.js resumen.js landing.js reservar.js tienda-publica.js config.js menu.js utils.js i18n.js acciones.js"
 
-echo "→ Minificando JS..."
+echo "→ Agrupando JS con esbuild..."
+cat core.js auth.js datos.js reservas.js bar.js caja.js tarifas.js gestion.js copia.js fichajes.js contrato.js tienda.js facturas.js ajustes.js resumen.js | "$BIN/esbuild" --minify --outfile=panel-bundle.js
+echo "  ✓ panel-bundle.js"
+
+cat config.js menu.js utils.js i18n.js acciones.js landing.js cookies.js | "$BIN/esbuild" --minify --outfile=landing-bundle.js
+echo "  ✓ landing-bundle.js"
+
+cat config.js utils.js i18n.js reservar.js cookies.js acciones.js | "$BIN/esbuild" --minify --outfile=reservar-bundle.js
+echo "  ✓ reservar-bundle.js"
+
+cat config.js utils.js i18n.js cookies.js acciones.js tienda-publica.js | "$BIN/esbuild" --minify --outfile=tienda-bundle.js
+echo "  ✓ tienda-bundle.js"
+
+echo "→ Minificando JS (restantes)..."
+EXCLUDE_PATTERN='^(assets|node_modules|\.git|\.github)/|^(sw|bump-sw|copia-worker|copia-zip)\.js$|^(panel|landing|reservar|tienda)-bundle\.js$|\.min\.(js|css)$'
+for f in $BUNDLE_FILES; do
+  EXCLUDE_PATTERN="$EXCLUDE_PATTERN|^$f$"
+done
+
 git ls-files -z '*.js' \
   | grep -zvE "$EXCLUDE_PATTERN" \
   | while IFS= read -r -d '' f; do
@@ -28,7 +45,7 @@ git ls-files -z '*.js' \
 
 echo "→ Minificando CSS..."
 git ls-files -z '*.css' \
-  | grep -zvE "$EXCLUDE_PATTERN" \
+  | grep -zvE '^(assets|node_modules|\.git|\.github)/|\.min\.css$' \
   | while IFS= read -r -d '' f; do
       "$BIN/cleancss" -o "$f" "$f"
       { printf '%s\n' "$HEADER_CSS"; cat "$f"; } > "$f.tmp" && mv "$f.tmp" "$f"
@@ -37,7 +54,7 @@ git ls-files -z '*.css' \
 
 echo "→ Minificando HTML..."
 git ls-files -z '*.html' \
-  | grep -zvE "$EXCLUDE_PATTERN" \
+  | grep -zvE '^(assets|node_modules|\.git|\.github)/' \
   | while IFS= read -r -d '' f; do
       "$BIN/html-minifier-terser" "$f" -o "$f" \
         --collapse-whitespace \
