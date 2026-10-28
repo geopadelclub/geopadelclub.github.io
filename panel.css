@@ -507,17 +507,22 @@
   color: var(--card-normal-striped-color);
 }
 
-.card-normal-solid {
-  background: var(--card-normal-solid-bg);
-  color: var(--card-normal-solid-color);
-}
-
 .card-pena-striped {
+  background: var(--card-pena-bg);
+  color: var(--card-pena-color);
   border-left-color: var(--card-pena-border);
 }
 
 .card-torneo-striped {
+  background: var(--card-torneo-bg);
+  color: var(--card-torneo-color);
   border-left-color: var(--card-torneo-border);
+}
+
+.card-entreno-striped {
+  background: var(--card-entreno-bg);
+  color: var(--card-entreno-color);
+  border-left-color: var(--card-entreno-border);
 }
 
 .card-entreno-striped {
