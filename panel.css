@@ -525,10 +525,6 @@
   border-left-color: var(--card-entreno-border);
 }
 
-.card-entreno-striped {
-  border-left-color: var(--card-entreno-border);
-}
-
 .reserva-top {
   display: flex;
   justify-content: space-between;
