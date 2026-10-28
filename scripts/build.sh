@@ -7,47 +7,17 @@ HEADER_CSS="/* $HEADER_CODE */"
 HEADER_HTML="<!-- $HEADER_CODE -->"
 
 BIN="./node_modules/.bin"
-for t in terser cleancss html-minifier-terser esbuild; do
+for t in terser cleancss html-minifier-terser; do
   if [[ ! -x "$BIN/$t" ]]; then
     echo "❌ Error: No se encuentra $BIN/$t"
+    echo "👉 Ejecuta 'npm install' para instalar las dependencias"
     exit 1
   fi
 done
 
-BUNDLE_FILES="config.js utils.js core.js i18n.js acciones.js notificaciones.js cookies.js modales.js datos.js bar.js reservas.js caja.js tarifas.js gestion.js copia.js fichajes.js contrato.js tienda.js facturas.js ajustes.js resumen.js auth.js landing.js reservar.js tienda-publica.js menu.js"
+EXCLUDE_PATTERN='^(assets|node_modules|\.git|\.github)/|^(sw|bump-sw|copia-worker|copia-zip)\.js$|\.min\.(js|css)$'
 
-echo "→ Agrupando JS con esbuild..."
-cat config.js utils.js core.js i18n.js acciones.js notificaciones.js cookies.js modales.js datos.js bar.js reservas.js caja.js tarifas.js gestion.js copia.js fichajes.js contrato.js tienda.js facturas.js ajustes.js resumen.js auth.js | "$BIN/esbuild" --minify > panel-bundle.js
-echo "  ✓ panel-bundle.js"
-
-# LANDING
-cat config.js menu.js utils.js i18n.js acciones.js landing.js cookies.js | "$BIN/esbuild" --minify > landing-bundle.js
-echo "  ✓ landing-bundle.js"
-
-# RESERVAR
-cat config.js utils.js i18n.js reservar.js cookies.js acciones.js | "$BIN/esbuild" --minify > reservar-bundle.js
-echo "  ✓ reservar-bundle.js"
-
-# TIENDA
-cat config.js utils.js i18n.js cookies.js acciones.js tienda-publica.js | "$BIN/esbuild" --minify > tienda-bundle.js
-echo "  ✓ tienda-bundle.js"
-
-echo "→ Agrupando CSS..."
-cat styles.css panel.css facturas.css | "$BIN/cleancss" -o panel-styles.css
-echo "  ✓ panel-styles.css"
-
-cat styles.css index.css legal.css | "$BIN/cleancss" -o landing-styles.css
-echo "  ✓ landing-styles.css"
-
-cat styles.css reservar.css | "$BIN/cleancss" -o reservar-styles.css
-echo "  ✓ reservar-styles.css"
-
-echo "→ Minificando JS (restantes)..."
-EXCLUDE_PATTERN='^(assets|node_modules|\.git|\.github)/|^(sw|bump-sw|copia-worker|copia-zip)\.js$|^(panel|landing|reservar|tienda)-bundle\.js$|\.min\.(js|css)$'
-for f in $BUNDLE_FILES; do
-  EXCLUDE_PATTERN="$EXCLUDE_PATTERN|^$f$"
-done
-
+echo "→ Minificando JS..."
 git ls-files -z '*.js' \
   | grep -zvE "$EXCLUDE_PATTERN" \
   | while IFS= read -r -d '' f; do
@@ -56,9 +26,9 @@ git ls-files -z '*.js' \
       echo "  ✓ $f"
     done
 
-echo "→ Minificando CSS (restantes)..."
+echo "→ Minificando CSS..."
 git ls-files -z '*.css' \
-  | grep -zvE '^(assets|node_modules|\.git|\.github)/|\.min\.css$|^(panel|landing|reservar)-styles\.css$' \
+  | grep -zvE "$EXCLUDE_PATTERN" \
   | while IFS= read -r -d '' f; do
       "$BIN/cleancss" -o "$f" "$f"
       { printf '%s\n' "$HEADER_CSS"; cat "$f"; } > "$f.tmp" && mv "$f.tmp" "$f"
@@ -67,7 +37,7 @@ git ls-files -z '*.css' \
 
 echo "→ Minificando HTML..."
 git ls-files -z '*.html' \
-  | grep -zvE '^(assets|node_modules|\.git|\.github)/' \
+  | grep -zvE "$EXCLUDE_PATTERN" \
   | while IFS= read -r -d '' f; do
       "$BIN/html-minifier-terser" "$f" -o "$f" \
         --collapse-whitespace \
