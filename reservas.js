@@ -208,8 +208,7 @@ function renderizarCuadrantePlaytomic(reservas) {
           estiloTipo = "card-entreno-striped";
         if (totalPagado) estiloTipo = "card-normal-solid";
         const tieneNota = !!String(r.notas || "").trim();
-        const pendiente = false;
-        card.className = `reserva-card ${estiloTipo}${heightPx < 100 ? " compact" : ""}${tieneNota ? " has-nota" : ""}${pendiente ? " pendiente" : ""}`;
+        card.className = `reserva-card ${estiloTipo}${heightPx < 100 ? " compact" : ""}${tieneNota ? " has-nota" : ""}`;
         card.style.top = `${topPx}px`;
         card.style.height = `${heightPx}px`;
         card.draggable = r.tipoReserva !== "Torneo";
@@ -222,13 +221,11 @@ function renderizarCuadrantePlaytomic(reservas) {
           "aria-label",
           `Reserva de ${r.cliente}, pista ${pista}, de ${r.horaInicio} a ${minToTimeStr(iniMin + dur)}. ${tieneNota ? "Tiene nota." : ""}`,
         );
-        const badge = pendiente
-          ? `<div class="badge-pendiente"><i class="ri-hourglass-line" aria-hidden="true"></i>Pendiente</div>`
-          : totalPagado
-            ? `<div class="badge-pagado"><i class="ri-check-line" aria-hidden="true"></i>Pagado</div>`
-            : pagados > 0
-              ? `<div class="badge-parcial">Parcial ${pagados}/${nJug}</div>`
-              : `<div class="badge-sin-pagar">Sin pagar</div>`;
+        const badge = totalPagado
+          ? `<div class="badge-pagado"><i class="ri-check-line" aria-hidden="true"></i>Pagado</div>`
+          : pagados > 0
+            ? `<div class="badge-parcial">Parcial ${pagados}/${nJug}</div>`
+            : `<div class="badge-sin-pagar">Sin pagar</div>`;
         let dots = '<div class="pagos-dots-container">';
         for (let i = 0; i < nJug; i++) {
           const ok = esPagadoIdx(i);
@@ -1602,18 +1599,14 @@ function htmlPaginaImpresion(iso, reservas, meta) {
             alto = pos(b) - top;
           const mm = (alto / 100) * PP_ALTO_CUERPO_MM;
           const pg = estadoPagoReserva(r);
-          const pendiente = false;
-          const pagoTxt = pendiente
-            ? "Pendiente"
-            : pg.total
-              ? "✔ Pagado"
-              : pg.pagados > 0
-                ? `Pagan ${pg.pagados}/${pg.n}`
-                : "Sin pagar";
+          const pagoTxt = pg.total
+            ? "✔ Pagado"
+            : pg.pagados > 0
+              ? `Pagan ${pg.pagados}/${pg.n}`
+              : "Sin pagar";
           const claseTipo = PP_TIPO_CLASE[r.tipoReserva] || "";
           let cls = "pp-res " + claseTipo;
           if (pg.total && !claseTipo) cls += " pagado";
-          if (pendiente) cls += " pend";
           const nota = String(r.notas || "")
             .replace(/\s+/g, " ")
             .trim();

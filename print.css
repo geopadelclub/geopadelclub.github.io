@@ -238,11 +238,6 @@
   border-left-color: #3f9b92;
 }
 
-.pp-res.pend {
-  border-style: dashed;
-  border-color: #b07a10;
-}
-
 .pp-res.nota {
   box-shadow: inset 0 0 0 0.5mm #f2b84b;
 }

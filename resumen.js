@@ -57,10 +57,8 @@ function dibujarResumen() {
         const t = parseInt(e.duracionMin, 10) || 90,
           n = timeToMin(e.horaInicio),
           r = minToTimeStr(n + t),
-          i = e.estado === "Pendiente",
-          a = i
-            ? '<span class="badge-pendiente"><i class="ri-hourglass-line" aria-hidden="true"></i>Pendiente</span>'
-            : '<span class="badge-confirmada"><i class="ri-check-line" aria-hidden="true"></i>Confirmada</span>';
+          a =
+            '<span class="badge-confirmada"><i class="ri-check-line" aria-hidden="true"></i>Confirmada</span>';
         return `<li class="res-agenda-item"><div class="res-agenda-hora"><b>${esc(e.horaInicio)}</b><small>${esc(r)}</small></div><div class="res-agenda-info"><b>${esc(e.pista)}</b><span>${esc(e.cliente)}</span></div><div class="res-agenda-estado">${a}</div></li>`;
       })
       .join("");

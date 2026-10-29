@@ -746,7 +746,7 @@ $("btnEnviarEmail").addEventListener("click", async () => {
     } catch (e) {}
     msg.style.color = "var(--green)";
     msg.innerText =
-      "Confirmación enviada. Revisa tu bandeja de entrada (y la carpeta de spam).";
+      "Email guardado. Si no lo recibes en 1 minuto, revisa spam o llámanos al club.";
     btn.dataset.enviado = "1";
     btn.disabled = true;
     btn.innerHTML =
@@ -818,10 +818,7 @@ function dibujarMisReservas(e) {
             o = a
               ? `<span class="chip" style="background:var(--amber-soft);color:var(--orange-text);border-color:var(--amber)"><i class="ri-group-line" aria-hidden="true"></i>${esc(n.nombre_entidad || n.cliente)}</span>`
               : "",
-            s =
-              n.estado === "Pendiente"
-                ? `<span class="badge-pendiente"><i class="ri-hourglass-line" aria-hidden="true"></i>${t("mis-reservas.pendiente")}</span>`
-                : `<span class="badge-confirmada"><i class="ri-check-line" aria-hidden="true"></i>${t("mis-reservas.confirmada")}</span>`;
+            s = `<span class="badge-confirmada"><i class="ri-check-line" aria-hidden="true"></i>${t("mis-reservas.confirmada")}</span>`;
           let l = esc(fechaWeb(n.fecha)),
             c = "";
           if (n.repeticion) {
