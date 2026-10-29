@@ -725,7 +725,6 @@ $("btnEnviarEmail").addEventListener("click", async () => {
   const msg = $("msgEmail");
   const btn = $("btnEnviarEmail");
   const email = input.value.trim();
-
   if (!email) {
     if (msg) {
       msg.style.color = "var(--muted)";
