@@ -566,7 +566,7 @@ async function continuarTelefono() {
     try {
       emailLocal = localStorage.getItem("gp-email-" + e) || "";
     } catch (err) {}
-    flujo.email = t.email || emailLocal || "";
+    flujo.email = emailLocal || "";
     flujo.fase = t.con_codigo ? "existente" : "nuevo";
     mostrarBloques();
     setTimeout(() => $(t.con_codigo ? "clCodigoEx" : "clNombre").focus(), 60);
@@ -662,6 +662,7 @@ async function confirmarReserva() {
     flujo.nombre = res.reserva.nombre;
     flujo.codigo = codigo;
     cuenta = { ident: flujo.tel, codigo: codigo, nombre: res.reserva.nombre };
+    if (res.email) flujo.email = res.email;
     mostrarExito(res.reserva);
   } catch (err) {
     const errMsg = String((err && err.message) || "");
