@@ -8,7 +8,7 @@ let cfg = {
   anticipacion_min: 120,
 };
 const sel = { fecha: null, dur: 90, hora: null, precio: 0 },
-  flujo = { fase: "tel", tel: "", codigo: "", nombre: "" };
+  flujo = { fase: "tel", tel: "", codigo: "", nombre: "", email: "" };
 let cuenta = null,
   slotsDia = [],
   reqHuecos = 0,
@@ -562,6 +562,11 @@ async function continuarTelefono() {
     const t = await conReintento(() => llamarEdge("estado", { p_telefono: e }));
     if (!t || !t.ok) return toast(textoError(t), "warn");
     flujo.tel = e;
+    let emailLocal = "";
+    try {
+      emailLocal = localStorage.getItem("gp-email-" + e) || "";
+    } catch (err) {}
+    flujo.email = t.email || emailLocal || "";
     flujo.fase = t.con_codigo ? "existente" : "nuevo";
     mostrarBloques();
     setTimeout(() => $(t.con_codigo ? "clCodigoEx" : "clNombre").focus(), 60);
@@ -679,17 +684,117 @@ async function confirmarReserva() {
 let ultimaReserva = null;
 function mostrarExito(e) {
   ultimaReserva = e;
-  $("cardDatos").hidden = !0;
+  $("cardDatos").hidden = true;
   $("okDetalle").innerHTML =
     `<div><i class="ri-calendar-event-line" aria-hidden="true"></i>${esc(fechaWeb(e.fecha))}</div><div><i class="ri-time-line" aria-hidden="true"></i>${esc(e.hora)} – ${horaStr(minutos(e.hora) + e.duracion)} (${esc(duracionTxt(e.duracion))})</div><div><i class="ri-map-pin-line" aria-hidden="true"></i>${esc(e.pista)}</div><div><i class="ri-money-euro-circle-line" aria-hidden="true"></i>${eur(e.precio)} · ${t("reservar.pago")}</div><div><i class="ri-hourglass-line" aria-hidden="true"></i>${t("reservar.pendiente")}</div>`;
+
+  const bloque = $("bloqueEmail");
+  const msgEmail = $("msgEmail");
+  const btnMail = $("btnEnviarEmail");
+  if (bloque) {
+    bloque.style.display = "block";
+    if (msgEmail) {
+      msgEmail.innerText = "";
+      msgEmail.style.color = "";
+    }
+    if (btnMail) {
+      btnMail.disabled = false;
+      btnMail.innerHTML =
+        '<i class="ri-mail-send-line" aria-hidden="true"></i>Enviar confirmación por correo';
+    }
+    let emailLocal = "";
+    try {
+      emailLocal = flujo?.tel
+        ? localStorage.getItem("gp-email-" + flujo.tel) || ""
+        : "";
+    } catch (e) {}
+    const emailGuardado = (flujo && flujo.email) || emailLocal || "";
+    const inputEmail = $("clEmail");
+    if (inputEmail) inputEmail.value = emailGuardado;
+  }
+
   const n = $("cardOk");
-  n.hidden = !1;
+  n.hidden = false;
   n.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  setTimeout(() => $("btnICS").focus(), 100);
   sel.hora = null;
   cacheHuecos.t = 0;
   cargarHuecos();
 }
+$("btnEnviarEmail").addEventListener("click", async () => {
+  const input = $("clEmail");
+  const msg = $("msgEmail");
+  const btn = $("btnEnviarEmail");
+  const email = input.value.trim();
+
+  if (!email) {
+    if (msg) {
+      msg.style.color = "var(--muted)";
+      msg.innerText = "";
+    }
+    toast("No has indicado correo. No se enviará confirmación.", "warn");
+    return;
+  }
+
+  const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  if (!ok) {
+    if (msg) {
+      msg.style.color = "var(--red)";
+      msg.innerText = "Correo no válido.";
+    }
+    return;
+  }
+
+  if (!ultimaReserva) return;
+
+  setBusy(btn, true, '<i class="ri-loader-4-line ri-spin"></i>Enviando...');
+  try {
+    const { data, error } = await supabaseClient.functions.invoke(
+      "enviar-confirmacion",
+      {
+        body: {
+          email,
+          nombre: ultimaReserva.cliente || flujo.nombre || "Cliente",
+          fecha: ultimaReserva.fecha,
+          hora: ultimaReserva.hora,
+          pista: ultimaReserva.pista,
+          precio: ultimaReserva.precio,
+        },
+      },
+    );
+    if (error) throw error;
+    if (flujo.tel && flujo.codigo) {
+      const { data: rpcRes, error: rpcErr } = await supabaseClient.rpc(
+        "gp_guardar_email_cliente",
+        { p_ident: flujo.tel, p_codigo: flujo.codigo, p_email: email },
+      );
+      if (rpcErr) console.warn("No se pudo guardar el email en BD:", rpcErr);
+      else if (!rpcRes || !rpcRes.ok)
+        console.warn("RPC guardar_email respondió:", rpcRes);
+      else flujo.email = email;
+    }
+    try {
+      localStorage.setItem("gp-email-" + flujo.tel, email);
+    } catch (e) {}
+
+    if (msg) {
+      msg.style.color = "var(--green)";
+      msg.innerText = "Correo enviado. Revisa también la carpeta de spam.";
+    }
+    toast("Confirmación enviada por correo. Revisa también spam.");
+    btn.disabled = true;
+    btn.innerHTML =
+      '<i class="ri-check-line" aria-hidden="true"></i>Correo enviado';
+    input.disabled = true;
+  } catch (err) {
+    console.error(err);
+    if (msg) {
+      msg.style.color = "var(--red)";
+      msg.innerText = "No se pudo enviar el correo. Inténtalo más tarde.";
+    }
+  } finally {
+    if (btn.dataset.enviado !== "1") setBusy(btn, false);
+  }
+});
 $("btnTel").addEventListener("click", continuarTelefono);
 $("btnEntrar").addEventListener("click", entrarExistente);
 $("btnConfirmar").addEventListener("click", confirmarReserva);
@@ -700,72 +805,6 @@ $("cardDatos").addEventListener("keydown", (e) => {
     (e) => e.offsetParent !== null,
   );
   if (t) t.click();
-});
-function icsTexto(e) {
-  return String(e)
-    .replace(/\\/g, "\\\\")
-    .replace(/;/g, "\\;")
-    .replace(/,/g, "\\,")
-    .replace(/\r?\n/g, "\\n");
-}
-function icsFecha(e, t) {
-  const [n, r, i] = e.split("-");
-  return `${n}${r}${i}T${String(Math.floor(t / 60)).padStart(2, "0")}${String(t % 60).padStart(2, "0")}00`;
-}
-function descargarICS(e) {
-  const t = minutos(e.hora),
-    n = t + e.duracion,
-    r = new Date()
-      .toISOString()
-      .replace(/[-:]/g, "")
-      .replace(/\.\d{3}/, ""),
-    i = [
-      "BEGIN:VCALENDAR",
-      "VERSION:2.0",
-      "PRODID:-//Geopadel//Reservas//ES",
-      "CALSCALE:GREGORIAN",
-      "METHOD:PUBLISH",
-      "BEGIN:VTIMEZONE",
-      "TZID:Europe/Madrid",
-      "X-LIC-LOCATION:Europe/Madrid",
-      "BEGIN:DAYLIGHT",
-      "TZOFFSETFROM:+0100",
-      "TZOFFSETTO:+0200",
-      "TZNAME:CEST",
-      "DTSTART:19700329T020000",
-      "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU",
-      "END:DAYLIGHT",
-      "BEGIN:STANDARD",
-      "TZOFFSETFROM:+0200",
-      "TZOFFSETTO:+0100",
-      "TZNAME:CET",
-      "DTSTART:19701025T030000",
-      "RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU",
-      "END:STANDARD",
-      "END:VTIMEZONE",
-      "BEGIN:VEVENT",
-      `UID:${e.id || Date.now()}-${e.fecha}-${e.hora}@geopadel`,
-      `DTSTAMP:${r}`,
-      `DTSTART;TZID=Europe/Madrid:${icsFecha(e.fecha, t)}`,
-      `DTEND;TZID=Europe/Madrid:${icsFecha(e.fecha, n)}`,
-      `SUMMARY:${icsTexto("Pádel en Geopadel · " + e.pista)}`,
-      `LOCATION:${icsTexto("Geopadel, Polígono Tecnológico Los, C. Zamora, 130, 18151 Ogíjares, Granada")}`,
-      `DESCRIPTION:${icsTexto("Reserva pendiente de confirmación del club. Se paga en el club.")}`,
-      "BEGIN:VALARM",
-      "TRIGGER:-PT60M",
-      "ACTION:DISPLAY",
-      "DESCRIPTION:Pádel en 1 hora",
-      "END:VALARM",
-      "END:VEVENT",
-      "END:VCALENDAR",
-    ];
-  descargarBlob(
-    new Blob([i.join("\r\n")], { type: "text/calendar;charset=utf-8" }),
-    "reserva-geopadel.ics",
-  );
-}
-$("btnICS").addEventListener("click", () => {
-  if (ultimaReserva) descargarICS(ultimaReserva);
 });
 $("btnOtra").addEventListener("click", () => {
   $("cardOk").hidden = !0;
@@ -995,29 +1034,6 @@ window.addEventListener("online", () => {
 window.addEventListener("offline", estadoRed);
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden && navigator.onLine) refrescarHuecosSiToca();
-});
-function urlGoogleCalendar(e) {
-  const t = minutos(e.hora),
-    n = t + e.duracion,
-    r = (e, t) => {
-      const [n, r, i] = e.split("-");
-      return `${n}${r}${i}T${String(Math.floor(t / 60)).padStart(2, "0")}${String(t % 60).padStart(2, "0")}00`;
-    },
-    i = `${r(e.fecha, t)}/${r(e.fecha, n)}`,
-    a = encodeURIComponent(`Pádel en Geopadel · ${e.pista}`),
-    o = encodeURIComponent(`Geopadel, ${e.pista}`),
-    s = encodeURIComponent(
-      "Reserva pendiente de confirmación. Se paga en el club.",
-    );
-  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${a}&dates=${i}&location=${o}&details=${s}`;
-}
-$("btnGCal").addEventListener("click", () => {
-  if (ultimaReserva)
-    window.open(
-      urlGoogleCalendar(ultimaReserva),
-      "_blank",
-      "noopener,noreferrer",
-    );
 });
 $("btnShare").addEventListener("click", async () => {
   if (!ultimaReserva) return;

@@ -292,16 +292,41 @@
           </div>
           <h2 data-i18n="reservar.recibida">Reserva recibida</h2>
           <div id="okDetalle" class="cl-ok-det"></div>
+          <div id="bloqueEmail" style="margin-top: 16px; display: none">
+            <p style="font-weight: 700; margin-bottom: 8px">
+              ¿Quieres recibir la confirmación de tu pista por correo?
+            </p>
+            <div class="form-group">
+              <label for="clEmail">Correo electrónico (opcional)</label>
+              <input
+                type="email"
+                id="clEmail"
+                placeholder="tucorreo@ejemplo.com"
+                autocomplete="email"
+                inputmode="email"
+              />
+              <p class="cl-hint">
+                Si no lo indicas, no se enviará ningún correo.
+              </p>
+            </div>
+            <button type="button" class="btn-add blue" id="btnEnviarEmail">
+              <i class="ri-mail-send-line" aria-hidden="true"></i>Enviar
+              confirmación por correo
+            </button>
+            <p
+              id="msgEmail"
+              class="cl-hint"
+              style="margin-top: 8px"
+              aria-live="polite"
+            ></p>
+            <p class="cl-hint" style="margin-top: 4px">
+              <i class="ri-information-line" aria-hidden="true"></i>
+              Si no ves el correo, revisa la carpeta de <strong>spam</strong> o
+              promociones.
+            </p>
+          </div>
           <div class="cl-actions">
-            <button type="button" class="btn-add gray" id="btnICS">
-              <i class="ri-calendar-check-line" aria-hidden="true"></i
-              ><span data-i18n="reservar.calendario"
-                >Añadir al calendario</span
-              ></button
-            ><button type="button" class="btn-add gray" id="btnGCal">
-              <i class="ri-google-line" aria-hidden="true"></i
-              ><span>Google Calendar</span></button
-            ><button type="button" class="btn-add gray" id="btnShare">
+            <button type="button" class="btn-add gray" id="btnShare">
               <i class="ri-share-line" aria-hidden="true"></i
               ><span>Compartir</span></button
             ><button type="button" class="btn-add gray" id="btnPush">
