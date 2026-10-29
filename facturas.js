@@ -233,6 +233,33 @@ function cancelarRectificacion() {
   facActualizarCamposPorTipo();
   toast("Rectificación cancelada");
 }
+async function anularFactura(id) {
+  const f = facLista.find((x) => String(x.id) === String(id));
+  if (!f || f.estado !== "Emitida") return;
+  const motivo = await customPrompt(
+    `Motivo de anulación de la factura ${f.numero}:`,
+    "",
+    "Anular factura",
+  );
+  if (motivo === null) return;
+  const m = (motivo || "").trim();
+  if (m.length < 5)
+    return toast("Escribe un motivo de al menos 5 caracteres", "warn");
+  try {
+    const { data, error } = await supabaseClient.rpc("gp_anular_factura", {
+      p_id: id,
+      p_motivo: m,
+    });
+    if (error) throw error;
+    if (!data || !data.ok)
+      throw new Error((data && data.error) || "No se pudo anular");
+    toast(`Factura ${f.numero} anulada`);
+    await cargarFacturas();
+  } catch (e) {
+    console.error(e);
+    toast("No se pudo anular: " + (e.message || e), "err");
+  }
+}
 async function emitirDocumentoFactura() {
   const e = facRectificando ? "Factura" : $("facTipo").value,
     t = e === "Factura",
@@ -315,7 +342,7 @@ async function cargarFacturas() {
     const { data: e, error: t } = await supabaseClient
       .from("facturas")
       .select(
-        "id,tipo,numero,fecha,cliente_nombre,cliente_nif,metodo_pago,total,estado,empleado,tipo_rectificativa,factura_original_id,created_at",
+        "id,tipo,numero,fecha,cliente_nombre,cliente_nif,metodo_pago,total,estado,empleado,tipo_rectificativa,factura_original_id,created_at,anulada_por,anulada_at,motivo_anulacion",
       )
       .order("fecha", { ascending: !1 })
       .order("created_at", { ascending: !1 })
@@ -371,8 +398,16 @@ function dibujarFacturas() {
             : "",
         s = r
           ? '<span class="fac-estado ok" style="margin-left:4px">R</span>'
-          : "";
-      return `<tr><td><b>${esc(e.numero)}</b>${s}</td><td>${esc(facFecha(e.fecha))}</td><td>${esc(facTipoTxt(e.tipo))}</td><td>${i}</td><td>${esc(e.metodo_pago || "—")}</td><td><b>${eur(e.total)}</b></td><td><span class="fac-estado ${e.estado === "Anulada" ? "no" : "ok"}">${esc(e.estado)}</span></td><td><div class="fac-acciones"><button type="button" class="btn-add blue" data-fac="webusb" data-id="${esc(e.id)}">80 mm (USB)</button>${a}${o}</div></td></tr>`;
+          : "",
+        anul =
+          t && !r
+            ? `<button type="button" class="btn-add danger" data-fac="anular" data-id="${esc(e.id)}">Anular</button>`
+            : "",
+        estadoTxt =
+          e.estado === "Anulada"
+            ? `Anulada${e.anulada_por ? ` por ${esc(e.anulada_por)}` : ""}${e.motivo_anulacion ? `<small class="esc-desc">${esc(e.motivo_anulacion)}</small>` : ""}`
+            : esc(e.estado);
+      return `<tr><td><b>${esc(e.numero)}</b>${s}</td><td>${esc(facFecha(e.fecha))}</td><td>${esc(facTipoTxt(e.tipo))}</td><td>${i}</td><td>${esc(e.metodo_pago || "—")}</td><td><b>${eur(e.total)}</b></td><td><span class="fac-estado ${e.estado === "Anulada" ? "no" : "ok"}">${estadoTxt}</span></td><td><div class="fac-acciones"><button type="button" class="btn-add blue" data-fac="webusb" data-id="${esc(e.id)}">80 mm (USB)</button>${a}${o}${anul}</div></td></tr>`;
     })
     .join("");
 }
@@ -552,6 +587,7 @@ if ($("facBody"))
     if (r === "ticket" || r === "a4") await imprimirFactura(n, r);
     else if (r === "webusb") await imprimirTicketWebUSB(n);
     else if (r === "rectificar") prepararRectificativa(n);
+    else if (r === "anular") await anularFactura(n);
   });
 let usbDevice = null,
   usbEndpoint = null;
