@@ -19,7 +19,7 @@ async function cargarTarifas() {
     if (k)
       tf[k] = {
         60: num(t.precio_60min),
-        90: Number(t.precio_90min),
+        90: num(t.precio_90min),
         120: num(t.precio_120min),
       };
   });
@@ -35,6 +35,22 @@ function dibujarTarifas(t) {
     $(ids[1]).value = f[90] ?? "";
     $(ids[2]).value = f[120] ?? "";
   });
+  actualizarEntrenoAuto();
+}
+function actualizarEntrenoAuto() {
+  const inp = $("tarEntreno60");
+  if (!inp) return;
+  const v = parseFloat(inp.value);
+  if (isFinite(v) && v > 0) {
+    $("tarEntreno").value = (v * 1.5).toFixed(2);
+    $("tarEntreno120").value = (v * 2).toFixed(2);
+  } else {
+    $("tarEntreno").value = "";
+    $("tarEntreno120").value = "";
+  }
+}
+if ($("tarEntreno60")) {
+  $("tarEntreno60").addEventListener("input", actualizarEntrenoAuto);
 }
 async function guardarTarifasUI() {
   const msg = $("msgTarifas"),
@@ -46,15 +62,28 @@ async function guardarTarifasUI() {
   const filas = [],
     nuevas = {};
   for (const [k, ids] of Object.entries(TARIFAS_IDS)) {
-    const p60 = opcional(ids[0]),
-      p90 = parseFloat($(ids[1]).value),
+    let p60, p90, p120;
+    if (k === "entrenamiento") {
+      p60 = opcional(ids[0]);
+      if (p60 === null || isNaN(p60) || p60 < 0) {
+        msg.style.color = "var(--red)";
+        msg.innerText =
+          "El precio de entrenamiento por hora es obligatorio y no puede ser negativo";
+        return;
+      }
+      p90 = Math.round(p60 * 1.5 * 100) / 100;
+      p120 = Math.round(p60 * 2 * 100) / 100;
+    } else {
+      p60 = opcional(ids[0]);
+      p90 = parseFloat($(ids[1]).value);
       p120 = opcional(ids[2]);
-    const malo = (v) => v !== null && (isNaN(v) || v < 0);
-    if (isNaN(p90) || p90 < 0 || malo(p60) || malo(p120)) {
-      msg.style.color = "var(--red)";
-      msg.innerText =
-        "Revisa las tarifas: el precio de 90 min es obligatorio y ninguno puede ser negativo";
-      return;
+      const malo = (v) => v !== null && (isNaN(v) || v < 0);
+      if (isNaN(p90) || p90 < 0 || malo(p60) || malo(p120)) {
+        msg.style.color = "var(--red)";
+        msg.innerText =
+          "Revisa las tarifas: el precio de 90 min es obligatorio y ninguno puede ser negativo";
+        return;
+      }
     }
     filas.push({
       franja: TARIFAS_FRANJAS[k],
@@ -79,6 +108,7 @@ async function guardarTarifasUI() {
     return;
   }
   datosLocales.tarifas = nuevas;
+  actualizarEntrenoAuto();
   msg.style.color = "var(--green)";
   msg.innerText = "Tarifas actualizadas";
   setTimeout(() => {

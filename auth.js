@@ -209,6 +209,7 @@ function mostrarPanelAdmin() {
   $("nombreEmpleado").innerText = usuarioSesion.nombre;
   $("rolEmpleado").innerText = usuarioSesion.rol || "Trabajador";
   inicializarFechaHoy();
+  aplicarPermisosRol();
   if (typeof aplicarPermisosCopia === "function") aplicarPermisosCopia();
   if (typeof aplicarPermisosFichajes === "function") aplicarPermisosFichajes();
   renderSelectorMesas();
@@ -224,6 +225,21 @@ function mostrarPanelAdmin() {
   cargarDatosGlobales();
   if (!esJefa()) cargarMisFichajes();
   if (typeof entrarResumen === "function") entrarResumen();
+}
+
+function aplicarPermisosRol() {
+  if (!esEntrenador()) return;
+  document.querySelectorAll(".nav-tab").forEach((btn) => {
+    const tab = btn.dataset.tab;
+    if (tab !== "reservas") btn.style.display = "none";
+  });
+  const cardEspera = $("cardListaEspera");
+  if (cardEspera) cardEspera.style.display = "none";
+  const cardBloqueos = $("cardBloqueos");
+  if (cardBloqueos) cardBloqueos.style.display = "none";
+  const btnImprimir = $("btnImprimir");
+  if (btnImprimir) btnImprimir.style.display = "none";
+  cambiarPestana("reservas");
 }
 let loginEnCurso = !1;
 $("loginForm").addEventListener("submit", async function (e) {

@@ -102,6 +102,33 @@ function obtenerPistasSeleccionadasModal() {
 
 enlazarBuscadorCliente($("modalCliente"), $("modalTelefono"));
 
+function puedeEditarReserva(r) {
+  if (!esEntrenador()) return true;
+  return (
+    r.tipoReserva === "Entrenamiento" &&
+    String(r.empleado || "") === String(usuarioSesion.user || "")
+  );
+}
+
+const DURACIONES_NORMAL = [30, 60, 90, 120, 150, 180, 210, 240, 270, 300];
+const DURACIONES_ENTRENO = [60, 120, 180, 240, 300];
+function labelDur(d) {
+  const h = Math.floor(d / 60);
+  const m = d % 60;
+  return m === 0 ? `${d} minutos (${h}.0 h)` : `${d} minutos (${h}.5 h)`;
+}
+function actualizarDuracionesSelect(tipo) {
+  const selDur = $("modalDuracion");
+  const actual = parseInt(selDur.value, 10);
+  const durs =
+    tipo === "Entrenamiento" ? DURACIONES_ENTRENO : DURACIONES_NORMAL;
+  selDur.innerHTML = durs
+    .map((d) => `<option value="${d}">${labelDur(d)}</option>`)
+    .join("");
+  if (actual && durs.includes(actual)) selDur.value = String(actual);
+  else selDur.value = String(durs[0]);
+}
+
 function renderizarCuadrantePlaytomic(reservas) {
   const tabReservas = $("tab-reservas");
   if (!tabReservas || !tabReservas.classList.contains("active")) return;
@@ -332,7 +359,13 @@ window.addEventListener(
       const r = (datosLocales.reservas || []).find(
         (x) => String(x.id) === card.dataset.id,
       );
-      if (r) abrirModalEditarReserva(r);
+      if (r) {
+        if (!puedeEditarReserva(r)) {
+          toast("Solo puedes gestionar tus propios entrenamientos", "warn");
+          return;
+        }
+        abrirModalEditarReserva(r);
+      }
       return;
     }
     const slot = e.target.closest(".slot");
@@ -353,7 +386,7 @@ window.addEventListener(
       const r = (datosLocales.reservas || []).find(
         (x) => String(x.id) === card.dataset.id,
       );
-      if (r) abrirModalEditarReserva(r);
+      if (r && puedeEditarReserva(r)) abrirModalEditarReserva(r);
     }
   });
   grid.addEventListener("contextmenu", (e) => {
@@ -477,6 +510,10 @@ window.addEventListener(
       (x) => String(x.id) === card.dataset.id,
     );
     if (!r) return;
+    if (!puedeEditarReserva(r)) {
+      toast("Solo puedes ajustar tus propios entrenamientos", "warn");
+      return;
+    }
     ev.preventDefault();
     ev.stopPropagation();
     const col = card.closest(".court-column");
@@ -594,7 +631,12 @@ window.addEventListener(
       return;
     }
 
-    const nuevoPrecio = precioParaFechaHora(r.fecha, nuevaHora, nuevaDur);
+    const nuevoPrecio = precioParaFechaHora(
+      r.fecha,
+      nuevaHora,
+      nuevaDur,
+      res?.tipoReserva,
+    );
     const upd = { hora_inicio: nuevaHora, duracion_min: nuevaDur };
     if (nuevoPrecio != null) upd.precio = nuevoPrecio;
 
@@ -659,8 +701,12 @@ async function buscarConflicto({ pistas, fechas, iniMin, dur, excluirId }) {
     }) || null
   );
 }
-function precioParaFechaHora(fecha, hora, dur) {
+function precioParaFechaHora(fecha, hora, dur, tipoReserva = "Normal") {
   const t = { ...TARIFAS_DEFECTO, ...(datosLocales.tarifas || {}) };
+  if (tipoReserva === "Entrenamiento") {
+    const horaRate = (t.entrenamiento && t.entrenamiento[60]) || 10;
+    return redondear2((dur / 60) * horaRate);
+  }
   const franja = esFinde(fecha)
     ? t.finde
     : timeToMin(hora) < bloqueDescansoInicio
@@ -678,6 +724,10 @@ async function moverReservaAccion(idRes, nuevaHora, nuevaPista) {
     (r) => String(r.id) === String(idRes),
   );
   if (!t) return;
+  if (!puedeEditarReserva(t)) {
+    toast("Solo puedes mover tus propios entrenamientos", "warn");
+    return;
+  }
   if (nuevaHora === t.horaInicio && nuevaPista === t.pista) return;
   const dur = parseInt(t.duracionMin, 10) || 90;
   const ini = timeToMin(nuevaHora);
@@ -722,7 +772,7 @@ async function moverReservaAccion(idRes, nuevaHora, nuevaPista) {
     .some((p) => p === "Efectivo" || p === "Tarjeta");
   const nuevoPrecio = tieneCobros
     ? null
-    : precioParaFechaHora(t.fecha, nuevaHora, dur);
+    : precioParaFechaHora(t.fecha, nuevaHora, dur, t.tipoReserva);
   const upd = { hora_inicio: nuevaHora, pista: nuevaPista };
   if (
     nuevoPrecio != null &&
@@ -763,15 +813,21 @@ async function moverReservaAccion(idRes, nuevaHora, nuevaPista) {
 
 function precioSugerido() {
   const t = { ...TARIFAS_DEFECTO, ...(datosLocales.tarifas || {}) };
+  const tipoReserva = $("modalTipoReserva").value;
   const iso =
     $("modalFecha").value || $("fechaCuadrante").value || fechaLocalISO();
   const hora = $("modalHora").value || "17:00";
+  if (tipoReserva === "Entrenamiento") {
+    const dur = parseInt($("modalDuracion").value, 10) || 60;
+    const horaRate = (t.entrenamiento && t.entrenamiento[60]) || 10;
+    return redondear2((dur / 60) * horaRate);
+  }
   const franja = esFinde(iso)
     ? t.finde
     : timeToMin(hora) < bloqueDescansoInicio
       ? t.semanaManana
       : t.semanaTarde;
-  const tor = $("modalTipoReserva").value === "Torneo";
+  const tor = tipoReserva === "Torneo";
   const dur = tor
     ? (parseFloat($("modalDuracionHoras").value) || 0) * 60
     : parseInt($("modalDuracion").value, 10) || 90;
@@ -788,6 +844,11 @@ function recalcularPrecioSugerido(forzar = true) {
 }
 
 function alCambiarTipo() {
+  const selTipo = $("modalTipoReserva");
+  if (esEntrenador()) {
+    selTipo.value = "Entrenamiento";
+    selTipo.disabled = true;
+  }
   const t = $("modalTipoReserva").value,
     nueva = !$("modalReservaId").value,
     tor = t === "Torneo";
@@ -795,6 +856,7 @@ function alCambiarTipo() {
   const dispDur = tor ? "none" : "block";
   $("lblDur").style.display = dispDur;
   $("modalDuracion").style.display = dispDur;
+  actualizarDuracionesSelect(t);
   $("boxRepetir").style.display = t === "Pena" && nueva ? "block" : "none";
   recalcularPrecioSugerido(nueva);
 }
@@ -918,6 +980,10 @@ function abrirModalNuevaReserva(
   tipo = "Normal",
 ) {
   cargarModalReserva();
+  if (esEntrenador()) {
+    tipo = "Entrenamiento";
+    pistas = [pistas[0] || "1 PADEL MASTER"];
+  }
   if (!Array.isArray(pistas)) pistas = ["1 PADEL MASTER"];
   if (typeof hora !== "string") hora = "17:00";
   if (typeof tipo !== "string") tipo = "Normal";
@@ -967,6 +1033,10 @@ function abrirModalNuevaReserva(
 
 function abrirModalEditarReserva(res) {
   cargarModalReserva();
+  if (!puedeEditarReserva(res)) {
+    toast("No puedes editar esta reserva", "warn");
+    return;
+  }
   reservaEnEdicion = { ...res };
   const nJug = parseInt(res.numJugadores, 10) || 4;
   reservaEnEdicion.numJugadoresOrig = nJug;
@@ -1032,6 +1102,13 @@ function abrirModalEditarReserva(res) {
     $("btnUnicoReset").style.display = "none";
   }
   alCambiarTipoPago();
+  const ocultar = esEntrenador();
+  $("btnEliminarSerie").style.display = ocultar
+    ? "none"
+    : res.serie
+      ? "inline-block"
+      : "none";
+  $("btnHistorialReserva").style.display = ocultar ? "none" : "inline-block";
 
   actualizarVistasJugadoresSplit();
   abrirOverlay("modalReserva");
@@ -1092,7 +1169,10 @@ ${pagado ? `<button type="button" ${dis} data-j="${j}" data-m="0" class="btn-pay
   const btnJ = $("btnJustificanteReserva");
   if (btnJ)
     btnJ.style.display =
-      pagados >= nJug && reservaEnEdicion && reservaEnEdicion.id
+      !esEntrenador() &&
+      pagados >= nJug &&
+      reservaEnEdicion &&
+      reservaEnEdicion.id
         ? "inline-block"
         : "none";
 }
@@ -1185,6 +1265,8 @@ async function confirmarGuardarReserva() {
   if (pistasSel.length === 0)
     return toast("Selecciona al menos una pista", "warn");
   const tipo = $("modalTipoReserva").value;
+  if (esEntrenador() && tipo !== "Entrenamiento")
+    return toast("Los entrenadores solo pueden crear entrenamientos", "err");
   const esTorneo = tipo === "Torneo";
   const horaInicio = $("modalHora").value;
   const iso = $("modalFecha").value;
@@ -1201,6 +1283,8 @@ async function confirmarGuardarReserva() {
     : parseInt($("modalDuracion").value, 10) || 90;
   if (duracionMin < 30)
     return toast("La duración mínima es de 30 minutos", "warn");
+  if (tipo === "Entrenamiento" && duracionMin % 60 !== 0)
+    return toast("Los entrenamientos deben ser múltiplos de 1 hora", "warn");
   const iniMin = timeToMin(horaInicio);
   if (esFranjaBloqueada(iniMin, iniMin + duracionMin, tipo, iso))
     return toast("Horario no permitido para este tipo de reserva", "err");
@@ -1240,6 +1324,8 @@ async function confirmarGuardarReserva() {
       tipo_cobro: tipoPagoSeleccionado,
     };
     if (idExistente) {
+      if (esEntrenador() && !puedeEditarReserva(reservaEnEdicion))
+        return toast("No puedes editar esta reserva", "err");
       if (pistasSel.length !== 1)
         return toast(
           "Al editar una reserva selecciona una única pista",

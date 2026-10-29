@@ -40,16 +40,19 @@ const TARIFAS_DEFECTO = {
   semanaManana: { 90: 20 },
   semanaTarde: { 90: 26 },
   finde: { 90: 26 },
+  entrenamiento: { 60: 10, 90: 15, 120: 20 },
 };
 const TARIFAS_IDS = {
   semanaManana: ["tarSemMan60", "tarSemMan", "tarSemMan120"],
   semanaTarde: ["tarSemTar60", "tarSemTar", "tarSemTar120"],
   finde: ["tarFinde60", "tarFinde", "tarFinde120"],
+  entrenamiento: ["tarEntreno60", "tarEntreno", "tarEntreno120"],
 };
 const TARIFAS_FRANJAS = {
   semanaManana: "Entre semana mañana",
   semanaTarde: "Entre semana tarde",
   finde: "Fin de semana",
+  entrenamiento: "Entrenamiento",
 };
 const ROLES_ADMIN = ["trabajador", "jefa"];
 const FILTRO_NO_CANCELADA = "estado.is.null,estado.neq.Cancelada";
@@ -91,6 +94,11 @@ const esPersonal = () =>
       .trim()
       .toLowerCase(),
   );
+const esEntrenador = () =>
+  !!usuarioSesion &&
+  String(usuarioSesion.rol || "")
+    .trim()
+    .toLowerCase() === "entrenador";
 
 async function cargarConfigPanel() {
   if (CFG_PANEL_CARGADA || !supabaseClient) return;
