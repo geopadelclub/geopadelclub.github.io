@@ -722,91 +722,40 @@ function mostrarExito(e) {
   cargarHuecos();
 }
 $("btnEnviarEmail").addEventListener("click", async () => {
-  const input = $("clEmail");
-  const msg = $("msgEmail");
-  const btn = $("btnEnviarEmail");
+  const input = $("clEmail"),
+    msg = $("msgEmail"),
+    btn = $("btnEnviarEmail");
   const email = input.value.trim();
-  if (!email) {
-    if (msg) {
-      msg.style.color = "var(--muted)";
-      msg.innerText = "";
-    }
-    toast("No has indicado correo. No se enviará confirmación.", "warn");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    msg.style.color = "var(--red)";
+    msg.innerText = "Correo no válido.";
     return;
   }
-
-  const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  if (!ok) {
-    if (msg) {
-      msg.style.color = "var(--red)";
-      msg.innerText = "Correo no válido.";
-    }
-    return;
-  }
-
-  if (!ultimaReserva) return;
-
-  setBusy(btn, true, '<i class="ri-loader-4-line ri-spin"></i>Enviando...');
+  if (!flujo.tel || !flujo.codigo) return;
+  setBusy(btn, true, SPIN + "Guardando...");
   try {
-    const res = await fetch(
-      SUPABASE_URL + "/functions/v1/enviar-confirmacion",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: SUPABASE_ANON_KEY,
-          Authorization: "Bearer " + SUPABASE_ANON_KEY,
-        },
-        body: JSON.stringify({
-          email,
-          nombre: ultimaReserva.cliente || flujo.nombre || "Cliente",
-          fecha: ultimaReserva.fecha,
-          hora: ultimaReserva.hora,
-          pista: ultimaReserva.pista,
-          precio: ultimaReserva.precio,
-          duracion: ultimaReserva.duracion,
-        }),
-      },
-    );
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok || !data || data.ok === false) {
-      throw new Error(
-        (data && (data.error || data.mensaje)) || "HTTP " + res.status,
-      );
-    }
-    if (flujo.tel && flujo.codigo) {
-      try {
-        const rpcRes = await rpc("gp_guardar_email_cliente", {
-          p_ident: flujo.tel,
-          p_codigo: flujo.codigo,
-          p_email: email,
-        });
-        if (rpcRes && rpcRes.ok) flujo.email = email;
-        else console.warn("RPC guardar_email respondió:", rpcRes);
-      } catch (rpcErr) {
-        console.warn("No se pudo guardar el email en BD:", rpcErr);
-      }
-    }
+    const r = await rpc("gp_guardar_email_cliente", {
+      p_ident: flujo.tel,
+      p_codigo: flujo.codigo,
+      p_email: email,
+    });
+    if (!r || !r.ok) throw new Error("no_guardado");
+    flujo.email = email;
     try {
-      if (flujo.tel) localStorage.setItem("gp-email-" + flujo.tel, email);
+      localStorage.setItem("gp-email-" + flujo.tel, email);
     } catch (e) {}
-
-    if (msg) {
-      msg.style.color = "var(--green)";
-      msg.innerText = "Correo enviado. Revisa también la carpeta de spam.";
-    }
-    toast("Confirmación enviada por correo. Revisa también spam.");
+    msg.style.color = "var(--green)";
+    msg.innerText =
+      "Guardado. Te escribiremos cuando el club confirme tu reserva.";
     btn.dataset.enviado = "1";
     btn.disabled = true;
     btn.innerHTML =
-      '<i class="ri-check-line" aria-hidden="true"></i>Correo enviado';
+      '<i class="ri-check-line" aria-hidden="true"></i>Correo guardado';
     input.disabled = true;
   } catch (err) {
     console.error(err);
-    if (msg) {
-      msg.style.color = "var(--red)";
-      msg.innerText = "No se pudo enviar el correo. Inténtalo más tarde.";
-    }
+    msg.style.color = "var(--red)";
+    msg.innerText = "No se pudo guardar el correo. Inténtalo más tarde.";
   } finally {
     if (btn.dataset.enviado !== "1") setBusy(btn, false);
   }
