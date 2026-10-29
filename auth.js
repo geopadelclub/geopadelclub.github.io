@@ -427,7 +427,7 @@ function pitar() {
 }
 function avisarNuevaReservaWeb(e) {
   const t = e && e.new;
-  if (!t || t.origen !== "web" || t.estado !== "Pendiente") return;
+  if (!t || t.origen !== "web") return;
   const n = `Nueva reserva web: ${t.cliente || ""} · ${fechaBonita(t.fecha)} ${String(t.hora_inicio || "").slice(0, 5)}`,
     r = `${t.pista || ""}${t.precio ? " · " + eur(t.precio) : ""}`;
   let i = !1;

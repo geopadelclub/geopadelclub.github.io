@@ -1,7 +1,5 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 let reqReservas = 0;
-let totalPendientes = 0;
-let primeraPendienteGlobal = null;
 let _pendingPagoUnico = null;
 async function cargarReservasHoy() {
   const iso = $("fechaCuadrante").value || fechaLocalISO();
@@ -35,62 +33,6 @@ async function cargarReservasHoy() {
   datosLocales.reservas = (resR.data || []).map(mapearReserva);
   renderizarCuadrantePlaytomic(datosLocales.reservas);
   dibujarBloqueos();
-  cargarTotalPendientes();
-}
-
-function actualizarChipPendientes() {
-  const chip = $("chipPendientes"),
-    n = $("statPendientes");
-  if (!chip || !n) return;
-  n.innerText = totalPendientes;
-  chip.classList.toggle("hay", totalPendientes > 0);
-  chip.title =
-    totalPendientes > 0
-      ? `${totalPendientes} reserva(s) pendiente(s) de confirmar (incluye días futuros). Pulsa para ir a la primera.`
-      : "Sin reservas pendientes";
-}
-
-async function cargarTotalPendientes() {
-  const hoy = fechaLocalISO();
-  const { data, error } = await supabaseClient
-    .from("reservas")
-    .select("id, fecha, hora_inicio")
-    .eq("estado", "Pendiente")
-    .gte("fecha", hoy)
-    .order("fecha", { ascending: true })
-    .order("hora_inicio", { ascending: true });
-  if (error) {
-    console.error(error);
-    return;
-  }
-  primeraPendienteGlobal = data && data.length ? data[0] : null;
-  totalPendientes = (data || []).length;
-  actualizarChipPendientes();
-}
-
-async function irAPrimeraPendiente() {
-  if (!primeraPendienteGlobal) {
-    await cargarTotalPendientes();
-  }
-  const p = primeraPendienteGlobal;
-  if (!p) return toast("No hay reservas pendientes");
-
-  const isoActual = $("fechaCuadrante").value || fechaLocalISO();
-  if (p.fecha !== isoActual) {
-    $("fechaCuadrante").value = p.fecha;
-    actualizarLabelFecha();
-    scrollAhoraPendiente = true;
-    await cargarReservasHoy();
-    cargarTotalPendientes();
-  }
-
-  const card = document.querySelector(
-    `.reserva-card[data-id="${CSS.escape(String(p.id))}"]`,
-  );
-  if (card) {
-    const wrapper = $("gridWrapper");
-    wrapper.scrollTop = Math.max(0, card.offsetTop - 80);
-  }
 }
 
 function actualizarLabelFecha() {
@@ -266,7 +208,7 @@ function renderizarCuadrantePlaytomic(reservas) {
           estiloTipo = "card-entreno-striped";
         if (totalPagado) estiloTipo = "card-normal-solid";
         const tieneNota = !!String(r.notas || "").trim();
-        const pendiente = r.estado === "Pendiente";
+        const pendiente = false;
         card.className = `reserva-card ${estiloTipo}${heightPx < 100 ? " compact" : ""}${tieneNota ? " has-nota" : ""}${pendiente ? " pendiente" : ""}`;
         card.style.top = `${topPx}px`;
         card.style.height = `${heightPx}px`;
@@ -294,10 +236,12 @@ function renderizarCuadrantePlaytomic(reservas) {
         }
         dots += "</div>";
         card.innerHTML = `
+<div class="resize-handle resize-top" data-resize="top"></div>
 <div class="reserva-top">${badge}${dots}</div>
 <div class="reserva-title">${r.origen === "web" ? '<i class="ri-global-line" aria-hidden="true" title="Reserva hecha desde la web"></i>' : ""}${r.serie ? '<i class="ri-repeat-line" aria-hidden="true"></i>' : ""}${esc(r.nombreEntidad ? r.nombreEntidad : r.cliente)}</div>
 ${tieneNota && heightPx >= 150 ? `<div class="reserva-nota-txt">${esc(r.notas)}</div>` : ""}
-<div class="reserva-time"><span>${esc(r.horaInicio)} - ${minToTimeStr(iniMin + dur)}</span>${tieneNota ? '<span class="nota-flag"><i class="ri-sticky-note-fill" aria-hidden="true"></i>Nota</span>' : ""}</div>`;
+<div class="reserva-time"><span>${esc(r.horaInicio)} - ${minToTimeStr(iniMin + dur)}</span>${tieneNota ? '<span class="nota-flag"><i class="ri-sticky-note-fill" aria-hidden="true"></i>Nota</span>' : ""}</div>
+<div class="resize-handle resize-bottom" data-resize="bottom"></div>`;
         card.title = `${r.cliente} · ${r.horaInicio}-${minToTimeStr(iniMin + dur)}${tieneNota ? "\nNota: " + r.notas : ""}`;
         colPista.appendChild(card);
       });
@@ -349,7 +293,6 @@ ${tieneNota && heightPx >= 150 ? `<div class="reserva-nota-txt">${esc(r.notas)}<
   $("statOcupacion").innerText =
     `${Math.min(100, Math.round((minOcup / minDisp) * 100)) || 0}%`;
   $("statNumReservas").innerText = totalReservasPista;
-  actualizarChipPendientes();
   if (scrollAhoraPendiente && wrapper.clientHeight > 0) {
     scrollAhoraPendiente = false;
     if (topPxAhora >= 0) wrapper.scrollTop = Math.max(0, topPxAhora - 90);
@@ -519,6 +462,173 @@ window.addEventListener(
   }
   grid.addEventListener("touchend", finTouch);
   grid.addEventListener("touchcancel", finTouch);
+})();
+
+(function iniciarResizeReservas() {
+  const wrapper = $("gridWrapper");
+  if (!wrapper) return;
+
+  let resize = null;
+
+  function onDown(ev) {
+    if (suprimirClick) return;
+    const handle = ev.target.closest(".resize-handle");
+    if (!handle) return;
+    const card = handle.closest(".reserva-card");
+    if (!card || card.classList.contains("card-bloqueo")) return;
+    const r = (datosLocales.reservas || []).find(
+      (x) => String(x.id) === card.dataset.id,
+    );
+    if (!r) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    const col = card.closest(".court-column");
+    const colTop = col.getBoundingClientRect().top;
+    const iniOriginal = timeToMin(r.horaInicio);
+    const durOriginal = parseInt(r.duracionMin, 10) || 90;
+    const clientY = ev.touches ? ev.touches[0].clientY : ev.clientY;
+    const wasDraggable = card.draggable;
+    card.draggable = false;
+    resize = {
+      card,
+      tipo: handle.dataset.resize,
+      id: r.id,
+      fecha: r.fecha,
+      pista: r.pista,
+      iniOriginal,
+      durOriginal,
+      startY: clientY,
+      wasDraggable,
+      preview: { ini: iniOriginal, dur: durOriginal },
+    };
+    card.classList.add("resizing");
+    document.body.style.cursor = "ns-resize";
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+    document.addEventListener("touchmove", onMove, { passive: false });
+    document.addEventListener("touchend", onUp);
+    document.addEventListener("touchcancel", onUp);
+  }
+
+  function onMove(ev) {
+    if (!resize) return;
+    ev.preventDefault();
+    const y = ev.touches ? ev.touches[0].clientY : ev.clientY;
+    const ppm = pxPorMin();
+    const deltaMin = Math.round((y - resize.startY) / ppm / 30) * 30;
+    const { iniOriginal, durOriginal, tipo } = resize;
+    if (tipo === "top") {
+      const ini = Math.max(
+        horaInicioGrid * 60,
+        Math.min(iniOriginal + deltaMin, iniOriginal + durOriginal - 60),
+      );
+      const dur = durOriginal + (iniOriginal - ini);
+      resize.preview = { ini, dur };
+    } else {
+      const dur = Math.max(
+        60,
+        Math.min(durOriginal + deltaMin, horaFinGrid * 60 + 30 - iniOriginal),
+      );
+      resize.preview = { ini: iniOriginal, dur };
+    }
+    resize.card.style.top = `${(resize.preview.ini - horaInicioGrid * 60) * ppm}px`;
+    resize.card.style.height = `${resize.preview.dur * ppm - 2}px`;
+  }
+
+  async function onUp() {
+    if (!resize) return;
+    const r = resize;
+    resize = null;
+    document.removeEventListener("mousemove", onMove);
+    document.removeEventListener("mouseup", onUp);
+    document.removeEventListener("touchmove", onMove);
+    document.removeEventListener("touchend", onUp);
+    document.removeEventListener("touchcancel", onUp);
+    document.body.style.cursor = "";
+    r.card.classList.remove("resizing");
+    r.card.draggable = r.wasDraggable;
+
+    if (r.preview.ini === r.iniOriginal && r.preview.dur === r.durOriginal) {
+      renderizarCuadrantePlaytomic(datosLocales.reservas);
+      return;
+    }
+
+    const nuevaHora = minToTimeStr(r.preview.ini);
+    const nuevaDur = r.preview.dur;
+    const cierre = obtenerCierreMin(r.fecha);
+    if (r.preview.ini + nuevaDur > cierre) {
+      toast("Excede el cierre del día", "err");
+      renderizarCuadrantePlaytomic(datosLocales.reservas);
+      return;
+    }
+    const solapa = (datosLocales.reservas || []).find((x) => {
+      if (String(x.id) === String(r.id)) return false;
+      if (x.pista !== r.pista || x.fecha !== r.fecha) return false;
+      if (x.estado === "Cancelada") return false;
+      const a = timeToMin(x.horaInicio);
+      const b = a + (parseInt(x.duracionMin, 10) || 90);
+      return r.preview.ini < b && r.preview.ini + nuevaDur > a;
+    });
+    if (solapa) {
+      toast(`Solapa con ${solapa.cliente} (${solapa.horaInicio})`, "err");
+      renderizarCuadrantePlaytomic(datosLocales.reservas);
+      return;
+    }
+    const bloqueo = (datosLocales.bloqueos || []).find((b) => {
+      if (b.pista !== r.pista || b.fecha !== r.fecha) return false;
+      const a = timeToMin(b.hora_inicio);
+      const bF = timeToMin(b.hora_fin);
+      return r.preview.ini < bF && r.preview.ini + nuevaDur > a;
+    });
+    if (bloqueo) {
+      toast("La pista está bloqueada en ese tramo", "err");
+      renderizarCuadrantePlaytomic(datosLocales.reservas);
+      return;
+    }
+
+    const res = (datosLocales.reservas || []).find(
+      (x) => String(x.id) === String(r.id),
+    );
+    const pagos = String(res?.pagosJugadores || "").split(",");
+    const hayCobros = pagos.some((p) => p === "Efectivo" || p === "Tarjeta");
+    if (hayCobros) {
+      toast("Quita los pagos antes de cambiar la duración", "warn");
+      renderizarCuadrantePlaytomic(datosLocales.reservas);
+      return;
+    }
+
+    const nuevoPrecio = precioParaFechaHora(r.fecha, nuevaHora, nuevaDur);
+    const upd = { hora_inicio: nuevaHora, duracion_min: nuevaDur };
+    if (nuevoPrecio != null) upd.precio = nuevoPrecio;
+
+    suprimirClick = true;
+    setTimeout(() => {
+      suprimirClick = false;
+    }, 400);
+
+    try {
+      const { error } = await supabaseClient
+        .from("reservas")
+        .update(upd)
+        .eq("id", r.id);
+      if (error) throw error;
+      if (res) {
+        res.horaInicio = nuevaHora;
+        res.duracionMin = nuevaDur;
+        if (nuevoPrecio != null) res.precio = nuevoPrecio;
+      }
+      const extra = nuevoPrecio != null ? ` · ${eur(nuevoPrecio)}` : "";
+      toast(`Ajustada: ${nuevaHora} · ${nuevaDur} min${extra}`);
+    } catch (err) {
+      console.error(err);
+      toast("No se pudo ajustar: " + (err.message || err), "err");
+    } finally {
+      renderizarCuadrantePlaytomic(datosLocales.reservas);
+    }
+  }
+
+  wrapper.addEventListener("mousedown", onDown);
+  wrapper.addEventListener("touchstart", onDown, { passive: false });
 })();
 
 function horaDesdeTop(topPx) {
@@ -836,7 +946,6 @@ function abrirModalNuevaReserva(
   $("modalRepetir").value = 12;
   $("btnEliminarSerie").style.display = "none";
   $("btnEliminarReserva").style.display = "none";
-  $("btnConfirmarPendiente").style.display = "none";
   $("btnHistorialReserva").style.display = "none";
   const btnJ = $("btnJustificanteReserva");
   if (btnJ) btnJ.style.display = "none";
@@ -882,8 +991,6 @@ function abrirModalEditarReserva(res) {
   $("modalFecha").value = res.fecha;
   $("btnEliminarSerie").style.display = res.serie ? "inline-block" : "none";
   $("btnEliminarReserva").style.display = "inline-block";
-  $("btnConfirmarPendiente").style.display =
-    res.estado === "Pendiente" ? "inline-block" : "none";
   $("btnHistorialReserva").style.display = "inline-block";
   alCambiarTipo();
   $("modalNumJugadores").value = String(nJug);
@@ -1204,6 +1311,36 @@ async function confirmarGuardarReserva() {
         .update(upd)
         .eq("id", idExistente);
       if (error) throw error;
+
+      if (reservaEnEdicion.serie) {
+        const telNuevo = telefono || null;
+        const telViejo =
+          normalizarTelefono(reservaEnEdicion.telefono || "") || null;
+        const entidadNueva = esPena ? cliente : null;
+        const entidadVieja = reservaEnEdicion.nombreEntidad || null;
+        const cambiaNombre = cliente !== reservaEnEdicion.cliente;
+        const cambiaTel = telNuevo !== telViejo;
+        const cambiaEntidad = entidadNueva !== entidadVieja;
+
+        if (cambiaNombre || cambiaTel || cambiaEntidad) {
+          const aplicar = await customConfirm(
+            "Esta reserva forma parte de una serie (peña).\n¿Aplicar el cambio de cliente y teléfono a TODA la serie?\nSi cancelas, solo se cambia en esta reserva.",
+            "Reserva recurrente",
+          );
+          if (aplicar) {
+            const { error: errSerie } = await supabaseClient
+              .from("reservas")
+              .update({
+                cliente,
+                nombre_entidad: entidadNueva,
+                telefono: telNuevo,
+              })
+              .eq("serie", reservaEnEdicion.serie);
+            if (errSerie) throw errSerie;
+          }
+        }
+      }
+
       await guardarClienteSilencioso(cliente, telefono, tipoCli);
       toast("Reserva actualizada");
       cerrarModal();
@@ -1291,35 +1428,6 @@ async function confirmarGuardarReserva() {
       return;
     }
     toast("Error al guardar la reserva: " + (err.message || err), "err");
-  } finally {
-    setBusy(btn, false);
-  }
-}
-
-async function confirmarReservaPendiente() {
-  const id = $("modalReservaId").value;
-  if (!id) return;
-  const btn = $("btnConfirmarPendiente");
-  setBusy(
-    btn,
-    true,
-    '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Confirmando...',
-  );
-  try {
-    const { error } = await supabaseClient
-      .from("reservas")
-      .update({
-        estado: "Confirmada",
-        empleado: nombreUsuario(),
-      })
-      .eq("id", id)
-      .eq("estado", "Pendiente");
-    if (error) throw error;
-    toast("Reserva confirmada");
-    cerrarModal();
-    cargarReservasHoy();
-  } catch (err) {
-    toast("No se pudo confirmar: " + (err.message || err), "err");
   } finally {
     setBusy(btn, false);
   }
@@ -1494,7 +1602,7 @@ function htmlPaginaImpresion(iso, reservas, meta) {
             alto = pos(b) - top;
           const mm = (alto / 100) * PP_ALTO_CUERPO_MM;
           const pg = estadoPagoReserva(r);
-          const pendiente = r.estado === "Pendiente";
+          const pendiente = false;
           const pagoTxt = pendiente
             ? "Pendiente"
             : pg.total

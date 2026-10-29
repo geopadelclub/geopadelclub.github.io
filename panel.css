@@ -2556,3 +2556,32 @@ body {
     font-size: 13px;
   }
 }
+
+.reserva-card .resize-handle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 7px;
+  z-index: 25;
+  cursor: ns-resize;
+  background: transparent;
+}
+.reserva-card .resize-handle.resize-top {
+  top: 0;
+  border-radius: 10px 10px 0 0;
+}
+.reserva-card .resize-handle.resize-bottom {
+  bottom: 0;
+  border-radius: 0 0 10px 10px;
+}
+.reserva-card .resize-handle:hover {
+  background: rgba(0, 0, 0, 0.18);
+}
+.reserva-card.resizing {
+  z-index: 9999;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  transition: none;
+}
+.reserva-card.resizing .resize-handle {
+  background: rgba(0, 0, 0, 0.18);
+}

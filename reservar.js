@@ -687,7 +687,7 @@ function mostrarExito(e) {
   ultimaReserva = e;
   $("cardDatos").hidden = true;
   $("okDetalle").innerHTML =
-    `<div><i class="ri-calendar-event-line" aria-hidden="true"></i>${esc(fechaWeb(e.fecha))}</div><div><i class="ri-time-line" aria-hidden="true"></i>${esc(e.hora)} – ${horaStr(minutos(e.hora) + e.duracion)} (${esc(duracionTxt(e.duracion))})</div><div><i class="ri-map-pin-line" aria-hidden="true"></i>${esc(e.pista)}</div><div><i class="ri-money-euro-circle-line" aria-hidden="true"></i>${eur(e.precio)} · ${t("reservar.pago")}</div><div><i class="ri-hourglass-line" aria-hidden="true"></i>${t("reservar.pendiente")}</div>`;
+    `<div><i class="ri-calendar-event-line" aria-hidden="true"></i>${esc(fechaWeb(e.fecha))}</div><div><i class="ri-time-line" aria-hidden="true"></i>${esc(e.hora)} – ${horaStr(minutos(e.hora) + e.duracion)} (${esc(duracionTxt(e.duracion))})</div><div><i class="ri-map-pin-line" aria-hidden="true"></i>${esc(e.pista)}</div><div><i class="ri-money-euro-circle-line" aria-hidden="true"></i>${eur(e.precio)} · ${t("reservar.pago")}</div><div><i class="ri-checkbox-circle-line" aria-hidden="true"></i>${t("mis-reservas.confirmada")}</div>`;
 
   const bloque = $("bloqueEmail");
   const msgEmail = $("msgEmail");
@@ -701,7 +701,7 @@ function mostrarExito(e) {
     if (btnMail) {
       btnMail.disabled = false;
       btnMail.innerHTML =
-        '<i class="ri-mail-send-line" aria-hidden="true"></i>Enviar confirmación por correo';
+        '<i class="ri-mail-send-line" aria-hidden="true"></i>Enviar confirmación por email';
     }
     let emailLocal = "";
     try {
@@ -746,7 +746,7 @@ $("btnEnviarEmail").addEventListener("click", async () => {
     } catch (e) {}
     msg.style.color = "var(--green)";
     msg.innerText =
-      "Guardado. Te escribiremos cuando el club confirme tu reserva.";
+      "Confirmación enviada. Revisa tu bandeja de entrada (y la carpeta de spam).";
     btn.dataset.enviado = "1";
     btn.disabled = true;
     btn.innerHTML =
@@ -825,20 +825,20 @@ function dibujarMisReservas(e) {
           let l = esc(fechaWeb(n.fecha)),
             c = "";
           if (n.repeticion) {
-            const e = [
-                ...new Set(
-                  n.fechas.map((e) =>
-                    new Date(e + "T12:00:00").toLocaleDateString(idioma(), {
-                      weekday: "long",
-                    }),
-                  ),
-                ),
-              ],
-              r = e
-                .map((e) => e.charAt(0).toUpperCase() + e.slice(1))
-                .join(_idioma === "en" ? " and " : " y ");
-            l = `<span style="display:inline-flex;align-items:center;gap:4px"><i class="ri-repeat-line" style="color:var(--primary)"></i> ${t("mis-reservas.todos")} ${r}</span>`;
-            c = `<div class="cl-res-acciones"><p class="cl-hint">${t("mis-reservas.recurrente", { n: n.fechas.length })}</p></div>`;
+            const fechas = n.fechas || [];
+            const ids = n.ids || [];
+            const hoy = fechaLocalISO();
+            let idx = -1;
+            for (let i = 0; i < fechas.length; i++) {
+              if (fechas[i] >= hoy && (idx < 0 || fechas[i] < fechas[idx]))
+                idx = i;
+            }
+            const e = `<button type="button" class="btn-add gray" data-repetir="${esc(n.id)}" data-fecha="${esc(n.fecha)}" data-hora="${esc(n.hora)}" data-dur="${esc(n.duracion)}"><i class="ri-repeat-line" aria-hidden="true"></i>${t("mis-reservas.repetir")}</button>`;
+            l = `<span style="display:inline-flex;align-items:center;gap:4px"><i class="ri-repeat-line" style="color:var(--primary)"></i> ${t("mis-reservas.todos")} ${fechas.length} semanas</span>`;
+            c =
+              idx >= 0
+                ? `<div class="cl-res-acciones"><button type="button" class="btn-add danger" data-cancelar="${esc(ids[idx])}"><i class="ri-delete-bin-line" aria-hidden="true"></i>${t("mis-reservas.cancelar")} (${esc(fechaWeb(fechas[idx]))})</button>${e}</div><p class="cl-hint">${t("mis-reservas.recurrente", { n: fechas.length })}</p>`
+                : `<div class="cl-res-acciones">${e}</div><p class="cl-hint">${t("mis-reservas.recurrente", { n: fechas.length })}</p>`;
           } else {
             const e = `<button type="button" class="btn-add gray" data-repetir="${esc(n.id)}" data-fecha="${esc(n.fecha)}" data-hora="${esc(n.hora)}" data-dur="${esc(n.duracion)}"><i class="ri-repeat-line" aria-hidden="true"></i>${t("mis-reservas.repetir")}</button>`;
             c = n.motivo

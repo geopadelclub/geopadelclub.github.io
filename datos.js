@@ -41,7 +41,6 @@ async function cargarDatosGlobales() {
   if (typeof renderizarCuadrantePlaytomic === "function")
     renderizarCuadrantePlaytomic(datosLocales.reservas);
   if (typeof dibujarBloqueos === "function") dibujarBloqueos();
-  if (typeof cargarTotalPendientes === "function") cargarTotalPendientes();
   datosLocales.caja = {
     totalEfectivo: redondear2(data.caja?.efectivo || 0),
     totalTarjeta: redondear2(data.caja?.tarjeta || 0),

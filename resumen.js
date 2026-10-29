@@ -37,7 +37,6 @@ function dibujarResumen() {
     },
     i = datosLocales.reservas || [],
     a = resumenReservasProximas(),
-    o = i.filter((e) => e.estado === "Pendiente").length,
     s = (typeof deudas !== "undefined" ? deudas : []).filter(
       (e) => e.estado !== "Resuelta",
     ),
@@ -46,8 +45,6 @@ function dibujarResumen() {
     d = c.reduce((e, t) => e + t.items.length, 0),
     u = fechaBonita(fechaLocalISO(), !0);
   let p = "";
-  if (o > 0)
-    p += `<div class="res-alerta res-alerta-warn"><i class="ri-error-warning-line" aria-hidden="true"></i><div><b>${o} ${o === 1 ? "reserva pendiente" : "reservas pendientes"} de confirmar</b><p>Revisa el cuadrante para confirmarlas.</p></div><button type="button" class="btn-add" data-ir="reservas">Ir a Reservas</button></div>`;
   if (d > 0)
     p += `<div class="res-alerta res-alerta-warn"><i class="ri-brush-line" aria-hidden="true"></i><div><b>${d} ${d === 1 ? "limpieza pendiente" : "limpiezas pendientes"}</b><p>Hay pistas sin limpiar en las últimas 2 semanas.</p></div><button type="button" class="btn-add" data-ir="limpieza">Ir a Limpieza</button></div>`;
   if (l > 0)
@@ -72,7 +69,7 @@ function dibujarResumen() {
     f = h
       ? '<button type="button" class="res-accion" data-ir="fichajes"><i class="ri-time-line" aria-hidden="true"></i><span>Fichar</span></button>'
       : "";
-  e.innerHTML = `<div class="res-bienvenida"><div><h2>${resumenSaludo()}, ${esc(n)}</h2><p>${esc(u)} · Aquí tienes el resumen del día.</p></div></div><div class="res-kpis"><div class="res-kpi res-kpi-blue"><span><i class="ri-calendar-check-line" aria-hidden="true"></i>Reservas hoy</span><h3>${i.length}</h3><small>${o} ${o === 1 ? "pendiente" : "pendientes"} de confirmar</small></div><div class="res-kpi res-kpi-green"><span><i class="ri-money-euro-circle-line" aria-hidden="true"></i>Ingresos hoy</span><h3>${eur(r.totalGeneral)}</h3><small>${eur(r.totalEfectivo)} efectivo · ${eur(r.totalTarjeta)} tarjeta</small></div><div class="res-kpi res-kpi-red"><span><i class="ri-wallet-3-line" aria-hidden="true"></i>Deudas pendientes</span><h3>${eur(l)}</h3><small>${s.length} ${s.length === 1 ? "cliente" : "clientes"}</small></div><div class="res-kpi res-kpi-amber"><span><i class="ri-brush-line" aria-hidden="true"></i>Limpiezas</span><h3>${c.length}</h3><small>${d === 0 ? "Todo al día" : `${d} ${d === 1 ? "tarea pendiente" : "tareas pendientes"}`}</small></div></div>${p ? `<div class="res-alertas">${p}</div>` : ""}<div class="res-acciones"><h3><i class="ri-flashlight-line" aria-hidden="true"></i>Acciones rápidas</h3><div class="res-acciones-grid"><button type="button" class="res-accion" data-ir="nueva-reserva"><i class="ri-add-line" aria-hidden="true"></i><span>Nueva reserva</span></button><button type="button" class="res-accion" data-ir="tienda"><i class="ri-goblet-line" aria-hidden="true"></i><span>Abrir bar</span></button><button type="button" class="res-accion" data-ir="caja"><i class="ri-lock-line" aria-hidden="true"></i><span>Cerrar caja</span></button>${f}</div></div><div class="res-agenda"><h3><i class="ri-list-ordered" aria-hidden="true"></i>Próximas reservas</h3><ul class="res-agenda-lista">${m}</ul></div>`;
+  e.innerHTML = `<div class="res-bienvenida"><div><h2>${resumenSaludo()}, ${esc(n)}</h2><p>${esc(u)} · Aquí tienes el resumen del día.</p></div></div><div class="res-kpis"><div class="res-kpi res-kpi-green"><span><i class="ri-money-euro-circle-line" aria-hidden="true"></i>Ingresos hoy</span><h3>${eur(r.totalGeneral)}</h3><small>${eur(r.totalEfectivo)} efectivo · ${eur(r.totalTarjeta)} tarjeta</small></div><div class="res-kpi res-kpi-red"><span><i class="ri-wallet-3-line" aria-hidden="true"></i>Deudas pendientes</span><h3>${eur(l)}</h3><small>${s.length} ${s.length === 1 ? "cliente" : "clientes"}</small></div><div class="res-kpi res-kpi-amber"><span><i class="ri-brush-line" aria-hidden="true"></i>Limpiezas</span><h3>${c.length}</h3><small>${d === 0 ? "Todo al día" : `${d} ${d === 1 ? "tarea pendiente" : "tareas pendientes"}`}</small></div></div>${p ? `<div class="res-alertas">${p}</div>` : ""}<div class="res-acciones"><h3><i class="ri-flashlight-line" aria-hidden="true"></i>Acciones rápidas</h3><div class="res-acciones-grid"><button type="button" class="res-accion" data-ir="nueva-reserva"><i class="ri-add-line" aria-hidden="true"></i><span>Nueva reserva</span></button><button type="button" class="res-accion" data-ir="tienda"><i class="ri-goblet-line" aria-hidden="true"></i><span>Abrir bar</span></button><button type="button" class="res-accion" data-ir="caja"><i class="ri-lock-line" aria-hidden="true"></i><span>Cerrar caja</span></button>${f}</div></div><div class="res-agenda"><h3><i class="ri-list-ordered" aria-hidden="true"></i>Próximas reservas</h3><ul class="res-agenda-lista">${m}</ul></div>`;
 }
 document.addEventListener("click", (e) => {
   const t = e.target.closest("[data-ir]");

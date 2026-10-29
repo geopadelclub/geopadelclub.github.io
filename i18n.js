@@ -80,7 +80,7 @@ const I18N = {
     "reservar.recibida": "Reserva recibida",
     "reservar.otra": "Reservar otra",
     "reservar.ver-mis": "Ver mis reservas",
-    "reservar.pendiente": "Pendiente de confirmación del club",
+    "reservar.pendiente": "Reserva confirmada",
     "reservar.pago": "se paga en el club",
     "reservar.buscando": "Buscando huecos...",
     "reservar.no-huecos":
@@ -102,7 +102,6 @@ const I18N = {
     "mis-reservas.borrar": "Borrar mis datos",
     "mis-reservas.vacio": "No tienes reservas próximas.",
     "mis-reservas.confirmada": "Confirmada",
-    "mis-reservas.pendiente": "Pendiente de confirmar",
     "mis-reservas.cancelar": "Cancelar reserva",
     "mis-reservas.repetir": "Reservar otra vez",
     "tienda.titulo": "Tienda",
@@ -272,7 +271,7 @@ const I18N = {
     "reservar.recibida": "Booking received",
     "reservar.otra": "Book another",
     "reservar.ver-mis": "View my bookings",
-    "reservar.pendiente": "Awaiting club confirmation",
+    "reservar.pendiente": "Booking confirmed",
     "reservar.pago": "pay at the club",
     "reservar.buscando": "Searching for slots...",
     "reservar.no-huecos":
@@ -292,7 +291,6 @@ const I18N = {
     "mis-reservas.borrar": "Delete my data",
     "mis-reservas.vacio": "You have no upcoming bookings.",
     "mis-reservas.confirmada": "Confirmed",
-    "mis-reservas.pendiente": "Awaiting confirmation",
     "mis-reservas.cancelar": "Cancel booking",
     "mis-reservas.repetir": "Book again",
     "tienda.titulo": "Shop",

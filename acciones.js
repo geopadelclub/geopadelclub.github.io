@@ -23,10 +23,6 @@
     () => typeof alCambiarFecha === "function" && alCambiarFecha(),
   );
   A(
-    "ir-primera-pendiente",
-    () => typeof irAPrimeraPendiente === "function" && irAPrimeraPendiente(),
-  );
-  A(
     "nueva-reserva",
     () =>
       typeof abrirModalNuevaReserva === "function" && abrirModalNuevaReserva(),
@@ -70,12 +66,6 @@
     () => typeof cargarDeudas === "function" && cargarDeudas(),
   );
   A("cerrar-modal", () => typeof cerrarModal === "function" && cerrarModal());
-  A(
-    "confirmar-pendiente",
-    () =>
-      typeof confirmarReservaPendiente === "function" &&
-      confirmarReservaPendiente(),
-  );
   A(
     "guardar-reserva",
     () =>

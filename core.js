@@ -284,7 +284,8 @@ function esCerrado(min, iso) {
 }
 function esFranjaBloqueada(iniMin, finMin, tipoReserva = "Normal", iso) {
   const cierre = obtenerCierreMin(iso);
-  if (tipoReserva === "Torneo") return iniMin < APERT_MIN || finMin > 24 * 60;
+  if (tipoReserva === "Torneo" || tipoReserva === "Entrenamiento")
+    return iniMin < APERT_MIN || finMin > 24 * 60;
   if (iniMin < RESERVA_INI_MIN || finMin > cierre) return true;
   if (iniMin < bloqueDescansoFin && finMin > bloqueDescansoInicio) return true;
   return false;
@@ -341,8 +342,5 @@ document.querySelectorAll("dialog.modal-overlay").forEach((dlg) => {
     ) {
       document.body.style.overflow = "";
     }
-  });
-  dlg.addEventListener("click", (e) => {
-    if (e.target === dlg) dlg.close();
   });
 });
