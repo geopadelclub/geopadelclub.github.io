@@ -747,32 +747,47 @@ $("btnEnviarEmail").addEventListener("click", async () => {
 
   setBusy(btn, true, '<i class="ri-loader-4-line ri-spin"></i>Enviando...');
   try {
-    const { data, error } = await supabaseClient.functions.invoke(
-      "enviar-confirmacion",
+    const res = await fetch(
+      SUPABASE_URL + "/functions/v1/enviar-confirmacion",
       {
-        body: {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: "Bearer " + SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({
           email,
           nombre: ultimaReserva.cliente || flujo.nombre || "Cliente",
           fecha: ultimaReserva.fecha,
           hora: ultimaReserva.hora,
           pista: ultimaReserva.pista,
           precio: ultimaReserva.precio,
-        },
+          duracion: ultimaReserva.duracion,
+        }),
       },
     );
-    if (error) throw error;
-    if (flujo.tel && flujo.codigo) {
-      const { data: rpcRes, error: rpcErr } = await supabaseClient.rpc(
-        "gp_guardar_email_cliente",
-        { p_ident: flujo.tel, p_codigo: flujo.codigo, p_email: email },
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data || data.ok === false) {
+      throw new Error(
+        (data && (data.error || data.mensaje)) || "HTTP " + res.status,
       );
-      if (rpcErr) console.warn("No se pudo guardar el email en BD:", rpcErr);
-      else if (!rpcRes || !rpcRes.ok)
-        console.warn("RPC guardar_email respondió:", rpcRes);
-      else flujo.email = email;
+    }
+    if (flujo.tel && flujo.codigo) {
+      try {
+        const rpcRes = await rpc("gp_guardar_email_cliente", {
+          p_ident: flujo.tel,
+          p_codigo: flujo.codigo,
+          p_email: email,
+        });
+        if (rpcRes && rpcRes.ok) flujo.email = email;
+        else console.warn("RPC guardar_email respondió:", rpcRes);
+      } catch (rpcErr) {
+        console.warn("No se pudo guardar el email en BD:", rpcErr);
+      }
     }
     try {
-      localStorage.setItem("gp-email-" + flujo.tel, email);
+      if (flujo.tel) localStorage.setItem("gp-email-" + flujo.tel, email);
     } catch (e) {}
 
     if (msg) {
@@ -780,6 +795,7 @@ $("btnEnviarEmail").addEventListener("click", async () => {
       msg.innerText = "Correo enviado. Revisa también la carpeta de spam.";
     }
     toast("Confirmación enviada por correo. Revisa también spam.");
+    btn.dataset.enviado = "1";
     btn.disabled = true;
     btn.innerHTML =
       '<i class="ri-check-line" aria-hidden="true"></i>Correo enviado';
