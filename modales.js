@@ -161,15 +161,15 @@ const HTML_MODAL_CONTRATO = `
       <p id="ctObligatorio" class="aviso-limpieza" hidden><i class="ri-information-line" aria-hidden="true"></i>Antes de fichar por primera vez necesitamos saber tu contrato.</p>
       <p class="limp-leyenda">Indica lo que figura en tu contrato firmado. Sirve para comparar tu jornada con tus fichajes. Si cambia, vuelve a entrar aquí y guárdalo de nuevo: se conserva el histórico. No sustituye a tu contrato.</p>
       <div class="form-inline" style="margin: 12px 0">
-        <label>Horas semanales del contrato<input type="number" inputmode="decimal" id="ctHoras" step="0.5" min="0.5" max="48" placeholder="Ej. 20" /></label>
+        <label>Horas semanales del contrato<input type="number" inputmode="decimal" id="ctHoras" step="0.5" min="0.5" max="48" placeholder="Ej. 14" /></label>
         <label>Vigente desde<input type="date" id="ctDesde" /></label>
       </div>
-      <div class="ct-cab"><span>Día</span><span>Tramo 1 (entrada – salida)</span><span>Tramo 2 (opcional)</span></div>
+      <div class="ct-cab"><span>Día</span><span>Tramo 1 / Horas</span><span>Tramo 2 (opcional)</span><span>Horario</span></div>
       <div id="ctFilas"></div>
       <p id="ctCalculo" class="limp-leyenda" style="font-weight: 700; margin-top: 10px" aria-live="polite"></p>
       <div class="form-group" style="margin-top: 10px">
         <label for="ctNotas" style="display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 6px;">Observaciones (opcional)</label>
-        <input type="text" id="ctNotas" maxlength="300" placeholder="Ej. turnos rotativos, horario distinto en verano..." />
+        <input type="text" id="ctNotas" maxlength="300" placeholder="Ej. turnos rotativos, horario variable en sábados..." />
       </div>
       <div id="msgContrato" class="msg-inline" aria-live="polite"></div>
     </div>

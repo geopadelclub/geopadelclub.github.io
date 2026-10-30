@@ -28,6 +28,8 @@ function ctUsuario() {
 }
 function ctMinutosDia(e) {
   if (!e || !e.on) return 0;
+  if (e.sinHorario && Number.isFinite(Number(e.horasDia)))
+    return Math.round(Number(e.horasDia) * 60);
   let t = 0;
   if (e.ini && e.fin && ctMin(e.fin) > ctMin(e.ini))
     t += ctMin(e.fin) - ctMin(e.ini);
@@ -74,12 +76,14 @@ function ctResumenHtml(e) {
       const r = (e.horario || {})[t];
       if (!r || !r.on)
         return `<tr><td><b>${esc(n)}</b></td><td class="tabla-empty" style="text-align:left !important">Libranza</td></tr>`;
-      const i = [
-        r.ini && r.fin ? `${r.ini}–${r.fin}` : "",
-        r.ini2 && r.fin2 ? `${r.ini2}–${r.fin2}` : "",
-      ]
-        .filter(Boolean)
-        .join(" · ");
+      const i = r.sinHorario
+        ? `${ctNum(r.horasDia)} h (sin horario fijo)`
+        : [
+            r.ini && r.fin ? `${r.ini}–${r.fin}` : "",
+            r.ini2 && r.fin2 ? `${r.ini2}–${r.fin2}` : "",
+          ]
+            .filter(Boolean)
+            .join(" · ");
       return `<tr><td><b>${esc(n)}</b></td><td>${esc(i)}</td></tr>`;
     }).join(""),
     n = new Date(e.created_at);
@@ -98,8 +102,27 @@ function ctDibujarFilas(e) {
   const t = (e && e.horario) || {};
   $("ctFilas").innerHTML = CT_DIAS.map(([n, r]) => {
     const i = t[n] || {},
-      a = e ? !!i.on : n !== "sab" && n !== "dom";
-    return `<div class="ct-fila" data-dia="${n}">\n<label class="ct-dia"><input type="checkbox" class="ct-on" ${a ? "checked" : ""}><span>${esc(r)}</span></label>\n<div class="ct-horas">\n<input type="time" class="ct-ini" value="${esc(i.ini || (a ? "09:00" : ""))}" aria-label="${esc(r)}: entrada">\n<span>–</span>\n<input type="time" class="ct-fin" value="${esc(i.fin || (a ? "14:00" : ""))}" aria-label="${esc(r)}: salida">\n</div>\n<div class="ct-horas">\n<input type="time" class="ct-ini2" value="${esc(i.ini2 || "")}" aria-label="${esc(r)}: segunda entrada (opcional)">\n<span>–</span>\n<input type="time" class="ct-fin2" value="${esc(i.fin2 || "")}" aria-label="${esc(r)}: segunda salida (opcional)">\n</div></div>`;
+      a = e ? !!i.on : n !== "sab" && n !== "dom",
+      sinHorario = !!i.sinHorario,
+      horasDia = i.horasDia != null ? i.horasDia : "";
+    return `<div class="ct-fila" data-dia="${n}">
+<label class="ct-dia"><input type="checkbox" class="ct-on" ${a ? "checked" : ""}><span>${esc(r)}</span></label>
+<div class="ct-horas">
+<input type="time" class="ct-ini" value="${esc(i.ini || (a && !sinHorario ? "09:00" : ""))}" aria-label="${esc(r)}: entrada">
+<span>–</span>
+<input type="time" class="ct-fin" value="${esc(i.fin || (a && !sinHorario ? "14:00" : ""))}" aria-label="${esc(r)}: salida">
+</div>
+<div class="ct-horas">
+<input type="time" class="ct-ini2" value="${esc(i.ini2 || "")}" aria-label="${esc(r)}: segunda entrada (opcional)">
+<span>–</span>
+<input type="time" class="ct-fin2" value="${esc(i.fin2 || "")}" aria-label="${esc(r)}: segunda salida (opcional)">
+</div>
+<div class="ct-horario-fijo">
+<label class="ct-sin-horario"><input type="checkbox" class="ct-sinHorario" ${sinHorario ? "checked" : ""}><span>Sin horario fijo</span></label>
+<input type="number" inputmode="decimal" class="ct-horasDia" step="0.5" min="0.5" max="16" value="${esc(horasDia)}" placeholder="8" aria-label="${esc(r)}: horas del día" ${sinHorario ? "" : "disabled"}>
+<span class="ct-horasDia-lbl">h/día</span>
+</div>
+</div>`;
   }).join("");
   ctActualizar();
 }
@@ -112,17 +135,22 @@ function ctLeerHorario() {
       fin: t.querySelector(".ct-fin").value,
       ini2: t.querySelector(".ct-ini2").value,
       fin2: t.querySelector(".ct-fin2").value,
+      sinHorario: t.querySelector(".ct-sinHorario").checked,
+      horasDia: parseFloat(t.querySelector(".ct-horasDia").value) || null,
     };
   });
   return e;
 }
 function ctActualizar() {
   document.querySelectorAll("#ctFilas .ct-fila").forEach((e) => {
-    const t = e.querySelector(".ct-on").checked;
-    e.classList.toggle("off", !t);
-    e.querySelectorAll('input[type="time"]').forEach((e) => {
-      e.disabled = !t;
+    const on = e.querySelector(".ct-on").checked;
+    const sinHorario = e.querySelector(".ct-sinHorario").checked;
+    e.classList.toggle("off", !on);
+    e.querySelectorAll('input[type="time"]').forEach((inp) => {
+      inp.disabled = !on || sinHorario;
     });
+    e.querySelector(".ct-horasDia").disabled = !on || !sinHorario;
+    e.querySelector(".ct-sinHorario").disabled = !on;
   });
   const e = ctMinutosSemana(ctLeerHorario());
   $("ctCalculo").innerText = e
@@ -177,6 +205,14 @@ async function guardarContrato() {
     return mostrarError("Marca al menos un día de trabajo");
   for (const [k, nombreDia] of diasActivos) {
     const slot = horario[k];
+    if (slot.sinHorario) {
+      const h = Number(slot.horasDia);
+      if (!isFinite(h) || h < 0.5 || h > 16)
+        return mostrarError(
+          `${nombreDia}: indica las horas del día (entre 0,5 y 16)`,
+        );
+      continue;
+    }
     if (!slot.ini || !slot.fin || ctMin(slot.fin) <= ctMin(slot.ini))
       return mostrarError(
         `${nombreDia}: revisa la hora de entrada y de salida`,
@@ -198,13 +234,19 @@ async function guardarContrato() {
   CT_DIAS.forEach(([k]) => {
     const slot = horario[k];
     horarioLimpio[k] = slot.on
-      ? {
-          on: !0,
-          ini: slot.ini,
-          fin: slot.fin,
-          ini2: slot.ini2 || "",
-          fin2: slot.fin2 || "",
-        }
+      ? slot.sinHorario
+        ? {
+            on: !0,
+            sinHorario: !0,
+            horasDia: Math.round(Number(slot.horasDia) * 2) / 2,
+          }
+        : {
+            on: !0,
+            ini: slot.ini,
+            fin: slot.fin,
+            ini2: slot.ini2 || "",
+            fin2: slot.fin2 || "",
+          }
       : { on: !1 };
   });
   const horasHorario = ctMinutosSemana(horarioLimpio) / 60;
