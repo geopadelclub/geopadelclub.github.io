@@ -231,11 +231,17 @@ function renderizarCuadrantePlaytomic(reservas) {
         let estiloTipo = "card-normal-striped";
         if (r.tipoReserva === "Pena") estiloTipo = "card-pena-striped";
         if (r.tipoReserva === "Torneo") estiloTipo = "card-torneo-striped";
-        if (r.tipoReserva === "Entrenamiento")
-          estiloTipo = "card-entreno-striped";
-        if (totalPagado) estiloTipo = "card-normal-solid";
+        if (r.tipoReserva === "Entrenamiento") {
+          estiloTipo =
+            esEntrenador() &&
+            String(r.empleado || "") === String(usuarioSesion.user || "")
+              ? "card-entreno-propio"
+              : "card-entreno-striped";
+        }
+        if (totalPagado && r.tipoReserva !== "Entrenamiento")
+          estiloTipo = "card-normal-solid";
         const tieneNota = !!String(r.notas || "").trim();
-        card.className = `reserva-card ${estiloTipo}${heightPx < 100 ? " compact" : ""}${tieneNota ? " has-nota" : ""}`;
+        card.className = `reserva-card ${estiloTipo}${heightPx < 100 ? " compact" : ""}${tieneNota ? " has-nota" : ""}${clasePagada}`;
         card.style.top = `${topPx}px`;
         card.style.height = `${heightPx}px`;
         card.draggable = r.tipoReserva !== "Torneo";

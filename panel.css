@@ -503,26 +503,73 @@
 }
 
 .card-normal-striped {
-  background: var(--card-normal-striped-bg);
+  background-color: var(--card-normal-striped-bg);
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 0.055) 0 6px,
+    rgba(0, 0, 0, 0) 6px 12px
+  );
   color: var(--card-normal-striped-color);
 }
 
 .card-pena-striped {
-  background: var(--card-pena-bg);
+  background-color: var(--card-pena-bg);
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 0.055) 0 6px,
+    rgba(0, 0, 0, 0) 6px 12px
+  );
   color: var(--card-pena-color);
   border-left-color: var(--card-pena-border);
 }
 
 .card-torneo-striped {
-  background: var(--card-torneo-bg);
+  background-color: var(--card-torneo-bg);
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 0.055) 0 6px,
+    rgba(0, 0, 0, 0) 6px 12px
+  );
   color: var(--card-torneo-color);
   border-left-color: var(--card-torneo-border);
 }
 
 .card-entreno-striped {
-  background: var(--card-entreno-bg);
+  background-color: var(--card-entreno-bg);
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 0.055) 0 6px,
+    rgba(0, 0, 0, 0) 6px 12px
+  );
   color: var(--card-entreno-color);
   border-left-color: var(--card-entreno-border);
+}
+
+.card-entreno-propio {
+  background-color: var(--card-entreno-propio-bg);
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 0.055) 0 6px,
+    rgba(0, 0, 0, 0) 6px 12px
+  );
+  color: var(--card-entreno-propio-color);
+  border-left-color: var(--card-entreno-propio-border);
+  box-shadow:
+    inset 0 0 0 2px var(--card-entreno-propio-border),
+    0 1px 3px rgba(42, 56, 52, 0.14);
+}
+
+.reserva-card.pagada {
+  background-image: none;
+  box-shadow:
+    inset 0 0 0 1.5px var(--ok-btn),
+    0 1px 3px rgba(42, 56, 52, 0.14);
+}
+
+.reserva-card.pagada:hover {
+  box-shadow:
+    inset 0 0 0 1.5px var(--ok-btn),
+    0 4px 12px rgba(42, 56, 52, 0.2);
 }
 
 .reserva-top {
