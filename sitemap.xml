@@ -1,9 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://geopadelclub.com/</loc><lastmod>2026-10-26</lastmod></url>
-  <url><loc>https://geopadelclub.com/reservar</loc><lastmod>2026-10-26</lastmod></url>
-  <url><loc>https://geopadelclub.com/privacidad</loc><lastmod>2026-10-26</lastmod></url>
-  <url><loc>https://geopadelclub.com/aviso-legal</loc><lastmod>2026-10-26</lastmod></url>
-  <url><loc>https://geopadelclub.com/politica-cookies</loc><lastmod>2026-10-26</lastmod></url>
-  <url><loc>https://geopadelclub.com/tienda</loc><lastmod>2026-10-26</lastmod></url>
+
+  <url>
+       <loc>https://geopadelclub.com/</loc>
+       <priority>1.0000</priority>
+       <lastmod>2026-10-30</lastmod>
+       <changefreq>daily</changefreq>
+  </url>
+  <url>
+       <loc>https://geopadelclub.com/reservar</loc>
+       <priority>0.9000</priority>
+       <lastmod>2026-10-30</lastmod>
+       <changefreq>daily</changefreq>
+  </url>
+  <url>
+       <loc>https://geopadelclub.com/tienda</loc>
+       <priority>0.8000</priority>
+       <lastmod>2026-10-30</lastmod>
+       <changefreq>weekly</changefreq>
+  </url>
+  <url>
+       <loc>https://geopadelclub.com/privacidad</loc>
+       <priority>0.3000</priority>
+       <lastmod>2026-10-30</lastmod>
+       <changefreq>yearly</changefreq>
+  </url>
+  <url>
+       <loc>https://geopadelclub.com/aviso-legal</loc>
+       <priority>0.3000</priority>
+       <lastmod>2026-10-30</lastmod>
+       <changefreq>yearly</changefreq>
+  </url>
+  <url>
+       <loc>https://geopadelclub.com/politica-cookies</loc>
+       <priority>0.3000</priority>
+       <lastmod>2026-10-30</lastmod>
+       <changefreq>yearly</changefreq>
+  </url>
 </urlset>
