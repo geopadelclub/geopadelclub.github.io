@@ -1685,7 +1685,7 @@ function estadoPagoReserva(r) {
 }
 
 const PP_PESO_CERRADO = 0.45;
-const PP_ALTO_CUERPO_MM = 162;
+const PP_ALTO_CUERPO_MM = 158;
 
 function htmlPaginaImpresion(iso, reservas, meta) {
   let mIni = RESERVA_INI_MIN;
