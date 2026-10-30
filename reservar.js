@@ -4,7 +4,7 @@ let cfg = {
   dias_max: 30,
   cancelar_horas: 24,
   max_futuras: 4,
-  duraciones: [60, 90, 120],
+  duraciones: [60, 90],
   anticipacion_min: 120,
 };
 const sel = { fecha: null, dur: 90, hora: null, precio: 0 },
