@@ -8,7 +8,7 @@ const SB_HEADERS = {
     "Entre semana tarde": "semanaTarde",
     "Fin de semana": "finde",
   };
-let _landingAntelacion = 120;
+let _landingAntelacion = 30;
 function formatearPrecio(e) {
   return Number(e).toLocaleString("es-ES", {
     style: "currency",

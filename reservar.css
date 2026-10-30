@@ -706,3 +706,51 @@
 .cl-legal-tienda {
   margin-top: 40px;
 }
+
+.cl-hint-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: var(--amber-soft);
+  border: 1.5px solid var(--amber);
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 3px rgba(42, 56, 52, 0.06);
+}
+
+.cl-hint-info {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--orange-text);
+  line-height: 1.45;
+}
+
+.cl-hint-info i {
+  margin-right: 6px;
+  font-size: 15px;
+  vertical-align: -0.15em;
+}
+
+.cl-hint-info b {
+  color: var(--orange-text);
+  font-weight: 800;
+}
+
+.cl-hint-info a {
+  color: var(--blue);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.cl-hint-info a:hover {
+  opacity: 0.85;
+}
+
+@media (max-width: 480px) {
+  .cl-hint-info {
+    font-size: 12.5px;
+  }
+}

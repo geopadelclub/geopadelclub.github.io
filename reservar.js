@@ -5,7 +5,7 @@ let cfg = {
   cancelar_horas: 24,
   max_futuras: 4,
   duraciones: [60, 90],
-  anticipacion_min: 120,
+  anticipacion_min: 30,
 };
 const sel = { fecha: null, dur: 90, hora: null, precio: 0 },
   flujo = { fase: "tel", tel: "", codigo: "", nombre: "", email: "" };
@@ -313,7 +313,7 @@ function dibujarDias() {
   $("clDias").innerHTML = n;
 }
 function durationsViableForDay() {
-  const todas = cfg.duraciones || [60, 90, 120];
+  const todas = cfg.duraciones || [60, 90];
   if (!slotsDia || !slotsDia.length) return todas;
   const viables = todas.filter((d) =>
     slotsDia.some((s) => (s.opciones || []).some((o) => o.dur === d)),
@@ -336,12 +336,13 @@ function dibujarDuraciones() {
     .join("");
   let r = $("clDurHint");
   if (!r) {
-    r = document.createElement("p");
+    r = document.createElement("div");
     r.id = "clDurHint";
-    r.className = "cl-hint";
+    r.className = "cl-hint-box";
     $("clDur").after(r);
   }
-  r.innerHTML = t("reservar.two-hours");
+  r.innerHTML = `<p class="cl-hint-info">${t("reservar.two-hours")}</p>
+<p class="cl-hint-info">${t("reservar.penas-torneos")}</p>`;
 }
 async function seleccionarDia(e, t = !1) {
   if (!t) resetFlujo();
@@ -386,7 +387,7 @@ $("clDur").addEventListener("click", (e) => {
 const antMin = () =>
   Number.isFinite(Number(cfg.anticipacion_min))
     ? Number(cfg.anticipacion_min)
-    : 120;
+    : 30;
 function horaReservable(e, t) {
   const [n, r, i] = e.split("-").map(Number),
     a = minutos(t),
