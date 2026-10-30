@@ -18,14 +18,17 @@ jobs:
       - name: Configurar rclone
         env:
           GDRIVE_TOKEN: ${{ secrets.GDRIVE_TOKEN }}
+          GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
+          GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
         run: |
           mkdir -p ~/.config/rclone
-          # Compacta el JSON a una sola línea (elimina \n y \r)
           TOKEN_ONE_LINE=$(echo "$GDRIVE_TOKEN" | tr -d '\n\r' | jq -c .)
           cat > ~/.config/rclone/rclone.conf <<EOF
           [gdrive]
           type = drive
           scope = drive
+          client_id = $GDRIVE_CLIENT_ID
+          client_secret = $GDRIVE_CLIENT_SECRET
           token = $TOKEN_ONE_LINE
           EOF
           chmod 600 ~/.config/rclone/rclone.conf
