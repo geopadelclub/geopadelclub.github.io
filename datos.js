@@ -1,12 +1,15 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 async function cargarDatosGlobales() {
-  await cargarConfigPanel();
   const fechaReservas = $("fechaCuadrante")?.value || fechaLocalISO();
   const fechaCaja = $("cajaFecha")?.value || fechaLocalISO();
-  const { data, error } = await supabaseClient.rpc("get_panel_data", {
-    p_fecha: fechaReservas,
-    p_fecha_caja: fechaCaja,
-  });
+  const [, rpcResult] = await Promise.all([
+    cargarConfigPanel(),
+    supabaseClient.rpc("get_panel_data", {
+      p_fecha: fechaReservas,
+      p_fecha_caja: fechaCaja,
+    }),
+  ]);
+  const { data, error } = rpcResult;
   if (error) {
     console.error("Error cargando datos globales:", error);
     toast("No se pudieron cargar los datos", "err");
@@ -61,6 +64,16 @@ async function cargarDatosGlobales() {
     dibujarDeudas();
   }
   _ultimaCargaDatos = Date.now();
+  if (typeof dibujarResumen === "function" && usuarioSesion) {
+    const tabResumen = $("tab-resumen");
+    if (tabResumen && tabResumen.classList.contains("active")) {
+      try {
+        dibujarResumen();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }
 }
 async function cargarClientes() {
   const { data, error } = await conReintento(() =>

@@ -166,7 +166,10 @@ async function comprobarSesion() {
     if (n) {
       usuarioSesion = n;
       if (!localStorage.getItem(CLAVE_SESION_INI)) marcarInicioSesion();
-      mostrarPanelAdmin();
+      mostrarPanelAdmin().catch((err) => {
+        console.error(err);
+        toast("Error al cargar el panel. Recarga la página.", "err");
+      });
       return;
     }
     await supabaseClient.auth.signOut();
@@ -196,7 +199,7 @@ function mostrarLogin() {
   iniciarTurnstileLogin();
   reiniciarTurnstileLogin();
 }
-function mostrarPanelAdmin() {
+async function mostrarPanelAdmin() {
   if (!supabaseClient) {
     mostrarLogin();
     $("msgLogin").className = "msg-error";
@@ -222,9 +225,9 @@ function mostrarPanelAdmin() {
     Notification.permission === "granted"
   )
     bNotif.style.display = "none";
-  cargarDatosGlobales();
   if (!esJefa()) cargarMisFichajes();
-  if (typeof entrarResumen === "function") entrarResumen();
+  await cargarDatosGlobales();
+  if (typeof entrarResumen === "function") await entrarResumen();
 }
 
 function aplicarPermisosRol() {
@@ -322,15 +325,16 @@ $("loginForm").addEventListener("submit", async function (e) {
         setTimeout(() => {
           n.disabled = !1;
           n.innerText = "Entrar al Panel";
-          try {
-            mostrarPanelAdmin();
-          } catch (e) {
-            console.error(e);
-            t.className = "msg-error";
-            t.innerText = "Error al cargar el panel. Recarga la página.";
-          } finally {
-            loginEnCurso = !1;
-          }
+          Promise.resolve()
+            .then(() => mostrarPanelAdmin())
+            .catch((err) => {
+              console.error(err);
+              t.className = "msg-error";
+              t.innerText = "Error al cargar el panel. Recarga la página.";
+            })
+            .finally(() => {
+              loginEnCurso = !1;
+            });
         }, 250);
         return;
       }

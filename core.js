@@ -103,34 +103,70 @@ const esEntrenador = () =>
 async function cargarConfigPanel() {
   if (CFG_PANEL_CARGADA || !supabaseClient) return;
   try {
+    let cache = null;
+    try {
+      cache = JSON.parse(localStorage.getItem("gp-panel-config") || "null");
+    } catch (e) {}
+    if (cache && cache.t && Date.now() - cache.t < 86400000 && cache.data) {
+      aplicarConfigPanel(cache.data);
+      CFG_PANEL_CARGADA = true;
+      if (typeof renderSelectorMesas === "function") renderSelectorMesas();
+      supabaseClient
+        .rpc("panel_config")
+        .then((r) => {
+          if (r && r.data) {
+            aplicarConfigPanel(r.data);
+            try {
+              localStorage.setItem(
+                "gp-panel-config",
+                JSON.stringify({ t: Date.now(), data: r.data }),
+              );
+            } catch (e) {}
+          }
+        })
+        .catch(() => {});
+      return;
+    }
     const { data, error } = await supabaseClient.rpc("panel_config");
     if (error || !data) return;
-    if (Array.isArray(data.pistas) && data.pistas.length)
-      listaPistas = data.pistas;
-    if (Array.isArray(data.mesas) && data.mesas.length) {
-      listaMesas = data.mesas;
-      cuentasMesas = {};
-      listaMesas.forEach((m) => (cuentasMesas[m] = []));
-    }
-    const h = data.horarios || {};
-    if (Number.isFinite(h.apertura_min)) APERT_MIN = h.apertura_min;
-    if (Number.isFinite(h.reserva_inicio_min))
-      RESERVA_INI_MIN = h.reserva_inicio_min;
-    if (Number.isFinite(h.descanso_inicio_min))
-      bloqueDescansoInicio = h.descanso_inicio_min;
-    if (Number.isFinite(h.descanso_fin_min))
-      bloqueDescansoFin = h.descanso_fin_min;
-    if (Number.isFinite(h.cierre_semana_min))
-      CIERRE_SEMANA_MIN = h.cierre_semana_min;
-    if (Number.isFinite(h.cierre_finde_min))
-      CIERRE_FINDE_MIN = h.cierre_finde_min;
-    if (Number.isFinite(data.fondo_caja)) FONDO_CAJA_DEF = data.fondo_caja;
+    aplicarConfigPanel(data);
+    try {
+      localStorage.setItem(
+        "gp-panel-config",
+        JSON.stringify({ t: Date.now(), data }),
+      );
+    } catch (e) {}
     CFG_PANEL_CARGADA = true;
     if (typeof renderSelectorMesas === "function") renderSelectorMesas();
   } catch (e) {
     console.error("config panel", e);
   }
 }
+
+function aplicarConfigPanel(data) {
+  if (!data) return;
+  if (Array.isArray(data.pistas) && data.pistas.length)
+    listaPistas = data.pistas;
+  if (Array.isArray(data.mesas) && data.mesas.length) {
+    listaMesas = data.mesas;
+    cuentasMesas = {};
+    listaMesas.forEach((m) => (cuentasMesas[m] = []));
+  }
+  const h = data.horarios || {};
+  if (Number.isFinite(h.apertura_min)) APERT_MIN = h.apertura_min;
+  if (Number.isFinite(h.reserva_inicio_min))
+    RESERVA_INI_MIN = h.reserva_inicio_min;
+  if (Number.isFinite(h.descanso_inicio_min))
+    bloqueDescansoInicio = h.descanso_inicio_min;
+  if (Number.isFinite(h.descanso_fin_min))
+    bloqueDescansoFin = h.descanso_fin_min;
+  if (Number.isFinite(h.cierre_semana_min))
+    CIERRE_SEMANA_MIN = h.cierre_semana_min;
+  if (Number.isFinite(h.cierre_finde_min))
+    CIERRE_FINDE_MIN = h.cierre_finde_min;
+  if (Number.isFinite(data.fondo_caja)) FONDO_CAJA_DEF = data.fondo_caja;
+}
+
 function mapearReserva(r) {
   return {
     id: r.id,
