@@ -998,6 +998,7 @@ function abrirModalNuevaReserva(
   $("modalTitulo").innerText = "Nueva reserva";
   $("modalReservaId").value = "";
   $("modalCliente").value = "";
+  $("modalCliente").dataset.tipo = "Particular";
   $("modalTelefono").value = "";
   $("modalNotas").value = "";
   pobladorPistasModal(pistas);
@@ -1045,6 +1046,8 @@ function abrirModalEditarReserva(res) {
   $("modalTitulo").innerText = `${res.pista} · ${res.horaInicio}`;
   $("modalReservaId").value = res.id;
   $("modalCliente").value = res.cliente;
+  $("modalCliente").dataset.tipo =
+    res.tipoReserva === "Pena" ? "Peña" : "Particular";
   $("modalTelefono").value = res.telefono || "";
   $("modalNotas").value = res.notas || "";
   pobladorPistasModal([res.pista]);
@@ -1234,7 +1237,7 @@ async function guardarClienteSilencioso(
     .maybeSingle();
 
   if (errEx) {
-    console.error(errEx);
+    console.error("guardarClienteSilencioso (buscar nombre):", errEx);
     return;
   }
 
@@ -1244,17 +1247,67 @@ async function guardarClienteSilencioso(
       ex.telefono &&
       normalizarTelefono(ex.telefono) !== telefono &&
       !(await customConfirm(
-        `Ya existe un cliente llamado «${nombre}» con el teléfono ${ex.telefono}. ¿Cambiarlo por ${telefono}?\nSi cancelas, su ficha de cliente no se modifica.`,
+        `Ya existe «${nombre}» con el teléfono ${ex.telefono}. ¿Cambiarlo por ${telefono}?\nSi cancelas, su ficha no se modifica.`,
       ))
     )
       return;
-    if (telefono)
-      await supabaseClient
+    if (telefono) {
+      const { error: errUpd } = await supabaseClient
         .from("clientes")
         .update({ telefono })
         .eq("id", ex.id);
-  } else {
-    await supabaseClient.from("clientes").insert(row);
+      if (errUpd) {
+        console.error("guardarClienteSilencioso (update tel):", errUpd);
+        toast("No se pudo actualizar el teléfono del cliente", "err");
+      }
+    }
+    return;
+  }
+
+  if (telefono && tipoCliente === "Particular") {
+    const { data: exPorTel } = await supabaseClient
+      .from("clientes")
+      .select("id, nombre")
+      .eq("telefono", telefono)
+      .eq("tipo_cliente", "Particular")
+      .maybeSingle();
+
+    if (exPorTel) {
+      const ok = await customConfirm(
+        `El teléfono ${telefono} ya pertenece al cliente «${exPorTel.nombre}».\n¿Renombrar su ficha a «${nombre}»?\nSi cancelas, se creará una ficha nueva duplicada.`,
+        "Cliente con teléfono repetido",
+      );
+      if (ok) {
+        const { error: errRen } = await supabaseClient
+          .from("clientes")
+          .update({ nombre })
+          .eq("id", exPorTel.id);
+        if (errRen) {
+          console.error("guardarClienteSilencioso (renombrar):", errRen);
+          toast("No se pudo renombrar: " + errRen.message, "err");
+        }
+        return;
+      }
+    }
+  }
+
+  const { error: errIns } = await supabaseClient.from("clientes").insert(row);
+
+  if (errIns) {
+    console.error("guardarClienteSilencioso (insert):", errIns);
+    if (/duplicate|unique/i.test(errIns.message || "")) {
+      toast(
+        `No se pudo crear la ficha de «${nombre}»: ya existe otra con el teléfono ${telefono}.\nSi es una peña, revisa que el tipo sea "Peña".`,
+        "err",
+        8000,
+      );
+    } else {
+      toast(
+        `No se pudo crear la ficha de «${nombre}»: ${errIns.message}`,
+        "err",
+        8000,
+      );
+    }
   }
 }
 
