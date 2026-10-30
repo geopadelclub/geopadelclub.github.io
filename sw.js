@@ -25,6 +25,7 @@ const BASE = [
   "assets/remixicon/remixicon.woff2",
   "theme-init.js",
   "cookies.js",
+  "guia.html",
 ];
 const PANEL = [
   "panel.html",

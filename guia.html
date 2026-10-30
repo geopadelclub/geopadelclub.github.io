@@ -1,0 +1,1416 @@
+<!-- © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. -->
+<!doctype html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <title>Guía del panel · Geopadel</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="theme-color" content="#fcfdfc" id="metaTheme" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/webp" href="./geopadel.webp" />
+    <script src="theme-init.js"></script>
+    <link rel="stylesheet" href="assets/remixicon/remixicon.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="legal.css" />
+    <style>
+      .guia-header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 20px;
+        background: var(--header-bg);
+        border-bottom: 1px solid var(--border);
+        color: var(--on-header);
+      }
+      .guia-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 800;
+        font-size: 14px;
+      }
+      .guia-back:hover {
+        text-decoration: underline;
+      }
+      .guia-back i {
+        margin-right: 0;
+      }
+
+      .guia-layout {
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr);
+        gap: 40px;
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 24px 20px 80px;
+      }
+      @media (max-width: 900px) {
+        .guia-layout {
+          grid-template-columns: 1fr;
+          gap: 20px;
+          padding: 16px 14px 60px;
+        }
+      }
+
+      .guia-toc {
+        position: sticky;
+        top: 70px;
+        align-self: start;
+        max-height: calc(100vh - 90px);
+        overflow-y: auto;
+        padding: 18px;
+        border-radius: var(--radius-md);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+      }
+      @media (max-width: 900px) {
+        .guia-toc {
+          position: static;
+          max-height: none;
+        }
+      }
+      .guia-toc h2 {
+        font-size: 14px;
+        margin: 0 0 10px;
+        color: var(--heading);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        font-weight: 800;
+      }
+      .guia-toc ol {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        counter-reset: toc;
+      }
+      .guia-toc li {
+        counter-increment: toc;
+        margin-bottom: 2px;
+      }
+      .guia-toc a {
+        display: block;
+        padding: 6px 8px;
+        border-radius: var(--radius-sm);
+        color: var(--text);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.3;
+        transition: background 0.15s;
+      }
+      .guia-toc a::before {
+        content: counter(toc) ". ";
+        color: var(--muted);
+        font-weight: 700;
+      }
+      .guia-toc a:hover {
+        background: var(--slot-hover);
+        color: var(--primary);
+      }
+
+      .guia-main h1 {
+        font-size: 32px;
+        line-height: 1.15;
+        color: var(--heading);
+        margin: 0 0 8px;
+      }
+      .guia-lead {
+        color: var(--muted);
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 30px;
+      }
+
+      .guia-main h2 {
+        font-size: 22px;
+        color: var(--heading);
+        margin: 40px 0 12px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid var(--border);
+      }
+      .guia-main h2:first-of-type {
+        margin-top: 0;
+      }
+      .guia-main h3 {
+        font-size: 17px;
+        color: var(--heading);
+        margin: 24px 0 8px;
+      }
+      .guia-main h4 {
+        font-size: 15px;
+        color: var(--heading);
+        margin: 16px 0 6px;
+      }
+      .guia-main p,
+      .guia-main li {
+        font-size: 15px;
+        line-height: 1.6;
+        color: var(--text);
+        margin-bottom: 8px;
+      }
+      .guia-main ul,
+      .guia-main ol {
+        padding-left: 22px;
+        margin-bottom: 12px;
+      }
+      .guia-main strong {
+        color: var(--heading);
+      }
+      .guia-main code {
+        background: var(--surface-3);
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-size: 13px;
+        font-family: "Courier New", monospace;
+        color: var(--heading);
+        border: 1px solid var(--border);
+      }
+
+      .guia-warn,
+      .guia-tip,
+      .guia-danger {
+        display: block;
+        padding: 12px 16px;
+        border-radius: var(--radius-md);
+        margin: 14px 0;
+        font-size: 14px;
+        line-height: 1.5;
+        font-weight: 600;
+      }
+      .guia-warn {
+        background: var(--amber-soft);
+        border-left: 4px solid var(--amber);
+        color: var(--orange-text);
+      }
+      .guia-tip {
+        background: var(--blue-soft);
+        border-left: 4px solid var(--blue-btn);
+        color: var(--blue);
+      }
+      .guia-danger {
+        background: var(--orange-soft);
+        border-left: 4px solid var(--orange);
+        color: var(--orange-text);
+      }
+      .guia-warn i,
+      .guia-tip i,
+      .guia-danger i {
+        margin-right: 6px;
+      }
+
+      .guia-tabla {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0 18px;
+        font-size: 14px;
+      }
+      .guia-tabla th,
+      .guia-tabla td {
+        border: 1px solid var(--border);
+        padding: 9px 12px;
+        text-align: left;
+        vertical-align: top;
+      }
+      .guia-tabla th {
+        background: var(--surface-3);
+        color: var(--heading);
+        font-weight: 800;
+        font-size: 13px;
+      }
+      .guia-tabla tr:nth-child(even) td {
+        background: var(--surface-2);
+      }
+      .guia-tabla-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .guia-kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+        margin: 12px 0 20px;
+      }
+      .guia-kpi {
+        padding: 14px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+        background: var(--surface-2);
+      }
+      .guia-kpi b {
+        display: block;
+        color: var(--heading);
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+      .guia-kpi span {
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      .guia-to-top {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: var(--on-primary);
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        box-shadow: var(--shadow-lg);
+        z-index: 100;
+      }
+      .guia-to-top:hover {
+        background: var(--primary-hover);
+      }
+      .guia-to-top i {
+        margin-right: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="guia-header">
+      <a href="panel" class="guia-back">
+        <i class="ri-arrow-left-line" aria-hidden="true"></i>
+        Volver al panel
+      </a>
+      <button
+        type="button"
+        class="theme-toggle"
+        id="btnTema"
+        aria-label="Cambiar tema"
+      >
+        <i class="ri-moon-line" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <div class="guia-layout">
+      <aside class="guia-toc">
+        <h2>Índice</h2>
+        <ol>
+          <li><a href="#acceso">Acceso al panel</a></li>
+          <li><a href="#resumen">Resumen</a></li>
+          <li><a href="#reservas">Reservas</a></li>
+          <li><a href="#tpv">Tienda (TPV)</a></li>
+          <li><a href="#caja">Caja</a></li>
+          <li><a href="#deudas">Deudas</a></li>
+          <li><a href="#facturas">Facturas</a></li>
+          <li><a href="#fichaje">Fichaje</a></li>
+          <li><a href="#limpieza">Limpieza</a></li>
+          <li><a href="#ajustes">Ajustes</a></li>
+          <li><a href="#barreras">Barreras</a></li>
+          <li><a href="#errores">Errores frecuentes</a></li>
+          <li><a href="#buenas">Buenas prácticas</a></li>
+          <li><a href="#soporte">Soporte</a></li>
+        </ol>
+      </aside>
+
+      <main class="guia-main">
+        <h1>Guía del panel de gestión</h1>
+        <p class="guia-lead">
+          Manual para el personal del club. Cubre todas las funciones, permisos
+          y limitaciones del panel.
+        </p>
+
+        <h2 id="acceso">1. Acceso al panel</h2>
+
+        <h3>Cómo entrar</h3>
+        <ol>
+          <li>
+            Abre <strong>geopadelclub.com/panel</strong> en el navegador
+            (Chrome, Edge o Safari actualizados).
+          </li>
+          <li>
+            Introduce tu <strong>usuario</strong> (sin
+            <code>@geopadel.app</code>) y tu <strong>contraseña</strong>.
+          </li>
+          <li>Completa la verificación anti-spam (Turnstile) si aparece.</li>
+          <li>Pulsa <strong>Entrar al Panel</strong>.</li>
+        </ol>
+
+        <h3>Reglas de acceso</h3>
+        <ul>
+          <li>
+            <strong>3 roles distintos</strong>:
+            <ul>
+              <li>
+                <strong>Jefa</strong> → acceso total. Puede anular facturas,
+                reabrir cajas, borrar clientes (RGPD), restablecer códigos.
+              </li>
+              <li>
+                <strong>Trabajador</strong> → acceso completo excepto las
+                acciones exclusivas de jefa. Puede fichar.
+              </li>
+              <li>
+                <strong>Entrenador</strong> → <strong>solo</strong> ve la
+                pestaña Reservas, solo crea/edita
+                <strong>sus propios entrenamientos</strong>.
+              </li>
+            </ul>
+          </li>
+          <li>
+            <strong>Sesión</strong>: dura un máximo de <strong>8 h</strong> o
+            hasta 8 h de inactividad. Aparecerá un aviso 2 minutos antes de
+            caducar.
+          </li>
+          <li><strong>5 intentos fallidos</strong> → bloqueo de 30 s.</li>
+          <li>
+            <strong>Cambio de tema</strong>: botón 🌙/☀️ arriba a la derecha.
+          </li>
+        </ul>
+
+        <h3>Errores de login frecuentes</h3>
+        <div class="guia-tabla-wrap">
+          <table class="guia-tabla">
+            <thead>
+              <tr>
+                <th>Mensaje</th>
+                <th>Causa</th>
+                <th>Solución</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>"Credenciales incorrectas"</td>
+                <td>Usuario o contraseña mal</td>
+                <td>Revisa mayúsculas y espacios</td>
+              </tr>
+              <tr>
+                <td>"No se pudo verificar el anti-spam"</td>
+                <td>Fallo de Turnstile</td>
+                <td>Recarga la página y reinténtalo</td>
+              </tr>
+              <tr>
+                <td>"Usuario inactivo o sin perfil"</td>
+                <td>Cuenta desactivada</td>
+                <td>Avisa a la jefa</td>
+              </tr>
+              <tr>
+                <td>"Demasiados intentos"</td>
+                <td>5 fallos</td>
+                <td>Espera 30 s</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 id="resumen">2. Resumen (pantalla de inicio)</h2>
+        <p>Es lo primero que ves al entrar. Muestra:</p>
+        <ul>
+          <li><strong>Bienvenida</strong> con tu nombre y el día actual.</li>
+          <li>
+            <strong>KPIs</strong>:
+            <ul>
+              <li><strong>Ingresos hoy</strong> (efectivo + tarjeta).</li>
+              <li>
+                <strong>Deudas pendientes</strong> (total y nº de clientes).
+              </li>
+              <li>
+                <strong>Limpiezas pendientes</strong> (pistas sin limpiar en 2
+                semanas).
+              </li>
+            </ul>
+          </li>
+          <li>
+            <strong>Alertas</strong> (amarillas) si hay limpiezas vencidas o
+            deudas pendientes.
+          </li>
+          <li>
+            <strong>Acciones rápidas</strong>:
+            <ul>
+              <li>
+                <strong>Nueva reserva</strong> → abre el modal de creación.
+              </li>
+              <li>
+                <strong>Abrir bar</strong> → va a la pestaña Ventas → Tienda.
+              </li>
+              <li><strong>Cerrar caja</strong> → va a Ventas → Caja.</li>
+              <li>
+                <strong>Fichar</strong> (solo trabajadores) → va a Equipo →
+                Fichaje.
+              </li>
+              <li>
+                <strong>Ver guía</strong> → abre esta página en una pestaña
+                nueva.
+              </li>
+            </ul>
+          </li>
+          <li>
+            <strong>Próximas reservas de hoy</strong> con hora, pista, cliente y
+            estado.
+          </li>
+        </ul>
+
+        <h2 id="reservas">3. Reservas — el corazón del panel</h2>
+
+        <h3>3.1 El cuadrante (calendario Playtomic)</h3>
+        <p>
+          Al entrar a <strong>Reservas</strong> verás un
+          <strong>calendario semanal</strong>:
+        </p>
+        <ul>
+          <li>
+            <strong>Columnas</strong> = pistas (1 PADEL MASTER, Pista 2… Pista
+            9).
+          </li>
+          <li>
+            <strong>Filas</strong> = franjas de 30 minutos (desde las 8:00 hasta
+            el cierre).
+          </li>
+          <li>
+            <strong>Colores de tarjeta</strong>:
+            <ul>
+              <li>
+                🔵 Azul rayado → Reserva <strong>Normal</strong> sin cobrar.
+              </li>
+              <li>🟢 Verde liso → Reserva <strong>Normal</strong> pagada.</li>
+              <li>🟣 Lila rayado → <strong>Peña</strong> (recurrente).</li>
+              <li>🟠 Naranja rayado → <strong>Torneo</strong>.</li>
+              <li>🟢 Verde azulado rayado → <strong>Entrenamiento</strong>.</li>
+              <li>
+                🟢 Verde azulado claro con borde →
+                <strong>Tu entrenamiento</strong> (si eres entrenador).
+              </li>
+              <li>⚫ Gris rayado → <strong>Bloqueo</strong> de pista.</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Insignias</strong> (badges):
+            <strong>Sin pagar</strong> (rojo) /
+            <strong>Parcial 2/4</strong> (naranja) /
+            <strong>Pagado</strong> (verde).
+          </li>
+          <li>
+            <strong>Nota</strong> (amarilla) si la reserva tiene anotaciones.
+          </li>
+          <li>
+            <strong>Puntitos</strong> de jugador: cada uno verde (pagado) o rojo
+            (pendiente).
+          </li>
+          <li>
+            <strong>Iconos</strong>: 🌐 Reserva hecha desde la
+            <strong>web</strong> por el cliente; 🔁 Reserva
+            <strong>recurrente</strong>.
+          </li>
+          <li>
+            <strong>Línea roja horizontal</strong> = hora actual (solo si el día
+            es hoy).
+          </li>
+        </ul>
+
+        <h3>3.2 Navegación por fechas</h3>
+        <ul>
+          <li><strong>Hoy</strong> → vuelve al día actual.</li>
+          <li>
+            <strong>◀◀ / ◀ / ▶ / ▶▶</strong> → semana anterior / día anterior /
+            día siguiente / semana siguiente.
+          </li>
+          <li><strong>Selector de fecha</strong> → elige un día concreto.</li>
+          <li>
+            Arriba verás <strong>Ocupación %</strong> y
+            <strong>nº Reservas</strong>.
+          </li>
+        </ul>
+
+        <h3>3.3 Crear una reserva</h3>
+        <p><strong>Formas de abrir el formulario</strong>:</p>
+        <ol>
+          <li>
+            Botón <strong>"Crear Reserva"</strong> (arriba a la derecha en
+            escritorio, flotante en móvil).
+          </li>
+          <li>
+            <strong>Clic en un hueco vacío</strong> del calendario (crea en esa
+            pista y a esa hora).
+          </li>
+        </ol>
+
+        <p><strong>Rellenar el formulario</strong>:</p>
+        <ul>
+          <li>
+            <strong>Cliente</strong> → escribe 2 letras y elige del
+            <strong>autocompletado</strong>. Si no existe, escribe el nombre
+            completo.
+          </li>
+          <li>
+            <strong>Teléfono</strong> → opcional. Si pones uno, se guardará
+            también en la ficha del cliente.
+          </li>
+          <li>
+            <strong>Pistas</strong> → marca una o varias. Si marcas varias, crea
+            una reserva por pista.
+          </li>
+          <li>
+            <strong>Tipo de reserva</strong>: Normal / Peña / Entrenamiento /
+            Torneo (ver descripciones abajo).
+          </li>
+          <li><strong>Fecha</strong> y <strong>Hora inicio</strong>.</li>
+          <li>
+            <strong>Duración</strong> (30, 60, 90, 120…).
+            <strong>Entrenamiento</strong>: solo 60, 120, 180, 240, 300.
+          </li>
+          <li>
+            <strong>Repetir peña (semanas)</strong>: solo si es Peña. Por
+            defecto 12.
+          </li>
+          <li><strong>Número de jugadores</strong>: 1 a 16. Por defecto 4.</li>
+          <li>
+            <strong>Precio</strong> → se calcula automáticamente según la
+            tarifa. Puedes editarlo manualmente.
+          </li>
+          <li>
+            <strong>Método de cobro</strong>: Pago único o Pago dividido (ver
+            punto 3.7).
+          </li>
+          <li>
+            <strong>Bloc de notas</strong> → apuntes visibles en el calendario.
+          </li>
+          <li>Pulsa <strong>Guardar reserva</strong>.</li>
+        </ul>
+
+        <div class="guia-warn">
+          <i class="ri-error-warning-line" aria-hidden="true"></i>
+          <strong>Barreras al crear</strong>: no se puede reservar si hay solape
+          con otra reserva/bloqueo; no se puede reservar fuera de horario
+          (14:00-17:00 cerrado entre semana); entrenamientos solo en horas
+          completas; si eres entrenador, solo puedes crear Entrenamientos en tu
+          nombre; si hay cobros, no se pueden cambiar precio/duración/jugadores
+          hasta quitarlos.
+        </div>
+
+        <h3>3.4 Editar una reserva</h3>
+        <ol>
+          <li><strong>Clic</strong> sobre una tarjeta del calendario.</li>
+          <li>Se abre el modal con todos los datos.</li>
+          <li>Modifica lo que necesites.</li>
+          <li><strong>Guardar reserva</strong>.</li>
+        </ol>
+
+        <p><strong>Botones especiales del modal</strong>:</p>
+        <ul>
+          <li>
+            <strong>Justificante 80mm</strong> → emite un justificante de pago
+            (solo si está totalmente pagada).
+          </li>
+          <li>
+            <strong>Eliminar serie</strong> → borra esta reserva y todas las
+            futuras de la serie.
+          </li>
+          <li>
+            <strong>Historial</strong> → muestra todos los cambios (quién y
+            cuándo).
+          </li>
+          <li>
+            <strong>Eliminar</strong> → borra solo esta reserva (con devolución
+            de cobros si los hubiera).
+          </li>
+          <li><strong>Cancelar</strong> → cierra sin guardar.</li>
+        </ul>
+
+        <h3>3.5 Mover / redimensionar una reserva</h3>
+        <p><strong>Mover</strong>:</p>
+        <ul>
+          <li>
+            <strong>Escritorio</strong>: arrastra la tarjeta a otra pista u
+            hora.
+          </li>
+          <li>
+            <strong>Móvil</strong>: mantén pulsada la tarjeta 0,4 s hasta que
+            vibre y arrastra.
+          </li>
+        </ul>
+        <p>
+          <strong>Redimensionar</strong>: coge el borde superior o inferior de
+          la tarjeta y estira. Aumenta o reduce en bloques de 30 min, mínimo 1
+          h.
+        </p>
+
+        <div class="guia-warn">
+          <i class="ri-error-warning-line" aria-hidden="true"></i>
+          <strong>Barreras</strong>: no se puede mover si hay solape o bloqueo;
+          no se puede cambiar la duración si tiene cobros (quita primero los
+          pagos); Peña: al mover, solo cambia esa semana; Torneo: no se puede
+          arrastrar; Entrenador: solo puedes mover/redimensionar tus propios
+          entrenamientos.
+        </div>
+
+        <h3>3.6 Series (Peñas)</h3>
+        <p>Una <strong>Peña</strong> es una reserva recurrente:</p>
+        <ul>
+          <li>Se crean marcando "Peña" y eligiendo cuántas semanas repetir.</li>
+          <li>
+            <strong>Todas</strong> las reservas comparten un
+            <code>serie</code> interno.
+          </li>
+          <li>
+            Al <strong>mover</strong> una semana, solo cambia esa; las demás
+            siguen.
+          </li>
+          <li>
+            Al <strong>editar nombre/teléfono</strong>, pregunta si aplicar
+            <strong>a toda la serie</strong> o solo a esa reserva.
+          </li>
+          <li>
+            Al <strong>eliminar</strong> desde el modal, elige si borrar
+            <strong>solo esta</strong> o <strong>toda la serie</strong>.
+          </li>
+        </ul>
+
+        <h3>3.7 Pagos (cobro)</h3>
+        <ul>
+          <li>
+            <strong>Pago único</strong>: botón Efectivo o Tarjeta → marca todos
+            los jugadores como pagados. Botón ✕ → deshace el pago (solo si no
+            estaba guardada con cobros).
+          </li>
+          <li>
+            <strong>Pago dividido</strong>: marca cada jugador con 🟢 (efectivo)
+            o 🔵 (tarjeta). Botón ✕ en cada jugador → le quita el pago. El badge
+            "Parcial X/N" o "Pagado" se actualiza solo.
+          </li>
+        </ul>
+
+        <div class="guia-warn">
+          <i class="ri-error-warning-line" aria-hidden="true"></i>
+          Una vez cobrada, la reserva <strong>no se puede</strong> modificar en
+          precio, duración o jugadores hasta quitar los cobros uno a uno. Cada
+          pago genera un registro en <code>ventas</code> (visible en Caja). Cada
+          devolución genera un registro negativo.
+        </div>
+
+        <h3>3.8 Bloqueos de pistas</h3>
+        <p>Al final de la pestaña Reservas:</p>
+        <ol>
+          <li>Selecciona una pista (o "Todas") y un horario.</li>
+          <li>Añade un motivo (torneo, mantenimiento, reserva privada…).</li>
+          <li>Pulsa <strong>Bloquear en este día</strong>.</li>
+        </ol>
+        <p>
+          Los bloqueos aparecen en el calendario como franjas grises rayadas.
+        </p>
+        <p>
+          <strong>Barreras</strong>: no se puede bloquear un tramo con reservas
+          activas; no se pueden solapar bloqueos; solo afecta al día
+          seleccionado (no se repite semanalmente).
+        </p>
+
+        <h3>3.9 Lista de espera</h3>
+        <p>
+          Tabla con las personas que han pedido hueco por la web cuando no había
+          disponibilidad.
+        </p>
+        <ul>
+          <li>
+            <strong>Avisar manual</strong> → marca como avisado (no envía nada,
+            es solo informativo).
+          </li>
+          <li><strong>Quitar</strong> → elimina la solicitud.</li>
+        </ul>
+
+        <h3>3.10 Imprimir el día</h3>
+        <ul>
+          <li>Pulsa <strong>"Imprimir día"</strong>.</li>
+          <li>
+            Se genera un A4 horizontal con el
+            <strong>cuadrante del día</strong>.
+          </li>
+          <li>Útil para colgar en el club o para reuniones.</li>
+        </ul>
+        <div class="guia-warn">
+          <i class="ri-error-warning-line" aria-hidden="true"></i>
+          Si la red falla, la impresión se cancela con un aviso. No imprime
+          datos antiguos.
+        </div>
+
+        <h2 id="tpv">4. Ventas → Tienda (TPV del bar)</h2>
+
+        <h3>4.1 Seleccionar mesa</h3>
+        <ul>
+          <li>
+            Arriba verás una fila de <strong>botones de mesa</strong>: Suelto,
+            Mesa 1… Mesa 6, Barra.
+          </li>
+          <li>
+            Cada mesa muestra su <strong>total acumulado</strong> en un badge
+            rojo si tiene artículos.
+          </li>
+          <li>Pulsa una mesa para activarla.</li>
+        </ul>
+
+        <h3>4.2 Añadir productos</h3>
+        <ul>
+          <li>
+            Filtra por <strong>categoría</strong> (Todos, Bebidas, Comida,
+            Tienda, Pistas).
+          </li>
+          <li>Usa el buscador para encontrar un producto.</li>
+          <li>
+            <strong>Pulsa el producto</strong> para añadirlo a la mesa activa.
+          </li>
+          <li>La lista del ticket se actualiza al instante.</li>
+        </ul>
+
+        <h3>4.3 Quitar productos</h3>
+        <ul>
+          <li>
+            En el <strong>ticket</strong>, pulsa un artículo para quitar
+            <strong>una unidad</strong>.
+          </li>
+          <li>
+            Botón <strong>Deshacer último cambio</strong> (aparece 8 s) →
+            recupera el estado anterior.
+          </li>
+        </ul>
+
+        <h3>4.4 Cobrar</h3>
+        <ul>
+          <li>
+            <strong>Efectivo</strong> o <strong>Tarjeta</strong> → se guarda en
+            <code>ventas</code> y la mesa se vacía.
+          </li>
+          <li>La caja del día se actualiza automáticamente.</li>
+          <li>
+            <strong>Emitir justificante 80mm</strong> → pregunta método de pago
+            y emite un ticket para el cliente (si tienes la impresora USB
+            conectada, la imprime).
+          </li>
+        </ul>
+
+        <h3>4.5 Escaparate de la tienda (web pública)</h3>
+        <ul>
+          <li>
+            <strong>Nuevo artículo</strong> → foto (se reduce a WebP
+            automáticamente), título, descripción, precio, visible.
+          </li>
+          <li>
+            <strong>Editar</strong>, <strong>Eliminar</strong>,
+            <strong>Ocultar/Mostrar</strong>.
+          </li>
+          <li>
+            <strong>Flechas ▲▼</strong> para cambiar el orden en el escaparate.
+          </li>
+        </ul>
+
+        <h2 id="caja">5. Ventas → Caja</h2>
+
+        <h3>5.1 Resumen del día</h3>
+        <ul>
+          <li>
+            <strong>Efectivo en cajón</strong>, <strong>Total datáfono</strong>,
+            <strong>Total general</strong>.
+          </li>
+          <li>Cambia la fecha con el selector para ver días anteriores.</li>
+        </ul>
+
+        <h3>5.2 Cierre de caja</h3>
+        <ol>
+          <li>Cuenta billetes y monedas.</li>
+          <li>
+            Introduce los importes: <strong>Billetes (€)</strong>,
+            <strong>Monedas (€)</strong>, <strong>Datáfono (€)</strong>.
+          </li>
+          <li>
+            Verás un resumen con: efectivo esperado (sistema + fondo de caja 100
+            €), descuadre de efectivo y de datáfono, cuánto meter en el sobre.
+          </li>
+          <li>Pulsa <strong>Confirmar cierre de caja</strong>.</li>
+          <li>Si hay descuadre, pide confirmación antes de cerrar.</li>
+        </ol>
+
+        <div class="guia-warn">
+          <i class="ri-error-warning-line" aria-hidden="true"></i>
+          <strong>Barreras del cierre</strong>: no se puede cerrar dos veces el
+          mismo día (solo la jefa puede reabrirlo); no se puede cerrar un día
+          futuro; no se puede cerrar con importes negativos; si falta fondo de
+          caja, avisa; al cerrar, se guarda en <code>cierres</code> con tu
+          nombre y fecha.
+        </div>
+
+        <h3>5.3 Reabrir caja (solo jefa)</h3>
+        <ul>
+          <li>En el historial de cierres, botón <strong>Reabrir</strong>.</li>
+          <li>Pide un <strong>motivo</strong> (mínimo 5 caracteres).</li>
+          <li>
+            Se mueve el cierre a <code>cierres_historial</code> y se puede
+            volver a cerrar.
+          </li>
+        </ul>
+
+        <h3>5.4 Exportar y copia de seguridad (solo jefa)</h3>
+        <ul>
+          <li>
+            <strong>Descargar copia completa (ZIP)</strong> → todas las tablas
+            en CSV + LEEME.txt.
+          </li>
+          <li>
+            <strong>Botones individuales</strong> → Reservas, Clientes, Ventas,
+            Cierres, Deudas, Limpiezas, Fichajes, Catálogo, Tarifas.
+          </li>
+        </ul>
+        <div class="guia-tip">
+          <i class="ri-lightbulb-line" aria-hidden="true"></i>
+          Recomendación: <strong>una copia semanal</strong>. Guárdala en
+          pendrive + Google Drive.
+        </div>
+
+        <h2 id="deudas">6. Ventas → Deudas</h2>
+
+        <h3>6.1 Añadir deuda</h3>
+        <ul>
+          <li>
+            <strong>Nombre</strong>, <strong>Teléfono</strong> (opcional),
+            <strong>Día</strong>, <strong>Hora</strong>,
+            <strong>Importe</strong>.
+          </li>
+          <li>Pulsa <strong>Añadir deuda</strong>.</li>
+        </ul>
+
+        <h3>6.2 Gestionar deudas</h3>
+        <p>Tabla con filtros (Pendientes / Resueltas / Todas) y buscador:</p>
+        <ul>
+          <li>
+            <strong>Resolver</strong> → marca como resuelta con tu nombre y
+            fecha.
+          </li>
+          <li><strong>Reabrir</strong> → vuelve a pendiente.</li>
+          <li>
+            <strong>Eliminar</strong> → anula la deuda (registra quién y
+            cuándo).
+          </li>
+          <li>Las resueltas se muestran atenuadas.</li>
+        </ul>
+
+        <h2 id="facturas">7. Ventas → Facturas</h2>
+
+        <h3>7.1 Emitir un documento</h3>
+        <p>
+          <strong>Tipo Justificante</strong> (recomendado para particulares):
+        </p>
+        <ul>
+          <li>
+            <strong>Fecha</strong>, <strong>Método de pago</strong>,
+            <strong>ID reserva</strong> (opcional).
+          </li>
+          <li>
+            Añade <strong>líneas</strong> (concepto, cantidad, precio con IVA).
+            IVA 21 % por defecto.
+          </li>
+          <li>
+            Pulsa <strong>Emitir documento</strong>. Genera un número
+            <code>J-AAAA-NNNNNN</code>.
+          </li>
+        </ul>
+
+        <p><strong>Tipo Factura</strong> (clientes autónomos o empresas):</p>
+        <ul>
+          <li>
+            <strong>Obligatorio</strong>: nombre, NIF y dirección del cliente.
+          </li>
+          <li>Emite un número <code>F-AAAA-NNNNNN</code>.</li>
+          <li>Imprimible en <strong>A4</strong> o <strong>80 mm</strong>.</li>
+        </ul>
+
+        <div class="guia-danger">
+          <i class="ri-error-warning-line" aria-hidden="true"></i>
+          <strong>Diferencia clave</strong>: <strong>Factura</strong> =
+          documento fiscal válido, deducible. <strong>Justificante</strong> = NO
+          válido fiscalmente, solo comprobante. Si un cliente pide factura,
+          <strong>siempre</strong> emite factura completa.
+        </div>
+
+        <h3>7.2 Rectificar una factura (solo jefa)</h3>
+        <ul>
+          <li>Botón <strong>Rectificar</strong> sobre una factura emitida.</li>
+          <li>Introduce el <strong>motivo</strong> de la rectificación.</li>
+          <li>
+            Emite → genera una <strong>factura rectificativa</strong> que
+            referencia a la original.
+          </li>
+        </ul>
+
+        <h3>7.3 Anular una factura (solo jefa)</h3>
+        <ul>
+          <li>Botón <strong>Anular</strong>.</li>
+          <li>Motivo obligatorio.</li>
+          <li>
+            La factura queda marcada como "Anulada" pero
+            <strong>no se borra</strong>.
+          </li>
+        </ul>
+
+        <div class="guia-warn">
+          <i class="ri-error-warning-line" aria-hidden="true"></i>
+          <strong>Reglas de facturas</strong>: no se pueden editar una vez
+          emitidas (solo rectificar); no se pueden borrar (solo anular); toda
+          modificación queda en la auditoría; numeración correlativa e
+          inalterable.
+        </div>
+
+        <h3>7.4 Imprimir facturas</h3>
+        <ul>
+          <li>
+            <strong>80 mm (USB)</strong> → si la impresora térmica está
+            conectada.
+          </li>
+          <li><strong>A4</strong> → formato legal completo.</li>
+          <li>
+            Si no tienes impresora USB conectada, el sistema abrirá el diálogo
+            de impresión del navegador.
+          </li>
+        </ul>
+
+        <h3>7.5 Conectar impresora térmica</h3>
+        <ul>
+          <li>Botón <strong>🔌 USB</strong> al lado del botón Emitir.</li>
+          <li>Selecciona el dispositivo en el diálogo del navegador.</li>
+          <li>La conexión se mantiene hasta cerrar el navegador.</li>
+        </ul>
+
+        <h2 id="fichaje">8. Equipo → Fichaje</h2>
+
+        <h3>8.1 Fichar (solo trabajadores)</h3>
+        <ul>
+          <li>Botón <strong>Entrada</strong> → registra tu entrada.</li>
+          <li>Botón <strong>Salida</strong> → registra tu salida.</li>
+          <li>
+            <strong>Antes de la hora de apertura</strong> (15 min antes como
+            máximo) → no se puede fichar entrada.
+          </li>
+          <li>
+            Al fichar por primera vez, te pedirá
+            <strong>rellenar el contrato</strong>: horas semanales, días
+            trabajados con horario, fecha de vigencia, observaciones.
+          </li>
+          <li>Puedes ver los <strong>últimos 30 fichajes</strong> debajo.</li>
+        </ul>
+
+        <div class="guia-warn">
+          <i class="ri-error-warning-line" aria-hidden="true"></i>
+          <strong>Reglas del fichaje</strong>: no se puede modificar un fichaje
+          una vez registrado (ni tú ni la jefa); no se puede borrar antes de 4
+          años; si haces una pausa no retribuida, ficha
+          <strong>Salida</strong> y luego <strong>Entrada</strong> al volver; la
+          "jefa" no ficha.
+        </div>
+
+        <h3>8.2 Registro de jornada</h3>
+        <ul>
+          <li>
+            Elige <strong>Empleado</strong> (solo jefa puede ver a otros),
+            <strong>Desde</strong> y <strong>Hasta</strong>.
+          </li>
+          <li>Atajos: Hoy / Este mes / Mes anterior.</li>
+          <li>Pulsa <strong>Ver registro</strong>.</li>
+          <li>
+            Muestra: <strong>Resumen por mes</strong> y
+            <strong>Detalle por día</strong> con tramos, pausas, jornada
+            contractual, horas trabajadas, exceso, incidencias.
+          </li>
+          <li><strong>Descargar CSV</strong> → para nóminas o inspección.</li>
+          <li><strong>Imprimir / PDF</strong> → A4 por empleado, con firma.</li>
+        </ul>
+
+        <h2 id="limpieza">9. Equipo → Limpieza</h2>
+
+        <h3>9.1 Registrar limpieza</h3>
+        <ol>
+          <li>
+            Marca las <strong>pistas</strong> limpiadas (Todas / Ninguna / una a
+            una).
+          </li>
+          <li>
+            Marca qué se ha limpiado: <strong>Estructura</strong>,
+            <strong>Césped</strong>, <strong>Cristales</strong>.
+          </li>
+          <li><strong>Trabajador</strong> que limpió.</li>
+          <li><strong>Cuándo</strong> (fecha y hora).</li>
+          <li>Pulsa <strong>Registrar limpieza</strong>.</li>
+        </ol>
+
+        <h3>9.2 Última limpieza por pista</h3>
+        <p>
+          Tabla con la última limpieza de cada tarea en cada pista. En
+          <strong>rojo</strong> las vencidas (&gt;2 semanas o sin registro).
+        </p>
+
+        <h3>9.3 Historial de limpiezas</h3>
+        <p>
+          Últimas 40 limpiezas registradas. Puedes <strong>eliminar</strong> una
+          entrada (registra quién y cuándo).
+        </p>
+
+        <h2 id="ajustes">10. Ajustes</h2>
+
+        <h3>10.1 Clientes y acceso web</h3>
+        <ul>
+          <li>
+            Busca un cliente por nombre o teléfono (mínimo 2 letras o 3 cifras).
+          </li>
+          <li>
+            Acciones:
+            <ul>
+              <li>
+                <strong>Restablecer código</strong> (solo jefa) → borra el
+                código web y habilita el acceso para que cree uno nuevo.
+              </li>
+              <li>
+                <strong>Habilitar acceso web</strong> → permite al cliente crear
+                su código en la próxima reserva.
+              </li>
+              <li>
+                <strong>Borrar datos (RGPD)</strong> (solo jefa) → borra la
+                ficha, cancela reservas futuras sin cobros, quita nombre de
+                reservas antiguas. Solo si no tiene deudas pendientes ni cobros.
+              </li>
+            </ul>
+          </li>
+        </ul>
+
+        <h3>10.2 Tarifas</h3>
+        <ul>
+          <li>
+            <strong>Entre semana mañana</strong>,
+            <strong>Entre semana tarde</strong>, <strong>Fin de semana</strong>:
+            precio por 60, 90 y 120 min.
+          </li>
+          <li>
+            <strong>Entrenamiento</strong>: precio por hora (el 90 y 120 se
+            calculan automáticamente).
+          </li>
+          <li>Pulsa <strong>Guardar tarifas</strong>.</li>
+        </ul>
+
+        <h3>10.3 Catálogo (productos)</h3>
+        <ul>
+          <li>
+            <strong>Nuevo producto</strong> → nombre, precio, categoría
+            (Bebidas, Comida, Tienda, Pista), estado (Activo/Inactivo).
+          </li>
+          <li>
+            <strong>Editar</strong> / <strong>Eliminar</strong> (marca como
+            Eliminado, no lo borra).
+          </li>
+          <li>Los "Inactivos" no aparecen en el TPV pero sí en el catálogo.</li>
+        </ul>
+
+        <h3>10.4 Datos fiscales</h3>
+        <ul>
+          <li>
+            Nombre del club, razón social, NIF, dirección, CP, ciudad,
+            provincia.
+          </li>
+          <li>Email, teléfono, web.</li>
+          <li>IVA por defecto (21 %).</li>
+          <li>
+            <strong>Texto legal</strong> y <strong>pie de factura</strong>.
+          </li>
+          <li>
+            Se aplican automáticamente a todas las facturas y justificantes.
+          </li>
+        </ul>
+
+        <h2 id="barreras">11. Barreras y limitaciones</h2>
+        <div class="guia-tabla-wrap">
+          <table class="guia-tabla">
+            <thead>
+              <tr>
+                <th>Acción</th>
+                <th>Quién puede</th>
+                <th>Limitación</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Crear reserva</td>
+                <td>Todos</td>
+                <td>No solape, no fuera de horario</td>
+              </tr>
+              <tr>
+                <td>Editar precio/duración con cobros</td>
+                <td>Nadie</td>
+                <td>Quita primero los pagos</td>
+              </tr>
+              <tr>
+                <td>Mover a otra pista/hora</td>
+                <td>Todos</td>
+                <td>No solape, no bloqueo</td>
+              </tr>
+              <tr>
+                <td>Cambiar nombre en serie</td>
+                <td>Todos</td>
+                <td>Pregunta si aplicar a toda la serie</td>
+              </tr>
+              <tr>
+                <td>Eliminar reserva con cobros</td>
+                <td>Todos</td>
+                <td>Devuelve automáticamente</td>
+              </tr>
+              <tr>
+                <td>Anular factura</td>
+                <td>Solo jefa</td>
+                <td>Motivo obligatorio</td>
+              </tr>
+              <tr>
+                <td>Rectificar factura</td>
+                <td>Solo jefa</td>
+                <td>Motivo obligatorio</td>
+              </tr>
+              <tr>
+                <td>Editar factura</td>
+                <td>Nadie</td>
+                <td>Solo rectificar</td>
+              </tr>
+              <tr>
+                <td>Borrar factura</td>
+                <td>Nadie</td>
+                <td>Solo anular</td>
+              </tr>
+              <tr>
+                <td>Cerrar caja</td>
+                <td>Todos</td>
+                <td>Único por día, sin importes negativos</td>
+              </tr>
+              <tr>
+                <td>Reabrir caja</td>
+                <td>Solo jefa</td>
+                <td>Motivo obligatorio</td>
+              </tr>
+              <tr>
+                <td>Borrar cliente</td>
+                <td>Solo jefa</td>
+                <td>Sin deudas ni cobros pendientes</td>
+              </tr>
+              <tr>
+                <td>Restablecer código web</td>
+                <td>Solo jefa</td>
+                <td>Solo si comprobaste identidad</td>
+              </tr>
+              <tr>
+                <td>Modificar fichaje</td>
+                <td>Nadie</td>
+                <td>Bloqueado por BD</td>
+              </tr>
+              <tr>
+                <td>Borrar fichaje &lt;4 años</td>
+                <td>Nadie</td>
+                <td>Bloqueado por BD</td>
+              </tr>
+              <tr>
+                <td>Fichar antes de apertura</td>
+                <td>Todos</td>
+                <td>15 min antes como máximo</td>
+              </tr>
+              <tr>
+                <td>Crear entrenamiento</td>
+                <td>Todos</td>
+                <td>Solo múltiplos de 1 h</td>
+              </tr>
+              <tr>
+                <td>Ver entrenamientos ajenos</td>
+                <td>Todos</td>
+                <td>Pero solo editar los tuyos</td>
+              </tr>
+              <tr>
+                <td>Mover/redimensionar entrenamiento ajeno</td>
+                <td>Entrenador</td>
+                <td>Bloqueado</td>
+              </tr>
+              <tr>
+                <td>Ver otras pestañas</td>
+                <td>Entrenador</td>
+                <td>Solo Reservas</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 12. ERRORES -->
+        <h2 id="errores">12. Errores frecuentes y qué hacer</h2>
+        <div class="guia-tabla-wrap">
+          <table class="guia-tabla">
+            <thead>
+              <tr>
+                <th>Error</th>
+                <th>Causa</th>
+                <th>Solución</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>"Esa pista ya está ocupada"</td>
+                <td>Solape</td>
+                <td>Cambia pista u hora</td>
+              </tr>
+              <tr>
+                <td>"Horario no permitido"</td>
+                <td>Franja cerrada</td>
+                <td>Cambia horario</td>
+              </tr>
+              <tr>
+                <td>"La pista está bloqueada"</td>
+                <td>Bloqueo activo</td>
+                <td>Elige otra pista</td>
+              </tr>
+              <tr>
+                <td>"Esta reserva tiene cobros"</td>
+                <td>Intentas modificar precio/duración/jugadores</td>
+                <td>Quita primero los pagos</td>
+              </tr>
+              <tr>
+                <td>"Los entrenamientos deben ser múltiplos de 1 hora"</td>
+                <td>Duración incorrecta</td>
+                <td>Cambia a 60/120/180/240/300</td>
+              </tr>
+              <tr>
+                <td>"No puedes reducir jugadores que ya han pagado"</td>
+                <td>Cobros parciales</td>
+                <td>Quita primero sus pagos</td>
+              </tr>
+              <tr>
+                <td>"No se pudo actualizar el teléfono del cliente"</td>
+                <td>RLS o UNIQUE</td>
+                <td>Avisa a la jefa</td>
+              </tr>
+              <tr>
+                <td>"No tienes permiso"</td>
+                <td>Rol insuficiente</td>
+                <td>Pide a la jefa</td>
+              </tr>
+              <tr>
+                <td>"La caja ya está cerrada"</td>
+                <td>Cierre duplicado</td>
+                <td>La jefa debe reabrir</td>
+              </tr>
+              <tr>
+                <td>"No hay billetes suficientes"</td>
+                <td>Fondo de caja &lt; 100 €</td>
+                <td>Avisa y confirma cierre</td>
+              </tr>
+              <tr>
+                <td>"Ese hueco ya no está disponible"</td>
+                <td>Alguien lo reservó justo antes</td>
+                <td>Elige otro</td>
+              </tr>
+              <tr>
+                <td>"Error de conexión"</td>
+                <td>Red caída</td>
+                <td>Reintenta</td>
+              </tr>
+              <tr>
+                <td>"Sesión caducada"</td>
+                <td>8 h máx</td>
+                <td>Vuelve a entrar</td>
+              </tr>
+              <tr>
+                <td>"No se pudo cargar el historial"</td>
+                <td>Permisos</td>
+                <td>Solo jefa y trabajadores pueden verlo</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 id="buenas">13. Buenas prácticas</h2>
+        <ol>
+          <li>
+            <strong>Cierra caja al final del día</strong> antes de irte. Nunca
+            dejes una caja sin cerrar (salvo que la jefa lo autorice).
+          </li>
+          <li>
+            <strong>Registra los pagos en el momento</strong>. No acumules
+            cobros para el final.
+          </li>
+          <li>
+            <strong>Ficha siempre</strong> entrada y salida, incluso si sales a
+            comer.
+          </li>
+          <li>
+            <strong>No compartas tu usuario</strong>. Cada acción queda
+            registrada con tu nombre.
+          </li>
+          <li>
+            <strong>Revisa el resumen</strong> al entrar: te avisa de deudas y
+            limpiezas pendientes.
+          </li>
+          <li>
+            <strong>Copia de seguridad semanal</strong> (solo jefa) → pendrive +
+            Google Drive.
+          </li>
+          <li>
+            <strong>Ante una duda con un cliente</strong>, abre el modal y mira
+            el historial antes de tocar nada.
+          </li>
+          <li>
+            <strong>Si algo falla y no sabes por qué</strong>, cierra el
+            navegador, vuelve a abrir y prueba. Si persiste, avisa.
+          </li>
+          <li>
+            <strong>No toques el código HTML/CSS</strong> ni las herramientas de
+            desarrollador. Puedes romper la app.
+          </li>
+          <li>
+            <strong>Reporta fallos</strong> con: qué hiciste, qué esperabas, qué
+            pasó, y captura de pantalla.
+          </li>
+        </ol>
+
+        <h2 id="soporte">14. Soporte</h2>
+        <ul>
+          <li>
+            <strong>Jefa del club</strong>: para permisos, reaperturas,
+            rectificaciones, RGPD.
+          </li>
+          <li>
+            <strong>Soporte técnico</strong>: para errores de la app, pérdida de
+            conexión, incidencias graves.
+          </li>
+          <li>
+            <strong>Nunca llames al cliente</strong> para pedirle datos por
+            teléfono si te los puede dar por la web.
+          </li>
+        </ul>
+      </main>
+    </div>
+
+    <button
+      type="button"
+      class="guia-to-top"
+      id="btnToTop"
+      aria-label="Volver arriba"
+    >
+      <i class="ri-arrow-up-line" aria-hidden="true"></i>
+    </button>
+
+    <script src="utils.js"></script>
+    <script src="acciones.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        iniciarTema();
+        const btnTema = document.getElementById("btnTema");
+        if (btnTema) btnTema.addEventListener("click", alternarTema);
+        const btnToTop = document.getElementById("btnToTop");
+        if (btnToTop)
+          btnToTop.addEventListener("click", () =>
+            window.scrollTo({ top: 0, behavior: "smooth" }),
+          );
+      });
+    </script>
+  </body>
+</html>
