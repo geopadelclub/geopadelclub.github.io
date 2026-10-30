@@ -228,6 +228,7 @@ function renderizarCuadrantePlaytomic(reservas) {
         let pagados = 0;
         for (let i = 0; i < nJug; i++) if (esPagadoIdx(i)) pagados++;
         const totalPagado = pagados >= nJug;
+
         let estiloTipo = "card-normal-striped";
         if (r.tipoReserva === "Pena") estiloTipo = "card-pena-striped";
         if (r.tipoReserva === "Torneo") estiloTipo = "card-torneo-striped";
@@ -238,8 +239,8 @@ function renderizarCuadrantePlaytomic(reservas) {
               ? "card-entreno-propio"
               : "card-entreno-striped";
         }
-        if (totalPagado && r.tipoReserva !== "Entrenamiento")
-          estiloTipo = "card-normal-solid";
+        const clasePagada = totalPagado ? " pagada" : "";
+
         const tieneNota = !!String(r.notas || "").trim();
         card.className = `reserva-card ${estiloTipo}${heightPx < 100 ? " compact" : ""}${tieneNota ? " has-nota" : ""}${clasePagada}`;
         card.style.top = `${topPx}px`;
