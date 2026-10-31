@@ -235,30 +235,6 @@
         -webkit-overflow-scrolling: touch;
       }
 
-      .guia-kpi-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: 12px;
-        margin: 12px 0 20px;
-      }
-      .guia-kpi {
-        padding: 14px;
-        border-radius: var(--radius-md);
-        border: 1px solid var(--border);
-        background: var(--surface-2);
-      }
-      .guia-kpi b {
-        display: block;
-        color: var(--heading);
-        font-size: 14px;
-        margin-bottom: 4px;
-      }
-      .guia-kpi span {
-        font-size: 13px;
-        color: var(--muted);
-        font-weight: 600;
-      }
-
       .guia-to-top {
         position: fixed;
         bottom: 20px;
@@ -315,6 +291,7 @@
           <li><a href="#fichaje">Fichaje</a></li>
           <li><a href="#limpieza">Limpieza</a></li>
           <li><a href="#ajustes">Ajustes</a></li>
+          <li><a href="#festivos">Días festivos</a></li>
           <li><a href="#barreras">Barreras</a></li>
           <li><a href="#errores">Errores frecuentes</a></li>
           <li><a href="#buenas">Buenas prácticas</a></li>
@@ -585,6 +562,15 @@
           <li>Pulsa <strong>Guardar reserva</strong>.</li>
         </ul>
 
+        <div class="guia-tip">
+          <i class="ri-lightbulb-line" aria-hidden="true"></i>
+          Si la fecha es <strong>festiva</strong>, el sistema aplica
+          automáticamente la <strong>tarifa de fin de semana</strong>, aunque
+          sea entre semana. No tienes que hacer nada: el precio sugerido ya
+          vendrá con el importe correcto. Ver
+          <a href="#festivos">sección de festivos</a>.
+        </div>
+
         <div class="guia-warn">
           <i class="ri-error-warning-line" aria-hidden="true"></i>
           <strong>Barreras al crear</strong>: no se puede reservar si hay solape
@@ -606,10 +592,6 @@
         <p><strong>Botones especiales del modal</strong>:</p>
         <ul>
           <li>
-            <strong>Justificante 80mm</strong> → emite un justificante de pago
-            (solo si está totalmente pagada).
-          </li>
-          <li>
             <strong>Eliminar serie</strong> → borra esta reserva y todas las
             futuras de la serie.
           </li>
@@ -623,6 +605,14 @@
           </li>
           <li><strong>Cancelar</strong> → cierra sin guardar.</li>
         </ul>
+
+        <div class="guia-tip">
+          <i class="ri-lightbulb-line" aria-hidden="true"></i>
+          El antiguo botón "Justificante 80mm" del modal
+          <strong>ya no existe</strong>. Para emitir un justificante de una
+          reserva, hazlo desde <strong>Ventas → Facturas</strong> (tipo
+          Justificante), indicando el ID de la reserva en el campo opcional.
+        </div>
 
         <h3>3.5 Mover / redimensionar una reserva</h3>
         <p><strong>Mover</strong>:</p>
@@ -713,16 +703,30 @@
 
         <h3>3.9 Lista de espera</h3>
         <p>
-          Tabla con las personas que han pedido hueco por la web cuando no había
-          disponibilidad.
+          Tabla con las personas que han pedido un hueco concreto desde la web
+          (fecha, hora y duración) cuando ese hueco estaba ocupado.
         </p>
         <ul>
           <li>
-            <strong>Avisar manual</strong> → marca como avisado (no envía nada,
-            es solo informativo).
+            <strong>Avisar (WhatsApp)</strong> → abre WhatsApp Web o la app con
+            el chat del cliente ya cargado y un mensaje predefinido indicando
+            que se ha liberado el hueco.
+            <strong>Tú tienes que pulsar Enviar en WhatsApp</strong>: el sistema
+            no envía nada por sí solo. La fila se marca como "avisado" y
+            desaparece de la lista.
           </li>
-          <li><strong>Quitar</strong> → elimina la solicitud.</li>
+          <li>
+            <strong>Quitar</strong> → elimina la solicitud de la lista sin
+            avisar al cliente.
+          </li>
         </ul>
+
+        <div class="guia-tip">
+          <i class="ri-lightbulb-line" aria-hidden="true"></i>
+          El mensaje predefinido incluye <strong>fecha, hora y duración</strong>
+          del hueco que se ha liberado, y el enlace para que el cliente reserve.
+          Puedes editarlo antes de enviarlo o añadir algo personal.
+        </div>
 
         <h3>3.10 Imprimir el día</h3>
         <ul>
@@ -827,12 +831,50 @@
             <strong>Monedas (€)</strong>, <strong>Datáfono (€)</strong>.
           </li>
           <li>
-            Verás un resumen con: efectivo esperado (sistema + fondo de caja 100
-            €), descuadre de efectivo y de datáfono, cuánto meter en el sobre.
+            Verás un resumen con:
+            <ul>
+              <li>
+                <strong>Efectivo esperado</strong> (lo que dice el sistema más
+                el fondo de caja de 100 €).
+              </li>
+              <li>
+                <strong>Descuadre de efectivo</strong> y de datáfono (diferencia
+                entre lo contado y lo que dice el sistema).
+              </li>
+              <li>
+                <strong>Cuánto va al sobre</strong> y
+                <strong>cuánto queda en caja</strong>.
+              </li>
+            </ul>
           </li>
           <li>Pulsa <strong>Confirmar cierre de caja</strong>.</li>
           <li>Si hay descuadre, pide confirmación antes de cerrar.</li>
         </ol>
+
+        <div class="guia-tip">
+          <i class="ri-lightbulb-line" aria-hidden="true"></i>
+          <strong>Regla de la caja</strong>: las
+          <strong>monedas siempre se quedan</strong> en el cajón. Lo único que
+          se saca al sobre son <strong>billetes</strong>. El objetivo es que la
+          caja quede <strong>lo más cerca posible de 100 €</strong>, pudiendo
+          quedar por encima o por debajo:
+          <ul>
+            <li>
+              Si con las monedas ya hay 100 € o más,
+              <strong>no se deja ningún billete</strong>: se sacan todos al
+              sobre.
+            </li>
+            <li>
+              Si con las monedas no se llega a 100 €, se dejan los
+              <strong>billetes justos</strong> para acercarse lo máximo posible.
+            </li>
+            <li>
+              Si las monedas + billetes no llegan a 100 €,
+              <strong>no se saca nada</strong>: se queda todo en caja.
+            </li>
+          </ul>
+          El sistema te dice siempre cuánto va al sobre y cuánto queda en caja.
+        </div>
 
         <div class="guia-warn">
           <i class="ri-error-warning-line" aria-hidden="true"></i>
@@ -843,13 +885,18 @@
           nombre y fecha.
         </div>
 
-        <h3>5.3 Reabrir caja (solo jefa)</h3>
+        <h3>5.3 Historial de cierres</h3>
+        <p>
+          Debajo del cierre tienes el <strong>historial</strong> con todos los
+          cierres del mes seleccionado. Por defecto muestra el
+          <strong>mes actual</strong>, pero puedes cambiarlo con el
+          <strong>selector de mes</strong> de la cabecera.
+        </p>
         <ul>
-          <li>En el historial de cierres, botón <strong>Reabrir</strong>.</li>
-          <li>Pide un <strong>motivo</strong> (mínimo 5 caracteres).</li>
           <li>
-            Se mueve el cierre a <code>cierres_historial</code> y se puede
-            volver a cerrar.
+            <strong>Reabrir</strong> (solo jefa) → pide un motivo (mínimo 5
+            caracteres), mueve el cierre a <code>cierres_historial</code> y
+            permite volver a cerrarlo.
           </li>
         </ul>
 
@@ -963,25 +1010,76 @@
           inalterable.
         </div>
 
-        <h3>7.4 Imprimir facturas</h3>
+        <h3>7.4 Lista de documentos emitidos</h3>
+        <p>
+          La tabla muestra los documentos más recientes, ordenados del más nuevo
+          al más antiguo. El <strong>límite depende del filtro</strong>:
+        </p>
+        <ul>
+          <li>
+            Si el filtro es <strong>"Todos"</strong> → se muestran los
+            <strong>15 últimos</strong> documentos (mezclando facturas y
+            justificantes).
+          </li>
+          <li>
+            Si el filtro es <strong>"Facturas"</strong> o
+            <strong>"Justificantes"</strong> → se muestran los
+            <strong>10 últimos</strong> de ese tipo.
+          </li>
+        </ul>
+        <p>
+          La búsqueda por texto (número, cliente o NIF) filtra en cliente sobre
+          los documentos cargados. Si no encuentras un documento antiguo, afina
+          la búsqueda o cambia el filtro de tipo.
+        </p>
+
+        <h3>7.5 Imprimir facturas</h3>
         <ul>
           <li>
             <strong>80 mm (USB)</strong> → si la impresora térmica está
-            conectada.
+            conectada, imprime directamente. Si no lo está, el sistema intentará
+            conectarla automáticamente antes de imprimir.
           </li>
           <li><strong>A4</strong> → formato legal completo.</li>
           <li>
-            Si no tienes impresora USB conectada, el sistema abrirá el diálogo
-            de impresión del navegador.
+            Si no tienes impresora USB conectada ni se detecta ninguna
+            autorizada, el sistema abrirá el diálogo de impresión del navegador
+            para A4.
           </li>
         </ul>
 
-        <h3>7.5 Conectar impresora térmica</h3>
+        <h3>7.6 Conectar impresora térmica</h3>
         <ul>
-          <li>Botón <strong>🔌 USB</strong> al lado del botón Emitir.</li>
-          <li>Selecciona el dispositivo en el diálogo del navegador.</li>
-          <li>La conexión se mantiene hasta cerrar el navegador.</li>
+          <li>
+            <strong>Primera vez</strong>: pulsa el botón <strong>🔌 USB</strong>
+            al lado del botón Emitir y selecciona la impresora en el diálogo del
+            navegador. Esto solo hay que hacerlo una vez por navegador.
+          </li>
+          <li>
+            <strong>Siguientes veces</strong>: la impresora
+            <strong>se reconecta sola</strong>. En concreto:
+            <ul>
+              <li>Al cargar el panel con la sesión iniciada.</li>
+              <li>Al enchufarla o encenderla con el panel abierto.</li>
+              <li>
+                Al volver a la pestaña del panel si la habías dejado en segundo
+                plano.
+              </li>
+            </ul>
+          </li>
+          <li>
+            Si algo falla (por ejemplo, cambias de impresora o borras los datos
+            del navegador), vuelve a pulsar el botón <strong>🔌 USB</strong>.
+          </li>
         </ul>
+        <div class="guia-tip">
+          <i class="ri-lightbulb-line" aria-hidden="true"></i>
+          En <strong>Windows</strong> puede pasar que el driver del sistema
+          secuestre la impresora y WebUSB no la vea. Si eso ocurre, habría que
+          instalar un driver genérico. En <strong>Android</strong>, el permiso
+          de WebUSB no se recuerda entre sesiones: hay que pulsar el botón cada
+          vez. En <strong>Chrome/Edge en PC</strong> funciona sin problemas.
+        </div>
 
         <h2 id="fichaje">8. Equipo → Fichaje</h2>
 
@@ -998,7 +1096,7 @@
             <strong>rellenar el contrato</strong>: horas semanales, días
             trabajados con horario, fecha de vigencia, observaciones.
           </li>
-          <li>Puedes ver los <strong>últimos 30 fichajes</strong> debajo.</li>
+          <li>Puedes ver los <strong>últimos 10 fichajes</strong> debajo.</li>
         </ul>
 
         <div class="guia-warn">
@@ -1096,6 +1194,13 @@
           </li>
           <li>Pulsa <strong>Guardar tarifas</strong>.</li>
         </ul>
+        <div class="guia-tip">
+          <i class="ri-lightbulb-line" aria-hidden="true"></i>
+          Los <strong>días festivos</strong> aplican automáticamente la tarifa
+          de <strong>Fin de semana</strong>, aunque caigan en martes o
+          miércoles. No hay que hacer nada manualmente: el sistema lo detecta
+          solo. Ver <a href="#festivos">sección de festivos</a>.
+        </div>
 
         <h3>10.3 Catálogo (productos)</h3>
         <ul>
@@ -1126,7 +1231,72 @@
           </li>
         </ul>
 
-        <h2 id="barreras">11. Barreras y limitaciones</h2>
+        <h2 id="festivos">11. Días festivos</h2>
+        <p>
+          El club aplica la <strong>tarifa de fin de semana</strong> a los días
+          festivos, aunque caigan en día de diario. Esto se gestiona de forma
+          automática:
+        </p>
+
+        <h3>Cómo funciona</h3>
+        <ul>
+          <li>
+            El panel de administración mantiene una
+            <strong>lista interna de festivos</strong> de Granada capital
+            (nacionales, autonómicos y locales).
+          </li>
+          <li>
+            Esta lista se <strong>sincroniza sola cada lunes</strong> desde un
+            calendario oficial, incluyendo los <strong>traslados</strong> (por
+            ejemplo, cuando un festivo cae en domingo y se traslada al lunes).
+          </li>
+          <li>
+            No hay que hacer nada manualmente: cuando creas una reserva en una
+            fecha que está en la lista, el precio se calcula automáticamente con
+            la tarifa de fin de semana, tanto en el panel como en la web
+            pública.
+          </li>
+        </ul>
+
+        <h3>Qué implica para ti</h3>
+        <ul>
+          <li>
+            <strong>En el panel</strong>: al crear o editar una reserva en
+            festivo, el precio sugerido ya vendrá con la tarifa de fin de
+            semana. Puedes cambiarlo manualmente si lo necesitas.
+          </li>
+          <li>
+            <strong>En la web</strong>: el cliente ve el precio de fin de semana
+            al elegir hora en un día festivo.
+          </li>
+          <li>
+            <strong>Reservas existentes</strong>: si una reserva ya se creó en
+            festivo con la tarifa antigua (de diario),
+            <strong>no se actualiza sola</strong>. Hay que abrirla, guardarla de
+            nuevo, o corregirla manualmente.
+          </li>
+        </ul>
+
+        <h3>Cómo saber si un día es festivo</h3>
+        <ul>
+          <li>
+            Si creas una reserva en el panel, el precio sugerido ya lo refleja.
+          </li>
+          <li>
+            Si tienes dudas, pregunta a la jefa o consulta el calendario
+            publicado en <code>calendarios.ideal.es</code>.
+          </li>
+        </ul>
+
+        <div class="guia-warn">
+          <i class="ri-error-warning-line" aria-hidden="true"></i>
+          El sistema
+          <strong>no actualiza precios de reservas ya creadas</strong>. Si
+          detectas una reserva antigua en festivo con el precio de diario,
+          edítala y guarda para que se recalcule, o corrígela manualmente.
+        </div>
+
+        <h2 id="barreras">12. Barreras y limitaciones</h2>
         <div class="guia-tabla-wrap">
           <table class="guia-tabla">
             <thead>
@@ -1241,8 +1411,7 @@
           </table>
         </div>
 
-        <!-- 12. ERRORES -->
-        <h2 id="errores">12. Errores frecuentes y qué hacer</h2>
+        <h2 id="errores">13. Errores frecuentes y qué hacer</h2>
         <div class="guia-tabla-wrap">
           <table class="guia-tabla">
             <thead>
@@ -1323,11 +1492,16 @@
                 <td>Permisos</td>
                 <td>Solo jefa y trabajadores pueden verlo</td>
               </tr>
+              <tr>
+                <td>"No se pudo conectar la impresora"</td>
+                <td>Primera vez o driver</td>
+                <td>Pulsa 🔌 USB y elige la impresora</td>
+              </tr>
             </tbody>
           </table>
         </div>
 
-        <h2 id="buenas">13. Buenas prácticas</h2>
+        <h2 id="buenas">14. Buenas prácticas</h2>
         <ol>
           <li>
             <strong>Cierra caja al final del día</strong> antes de irte. Nunca
@@ -1371,7 +1545,7 @@
           </li>
         </ol>
 
-        <h2 id="soporte">14. Soporte</h2>
+        <h2 id="soporte">15. Soporte</h2>
         <ul>
           <li>
             <strong>Jefa del club</strong>: para permisos, reaperturas,
