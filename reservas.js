@@ -1,6 +1,7 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 let reqReservas = 0;
 let _pendingPagoUnico = null;
+let listaEsperaCache = [];
 async function cargarReservasHoy() {
   const iso = $("fechaCuadrante").value || fechaLocalISO();
   const miReq = ++reqReservas;
@@ -1941,7 +1942,9 @@ async function cargarListaEspera() {
     return;
   }
 
-  if (!data || data.length === 0) {
+  listaEsperaCache = data || [];
+
+  if (!listaEsperaCache.length) {
     tb.innerHTML =
       '<tr><td colspan="5" class="tabla-empty">Nadie en lista de espera</td></tr>';
     return;
@@ -1952,7 +1955,7 @@ async function cargarListaEspera() {
     return `${d}/${m}/${y}`;
   };
 
-  tb.innerHTML = data
+  tb.innerHTML = listaEsperaCache
     .map(
       (x) => `
         <tr>
@@ -1961,7 +1964,7 @@ async function cargarListaEspera() {
             <td>${x.duracion} min</td>
             <td><a href="tel:${esc(x.telefono)}" style="color:var(--blue);font-weight:700">${esc(x.telefono)}</a></td>
             <td>
-                <button type="button" class="btn-add gray" data-espera-avisar="${esc(x.id)}"><i class="ri-notification-3-line" aria-hidden="true"></i>Avisar manual</button>
+                <button type="button" class="btn-add gray" data-espera-avisar="${esc(x.id)}"><i class="ri-whatsapp-line" aria-hidden="true"></i>Avisar (WhatsApp)</button>
                 <button type="button" class="btn-add danger" data-espera-borrar="${esc(x.id)}"><i class="ri-delete-bin-line" aria-hidden="true"></i>Quitar</button>
             </td>
         </tr>
@@ -1970,32 +1973,68 @@ async function cargarListaEspera() {
     .join("");
 }
 
+function telWhatsApp(tel) {
+  const t = String(tel || "").replace(/\D/g, "");
+  if (t.startsWith("34") && t.length === 11) return t;
+  if (t.length === 9) return "34" + t;
+  return t;
+}
+
 document.addEventListener("click", async (e) => {
   const btnAvisar = e.target.closest("[data-espera-avisar]");
   if (btnAvisar) {
-    if (
-      !(await customConfirm(
-        "¿Marcar como avisado? (El cliente deberá reservar por su cuenta)",
-      ))
-    )
-      return;
-    const { error } = await supabaseClient
+    const id = btnAvisar.dataset.esperaAvisar;
+    const fila = listaEsperaCache.find((x) => String(x.id) === String(id));
+    if (!fila) return toast("No se encontró la solicitud", "err");
+
+    const tel = telWhatsApp(fila.telefono);
+    if (!tel) return toast("El cliente no tiene teléfono", "err");
+
+    const ok = await customConfirm(
+      "¿Enviar aviso por WhatsApp a este cliente?\n\nSe abrirá WhatsApp con un mensaje predefinido indicándole que hay un hueco disponible.",
+      "Avisar por WhatsApp",
+    );
+    if (!ok) return;
+
+    const fechaTxt = fechaBonita(fila.fecha);
+    const horaTxt = fila.hora ? String(fila.hora).slice(0, 5) : "";
+    const durTxt = fila.duracion + " minutos";
+    const mensaje =
+      `Hola, te escribimos de Geopadel. Se ha liberado un hueco que solicitaste: ` +
+      `${fechaTxt}` +
+      (horaTxt ? ` a las ${horaTxt}` : "") +
+      ` para ${durTxt}. ` +
+      `Si te interesa, puedes reservar en https://geopadelclub.com/reservar o respondiendo a este mensaje. ¡Un saludo!`;
+
+    const url = `https://wa.me/${tel}?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+
+    const { data, error } = await supabaseClient
       .from("lista_espera")
       .update({ estado: "avisado" })
-      .eq("id", btnAvisar.dataset.esperaAvisar);
+      .eq("id", id)
+      .select("id");
     if (error) return toast("No se pudo marcar: " + error.message, "err");
-    toast("Marcado como avisado");
+    if (!data || !data.length)
+      return toast("No se pudo marcar: sin permiso o fila inexistente", "err");
+    toast("Aviso enviado por WhatsApp");
     cargarListaEspera();
   }
 
   const btnBorrar = e.target.closest("[data-espera-borrar]");
   if (btnBorrar) {
     if (!(await customConfirm("¿Eliminar de la lista de espera?"))) return;
-    const { error } = await supabaseClient
+    const { data, error } = await supabaseClient
       .from("lista_espera")
       .delete()
-      .eq("id", btnBorrar.dataset.esperaBorrar);
+      .eq("id", btnBorrar.dataset.esperaBorrar)
+      .select("id");
     if (error) return toast("No se pudo eliminar: " + error.message, "err");
+    if (!data || !data.length)
+      return toast(
+        "No se pudo eliminar: sin permiso o fila inexistente",
+        "err",
+      );
     toast("Eliminado de la lista");
     cargarListaEspera();
   }
