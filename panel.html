@@ -716,10 +716,18 @@
               <div id="msgCierre" class="msg-inline"></div>
             </div>
             <div class="card">
-              <h3>
-                <i class="ri-file-list-3-line" aria-hidden="true"></i>Historial
-                de cierres de caja
-              </h3>
+              <div class="card-head">
+                <h3>
+                  <i class="ri-file-list-3-line" aria-hidden="true"></i
+                  >Historial de cierres de caja
+                </h3>
+                <input
+                  type="month"
+                  id="histCajaMes"
+                  class="date-picker-input"
+                  aria-label="Mes del historial de cierres"
+                />
+              </div>
               <div class="table-wrap">
                 <table class="tabla-productos" style="min-width: 680px">
                   <thead>
@@ -1219,7 +1227,7 @@
               />
               <h3>
                 <i class="ri-file-list-3-line" aria-hidden="true"></i>Tus
-                últimos 30 fichajes
+                últimos 10 fichajes
               </h3>
               <div class="table-wrap">
                 <table class="tabla-productos" style="min-width: 420px">

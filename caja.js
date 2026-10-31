@@ -39,14 +39,20 @@ function getFondoCaja() {
 function calcularCierre(bil, mon, efSistema) {
   const FONDO_CAJA = getFondoCaja();
   const efContado = redondear2(bil + mon);
-  const dejarBilletes = Math.max(0, redondear2(FONDO_CAJA - mon));
-  const sobreBruto = redondear2(bil - dejarBilletes);
+  const dejarBilletes = redondear2(
+    Math.max(0, Math.min(bil, FONDO_CAJA - mon)),
+  );
+  const sobre = redondear2(bil - dejarBilletes);
+  const cajaFinal = redondear2(mon + dejarBilletes);
   const esperado = redondear2(efSistema + FONDO_CAJA);
   return {
     efContado,
     dejarBilletes,
-    sobre: Math.max(0, sobreBruto),
-    faltaFondo: sobreBruto < 0 ? redondear2(-sobreBruto) : 0,
+    sobre,
+    cajaFinal,
+    faltaFondo: cajaFinal < FONDO_CAJA ? redondear2(FONDO_CAJA - cajaFinal) : 0,
+    excesoFondo:
+      cajaFinal > FONDO_CAJA ? redondear2(cajaFinal - FONDO_CAJA) : 0,
     esperado,
     dE: redondear2(efContado - esperado),
   };
@@ -64,12 +70,21 @@ function calcCierre() {
   const f = (n) =>
     `<b class="${Math.abs(n) < 0.005 ? "dif-ok" : "dif-ko"}">${n > 0 ? "+" : ""}${eur(n)}</b>`;
   $("cjEfectivo").value = eur(r.efContado);
-  $("cjResumen").innerHTML =
-    `<span>Efectivo esperado (sistema ${eur(c.totalEfectivo)} + fondo ${eur(FONDO_CAJA)}) ${eur(r.esperado)} · ${f(r.dE)}</span>` +
-    `<span>Datáfono en sistema ${eur(c.totalTarjeta)} · ${f(dD)}</span>` +
-    (r.faltaFondo > 0
-      ? `<span class="dif-ko">No hay billetes suficientes para dejar ${eur(FONDO_CAJA)}: faltan ${eur(r.faltaFondo)}</span>`
-      : `<span><b>Guardar en el sobre: ${eur(r.sobre)}</b> (se quedan en caja ${eur(FONDO_CAJA)}: ${eur(parseFloat($("cjMonedas").value) || 0)} en monedas + ${eur(r.dejarBilletes)} en billetes)</span>`);
+  const partes = [
+    `<span>Efectivo esperado (sistema ${eur(c.totalEfectivo)} + fondo ${eur(FONDO_CAJA)}) ${eur(r.esperado)} · ${f(r.dE)}</span>`,
+    `<span>Datáfono en sistema ${eur(c.totalTarjeta)} · ${f(dD)}</span>`,
+    `<span><b>Guardar en el sobre: ${eur(r.sobre)}</b> (solo billetes; las monedas se quedan)</span>`,
+    `<span>Quedan en caja: <b>${eur(r.cajaFinal)}</b> (${eur(v("cjMonedas"))} en monedas + ${eur(r.dejarBilletes)} en billetes)</span>`,
+  ];
+  if (r.faltaFondo > 0)
+    partes.push(
+      `<span class="dif-ko">La caja queda ${eur(r.faltaFondo)} por debajo del fondo objetivo (${eur(FONDO_CAJA)}) porque no hay billetes suficientes.</span>`,
+    );
+  else if (r.excesoFondo > 0)
+    partes.push(
+      `<span class="dif-ko">La caja queda ${eur(r.excesoFondo)} por encima del fondo objetivo (${eur(FONDO_CAJA)}) porque las monedas superan el fondo.</span>`,
+    );
+  $("cjResumen").innerHTML = partes.join("");
 }
 async function cerrarCajaHoy() {
   const btn = $("btnCerrarCaja"),
@@ -98,7 +113,14 @@ async function cerrarCajaHoy() {
     if (
       r.faltaFondo > 0 &&
       !(await customConfirm(
-        `No hay billetes suficientes para dejar ${FONDO_CAJA} € en caja (faltan ${r.faltaFondo.toFixed(2)} €). ¿Cerrar igualmente?`,
+        `La caja quedará ${r.faltaFondo.toFixed(2)} € por debajo del fondo objetivo de ${FONDO_CAJA} € porque no hay billetes suficientes. ¿Cerrar igualmente?`,
+      ))
+    )
+      return;
+    if (
+      r.excesoFondo > 0 &&
+      !(await customConfirm(
+        `La caja quedará ${r.excesoFondo.toFixed(2)} € por encima del fondo objetivo de ${FONDO_CAJA} € porque las monedas superan el fondo. ¿Cerrar igualmente?`,
       ))
     )
       return;
@@ -128,7 +150,7 @@ async function cerrarCajaHoy() {
       return;
     }
     msg.style.color = "var(--green)";
-    msg.innerText = `Caja cerrada. Guarda ${eur(r.sobre)} en el sobre y deja ${eur(FONDO_CAJA)} en caja.`;
+    msg.innerText = `Caja cerrada. Guarda ${eur(r.sobre)} en el sobre. En caja quedan ${eur(r.cajaFinal)} (${eur(mon)} en monedas + ${eur(r.dejarBilletes)} en billetes).`;
     cargarHistorialCaja();
   } catch (err) {
     msg.style.color = "var(--red)";
@@ -139,13 +161,22 @@ async function cerrarCajaHoy() {
 }
 async function cargarHistorialCaja() {
   const tb = $("histCajaBody");
+  const mesInput = $("histCajaMes");
+  const hoy = new Date();
+  const mesPorDefecto = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}`;
+  const mes = (mesInput && mesInput.value) || mesPorDefecto;
+  const [y, m] = mes.split("-").map(Number);
+  const desde = `${y}-${String(m).padStart(2, "0")}-01`;
+  const ultimoDia = new Date(y, m, 0).getDate();
+  const hasta = `${y}-${String(m).padStart(2, "0")}-${String(ultimoDia).padStart(2, "0")}`;
   const { data, error } = await supabaseClient
     .from("cierres")
     .select(
       "fecha, efectivo_sistema, tarjeta, total, dif_efectivo, dif_datafono, cerrado_por",
     )
-    .order("fecha", { ascending: false })
-    .limit(60);
+    .gte("fecha", desde)
+    .lte("fecha", hasta)
+    .order("fecha", { ascending: false });
   if (error) {
     tb.innerHTML = `<tr><td colspan="8" class="tabla-empty" style="color:var(--red)">Error: ${esc(error.message)}</td></tr>`;
     return;
@@ -164,7 +195,8 @@ async function cargarHistorialCaja() {
 <td><i class="ri-lock-line" aria-hidden="true"></i>${esc(d.cerrado_por)}</td>
 <td>${adm ? `<button type="button" class="btn-add gray" data-reabrir="${esc(d.fecha)}"><i class="ri-lock-unlock-line" aria-hidden="true"></i>Reabrir</button>` : ""}</td></tr>`,
       )
-      .join("") || '<tr><td colspan="8" class="tabla-empty">—</td></tr>';
+      .join("") ||
+    '<tr><td colspan="8" class="tabla-empty">Sin cierres este mes</td></tr>';
 }
 async function reabrirCierre(fecha, btn) {
   if (!esJefa()) return toast("Solo la jefa puede reabrir una caja", "err");
@@ -204,6 +236,11 @@ function alCambiarFechaCaja() {
 function entrarCaja() {
   const inp = $("cajaFecha");
   if (inp && !inp.value) inp.value = fechaLocalISO();
+  const mesInput = $("histCajaMes");
+  if (mesInput && !mesInput.value) {
+    const d = new Date();
+    mesInput.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  }
   cargarCajaHoy();
   cargarHistorialCaja();
 }
@@ -211,3 +248,6 @@ $("histCajaBody").addEventListener("click", (e) => {
   const b = e.target.closest("button[data-reabrir]");
   if (b) reabrirCierre(b.dataset.reabrir, b);
 });
+if ($("histCajaMes")) {
+  $("histCajaMes").addEventListener("change", cargarHistorialCaja);
+}

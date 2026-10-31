@@ -642,7 +642,7 @@ async function cargarMisFichajes() {
     .select("*")
     .eq("empleado", usuarioSesion.user)
     .order("created_at", { ascending: !1 })
-    .limit(30);
+    .limit(10);
   if (errLeer) {
     tb.innerHTML = `<tr><td colspan="3" class="tabla-empty" style="color:var(--red)">Error al cargar fichajes: ${esc(errLeer.message)}</td></tr>`;
     return;

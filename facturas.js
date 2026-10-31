@@ -339,14 +339,18 @@ async function cargarFacturas() {
   if (!supabaseClient || facCargando) return;
   facCargando = !0;
   try {
-    const { data: e, error: t } = await supabaseClient
+    const filtroTipo = $("facFiltroTipo") ? $("facFiltroTipo").value : "Todos";
+    const limite = filtroTipo === "Todos" ? 15 : 10;
+    let q = supabaseClient
       .from("facturas")
       .select(
         "id,tipo,numero,fecha,cliente_nombre,cliente_nif,metodo_pago,total,estado,empleado,tipo_rectificativa,factura_original_id,created_at,anulada_por,anulada_at,motivo_anulacion",
       )
       .order("fecha", { ascending: !1 })
       .order("created_at", { ascending: !1 })
-      .limit(300);
+      .limit(limite);
+    if (filtroTipo !== "Todos") q = q.eq("tipo", filtroTipo);
+    const { data: e, error: t } = await q;
     if (t) throw t;
     facLista = e || [];
     dibujarFacturas();
@@ -575,7 +579,7 @@ if ($("facRefrescar"))
   $("facRefrescar").addEventListener("click", cargarFacturas);
 if ($("facBuscar")) $("facBuscar").addEventListener("input", dibujarFacturas);
 if ($("facFiltroTipo"))
-  $("facFiltroTipo").addEventListener("change", dibujarFacturas);
+  $("facFiltroTipo").addEventListener("change", cargarFacturas);
 if ($("facCancelarRect"))
   $("facCancelarRect").addEventListener("click", cancelarRectificacion);
 if ($("facBody"))
@@ -591,33 +595,61 @@ if ($("facBody"))
   });
 let usbDevice = null,
   usbEndpoint = null;
-async function conectarImpresoraUSB(e = !1) {
+async function conectarImpresoraUSB(silencioso = false) {
+  if (!navigator.usb) {
+    if (!silencioso) toast("Este navegador no soporta impresoras USB", "err");
+    return false;
+  }
   try {
-    let t = null;
-    const n = await navigator.usb.getDevices();
-    if (n.length > 0) t = n[0];
-    else {
-      if (e) return;
-      t = await navigator.usb.requestDevice({ filters: [] });
+    if (usbDevice && usbEndpoint) {
+      try {
+        if (usbDevice.opened) return true;
+      } catch (e) {
+        usbDevice = null;
+        usbEndpoint = null;
+      }
     }
-    usbDevice = t;
-    await usbDevice.open();
-    if (usbDevice.configuration === null)
+    let dispositivo = null;
+    const autorizados = await navigator.usb.getDevices();
+    if (autorizados.length > 0) {
+      dispositivo = autorizados[0];
+    } else {
+      if (silencioso) return false;
+      dispositivo = await navigator.usb.requestDevice({ filters: [] });
+    }
+    usbDevice = dispositivo;
+    if (!usbDevice.opened) {
+      await usbDevice.open();
+    }
+    if (usbDevice.configuration === null) {
       await usbDevice.selectConfiguration(1);
-    for (const e of usbDevice.configuration.interfaces)
-      for (const t of e.alternates) {
-        const n = t.endpoints.find((e) => e.direction === "out");
-        if (n) {
-          await usbDevice.claimInterface(e.interfaceNumber);
-          usbEndpoint = n.endpointNumber;
+    }
+    usbEndpoint = null;
+    for (const iface of usbDevice.configuration.interfaces) {
+      for (const alt of iface.alternates) {
+        const ep = alt.endpoints.find((x) => x.direction === "out");
+        if (ep) {
+          try {
+            await usbDevice.claimInterface(iface.interfaceNumber);
+          } catch (e) {
+            if (!/already claimed/i.test(String(e.message || e))) throw e;
+          }
+          usbEndpoint = ep.endpointNumber;
           break;
         }
       }
+      if (usbEndpoint) break;
+    }
     if (!usbEndpoint) throw new Error("No se encontró el puerto de salida");
-    if (!e) toast("Impresora conectada correctamente", "ok");
-  } catch (t) {
-    console.error("Error al conectar la impresora:", t);
-    if (!e) toast("No se pudo conectar: " + (t.message || t), "err");
+    if (!silencioso) toast("Impresora conectada correctamente", "ok");
+    return true;
+  } catch (err) {
+    console.error("Error al conectar la impresora:", err);
+    usbDevice = null;
+    usbEndpoint = null;
+    if (!silencioso)
+      toast("No se pudo conectar: " + (err.message || err), "err");
+    return false;
   }
 }
 async function enviarBytesAImpresora(e) {
@@ -756,3 +788,31 @@ if (typeof window.accion === "function")
     "conectar-impresora",
     () => typeof conectarImpresoraUSB === "function" && conectarImpresoraUSB(),
   );
+function _reintentarConexionUSB() {
+  if (!navigator.usb) return;
+  if (typeof usuarioSesion === "undefined" || !usuarioSesion) return;
+  if (usbDevice && usbEndpoint) return;
+  conectarImpresoraUSB(true);
+}
+document.addEventListener("DOMContentLoaded", () => {
+  if (!navigator.usb) return;
+  const esperarSesion = () => {
+    if (typeof usuarioSesion !== "undefined" && usuarioSesion) {
+      conectarImpresoraUSB(true);
+    } else {
+      setTimeout(esperarSesion, 1000);
+    }
+  };
+  esperarSesion();
+  navigator.usb.addEventListener("connect", () => {
+    if (!usbDevice || !usbEndpoint) conectarImpresoraUSB(true);
+  });
+  navigator.usb.addEventListener("disconnect", (e) => {
+    if (usbDevice && e.device === usbDevice) {
+      usbDevice = null;
+      usbEndpoint = null;
+      console.log("Impresora desconectada");
+    }
+  });
+  window.addEventListener("focus", _reintentarConexionUSB);
+});
