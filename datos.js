@@ -2,7 +2,7 @@
 async function cargarDatosGlobales() {
   const fechaReservas = $("fechaCuadrante")?.value || fechaLocalISO();
   const fechaCaja = $("cajaFecha")?.value || fechaLocalISO();
-  const [, rpcResult] = await Promise.all([
+  const [, , rpcResult] = await Promise.all([
     cargarConfigPanel(),
     cargarFestivos(),
     supabaseClient.rpc("get_panel_data", {
