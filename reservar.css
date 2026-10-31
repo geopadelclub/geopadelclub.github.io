@@ -754,3 +754,21 @@
     font-size: 12.5px;
   }
 }
+
+.cl-slot-ocupado {
+  background: var(--surface-3);
+  color: var(--muted);
+  border-style: dashed;
+  cursor: pointer;
+}
+
+.cl-slot-ocupado span {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--orange-text);
+}
+
+.cl-slot-ocupado:hover {
+  border-color: var(--orange);
+  background: var(--orange-soft);
+}

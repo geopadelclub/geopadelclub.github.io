@@ -76,7 +76,6 @@ const HTML_MODAL_RESERVA = `
     </div>
     <div class="modal-footer-bar">
       <button type="button" id="btnGuardarReserva" data-action="guardar-reserva" class="btn-add"><i class="ri-save-line" aria-hidden="true"></i>Guardar reserva</button>
-      <button type="button" id="btnJustificanteReserva" data-action="emitir-justificante-reserva" class="btn-add blue" style="display: none"><i class="ri-receipt-line" aria-hidden="true"></i>Justificante 80mm</button>
       <button type="button" id="btnEliminarSerie" data-action="eliminar-serie" class="btn-add danger-dark" style="display: none"><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar serie</button>
       <button type="button" id="btnHistorialReserva" data-action="ver-historial" class="btn-add gray" style="display: none"><i class="ri-history-line" aria-hidden="true"></i>Historial</button>
       <button type="button" id="btnEliminarReserva" data-action="eliminar-reserva" class="btn-add danger" style="display: none"><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar</button>

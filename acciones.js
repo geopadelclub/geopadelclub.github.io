@@ -159,10 +159,4 @@
     () =>
       typeof emitirJustificanteTPV === "function" && emitirJustificanteTPV(),
   );
-  A(
-    "emitir-justificante-reserva",
-    () =>
-      typeof emitirJustificanteReserva === "function" &&
-      emitirJustificanteReserva(),
-  );
 })();

@@ -313,12 +313,7 @@ function dibujarDias() {
   $("clDias").innerHTML = n;
 }
 function durationsViableForDay() {
-  const todas = cfg.duraciones || [60, 90];
-  if (!slotsDia || !slotsDia.length) return todas;
-  const viables = todas.filter((d) =>
-    slotsDia.some((s) => (s.opciones || []).some((o) => o.dur === d)),
-  );
-  return viables.length ? viables : todas;
+  return cfg.duraciones || [60, 90];
 }
 function dibujarDuraciones() {
   const e = sel.fecha || fechaLocalISO(),
@@ -428,31 +423,62 @@ async function cargarHuecos() {
   }
 }
 function dibujarHuecos() {
-  const e = $("clSlots"),
-    n = slotsDia
-      .map((e) => ({
-        hora: e.hora,
-        iniMin: minutos(e.hora),
-        op: (e.opciones || []).find((t) => t.dur === sel.dur),
-      }))
-      .filter((e) => e.op),
-    r = n.filter((e) => horaReservable(sel.fecha, e.hora));
-  if (sel.hora && !r.some((e) => e.hora === sel.hora)) {
+  const e = $("clSlots");
+  const todos = slotsDia
+    .map((s) => {
+      const op = (s.opciones || []).find((o) => o.dur === sel.dur);
+      return { hora: s.hora, op };
+    })
+    .filter((s) => horaReservable(sel.fecha, s.hora));
+
+  if (sel.hora && !todos.some((s) => s.hora === sel.hora && s.op)) {
     sel.hora = null;
-    $("cardDatos").hidden = !0;
+    $("cardDatos").hidden = true;
   }
-  if (!r.length) {
-    e.innerHTML = n.length
-      ? `<p class="cl-empty">${t("reservar.antelacion", { min: duracionTxt(antMin()) })}${t("reservar.antelacion-llama")}</p>`
-      : `<p class="cl-empty">${t("reservar.no-huecos", { dur: duracionTxt(sel.dur) })}</p><button type="button" class="cl-link" id="btnEspera" style="margin-top:8px">${t("reservar.waitlist.cta")}</button>`;
+
+  if (!todos.length) {
+    e.innerHTML = `<p class="cl-empty">${t("reservar.antelacion", { min: duracionTxt(antMin()) })}${t("reservar.antelacion-llama")}</p>`;
     return;
   }
-  e.innerHTML = r
-    .map(
-      (e) =>
-        `<button type="button" class="cl-slot${e.hora === sel.hora ? " active" : ""}" data-hora="${esc(e.hora)}" data-precio="${esc(e.op.precio)}" aria-pressed="${e.hora === sel.hora}">${esc(e.hora)}<span>${eur(e.op.precio)}</span></button>`,
-    )
+
+  e.innerHTML = todos
+    .map((s) => {
+      if (s.op) {
+        return `<button type="button" class="cl-slot${s.hora === sel.hora ? " active" : ""}" data-hora="${esc(s.hora)}" data-precio="${esc(s.op.precio)}" aria-pressed="${s.hora === sel.hora}">${esc(s.hora)}<span>${eur(s.op.precio)}</span></button>`;
+      }
+      return `<button type="button" class="cl-slot cl-slot-ocupado" data-espera-hora="${esc(s.hora)}" aria-label="Apuntarme a la lista de espera a las ${esc(s.hora)}">${esc(s.hora)}<span>${t("reservar.waitlist.cta")}</span></button>`;
+    })
     .join("");
+}
+async function apuntarListaEspera(hora) {
+  const telInput = await customPrompt(
+    t("reservar.waitlist.prompt"),
+    "",
+    t("reservar.waitlist.title"),
+  );
+  if (telInput === null) return;
+  if (!telInput || !telefonoValido(telInput))
+    return toast(t("reservar.waitlist.invalid"), "warn");
+
+  const token = await esperarTokenTurnstile();
+  if (!token) return toast(t("reservar.toast.captcha"), "warn");
+
+  try {
+    const res = await llamarEdge("lista_espera", {
+      p_fecha: sel.fecha,
+      p_hora: hora,
+      p_duracion: sel.dur,
+      p_telefono: normalizarTelefono(telInput),
+      turnstile: token,
+    });
+    if (!res || !res.ok)
+      return toast(t("reservar.waitlist.error") + textoError(res), "err");
+    toast(t("reservar.waitlist.saved"));
+  } catch (err) {
+    errorRed(err);
+  } finally {
+    reiniciarTurnstile();
+  }
 }
 $("clSlots").addEventListener("click", async (ev) => {
   if (ev.target.closest("#btnReintentar")) {
@@ -460,37 +486,12 @@ $("clSlots").addEventListener("click", async (ev) => {
     cargarHuecos();
     return;
   }
-  if (ev.target.closest("#btnEspera")) {
-    const telInput = await customPrompt(
-      t("reservar.waitlist.prompt"),
-      "",
-      t("reservar.waitlist.title"),
-    );
-    if (telInput === null) return;
-    if (!telInput || !telefonoValido(telInput))
-      return toast(t("reservar.waitlist.invalid"), "warn");
-
-    const token = await esperarTokenTurnstile();
-    if (!token) return toast(t("reservar.toast.captcha"), "warn");
-
-    try {
-      const res = await llamarEdge("lista_espera", {
-        p_fecha: sel.fecha,
-        p_duracion: sel.dur,
-        p_telefono: normalizarTelefono(telInput),
-        turnstile: token,
-      });
-      if (!res || !res.ok)
-        return toast(t("reservar.waitlist.error") + textoError(res), "err");
-      toast(t("reservar.waitlist.saved"));
-    } catch (err) {
-      errorRed(err);
-    } finally {
-      reiniciarTurnstile();
-    }
+  const btnEspera = ev.target.closest("[data-espera-hora]");
+  if (btnEspera) {
+    await apuntarListaEspera(btnEspera.dataset.esperaHora);
     return;
   }
-  const slot = ev.target.closest(".cl-slot");
+  const slot = ev.target.closest(".cl-slot[data-hora]");
   if (!slot) return;
   sel.hora = slot.dataset.hora;
   sel.precio = Number(slot.dataset.precio) || 0;

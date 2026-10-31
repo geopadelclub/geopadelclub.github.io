@@ -1022,8 +1022,6 @@ function abrirModalNuevaReserva(
   $("btnEliminarSerie").style.display = "none";
   $("btnEliminarReserva").style.display = "none";
   $("btnHistorialReserva").style.display = "none";
-  const btnJ = $("btnJustificanteReserva");
-  if (btnJ) btnJ.style.display = "none";
   $("modalNumJugadores").value = "4";
 
   document.querySelector('input[name="modalTipoPago"][value="unico"]').checked =
@@ -1180,15 +1178,6 @@ ${pagado ? `<button type="button" ${dis} data-j="${j}" data-m="0" class="btn-pay
     badge.className = "badge-sin-pagar";
     badge.innerHTML = `<i class="ri-error-warning-line" aria-hidden="true"></i>Sin pagar (0/${nJug})`;
   }
-  const btnJ = $("btnJustificanteReserva");
-  if (btnJ)
-    btnJ.style.display =
-      !esEntrenador() &&
-      pagados >= nJug &&
-      reservaEnEdicion &&
-      reservaEnEdicion.id
-        ? "inline-block"
-        : "none";
 }
 
 $("splitJugadoresContainer").addEventListener("click", (e) => {
@@ -1609,68 +1598,6 @@ async function eliminarReservaRPC(alcance) {
 const confirmarEliminarSerie = () => eliminarReservaRPC("serie");
 const confirmarEliminarReserva = () => eliminarReservaRPC("unica");
 
-async function emitirJustificanteReserva() {
-  if (!reservaEnEdicion || !reservaEnEdicion.id)
-    return toast("Guarda la reserva antes de emitir el justificante", "warn");
-  const nJug = parseInt(reservaEnEdicion.numJugadores, 10) || 4;
-  const pagosArr = String(reservaEnEdicion.pagosJugadores || "").split(",");
-  const pagados = pagosArr
-    .slice(0, nJug)
-    .filter((p) => p === "Efectivo" || p === "Tarjeta").length;
-  if (pagados < nJug)
-    return toast("La reserva no está totalmente pagada", "warn");
-  const metodos = [...new Set(pagosArr.slice(0, nJug))];
-  const metodo = metodos.length === 1 ? metodos[0] : "Varios";
-  const precio = parseFloat(reservaEnEdicion.precio) || 0;
-  if (precio <= 0) return toast("La reserva no tiene precio", "warn");
-  const ini = timeToMin(reservaEnEdicion.horaInicio);
-  const fin = ini + (parseInt(reservaEnEdicion.duracionMin, 10) || 90);
-  const lineas = [
-    {
-      concepto: `Pista ${reservaEnEdicion.pista} · ${reservaEnEdicion.horaInicio}-${minToTimeStr(fin)}`,
-      cantidad: 1,
-      precio_unitario_con_iva: precio,
-    },
-  ];
-  const btn = $("btnJustificanteReserva");
-  setBusy(
-    btn,
-    true,
-    '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Emitiendo...',
-  );
-  try {
-    const { data, error } = await supabaseClient.rpc("gp_emitir_documento", {
-      p_tipo: "Justificante",
-      p_fecha: fechaLocalISO(),
-      p_cliente: {},
-      p_metodo_pago: metodo,
-      p_reserva_id: reservaEnEdicion.id,
-      p_iva: 21,
-      p_lineas: lineas,
-      p_notas: `Reserva ${reservaEnEdicion.cliente}`,
-      p_empleado: nombreUsuario(),
-    });
-    if (error) throw error;
-    if (!data || !data.ok)
-      throw new Error((data && data.error) || "No se pudo emitir");
-    toast(`Justificante ${data.numero} emitido (${eur(data.total)})`);
-    const usbReady =
-      typeof usbDevice !== "undefined" &&
-      usbDevice &&
-      typeof usbEndpoint !== "undefined" &&
-      usbEndpoint;
-    if (usbReady && typeof imprimirTicketWebUSB === "function")
-      await imprimirTicketWebUSB(data.id);
-    else if (typeof imprimirFactura === "function")
-      await imprimirFactura(data.id, "ticket");
-  } catch (e) {
-    console.error(e);
-    toast("No se pudo emitir el justificante: " + (e.message || e), "err");
-  } finally {
-    setBusy(btn, false);
-  }
-}
-
 const PP_TIPO_CLASE = {
   Pena: "t-pena",
   Torneo: "t-torneo",
@@ -2005,17 +1932,18 @@ async function cargarListaEspera() {
     .select("*")
     .eq("estado", "pendiente")
     .gte("fecha", hoy)
-    .order("fecha", { ascending: true });
+    .order("fecha", { ascending: true })
+    .order("hora", { ascending: true, nullsFirst: true });
 
   if (error) {
     tb.innerHTML =
-      '<tr><td colspan="4" class="tabla-empty" style="color:var(--red)">Error al cargar</td></tr>';
+      '<tr><td colspan="5" class="tabla-empty" style="color:var(--red)">Error al cargar</td></tr>';
     return;
   }
 
   if (!data || data.length === 0) {
     tb.innerHTML =
-      '<tr><td colspan="4" class="tabla-empty">Nadie en lista de espera</td></tr>';
+      '<tr><td colspan="5" class="tabla-empty">Nadie en lista de espera</td></tr>';
     return;
   }
 
@@ -2029,6 +1957,7 @@ async function cargarListaEspera() {
       (x) => `
         <tr>
             <td><b>${esc(fmtF(x.fecha))}</b></td>
+            <td>${x.hora ? esc(String(x.hora).slice(0, 5)) : '<span style="color:var(--muted)">—</span>'}</td>
             <td>${x.duracion} min</td>
             <td><a href="tel:${esc(x.telefono)}" style="color:var(--blue);font-weight:700">${esc(x.telefono)}</a></td>
             <td>

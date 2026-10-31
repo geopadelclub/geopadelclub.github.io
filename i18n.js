@@ -154,7 +154,7 @@ const I18N = {
       "¿No sabes qué pala comprar? Ven al club y pruébala en tu propio partido antes de decidirte.",
     "reservar.error": "No se pudo cargar la disponibilidad.",
     "reservar.two-hours":
-      '<i class="ri-information-line" aria-hidden="true"></i>¿Necesitas <b>2 horas o más</b>? Llámanos al <a href="tel:+34646059962">646 05 99 62</a> o escríbenos por <a href="https://wa.me/34646059962?text=Hola%2C%20quiero%20reservar%202%20horas" target="_blank" rel="noopener noreferrer">WhatsApp</a>.',
+      '<i class="ri-information-line" aria-hidden="true"></i>¿Necesitas <b>2 horas o más</b> o no encuentras la <b>hora que buscas</b>? Llámanos al <a href="tel:+34646059962">646 05 99 62</a> o escríbenos por <a href="https://wa.me/34646059962?text=Hola%2C%20quiero%20reservar%202%20horas" target="_blank" rel="noopener noreferrer">WhatsApp</a>.',
     "reservar.penas-torneos":
       '<i class="ri-team-line" aria-hidden="true"></i>¿Quieres reservar para una <b>peña</b> o un <b>torneo</b>? Consulta con el club por <a href="https://wa.me/34646059962?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20pe%C3%B1as%20o%20torneos" target="_blank" rel="noopener noreferrer">WhatsApp</a> o llamando al <a href="tel:+34646059962">646 05 99 62</a>.',
     "reservar.searching": "Buscando huecos...",
@@ -345,7 +345,7 @@ const I18N = {
       "Not sure which racket to buy? Come to the club and test it in your own match before deciding.",
     "reservar.error": "Couldn't load availability.",
     "reservar.two-hours":
-      '<i class="ri-information-line" aria-hidden="true"></i>Need <b>2 hours or more</b>? Call us at <a href="tel:+34646059962">646 05 99 62</a> or message us on <a href="https://wa.me/34646059962?text=Hola%2C%20quiero%20reservar%202%20horas" target="_blank" rel="noopener noreferrer">WhatsApp</a>.',
+      '<i class="ri-information-line" aria-hidden="true"></i>Need <b>2 hours or more</b> or can\'t find <b>the time you want</b>? Call us at <a href="tel:+34646059962">646 05 99 62</a> or message us on <a href="https://wa.me/34646059962?text=Hola%2C%20quiero%20reservar%202%20horas" target="_blank" rel="noopener noreferrer">WhatsApp</a>.',
     "reservar.penas-torneos":
       '<i class="ri-team-line" aria-hidden="true"></i>Booking for a <b>group</b> or a <b>tournament</b>? Contact the club via <a href="https://wa.me/34646059962?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20pe%C3%B1as%20o%20torneos" target="_blank" rel="noopener noreferrer">WhatsApp</a> or call <a href="tel:+34646059962">646 05 99 62</a>.',
     "reservar.searching": "Searching for slots...",
