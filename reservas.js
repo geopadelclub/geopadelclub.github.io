@@ -714,11 +714,13 @@ function precioParaFechaHora(fecha, hora, dur, tipoReserva = "Normal") {
     const horaRate = (t.entrenamiento && t.entrenamiento[60]) || 10;
     return redondear2((dur / 60) * horaRate);
   }
-  const franja = esFinde(fecha)
-    ? t.finde
-    : timeToMin(hora) < bloqueDescansoInicio
-      ? t.semanaManana
-      : t.semanaTarde;
+  const esFestivo = (datosLocales.festivos || []).includes(fecha);
+  const franja =
+    esFinde(fecha) || esFestivo
+      ? t.finde
+      : timeToMin(hora) < bloqueDescansoInicio
+        ? t.semanaManana
+        : t.semanaTarde;
   if (!franja) return null;
   const exacto = franja[dur];
   if (exacto !== null && exacto !== undefined) return exacto;
@@ -829,11 +831,13 @@ function precioSugerido() {
     const horaRate = (t.entrenamiento && t.entrenamiento[60]) || 10;
     return redondear2((dur / 60) * horaRate);
   }
-  const franja = esFinde(iso)
-    ? t.finde
-    : timeToMin(hora) < bloqueDescansoInicio
-      ? t.semanaManana
-      : t.semanaTarde;
+  const esFestivo = (datosLocales.festivos || []).includes(iso);
+  const franja =
+    esFinde(iso) || esFestivo
+      ? t.finde
+      : timeToMin(hora) < bloqueDescansoInicio
+        ? t.semanaManana
+        : t.semanaTarde;
   const tor = tipoReserva === "Torneo";
   const dur = tor
     ? (parseFloat($("modalDuracionHoras").value) || 0) * 60

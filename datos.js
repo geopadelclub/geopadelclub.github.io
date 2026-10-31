@@ -4,6 +4,7 @@ async function cargarDatosGlobales() {
   const fechaCaja = $("cajaFecha")?.value || fechaLocalISO();
   const [, rpcResult] = await Promise.all([
     cargarConfigPanel(),
+    cargarFestivos(),
     supabaseClient.rpc("get_panel_data", {
       p_fecha: fechaReservas,
       p_fecha_caja: fechaCaja,
@@ -74,6 +75,17 @@ async function cargarDatosGlobales() {
       }
     }
   }
+}
+async function cargarFestivos() {
+  const { data, error } = await supabaseClient
+    .from("dias_festivos")
+    .select("fecha");
+  if (error) {
+    console.error("Error cargando festivos:", error);
+    datosLocales.festivos = [];
+    return;
+  }
+  datosLocales.festivos = (data || []).map((d) => d.fecha);
 }
 async function cargarClientes() {
   const { data, error } = await conReintento(() =>
