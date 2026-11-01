@@ -105,10 +105,21 @@ enlazarBuscadorCliente($("modalCliente"), $("modalTelefono"));
 
 function puedeEditarReserva(r) {
   if (!esEntrenador()) return true;
-  return (
-    r.tipoReserva === "Entrenamiento" &&
-    String(r.empleado || "") === String(usuarioSesion.user || "")
-  );
+  if (r.tipoReserva !== "Entrenamiento") return false;
+  const empleadoReserva = String(r.empleado || "")
+    .toLowerCase()
+    .trim();
+  const usuarioActual = String(usuarioSesion.user || "")
+    .toLowerCase()
+    .trim();
+  if (empleadoReserva === usuarioActual) return true;
+  const nombreEntrenador = normalizarNombre(usuarioSesion.nombre || "")
+    .toLowerCase()
+    .trim();
+  const clienteReserva = normalizarNombre(r.cliente || "")
+    .toLowerCase()
+    .trim();
+  return !!nombreEntrenador && clienteReserva === nombreEntrenador;
 }
 
 const DURACIONES_NORMAL = [30, 60, 90, 120, 150, 180, 210, 240, 270, 300];
