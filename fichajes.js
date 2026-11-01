@@ -514,3 +514,51 @@ $("fxAtajos").addEventListener("click", (e) => {
   $("fxHasta").value = r;
   fxGenerar();
 });
+
+let _recordatorioFichajeTimeout = null;
+let _recordatorioFichajeInterval = null;
+
+function iniciarRecordatorioFichaje() {
+  detenerRecordatorioFichaje();
+  if (!usuarioSesion) return;
+  if (typeof esJefa === "function" && esJefa()) return;
+  if (typeof esEntrenador === "function" && esEntrenador()) return;
+  _recordatorioFichajeTimeout = setTimeout(
+    () => {
+      _recordatorioFichajeTimeout = null;
+      comprobarRecordatorioFichaje();
+      _recordatorioFichajeInterval = setInterval(
+        comprobarRecordatorioFichaje,
+        10 * 60 * 1000,
+      );
+    },
+    5 * 60 * 1000,
+  );
+}
+
+function comprobarRecordatorioFichaje() {
+  if (!usuarioSesion) {
+    detenerRecordatorioFichaje();
+    return;
+  }
+  if (ultimoFichaje && ultimoFichaje.tipo === "Entrada") {
+    detenerRecordatorioFichaje();
+    return;
+  }
+  toast(
+    "¿Se te ha olvidado fichar la entrada? Ve a Equipo → Fichaje.",
+    "warn",
+    10000,
+  );
+}
+
+function detenerRecordatorioFichaje() {
+  if (_recordatorioFichajeTimeout) {
+    clearTimeout(_recordatorioFichajeTimeout);
+    _recordatorioFichajeTimeout = null;
+  }
+  if (_recordatorioFichajeInterval) {
+    clearInterval(_recordatorioFichajeInterval);
+    _recordatorioFichajeInterval = null;
+  }
+}

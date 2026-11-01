@@ -178,6 +178,8 @@ async function comprobarSesion() {
 }
 async function cerrarSesion() {
   detenerVigilanciaSesion();
+  if (typeof detenerRecordatorioFichaje === "function")
+    detenerRecordatorioFichaje();
   if (canalRealtime && supabaseClient) {
     supabaseClient.removeChannel(canalRealtime);
     canalRealtime = null;
@@ -226,6 +228,8 @@ async function mostrarPanelAdmin() {
   )
     bNotif.style.display = "none";
   if (!esJefa()) cargarMisFichajes();
+  if (typeof iniciarRecordatorioFichaje === "function")
+    iniciarRecordatorioFichaje();
   await cargarDatosGlobales();
   if (typeof entrarResumen === "function") await entrarResumen();
 }

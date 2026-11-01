@@ -195,6 +195,11 @@ const I18N = {
       "No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.",
     "mis-reservas.recurrente":
       "Reserva recurrente ({n} semanas). Para cancelar una semana concreta, llama al club.",
+    "resena.titulo": "¿Te ha gustado Geopadel?",
+    "resena.texto":
+      "Si al jugar has disfrutado de nuestras pistas, déjanos una reseña en Google. ¡Nos ayuda muchísimo a seguir creciendo!",
+    "resena.cta": "Dejar reseña en Google",
+    "resena.ahora-no": "Ahora no",
   },
   en: {
     "nav.tarifas": "Prices",
@@ -384,6 +389,11 @@ const I18N = {
       "Couldn't connect. Check your connection and try again.",
     "mis-reservas.recurrente":
       "Recurring booking ({n} weeks). To cancel a specific week, call the club.",
+    "resena.titulo": "Did you enjoy Geopadel?",
+    "resena.texto":
+      "If you enjoyed playing on our courts, leave us a review on Google. It helps us grow a lot!",
+    "resena.cta": "Leave a review on Google",
+    "resena.ahora-no": "Not now",
   },
 };
 let _idioma = "es";

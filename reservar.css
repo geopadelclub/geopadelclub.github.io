@@ -772,3 +772,48 @@
   border-color: var(--orange);
   background: var(--orange-soft);
 }
+
+.cl-review-prompt {
+  margin-top: 22px;
+  padding: 16px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  text-align: center;
+}
+
+.cl-review-prompt .cl-review-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--heading);
+  margin-bottom: 6px;
+}
+
+.cl-review-prompt .cl-review-title i {
+  color: #f5b400;
+  margin-right: 4px;
+}
+
+.cl-review-prompt .cl-hint {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+
+.cl-review-prompt .cl-review-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.cl-review-prompt .btn-add {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  padding: 11px 16px;
+}

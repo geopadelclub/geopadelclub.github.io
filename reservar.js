@@ -425,6 +425,7 @@ async function cargarHuecos() {
 function dibujarHuecos() {
   const e = $("clSlots");
   const todos = slotsDia
+    .filter((s) => !s.durs_validas || s.durs_validas.includes(sel.dur))
     .map((s) => {
       const op = (s.opciones || []).find((o) => o.dur === sel.dur);
       return { hora: s.hora, op };
@@ -684,6 +685,23 @@ async function confirmarReserva() {
     reiniciarTurnstile();
   }
 }
+function mostrarBloqueResena() {
+  const bloque = $("bloqueResena");
+  if (!bloque) return;
+  const url =
+    typeof GOOGLE_REVIEW_URL !== "undefined" ? String(GOOGLE_REVIEW_URL) : "";
+  if (!url || url.includes("REEMPLAZA")) {
+    bloque.hidden = true;
+    return;
+  }
+  if (localStorage.getItem("gp-review-dismissed")) {
+    bloque.hidden = true;
+    return;
+  }
+  const btn = $("btnResenaGoogle");
+  if (btn) btn.href = url;
+  bloque.hidden = false;
+}
 let ultimaReserva = null;
 function mostrarExito(e) {
   ultimaReserva = e;
@@ -722,6 +740,7 @@ function mostrarExito(e) {
   sel.hora = null;
   cacheHuecos.t = 0;
   cargarHuecos();
+  mostrarBloqueResena();
 }
 $("btnEnviarEmail").addEventListener("click", async () => {
   const input = $("clEmail"),
@@ -1019,6 +1038,24 @@ $("btnShare").addEventListener("click", async () => {
       toast(t("reservar.toast.copy-error"), "err");
     }
 });
+if ($("btnResenaGoogle")) {
+  $("btnResenaGoogle").addEventListener("click", () => {
+    try {
+      localStorage.setItem("gp-review-dismissed", "1");
+    } catch (e) {}
+    const b = $("bloqueResena");
+    if (b) b.hidden = true;
+  });
+}
+if ($("btnResenaCerrar")) {
+  $("btnResenaCerrar").addEventListener("click", () => {
+    try {
+      localStorage.setItem("gp-review-dismissed", "1");
+    } catch (e) {}
+    const b = $("bloqueResena");
+    if (b) b.hidden = true;
+  });
+}
 async function suscribirPush() {
   if (!ultimaReserva) return;
   if (!VAPID_PUBLIC_KEY) return;
