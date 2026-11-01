@@ -2164,3 +2164,10 @@ async function eliminarBloqueo(id) {
     if (b) eliminarBloqueo(b.dataset.bloqueoDel);
   });
 })();
+
+if ($("modalCliente")) {
+  $("modalCliente").addEventListener("blur", () => {
+    const v = $("modalCliente").value;
+    if (v.trim()) $("modalCliente").value = normalizarNombre(v);
+  });
+}

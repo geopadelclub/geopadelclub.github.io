@@ -1154,6 +1154,12 @@ function actualizarIntroReserva() {
       min: duracionTxt(antMin()),
     });
 }
+if ($("clNombre")) {
+  $("clNombre").addEventListener("blur", () => {
+    const v = $("clNombre").value;
+    if (v.trim()) $("clNombre").value = normalizarNombre(v);
+  });
+}
 document.addEventListener("idioma-cambiado", actualizarIntroReserva);
 let promptInstalacion = null;
 const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent),
