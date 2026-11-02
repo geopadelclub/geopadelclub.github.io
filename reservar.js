@@ -1110,27 +1110,25 @@ $("btnSalirMis").addEventListener("click", () => {
 $("btnBorrarDatos").addEventListener("click", async () => {
   if (!cuenta) return;
   if (!(await customConfirm(t("mis-reservas.borrar-confirm")))) return;
-  const e = $("btnBorrarDatos");
-  setBusy(e, !0, "Borrando...");
+  const btn = $("btnBorrarDatos");
+  setBusy(btn, true, "Borrando...");
   try {
-    const e = await llamarEdge("borrar", {
+    const res = await llamarEdge("borrar", {
       p_ident: cuenta.ident,
       p_codigo: cuenta.codigo,
     });
-    if (!e || !e.ok) {
-      toast(textoError(e), "err");
+    if (!res || !res.ok) {
+      toast(textoError(res), "err");
       return;
     }
     cuenta = null;
-    $("misIdent").value = "";
-    $("misCodigo").value = "";
-    $("msgMis").innerText = "";
-    mostrarMis(!1);
+    resetMisLogin();
+    mostrarMis(false);
     toast(t("mis-reservas.toast.deleted"));
-  } catch (e) {
-    errorRed(e);
+  } catch (err) {
+    errorRed(err);
   } finally {
-    setBusy(e, !1);
+    setBusy(btn, false);
   }
 });
 $("misLista").addEventListener("click", async (e) => {
