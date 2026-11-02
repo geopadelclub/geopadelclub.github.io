@@ -2228,3 +2228,304 @@ if ($("modalCliente")) {
     if (v.trim()) $("modalCliente").value = normalizarNombre(v);
   });
 }
+
+const PLANTILLAS_EMOJIS = [
+  "💯",
+  "🎾",
+  "🏆",
+  "🔥",
+  "⚡",
+  "💪",
+  "🎯",
+  "🚀",
+  "🌟",
+  "✨",
+  "💥",
+  "🎉",
+  "👍",
+  "⭐",
+  "🏓",
+  "🥇",
+  "🎪",
+  "🏅",
+  "😎",
+  "🤙",
+];
+
+function getDiaSemanaLargoPlantillas(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  const dias = [
+    "Domingo",
+    "Lunes",
+    "Martes",
+    "Miércoles",
+    "Jueves",
+    "Viernes",
+    "Sábado",
+  ];
+  return dias[new Date(y, m - 1, d, 12).getDay()];
+}
+
+function copiarTextoPlantilla(texto, msgExito) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard
+      .writeText(texto)
+      .then(() => toast(msgExito || "Copiado", "ok"))
+      .catch(() => fallbackCopiarPlantilla(texto, msgExito));
+  } else {
+    fallbackCopiarPlantilla(texto, msgExito);
+  }
+}
+
+function fallbackCopiarPlantilla(texto, msgExito) {
+  const ta = document.createElement("textarea");
+  ta.value = texto;
+  ta.style.position = "fixed";
+  ta.style.left = "-9999px";
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand("copy");
+    toast(msgExito || "Copiado", "ok");
+  } catch (err) {
+    toast("No se pudo copiar", "err");
+  }
+  document.body.removeChild(ta);
+}
+
+async function generarPlantillasManana() {
+  const cont = $("plantillasContenido");
+  if (!cont) return;
+  const btn = $("btnGenerarPlantillas");
+  setBusy(
+    btn,
+    true,
+    '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Generando...',
+  );
+  cont.innerHTML =
+    '<p class="limp-leyenda">Cargando disponibilidad de mañana...</p>';
+
+  try {
+    const manana = sumarDiasISO(fechaLocalISO(), 1);
+    const { data, error } = await supabaseClient.rpc("web_disponibilidad", {
+      p_fecha: manana,
+    });
+    if (error) throw error;
+
+    if (!data || !data.ok) {
+      cont.innerHTML =
+        '<p class="limp-leyenda" style="color:var(--red);text-align:center">No se pudo cargar la disponibilidad</p>';
+      return;
+    }
+
+    const slotsValidos = (data.slots || [])
+      .map((s) => {
+        const op90 = (s.opciones || []).find((o) => o.dur === 90);
+        return op90 && op90.libres > 0
+          ? { hora: s.hora, libres: op90.libres }
+          : null;
+      })
+      .filter(Boolean);
+
+    if (!slotsValidos.length) {
+      cont.innerHTML =
+        '<p class="limp-leyenda" style="text-align:center">No hay huecos libres de 90 minutos para mañana.</p>';
+      return;
+    }
+
+    const diaSemana = getDiaSemanaLargoPlantillas(manana);
+    const usados = [];
+    const plantillas = [];
+
+    slotsValidos.forEach((slot) => {
+      const disponibles = PLANTILLAS_EMOJIS.filter((e) => !usados.includes(e));
+      const emoji = disponibles.length
+        ? disponibles[Math.floor(Math.random() * disponibles.length)]
+        : PLANTILLAS_EMOJIS[
+            Math.floor(Math.random() * PLANTILLAS_EMOJIS.length)
+          ];
+      usados.push(emoji);
+
+      const finMin = timeToMin(slot.hora) + 90;
+      const finStr = minToTimeStr(finMin);
+      const texto = `${diaSemana} ${slot.hora} - ${finStr}\n${emoji}\n${emoji}\n${emoji}\n${emoji}`;
+
+      plantillas.push({
+        hora: slot.hora,
+        fin: finStr,
+        emoji,
+        texto,
+        pistasLibres: slot.libres,
+      });
+    });
+
+    cont.innerHTML = `
+      <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button type="button" class="btn-add blue" id="btnCopiarTodasPlantillas">
+          <i class="ri-file-copy-line" aria-hidden="true"></i>Copiar todas (${plantillas.length})
+        </button>
+        <button type="button" class="btn-add" id="btnModoEnvio" style="background:var(--ok-btn)">
+          <i class="ri-send-plane-line" aria-hidden="true"></i>Modo envío paso a paso
+        </button>
+        <span style="font-size:12px;color:var(--muted);font-weight:700">
+          ${plantillas.length} ${plantillas.length === 1 ? "plantilla generada" : "plantillas generadas"}
+        </span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        ${plantillas
+          .map(
+            (p, idx) => `
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+              <span style="font-size:13px;color:var(--heading);font-weight:800">
+                ${esc(p.hora)} - ${esc(p.fin)}
+              </span>
+              <span style="font-size:11px;color:var(--muted);font-weight:700">
+                ${p.pistasLibres} ${p.pistasLibres === 1 ? "pista libre" : "pistas libres"}
+              </span>
+            </div>
+            <pre style="margin:0;font-family:'Courier New',monospace;font-size:14px;white-space:pre-wrap;line-height:1.6;color:var(--text)">${esc(p.texto)}</pre>
+            <button type="button" class="btn-add blue" style="margin-top:10px;font-size:12px;padding:6px 12px" data-copiar-plantilla="${idx}">
+              <i class="ri-file-copy-line" aria-hidden="true"></i>Copiar
+            </button>
+          </div>
+        `,
+          )
+          .join("")}
+      </div>
+    `;
+
+    $("btnCopiarTodasPlantillas").addEventListener("click", () => {
+      const todas = plantillas.map((p) => p.texto).join("\n\n---\n\n");
+      copiarTextoPlantilla(todas, `${plantillas.length} plantillas copiadas`);
+    });
+
+    $("btnModoEnvio").addEventListener("click", () => {
+      abrirModoEnvioPlantillas(plantillas);
+    });
+
+    cont.querySelectorAll("[data-copiar-plantilla]").forEach((b) => {
+      b.addEventListener("click", () => {
+        const idx = parseInt(b.dataset.copiarPlantilla, 10);
+        const p = plantillas[idx];
+        if (p) copiarTextoPlantilla(p.texto, "Plantilla copiada");
+      });
+    });
+  } catch (err) {
+    console.error(err);
+    cont.innerHTML = `<p class="limp-leyenda" style="color:var(--red);text-align:center">Error: ${esc(err.message || err)}</p>`;
+  } finally {
+    setBusy(btn, false);
+  }
+}
+function abrirModoEnvioPlantillas(plantillas) {
+  if (!plantillas || !plantillas.length) return;
+
+  let idx = 0;
+
+  const overlay = document.createElement("div");
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.72);
+    display:flex;align-items:center;justify-content:center;padding:16px;
+  `;
+
+  const card = document.createElement("div");
+  card.style.cssText = `
+    background:var(--surface);border-radius:16px;max-width:520px;width:100%;
+    box-shadow:0 20px 60px rgba(0,0,0,.4);display:flex;flex-direction:column;
+    max-height:90vh;overflow:hidden;
+  `;
+
+  function render() {
+    const p = plantillas[idx];
+    const esUltima = idx === plantillas.length - 1;
+    card.innerHTML = `
+      <div style="background:var(--header-bg);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:8px;color:var(--on-header);font-weight:800">
+          <i class="ri-whatsapp-line" style="font-size:22px;color:#25d366"></i>
+          <span>Envío paso a paso</span>
+        </div>
+        <button type="button" id="envioCerrar" style="background:var(--surface-3);border:none;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;color:var(--heading)">
+          <i class="ri-close-line"></i>
+        </button>
+      </div>
+
+      <div style="padding:16px 20px 8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <span style="font-size:13px;font-weight:700;color:var(--muted)">
+            Plantilla ${idx + 1} de ${plantillas.length}
+          </span>
+          <span style="font-size:12px;font-weight:700;color:var(--heading)">
+            ${esc(p.hora)} - ${esc(p.fin)}
+          </span>
+        </div>
+        <div style="height:6px;background:var(--surface-3);border-radius:999px;overflow:hidden">
+          <div style="height:100%;width:${((idx + 1) / plantillas.length) * 100}%;background:var(--ok-btn);transition:width .2s"></div>
+        </div>
+      </div>
+
+      <div style="padding:12px 20px;overflow-y:auto;flex:1">
+        <pre style="margin:0;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:16px;font-family:'Courier New',monospace;font-size:15px;white-space:pre-wrap;line-height:1.6;color:var(--text)">${esc(p.texto)}</pre>
+        <p style="font-size:12px;color:var(--muted);font-weight:600;margin:12px 0 0;line-height:1.5">
+          <i class="ri-information-line"></i>
+          1. Pulsa "Copiar".<br>
+          2. Abre WhatsApp en tu grupo y pega el mensaje (Ctrl+V).<br>
+          3. Envía. Vuelve aquí y pulsa "Siguiente".
+        </p>
+      </div>
+
+      <div style="padding:14px 20px;border-top:1px solid var(--border);background:var(--surface-3);display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" id="envioCopiar" style="flex:1;min-width:130px;padding:12px;border:none;border-radius:10px;background:var(--blue-btn);color:#fff;font-weight:800;font-size:14px;cursor:pointer">
+          <i class="ri-file-copy-line"></i> Copiar${esUltima ? " y terminar" : " y siguiente"}
+        </button>
+        <button type="button" id="envioSaltar" style="flex:0 0 auto;padding:12px 14px;border:none;border-radius:10px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-weight:700;font-size:13px;cursor:pointer">
+          ${esUltima ? "Cerrar" : "Saltar"}
+        </button>
+      </div>
+    `;
+
+    card.querySelector("#envioCerrar").addEventListener("click", cerrar);
+    card.querySelector("#envioCopiar").addEventListener("click", () => {
+      copiarTextoPlantilla(
+        p.texto,
+        `Copiada plantilla ${idx + 1} de ${plantillas.length}`,
+      );
+      if (esUltima) {
+        setTimeout(cerrar, 400);
+      } else {
+        idx++;
+        setTimeout(render, 200);
+      }
+    });
+    card.querySelector("#envioSaltar").addEventListener("click", () => {
+      if (esUltima) {
+        cerrar();
+      } else {
+        idx++;
+        render();
+      }
+    });
+  }
+
+  function cerrar() {
+    overlay.remove();
+    document.body.style.overflow = "";
+  }
+
+  render();
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+  document.body.style.overflow = "hidden";
+
+  const onKey = (e) => {
+    if (e.key === "Escape") {
+      document.removeEventListener("keydown", onKey);
+      cerrar();
+    }
+  };
+  document.addEventListener("keydown", onKey);
+}
+
+if ($("btnGenerarPlantillas")) {
+  $("btnGenerarPlantillas").addEventListener("click", generarPlantillasManana);
+}
