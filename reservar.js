@@ -3,12 +3,20 @@ const SPIN = '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>';
 let cfg = {
   dias_max: 30,
   cancelar_horas: 24,
-  max_futuras: 4,
+  max_futuras: 9,
   duraciones: [60, 90],
   anticipacion_min: 30,
 };
-const sel = { fecha: null, dur: 90, hora: null, precio: 0 },
+const sel = {
+    fecha: null,
+    dur: 90,
+    hora: null,
+    precio: 0,
+    numPistas: 1,
+    numPistasDisponibles: 1,
+  },
   flujo = { fase: "tel", tel: "", codigo: "", nombre: "", email: "" };
+let misTelActual = "";
 let cuenta = null,
   slotsDia = [],
   reqHuecos = 0,
@@ -197,6 +205,10 @@ function textoError(e) {
       return _idioma === "en"
         ? "Invalid duration."
         : "La duración no es válida.";
+    case "num_pistas_invalido":
+      return _idioma === "en"
+        ? "Invalid number of courts."
+        : "El número de pistas no es válido.";
     case "telefono_invalido":
       return _idioma === "en"
         ? "Check the phone number."
@@ -223,6 +235,10 @@ function textoError(e) {
         ? `Too many attempts. Try again in ${t} min.`
         : `Demasiados intentos. Inténtalo en ${t} min.`;
     }
+    case "ya_existe":
+      return _idioma === "en"
+        ? "An account already exists with this phone."
+        : "Ya existe una cuenta con este teléfono. Llama al club si tienes problemas.";
     case "sin_disponibilidad":
       return _idioma === "en"
         ? "That slot was just taken."
@@ -445,7 +461,12 @@ function dibujarHuecos() {
   e.innerHTML = todos
     .map((s) => {
       if (s.op) {
-        return `<button type="button" class="cl-slot${s.hora === sel.hora ? " active" : ""}" data-hora="${esc(s.hora)}" data-precio="${esc(s.op.precio)}" aria-pressed="${s.hora === sel.hora}">${esc(s.hora)}<span>${eur(s.op.precio)}</span></button>`;
+        const libres = s.op.libres || 1;
+        const libresTxt =
+          libres > 1
+            ? ` · ${libres} ${t("reservar.numPistas.disponibles")}`
+            : "";
+        return `<button type="button" class="cl-slot${s.hora === sel.hora ? " active" : ""}" data-hora="${esc(s.hora)}" data-precio="${esc(s.op.precio)}" data-libres="${libres}" aria-pressed="${s.hora === sel.hora}">${esc(s.hora)}<span>${eur(s.op.precio)}${libresTxt}</span></button>`;
       }
       return `<button type="button" class="cl-slot cl-slot-ocupado" data-espera-hora="${esc(s.hora)}" aria-label="Apuntarme a la lista de espera a las ${esc(s.hora)}">${esc(s.hora)}<span>${t("reservar.waitlist.cta")}</span></button>`;
     })
@@ -496,17 +517,64 @@ $("clSlots").addEventListener("click", async (ev) => {
   if (!slot) return;
   sel.hora = slot.dataset.hora;
   sel.precio = Number(slot.dataset.precio) || 0;
+  sel.numPistasDisponibles = Number(slot.dataset.libres) || 1;
+  sel.numPistas = 1;
   dibujarHuecos();
   mostrarDatos();
 });
 function mostrarDatos() {
   if (flujo.fase === "listo") resetFlujo();
-  $("cardOk").hidden = !0;
+  $("cardOk").hidden = true;
+
+  const libres = sel.numPistasDisponibles || 1;
+  let selectorHtml = "";
+  if (libres > 1) {
+    const opciones = Array.from({ length: libres }, (_, i) => i + 1)
+      .map(
+        (n) =>
+          `<option value="${n}"${n === (sel.numPistas || 1) ? " selected" : ""}>${n}</option>`,
+      )
+      .join("");
+    selectorHtml = `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+      <span style="font-weight:700;font-size:14px;">${t("reservar.numPistas.label")}</span>
+      <select id="clNumPistas" style="padding:6px 10px;border-radius:6px;border:1.5px solid var(--border);font-size:14px;font-weight:700;background:var(--surface);color:var(--text);">
+        ${opciones}
+      </select>
+    </div>`;
+  }
+
+  const total = sel.precio * (sel.numPistas || 1);
+  const totalTxt =
+    sel.numPistas > 1
+      ? `${eur(total)} <small style="color:var(--muted);font-weight:600;">(${sel.numPistas} × ${eur(sel.precio)})</small>`
+      : eur(total);
+
   $("clResumen").innerHTML =
-    `<span><i class="ri-calendar-event-line" aria-hidden="true"></i>${esc(fechaWeb(sel.fecha))}</span><span><i class="ri-time-line" aria-hidden="true"></i>${esc(sel.hora)} – ${horaStr(minutos(sel.hora) + sel.dur)}</span><span><i class="ri-money-euro-circle-line" aria-hidden="true"></i>${eur(sel.precio)}</span>`;
+    `<span><i class="ri-calendar-event-line" aria-hidden="true"></i>${esc(fechaWeb(sel.fecha))}</span>
+     <span><i class="ri-time-line" aria-hidden="true"></i>${esc(sel.hora)} – ${horaStr(minutos(sel.hora) + sel.dur)}</span>
+     <span id="clPrecioTotal"><i class="ri-money-euro-circle-line" aria-hidden="true"></i>${totalTxt}</span>
+     ${selectorHtml}`;
+
+  if (libres > 1) {
+    const selEl = $("clNumPistas");
+    if (selEl) {
+      selEl.addEventListener("change", () => {
+        const n = parseInt(selEl.value, 10) || 1;
+        sel.numPistas = n;
+        const t2 = sel.precio * n;
+        const txt =
+          n > 1
+            ? `${eur(t2)} <small style="color:var(--muted);font-weight:600;">(${n} × ${eur(sel.precio)})</small>`
+            : eur(t2);
+        $("clPrecioTotal").innerHTML =
+          `<i class="ri-money-euro-circle-line" aria-hidden="true"></i>${txt}`;
+      });
+    }
+  }
+
   mostrarBloques();
   const e = $("cardDatos");
-  e.hidden = !1;
+  e.hidden = false;
   e.scrollIntoView({ behavior: "smooth", block: "nearest" });
   setTimeout(() => {
     if (flujo.fase === "tel") $("clTel").focus();
@@ -639,6 +707,7 @@ async function confirmarReserva() {
       p_fecha: sel.fecha,
       p_hora: sel.hora,
       p_duracion: sel.dur,
+      p_num_pistas: sel.numPistas || 1,
       turnstile: tsToken,
       consentimiento: flujo.fase === "nuevo" && $("clConsent").checked,
     });
@@ -661,12 +730,18 @@ async function confirmarReserva() {
         resetFlujo();
       return;
     }
+    const reservasArr =
+      res.reservas && res.reservas.length ? res.reservas : [res.reserva];
     flujo.fase = "listo";
-    flujo.nombre = res.reserva.nombre;
+    flujo.nombre = reservasArr[0].nombre;
     flujo.codigo = codigo;
-    cuenta = { ident: flujo.tel, codigo: codigo, nombre: res.reserva.nombre };
+    cuenta = {
+      ident: flujo.tel,
+      codigo: codigo,
+      nombre: reservasArr[0].nombre,
+    };
     if (res.email) flujo.email = res.email;
-    mostrarExito(res.reserva);
+    mostrarExito(reservasArr);
   } catch (err) {
     const errMsg = String((err && err.message) || "");
     if (/antelacion_insuficiente/i.test(errMsg)) {
@@ -703,11 +778,30 @@ function mostrarBloqueResena() {
   bloque.hidden = false;
 }
 let ultimaReserva = null;
-function mostrarExito(e) {
-  ultimaReserva = e;
+function mostrarExito(reserva) {
+  const reservas = Array.isArray(reserva) ? reserva : [reserva];
+  ultimaReserva = reservas[0];
+
   $("cardDatos").hidden = true;
+
+  const totalPrecio = reservas.reduce((s, r) => s + (Number(r.precio) || 0), 0);
+  const pistasHtml = reservas
+    .map(
+      (r) =>
+        `<div><i class="ri-map-pin-line" aria-hidden="true"></i>${esc(r.pista)}</div>`,
+    )
+    .join("");
+  const precioHtml =
+    reservas.length > 1
+      ? `${eur(totalPrecio)} · ${t("reservar.pago")} <small style="color:var(--muted);font-weight:600;">(${reservas.length} × ${eur(reservas[0].precio)})</small>`
+      : `${eur(totalPrecio)} · ${t("reservar.pago")}`;
+
   $("okDetalle").innerHTML =
-    `<div><i class="ri-calendar-event-line" aria-hidden="true"></i>${esc(fechaWeb(e.fecha))}</div><div><i class="ri-time-line" aria-hidden="true"></i>${esc(e.hora)} – ${horaStr(minutos(e.hora) + e.duracion)} (${esc(duracionTxt(e.duracion))})</div><div><i class="ri-map-pin-line" aria-hidden="true"></i>${esc(e.pista)}</div><div><i class="ri-money-euro-circle-line" aria-hidden="true"></i>${eur(e.precio)} · ${t("reservar.pago")}</div><div><i class="ri-checkbox-circle-line" aria-hidden="true"></i>${t("mis-reservas.confirmada")}</div>`;
+    `<div><i class="ri-calendar-event-line" aria-hidden="true"></i>${esc(fechaWeb(reservas[0].fecha))}</div>
+     <div><i class="ri-time-line" aria-hidden="true"></i>${esc(reservas[0].hora)} – ${horaStr(minutos(reservas[0].hora) + reservas[0].duracion)} (${esc(duracionTxt(reservas[0].duracion))})</div>
+     ${pistasHtml}
+     <div><i class="ri-money-euro-circle-line" aria-hidden="true"></i>${precioHtml}</div>
+     <div><i class="ri-checkbox-circle-line" aria-hidden="true"></i>${t("mis-reservas.confirmada")}</div>`;
 
   const bloque = $("bloqueEmail");
   const msgEmail = $("msgEmail");
@@ -805,6 +899,120 @@ function mostrarMis(e) {
   $("cardMisLogin").hidden = e;
   $("cardMisLista").hidden = !e;
 }
+function resetMisLogin() {
+  misTelActual = "";
+  $("misTel").value = "";
+  $("misCodigo").value = "";
+  $("misNombre").value = "";
+  $("misCodigoNew").value = "";
+  $("misCodigoNew2").value = "";
+  if ($("misConsent")) $("misConsent").checked = false;
+  $("misBloqueTel").hidden = false;
+  $("misBloqueExistente").hidden = true;
+  $("misBloqueNuevo").hidden = true;
+  $("msgMis").innerText = "";
+  $("msgMis").className = "msg-inline";
+  setTimeout(() => $("misTel").focus(), 100);
+}
+
+function mostrarBloqueMis(bloque) {
+  $("misBloqueTel").hidden = bloque !== "tel";
+  $("misBloqueExistente").hidden = bloque !== "existente";
+  $("misBloqueNuevo").hidden = bloque !== "nuevo";
+  setTimeout(() => {
+    if (bloque === "tel") $("misTel").focus();
+    else if (bloque === "existente") $("misCodigo").focus();
+    else if (bloque === "nuevo") $("misNombre").focus();
+  }, 80);
+}
+
+if ($("misBtnTel")) {
+  $("misBtnTel").addEventListener("click", async () => {
+    if (!telefonoValido($("misTel").value))
+      return toast(t("reservar.toast.phone-invalid"), "warn");
+    const tel = normalizarTelefono($("misTel").value);
+    const btn = $("misBtnTel");
+    setBusy(btn, true, SPIN + t("reservar.checking"));
+    try {
+      const r = await conReintento(() =>
+        llamarEdge("estado", { p_telefono: tel }),
+      );
+      if (!r || !r.ok) return toast(textoError(r), "warn");
+      misTelActual = tel;
+      mostrarBloqueMis(r.con_codigo ? "existente" : "nuevo");
+    } catch (err) {
+      errorRed(err);
+    } finally {
+      setBusy(btn, false);
+    }
+  });
+}
+
+if ($("misTel")) {
+  $("misTel").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      $("misBtnTel").click();
+    }
+  });
+}
+
+if ($("misBtnEntrar")) {
+  $("misBtnEntrar").addEventListener("click", async () => {
+    const codigo = $("misCodigo").value.trim();
+    if (!codigo) return toast(t("reservar.toast.code-empty"), "warn");
+    await cargarMisReservas(misTelActual, codigo);
+  });
+}
+
+if ($("misCodigo")) {
+  $("misCodigo").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      $("misBtnEntrar").click();
+    }
+  });
+}
+
+if ($("misBtnCrear")) {
+  $("misBtnCrear").addEventListener("click", async () => {
+    const nombre = $("misNombre").value.trim().replace(/\s+/g, " ");
+    const cod1 = $("misCodigoNew").value.trim();
+    const cod2 = $("misCodigoNew2").value.trim();
+    if (nombre.split(" ").length < 2)
+      return toast(t("reservar.toast.name-required"), "warn");
+    if (cod1.length < 6) return toast(t("reservar.toast.code-short"), "warn");
+    if (cod1 !== cod2) return toast(t("reservar.toast.code-mismatch"), "warn");
+    if (!$("misConsent").checked)
+      return toast(t("reservar.toast.privacy-required"), "warn");
+    const btn = $("misBtnCrear");
+    setBusy(btn, true, SPIN + "Creando cuenta...");
+    try {
+      const r = await llamarEdge("crear_cuenta", {
+        p_telefono: misTelActual,
+        p_nombre: nombre,
+        p_codigo: cod1,
+      });
+      if (!r || !r.ok) {
+        toast(textoError(r), "err");
+        return;
+      }
+      toast("Cuenta creada. Ya puedes ver tus reservas.");
+      await cargarMisReservas(misTelActual, cod1);
+    } catch (err) {
+      errorRed(err);
+    } finally {
+      setBusy(btn, false);
+    }
+  });
+}
+
+if ($("misBtnCambiarTel")) {
+  $("misBtnCambiarTel").addEventListener("click", resetMisLogin);
+}
+if ($("misBtnCambiarTel2")) {
+  $("misBtnCambiarTel2").addEventListener("click", resetMisLogin);
+}
 function agruparReservas(e) {
   const t = [],
     n = {};
@@ -869,45 +1077,34 @@ function dibujarMisReservas(e) {
     : `<p class="cl-empty">${t("mis-reservas.vacio")}</p>`;
 }
 async function cargarMisReservas(e, n) {
-  const r = $("btnMis"),
-    i = $("msgMis");
-  setBusy(r, !0, SPIN + "Buscando...");
-  i.innerText = "";
+  const btnEntrar = $("misBtnEntrar");
+  const msg = $("msgMis");
+  setBusy(btnEntrar, true, SPIN + "Buscando...");
+  msg.innerText = "";
+  msg.className = "msg-inline";
   try {
     const t = await conReintento(() =>
       llamarEdge("mis_reservas", { p_ident: e, p_codigo: n }),
     );
     if (!t || !t.ok) {
       cuenta = null;
-      mostrarMis(!1);
-      i.className = "msg-inline msg-error";
-      i.innerText = textoError(t);
+      msg.className = "msg-inline msg-error";
+      msg.innerText = textoError(t);
       return;
     }
     cuenta = { ident: e, codigo: n, nombre: t.nombre };
     $("misCodigo").value = "";
     dibujarMisReservas(t);
-    mostrarMis(!0);
-  } catch (e) {
-    errorRed(e);
+    mostrarMis(true);
+  } catch (err) {
+    errorRed(err);
   } finally {
-    setBusy(r, !1);
+    setBusy(btnEntrar, false);
   }
 }
-$("formMis").addEventListener("submit", (e) => {
-  e.preventDefault();
-  let ident = $("misIdent").value.trim();
-  const codigo = $("misCodigo").value.trim();
-  if (ident && /^[+\d\s().-]+$/.test(ident)) ident = normalizarTelefono(ident);
-  if (!ident || !codigo)
-    return toast(t("reservar.toast.ident-required"), "warn");
-  cargarMisReservas(ident, codigo);
-});
 $("btnSalirMis").addEventListener("click", () => {
   cuenta = null;
-  $("misIdent").value = "";
-  $("misCodigo").value = "";
-  $("msgMis").innerText = "";
+  resetMisLogin();
   mostrarMis(!1);
 });
 $("btnBorrarDatos").addEventListener("click", async () => {
@@ -1146,6 +1343,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   } else {
     seleccionarDia(fechaLocalISO());
   }
+  if (!cuenta) resetMisLogin();
 });
 function actualizarIntroReserva() {
   const e = $("txtIntroReserva");

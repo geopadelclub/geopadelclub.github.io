@@ -200,6 +200,13 @@ const I18N = {
       "Si al jugar has disfrutado de nuestras pistas, déjanos una reseña en Google. ¡Nos ayuda muchísimo a seguir creciendo!",
     "resena.cta": "Dejar reseña en Google",
     "resena.ahora-no": "Ahora no",
+    "reservar.numPistas.label": "¿Cuántas pistas quieres?",
+    "reservar.numPistas.disponibles": "libres",
+    "mis-reservas.login": "Entra para ver tus reservas",
+    "mis-reservas.sin-codigo":
+      "Aún no tienes código web. Rellena tus datos para crearlo y poder ver tus reservas.",
+    "mis-reservas.crear": "Crear cuenta y ver reservas",
+    "mis-reservas.cambiar-tel": "Usar otro teléfono",
   },
   en: {
     "nav.tarifas": "Prices",
@@ -394,6 +401,13 @@ const I18N = {
       "If you enjoyed playing on our courts, leave us a review on Google. It helps us grow a lot!",
     "resena.cta": "Leave a review on Google",
     "resena.ahora-no": "Not now",
+    "reservar.numPistas.label": "How many courts?",
+    "reservar.numPistas.disponibles": "free",
+    "mis-reservas.login": "Log in to see your bookings",
+    "mis-reservas.sin-codigo":
+      "You don't have a web code yet. Fill in your details to create one and see your bookings.",
+    "mis-reservas.crear": "Create account and view bookings",
+    "mis-reservas.cambiar-tel": "Use another phone",
   },
 };
 let _idioma = "es";

@@ -381,37 +381,147 @@
           </p>
         </div>
         <div id="cardMisLogin" class="card">
-          <form id="formMis" novalidate>
+          <h2 style="margin-bottom: 16px">
+            <i class="ri-login-box-line" aria-hidden="true"></i>
+            <span data-i18n="mis-reservas.login"
+              >Entra para ver tus reservas</span
+            >
+          </h2>
+
+          <div id="misBloqueTel">
             <div class="form-group">
-              <label for="misIdent" data-i18n="mis-reservas.ident"
-                >Teléfono o nombre completo</label
-              ><input
-                type="text"
-                id="misIdent"
-                autocomplete="off"
-                maxlength="80"
+              <label for="misTel" data-i18n="reservar.telefono">Teléfono</label>
+              <input
+                type="tel"
+                id="misTel"
+                inputmode="tel"
+                autocomplete="tel"
+                maxlength="20"
+                placeholder="600 123 456"
               />
             </div>
+            <button type="button" class="btn-submit" id="misBtnTel">
+              <span data-i18n="reservar.continuar">Continuar</span>
+            </button>
+          </div>
+
+          <div id="misBloqueExistente" hidden>
             <div class="form-group">
-              <label for="misCodigo" data-i18n="mis-reservas.codigo"
+              <label for="misCodigo" data-i18n="reservar.tu-codigo"
                 >Tu código</label
-              ><input
+              >
+              <input
                 type="password"
                 id="misCodigo"
                 autocomplete="off"
                 maxlength="30"
               />
+              <p class="cl-hint" data-i18n="reservar.recuperar">
+                ¿Lo has olvidado? Llama al club y te lo restablecemos.
+              </p>
             </div>
-            <button
-              type="submit"
-              class="btn-submit"
-              id="btnMis"
-              data-i18n="mis-reservas.ver"
-            >
-              Ver mis reservas
+            <button type="button" class="btn-submit" id="misBtnEntrar">
+              <span data-i18n="mis-reservas.ver">Ver mis reservas</span>
             </button>
-            <div id="msgMis" class="msg-inline" aria-live="polite"></div>
-          </form>
+            <button
+              type="button"
+              class="cl-link"
+              id="misBtnCambiarTel"
+              style="
+                margin-top: 12px;
+                font-size: 13px;
+                background: none;
+                border: none;
+                text-decoration: underline;
+              "
+            >
+              <span data-i18n="mis-reservas.cambiar-tel"
+                >Usar otro teléfono</span
+              >
+            </button>
+          </div>
+
+          <div id="misBloqueNuevo" hidden>
+            <p
+              class="cl-hint"
+              style="margin-bottom: 14px; font-weight: 600"
+              data-i18n="mis-reservas.sin-codigo"
+            >
+              Aún no tienes código web. Rellena tus datos para crearlo y poder
+              ver tus reservas.
+            </p>
+            <div class="form-group">
+              <label for="misNombre" data-i18n="reservar.nombre"
+                >Nombre y apellidos</label
+              >
+              <input
+                type="text"
+                id="misNombre"
+                autocomplete="name"
+                maxlength="80"
+              />
+            </div>
+            <div class="form-group">
+              <label for="misCodigoNew" data-i18n="reservar.crea-codigo"
+                >Crea tu código</label
+              >
+              <input
+                type="password"
+                id="misCodigoNew"
+                autocomplete="new-password"
+                maxlength="30"
+              />
+              <p class="cl-hint" data-i18n="reservar.codigo-hint">
+                Mínimo 6 caracteres. Lo necesitarás para ver y cancelar tus
+                reservas.
+              </p>
+            </div>
+            <div class="form-group">
+              <label for="misCodigoNew2" data-i18n="reservar.repite-codigo"
+                >Repite el código</label
+              >
+              <input
+                type="password"
+                id="misCodigoNew2"
+                autocomplete="new-password"
+                maxlength="30"
+              />
+            </div>
+            <label class="cl-check">
+              <input type="checkbox" id="misConsent" />
+              <span data-i18n="reservar.consentimiento"
+                >He leído y acepto la política de privacidad.</span
+              >
+            </label>
+            <button
+              type="button"
+              class="btn-submit"
+              id="misBtnCrear"
+              style="margin-top: 14px"
+            >
+              <span data-i18n="mis-reservas.crear"
+                >Crear cuenta y ver reservas</span
+              >
+            </button>
+            <button
+              type="button"
+              class="cl-link"
+              id="misBtnCambiarTel2"
+              style="
+                margin-top: 12px;
+                font-size: 13px;
+                background: none;
+                border: none;
+                text-decoration: underline;
+              "
+            >
+              <span data-i18n="mis-reservas.cambiar-tel"
+                >Usar otro teléfono</span
+              >
+            </button>
+          </div>
+
+          <div id="msgMis" class="msg-inline" aria-live="polite"></div>
         </div>
         <div id="cardMisLista" hidden>
           <div class="cl-mis-head">
