@@ -1343,6 +1343,52 @@ async function confirmarGuardarReserva() {
     !telefonoValido($("modalTelefono").value)
   )
     return toast("El teléfono no parece válido (mínimo 9 cifras)", "warn");
+
+  if (telefono) {
+    const { data: blq } = await supabaseClient
+      .from("clientes")
+      .select("bloqueado_motivo")
+      .eq("telefono", telefono)
+      .eq("bloqueado", true)
+      .limit(1);
+    if (blq && blq.length) {
+      const motivo = blq[0].bloqueado_motivo || "sin motivo especificado";
+      return toast(
+        `Este cliente está bloqueado y no puede reservar (${motivo}). Avisa a la jefa.`,
+        "err",
+      );
+    }
+
+    const hoyISO = fechaLocalISO();
+    const { data: blqPersist } = await supabaseClient
+      .from("clientes_bloqueados")
+      .select("motivo, expira_at")
+      .eq("telefono_norm", telefono)
+      .or(`expira_at.is.null,expira_at.gt.${hoyISO}`)
+      .limit(1);
+    if (blqPersist && blqPersist.length) {
+      const motivo = blqPersist[0].motivo || "sin motivo especificado";
+      return toast(
+        `Este teléfono está bloqueado y no puede reservar (${motivo}). Avisa a la jefa.`,
+        "err",
+      );
+    }
+
+    const { data: deuda, error: errDeuda } = await supabaseClient.rpc(
+      "gp_deuda_total_cliente",
+      { p_telefono: telefono },
+    );
+    if (errDeuda) console.warn("No se pudo comprobar la deuda:", errDeuda);
+    const deudaMax = 50;
+    const deudaNum = Number(deuda) || 0;
+    if (deudaNum > deudaMax) {
+      return toast(
+        `Este cliente debe ${eur(deudaNum)} (máximo ${eur(deudaMax)}). No se puede reservar hasta que resuelva la deuda.`,
+        "err",
+      );
+    }
+  }
+
   const duracionMin = esTorneo
     ? Math.round((parseFloat($("modalDuracionHoras").value) || 0) * 2) * 30
     : parseInt($("modalDuracion").value, 10) || 90;

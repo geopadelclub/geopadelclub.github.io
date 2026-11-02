@@ -239,6 +239,14 @@ function textoError(e) {
       return _idioma === "en"
         ? "An account already exists with this phone."
         : "Ya existe una cuenta con este teléfono. Llama al club si tienes problemas.";
+    case "cliente_bloqueado":
+      return _idioma === "en"
+        ? "You can't book. Call the club."
+        : "No puedes reservar. Llama al club.";
+    case "deuda_excesiva":
+      return _idioma === "en"
+        ? `You have ${eur(e.deuda)} in pending debts (max ${eur(e.max)}). Call the club.`
+        : `Tienes ${eur(e.deuda)} en deudas pendientes (máximo ${eur(e.max)}). Llama al club para resolverlas.`;
     case "sin_disponibilidad":
       return _idioma === "en"
         ? "That slot was just taken."

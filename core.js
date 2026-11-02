@@ -293,8 +293,10 @@ function obtenerCierreMin(iso) {
     iso || ($("fechaCuadrante") ? $("fechaCuadrante").value : fechaLocalISO());
   const [y, m, d] = dateIso.split("-").map(Number);
   const day = new Date(y, m - 1, d, 12).getDay();
-  if (day >= 1 && day <= 4) return CIERRE_SEMANA_MIN;
-  return CIERRE_FINDE_MIN;
+  if (day === 0 || day === 6) return CIERRE_FINDE_MIN;
+  if (Array.isArray(datosLocales.festivos) && datosLocales.festivos.includes(dateIso))
+    return CIERRE_FINDE_MIN;
+  return CIERRE_SEMANA_MIN;
 }
 function debounce(fn, ms) {
   let t;
