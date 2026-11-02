@@ -362,7 +362,7 @@ $("cliBody").addEventListener("click", async (e) => {
   else if (b.dataset.cli === "borrar") cliBorrarDatos(c, b);
 });
 async function cargarBloqueosPersistentes() {
-  const tb = $("bloqueosBody");
+  const tb = $("bloqueosPersistBody");
   if (!tb) return;
   tb.innerHTML =
     '<tr><td colspan="6" class="tabla-empty">Cargando bloqueos…</td></tr>';
@@ -382,7 +382,7 @@ async function cargarBloqueosPersistentes() {
 }
 
 function dibujarBloqueosPersistentes(lista) {
-  const tb = $("bloqueosBody");
+  const tb = $("bloqueosPersistBody");
   if (!tb) return;
 
   if (!lista.length) {
