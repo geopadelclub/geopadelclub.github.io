@@ -865,7 +865,56 @@ function recalcularPrecioSugerido(forzar = true) {
   $("modalPrecio").value = precioSugerido().toFixed(2);
   actualizarVistasJugadoresSplit();
 }
-
+function actualizarRepetirPena() {
+  const box = $("boxRepetir");
+  if (!box || box.style.display === "none") return;
+  const info = $("modalRepetirInfo");
+  if (!info) return;
+  const fechaIni = $("modalFecha").value;
+  const fechaFin = $("modalRepetirFin").value;
+  if (!fechaIni || !fechaFin) {
+    info.style.color = "var(--muted)";
+    info.textContent = "Indica la fecha del último partido de la peña.";
+    return;
+  }
+  const [yi, mi, di] = fechaIni.split("-").map(Number);
+  const [yf, mf, df] = fechaFin.split("-").map(Number);
+  const ini = new Date(yi, mi - 1, di, 12);
+  const fin = new Date(yf, mf - 1, df, 12);
+  const diff = Math.round((fin - ini) / 86400000);
+  if (diff < 0) {
+    info.style.color = "var(--red)";
+    info.textContent = "La fecha fin no puede ser anterior a la de inicio.";
+    return;
+  }
+  if (diff % 7 !== 0) {
+    info.style.color = "var(--orange-text)";
+    info.textContent =
+      "La fecha fin debe caer en el mismo día de la semana que la de inicio. Si empieza en lunes, debe terminar en lunes.";
+    return;
+  }
+  const semanas = diff / 7 + 1;
+  if (semanas > 52) {
+    info.style.color = "var(--red)";
+    info.textContent = "Máximo 52 semanas.";
+    return;
+  }
+  info.style.color = "var(--green-text)";
+  info.textContent = `Se crearán ${semanas} ${semanas === 1 ? "reserva" : "reservas"}: cada semana desde el ${fechaBonita(fechaIni)} hasta el ${fechaBonita(fechaFin)}.`;
+}
+if ($("modalFecha")) {
+  $("modalFecha").addEventListener("change", () => {
+    if ($("modalTipoReserva").value !== "Pena") return;
+    const fechaIni = $("modalFecha").value;
+    if (fechaIni) {
+      $("modalRepetirFin").value = sumarDiasISO(fechaIni, 11 * 7);
+    }
+    actualizarRepetirPena();
+  });
+}
+if ($("modalRepetirFin")) {
+  $("modalRepetirFin").addEventListener("change", actualizarRepetirPena);
+}
 function alCambiarTipo() {
   const selTipo = $("modalTipoReserva");
   if (esEntrenador()) {
@@ -881,6 +930,13 @@ function alCambiarTipo() {
   $("modalDuracion").style.display = dispDur;
   actualizarDuracionesSelect(t);
   $("boxRepetir").style.display = t === "Pena" && nueva ? "block" : "none";
+  if (t === "Pena" && nueva) {
+    if (!$("modalRepetirFin").value) {
+      const fechaIni = $("modalFecha").value || fechaLocalISO();
+      $("modalRepetirFin").value = sumarDiasISO(fechaIni, 11 * 7);
+    }
+    actualizarRepetirPena();
+  }
   recalcularPrecioSugerido(nueva);
 }
 
@@ -1030,7 +1086,8 @@ function abrirModalNuevaReserva(
   $("modalDuracionHoras").value = "8";
   $("modalTipoReserva").value = tipo;
   $("modalFecha").value = $("fechaCuadrante").value || fechaLocalISO();
-  $("modalRepetir").value = 12;
+  const fechaIniDefault = $("modalFecha").value || fechaLocalISO();
+  $("modalRepetirFin").value = sumarDiasISO(fechaIniDefault, 11 * 7);
   $("btnEliminarSerie").style.display = "none";
   $("btnEliminarReserva").style.display = "none";
   $("btnHistorialReserva").style.display = "none";
@@ -1405,10 +1462,30 @@ async function confirmarGuardarReserva() {
   if (isNaN(importe) || importe < 0)
     return toast("El precio no es válido", "warn");
   const idExistente = $("modalReservaId").value;
-  const repetirSemanas =
-    tipo === "Pena" && !idExistente
-      ? Math.min(52, Math.max(1, parseInt($("modalRepetir").value, 10) || 1))
-      : 1;
+  let repetirSemanas = 1;
+  if (tipo === "Pena" && !idExistente) {
+    const fechaFin = $("modalRepetirFin").value;
+    if (!fechaFin)
+      return toast("Indica la fecha del último partido de la peña", "warn");
+    const [yi, mi, di] = iso.split("-").map(Number);
+    const [yf, mf, df] = fechaFin.split("-").map(Number);
+    const ini = new Date(yi, mi - 1, di, 12);
+    const fin = new Date(yf, mf - 1, df, 12);
+    const diff = Math.round((fin - ini) / 86400000);
+    if (diff < 0)
+      return toast(
+        "La fecha fin no puede ser anterior a la fecha de inicio",
+        "err",
+      );
+    if (diff % 7 !== 0)
+      return toast(
+        "La fecha fin debe caer en el mismo día de la semana que la de inicio",
+        "err",
+      );
+    repetirSemanas = diff / 7 + 1;
+    if (repetirSemanas > 52)
+      return toast("La peña no puede repetirse más de 52 semanas", "warn");
+  }
   const notas = $("modalNotas").value.trim();
   const btn = $("btnGuardarReserva");
   setBusy(

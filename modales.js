@@ -40,8 +40,11 @@ const HTML_MODAL_RESERVA = `
           <input type="number" inputmode="decimal" id="modalDuracionHoras" min="0.5" max="16" step="0.5" value="8" data-oninput="recalcular-precio" />
         </div>
         <div id="boxRepetir" style="display: none">
-          <label for="modalRepetir"><i class="ri-repeat-line" aria-hidden="true"></i>Repetir peña (semanas consecutivas)</label>
-          <input type="number" inputmode="numeric" id="modalRepetir" min="1" max="52" value="12" />
+          <label for="modalRepetirFin">
+            <i class="ri-repeat-line" aria-hidden="true"></i>Repetir peña hasta (fecha del último partido)
+          </label>
+          <input type="date" id="modalRepetirFin" />
+            <p id="modalRepetirInfo" style="font-size:12px;font-weight:600;margin-top:6px;color:var(--muted);line-height:1.4"></p>
         </div>
         <label for="modalNumJugadores">Número de jugadores</label>
         <select id="modalNumJugadores" data-onchange="actualizar-split"></select><label for="modalPrecio">Precio total pista (€)</label>

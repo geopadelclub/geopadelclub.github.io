@@ -642,8 +642,13 @@
             solo múltiplos de 1 h.
           </li>
           <li>
-            <strong>Repetir peña (semanas)</strong>: solo aparece si es Peña y
-            la reserva es nueva. Por defecto 12. Máximo 52.
+            <strong>Repetir peña hasta</strong>: solo aparece si es Peña y la
+            reserva es nueva. Elige la
+            <strong>fecha del último partido</strong>. Debe caer en el mismo día
+            de la semana que la fecha de inicio (si empiezas en lunes, debe
+            terminar en lunes). El sistema calcula automáticamente cuántas
+            semanas son y te lo muestra debajo. Por defecto, 12 semanas (la
+            fecha fin se pone sola a 11 semanas vista).
           </li>
           <li>
             <strong>Número de jugadores</strong>: de 1 a 16. Por defecto 4.
@@ -758,8 +763,10 @@
         </p>
         <ul>
           <li>
-            Se crean marcando tipo "Peña" y eligiendo cuántas semanas repetir
-            (por defecto 12).
+            Se crean marcando "Peña" y eligiendo la
+            <strong>fecha del último partido</strong>. El sistema calcula
+            cuántas semanas son (fecha fin − fecha inicio ÷ 7 + 1). Máximo 52
+            semanas.
           </li>
           <li>
             Todas las reservas de la serie comparten un <code>serie</code>
