@@ -156,7 +156,11 @@
       /></a>
       <div class="header-right">
         <nav id="mainNav">
+          <a href="#huecos" data-i18n="nav.huecos">Huecos</a>
           <a href="#tarifas" data-i18n="nav.tarifas">Tarifas</a>
+          <a href="#instalaciones" data-i18n="nav.instalaciones"
+            >Instalaciones</a
+          >
           <a href="#ubicacion" data-i18n="nav.ubicacion">Ubicación</a>
           <a href="tienda" data-i18n="nav.tienda">Tienda</a>
           <a href="reservar" class="btn-nav-reservar" data-i18n="nav.reservar"
@@ -173,7 +177,6 @@
         >
           <i class="ri-menu-line" aria-hidden="true"></i>
         </button>
-
         <button
           type="button"
           class="theme-toggle btn-idioma"
@@ -193,6 +196,7 @@
         </button>
       </div>
     </header>
+
     <main id="main-content">
       <div class="aviso-pago-banner">
         <i class="ri-information-line" aria-hidden="true"></i>
@@ -217,11 +221,144 @@
             Consulta disponibilidad al instante, elige tu hora y juega. El pago
             se realiza cómodamente en el club.
           </p>
-          <a href="reservar" class="btn-hero" data-i18n="hero.cta"
-            >Reservar pista ahora</a
-          >
+          <div class="hero-ctas">
+            <a href="reservar" class="btn-hero" data-i18n="hero.cta"
+              >Reservar pista ahora</a
+            >
+            <a href="tienda" class="btn-hero-secondary">
+              <i class="ri-shopping-bag-3-line" aria-hidden="true"></i>
+              <span data-i18n="hero.verTienda">Ver la tienda</span>
+            </a>
+          </div>
+          <ul class="hero-benefits">
+            <li>
+              <i class="ri-check-line" aria-hidden="true"></i
+              ><span data-i18n="hero.benefit1">9 pistas</span>
+            </li>
+            <li>
+              <i class="ri-check-line" aria-hidden="true"></i
+              ><span data-i18n="hero.benefit2">Pago en el club</span>
+            </li>
+            <li>
+              <i class="ri-check-line" aria-hidden="true"></i
+              ><span data-i18n="hero.benefit3">Reserva en 1 minuto</span>
+            </li>
+          </ul>
         </div>
       </section>
+
+      <section class="section section-slots" id="huecos">
+        <h2
+          class="section-title"
+          id="huecosTitulo"
+          data-i18n="landing.huecosHoy"
+        >
+          Huecos libres hoy
+        </h2>
+        <p class="section-subtitle" data-i18n="huecos.subtitulo">
+          Actualizado en tiempo real. Reserva desde aquí.
+        </p>
+        <div id="huecosHoy" class="huecos-grid" aria-live="polite">
+          <p class="huecos-cargando" data-i18n="huecos.cargando">
+            Cargando disponibilidad...
+          </p>
+        </div>
+        <p class="section-cta">
+          <a href="reservar">
+            <span data-i18n="landing.verTodosDias">Ver todos los días</span>
+            <i class="ri-arrow-right-line" aria-hidden="true"></i>
+          </a>
+        </p>
+      </section>
+
+      <section class="section" id="tarifas">
+        <h2 class="section-title" data-i18n="tarifas.titulo">
+          Nuestras Tarifas
+        </h2>
+        <p class="section-subtitle" data-i18n="tarifas.subtitulo">
+          Precios claros por pista. Sin sorpresas.
+        </p>
+        <div class="tarifas-container loading">
+          <div class="tarifas-grid">
+            <div class="tarifa-col">
+              <h3 data-i18n="tarifas.manana">Entre semana mañana</h3>
+              <div class="tarifa-item">
+                <span data-i18n="tarifas.60">60 minutos</span>
+                <span
+                  class="tarifa-value skeleton"
+                  data-tarifa="semanaManana-60"
+                  >…</span
+                >
+              </div>
+              <div class="tarifa-item">
+                <span data-i18n="tarifas.90">90 minutos</span>
+                <span
+                  class="tarifa-value skeleton"
+                  data-tarifa="semanaManana-90"
+                  >…</span
+                >
+              </div>
+              <div class="tarifa-item">
+                <span data-i18n="tarifas.120">120 minutos</span>
+                <span
+                  class="tarifa-value skeleton"
+                  data-tarifa="semanaManana-120"
+                  >…</span
+                >
+              </div>
+            </div>
+            <div class="tarifa-col">
+              <h3 data-i18n="tarifas.tarde">Entre semana tarde</h3>
+              <div class="tarifa-item">
+                <span data-i18n="tarifas.60">60 minutos</span>
+                <span class="tarifa-value skeleton" data-tarifa="semanaTarde-60"
+                  >…</span
+                >
+              </div>
+              <div class="tarifa-item">
+                <span data-i18n="tarifas.90">90 minutos</span>
+                <span class="tarifa-value skeleton" data-tarifa="semanaTarde-90"
+                  >…</span
+                >
+              </div>
+              <div class="tarifa-item">
+                <span data-i18n="tarifas.120">120 minutos</span>
+                <span
+                  class="tarifa-value skeleton"
+                  data-tarifa="semanaTarde-120"
+                  >…</span
+                >
+              </div>
+            </div>
+            <div class="tarifa-col">
+              <h3 data-i18n="tarifas.finde">Fin de semana</h3>
+              <div class="tarifa-item">
+                <span data-i18n="tarifas.60">60 minutos</span>
+                <span class="tarifa-value skeleton" data-tarifa="finde-60"
+                  >…</span
+                >
+              </div>
+              <div class="tarifa-item">
+                <span data-i18n="tarifas.90">90 minutos</span>
+                <span class="tarifa-value skeleton" data-tarifa="finde-90"
+                  >…</span
+                >
+              </div>
+              <div class="tarifa-item">
+                <span data-i18n="tarifas.120">120 minutos</span>
+                <span class="tarifa-value skeleton" data-tarifa="finde-120"
+                  >…</span
+                >
+              </div>
+            </div>
+          </div>
+          <p class="nota-tarifas" data-i18n="tarifas.nota">
+            * Precios orientativos. Consulta el precio final en la pantalla de
+            reserva. El pago se realiza en el club.
+          </p>
+        </div>
+      </section>
+
       <section class="section" id="beneficios">
         <h2 class="section-title" data-i18n="features.titulo">
           ¿Por qué jugar en Geopadel?
@@ -256,6 +393,7 @@
           </div>
         </div>
       </section>
+
       <section class="section instalaciones-section" id="instalaciones">
         <h2 class="section-title" data-i18n="instalaciones.titulo">
           Nuestras Instalaciones
@@ -263,9 +401,8 @@
         <p class="section-subtitle" data-i18n="instalaciones.subtitulo">
           Descubre todo lo que Geopadel tiene para ti.
         </p>
-
-        <div class="instalaciones-grid">
-          <div class="feature-card feature-card--img">
+        <div class="instalaciones-carousel">
+          <article class="feature-card feature-card--img">
             <img
               src="pista1.webp"
               alt="Pista 1 Padel Master"
@@ -281,8 +418,8 @@
                 mejores prestaciones.
               </p>
             </div>
-          </div>
-          <div class="feature-card feature-card--img">
+          </article>
+          <article class="feature-card feature-card--img">
             <img
               src="pista3.webp"
               alt="Pistas en perfecto estado"
@@ -298,8 +435,8 @@
                 estado.
               </p>
             </div>
-          </div>
-          <div class="feature-card feature-card--img">
+          </article>
+          <article class="feature-card feature-card--img">
             <img
               src="bar.webp"
               alt="Zona de Bar"
@@ -315,8 +452,8 @@
                 de pádel en la televisión o escuchas música.
               </p>
             </div>
-          </div>
-          <div class="feature-card feature-card--img">
+          </article>
+          <article class="feature-card feature-card--img">
             <img
               src="entreno.webp"
               alt="Zona de Calentamiento"
@@ -332,101 +469,27 @@
                 que calientes antes de tu partido.
               </p>
             </div>
-          </div>
-          <div class="feature-card feature-card--wide">
+          </article>
+          <article class="feature-card feature-card--img">
             <img
               src="palastest.webp"
               alt="Prueba de Palas"
-              class="img-palas"
               width="800"
               height="800"
               loading="lazy"
               decoding="async"
             />
-            <div class="feature-card-palas-text">
+            <div class="feature-card-body">
               <h3 data-i18n="palas.titulo">Prueba de Palas</h3>
               <p data-i18n="palas.texto">
                 ¿No sabes qué pala comprar? Ven al club y pruébala en tu propio
                 partido antes de decidirte.
               </p>
             </div>
-          </div>
+          </article>
         </div>
       </section>
-      <section class="section" id="tarifas">
-        <h2 class="section-title" data-i18n="tarifas.titulo">
-          Nuestras Tarifas
-        </h2>
-        <p class="section-subtitle" data-i18n="tarifas.subtitulo">
-          Precios claros por pista. Sin sorpresas.
-        </p>
-        <div class="tarifas-container">
-          <div class="tarifas-grid">
-            <div class="tarifa-col">
-              <h3 data-i18n="tarifas.manana">Entre semana mañana</h3>
-              <div class="tarifa-item">
-                <span data-i18n="tarifas.60">60 minutos</span
-                ><span data-tarifa="semanaManana-60">18 €</span>
-              </div>
-              <div class="tarifa-item">
-                <span data-i18n="tarifas.90">90 minutos</span
-                ><span data-tarifa="semanaManana-90">20 €</span>
-              </div>
-              <div class="tarifa-item">
-                <span data-i18n="tarifas.120">120 minutos</span
-                ><span data-tarifa="semanaManana-120">24 €</span>
-              </div>
-            </div>
-            <div class="tarifa-col">
-              <h3 data-i18n="tarifas.tarde">Entre semana tarde</h3>
-              <div class="tarifa-item">
-                <span data-i18n="tarifas.60">60 minutos</span
-                ><span data-tarifa="semanaTarde-60">24 €</span>
-              </div>
-              <div class="tarifa-item">
-                <span data-i18n="tarifas.90">90 minutos</span
-                ><span data-tarifa="semanaTarde-90">26 €</span>
-              </div>
-              <div class="tarifa-item">
-                <span data-i18n="tarifas.120">120 minutos</span
-                ><span data-tarifa="semanaTarde-120">30 €</span>
-              </div>
-            </div>
-            <div class="tarifa-col">
-              <h3 data-i18n="tarifas.finde">Fin de semana</h3>
-              <div class="tarifa-item">
-                <span data-i18n="tarifas.60">60 minutos</span
-                ><span data-tarifa="finde-60">24 €</span>
-              </div>
-              <div class="tarifa-item">
-                <span data-i18n="tarifas.90">90 minutos</span
-                ><span data-tarifa="finde-90">26 €</span>
-              </div>
-              <div class="tarifa-item">
-                <span data-i18n="tarifas.120">120 minutos</span
-                ><span data-tarifa="finde-120">30 €</span>
-              </div>
-            </div>
-          </div>
-          <p class="nota-tarifas" data-i18n="tarifas.nota">
-            * Precios orientativos. Consulta el precio final en la pantalla de
-            reserva. El pago se realiza en el club.
-          </p>
-        </div>
-      </section>
-      <section class="section" id="huecos">
-        <h2 class="section-title" data-i18n="huecos.titulo">
-          Huecos libres hoy
-        </h2>
-        <p class="section-subtitle" data-i18n="huecos.subtitulo">
-          Actualizado en tiempo real. Reserva desde aquí.
-        </p>
-        <div id="huecosHoy" class="huecos-grid" aria-live="polite">
-          <p class="huecos-cargando" data-i18n="huecos.cargando">
-            Cargando disponibilidad...
-          </p>
-        </div>
-      </section>
+
       <section class="section" id="ubicacion">
         <h2 class="section-title" data-i18n="ubicacion.titulo">
           ¿Dónde estamos?
@@ -438,15 +501,15 @@
           <div class="ubicacion-info">
             <h3>Geopadel Ogíjares</h3>
             <p>
-              <i class="ri-map-pin-line" aria-hidden="true"></i
-              ><span data-i18n="ubicacion.direccion"
+              <i class="ri-map-pin-line" aria-hidden="true"></i>
+              <span data-i18n="ubicacion.direccion"
                 >Polígono Tecnológico Los, C. Zamora, 130, 18151 Ogíjares,
                 Granada</span
               >
             </p>
             <p>
-              <i class="ri-phone-line" aria-hidden="true"></i
-              ><a
+              <i class="ri-phone-line" aria-hidden="true"></i>
+              <a
                 href="tel:+34646059962"
                 class="link-inherit"
                 data-i18n="ubicacion.telefono"
@@ -454,8 +517,8 @@
               >
             </p>
             <p>
-              <i class="ri-whatsapp-line" aria-hidden="true"></i
-              ><a
+              <i class="ri-whatsapp-line" aria-hidden="true"></i>
+              <a
                 href="https://wa.me/34646059962?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20las%20pistas"
                 target="_blank"
                 rel="noopener"
@@ -465,8 +528,8 @@
               >
             </p>
             <p>
-              <i class="ri-time-line" aria-hidden="true"></i
-              ><span data-i18n="ubicacion.horario"
+              <i class="ri-time-line" aria-hidden="true"></i>
+              <span data-i18n="ubicacion.horario"
                 >Lunes a Jueves: 09:00 a 14:00 y 17:00 a 23:30 // Viernes a
                 Domingo: 9:00 a 14:00 y 17:00 a 22:00</span
               >
@@ -479,8 +542,8 @@
             class="mapa-link"
             aria-label="Abrir ubicación de Geopadel en Google Maps"
           >
-            <i class="ri-map-2-line" aria-hidden="true"></i
-            ><b data-i18n="ubicacion.cta">Ver en Google Maps</b>
+            <i class="ri-map-2-line" aria-hidden="true"></i>
+            <b data-i18n="ubicacion.cta">Ver en Google Maps</b>
             <span data-i18n="ubicacion.cta-desc"
               >Haz clic para abrir la ubicación exacta en tu aplicación de
               mapas.</span
@@ -489,16 +552,17 @@
         </div>
       </section>
     </main>
+
     <footer class="landing-footer">
       <p data-i18n="footer.copyright">
         © Geopadel · Todos los derechos reservados. Queda prohibida la
         reproducción total o parcial sin autorización.
       </p>
       <div class="footer-links">
-        <a href="privacidad" data-i18n="footer.privacidad">Privacidad</a
-        ><a href="aviso-legal" data-i18n="footer.aviso">Aviso Legal</a
-        ><a href="politica-cookies" data-i18n="footer.cookies">Cookies</a
-        ><a
+        <a href="privacidad" data-i18n="footer.privacidad">Privacidad</a>
+        <a href="aviso-legal" data-i18n="footer.aviso">Aviso Legal</a>
+        <a href="politica-cookies" data-i18n="footer.cookies">Cookies</a>
+        <a
           href="panel"
           rel="nofollow"
           class="acceso-trabajadores"
@@ -507,18 +571,20 @@
         >
       </div>
     </footer>
+
     <div class="contacto-flotante">
       <a
         class="btn-whatsapp"
         href="https://wa.me/34646059962?text=Hola%2C"
         target="_blank"
         rel="noopener noreferrer"
-        ><i class="ri-whatsapp-line" aria-hidden="true"></i
-        ><span data-i18n="contacto.whatsapp">Hablar por WhatsApp</span></a
       >
+        <i class="ri-whatsapp-line" aria-hidden="true"></i>
+        <span data-i18n="contacto.whatsapp">Hablar por WhatsApp</span>
+      </a>
       <p class="contacto-llamar">
-        <span data-i18n="contacto.llamar">¿Prefieres llamar? </span
-        ><a href="tel:+34646059962">646 05 99 62</a>
+        <span data-i18n="contacto.llamar">¿Prefieres llamar? </span>
+        <a href="tel:+34646059962">646 05 99 62</a>
       </p>
     </div>
   </body>

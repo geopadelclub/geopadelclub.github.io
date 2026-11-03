@@ -4,11 +4,21 @@ const I18N = {
     "nav.tarifas": "Tarifas",
     "nav.ubicacion": "Ubicación",
     "nav.tienda": "Tienda",
+    "nav.huecos": "Huecos",
+    "nav.instalaciones": "Instalaciones",
     "nav.reservar": "Reservar pista",
+    "nav.reservar-corto": "Reservar",
+    "nav.mis": "Mis reservas",
+
     "hero.titulo": "Tu pista de pádel en Ogíjares",
     "hero.subtitulo":
       "Consulta disponibilidad al instante, elige tu hora y juega. El pago se realiza cómodamente en el club.",
     "hero.cta": "Reservar pista ahora",
+    "hero.verTienda": "Ver la tienda",
+    "hero.benefit1": "9 pistas",
+    "hero.benefit2": "Pago en el club",
+    "hero.benefit3": "Reserva en 1 minuto",
+
     "features.titulo": "¿Por qué jugar en Geopadel?",
     "features.subtitulo":
       "Las mejores instalaciones para disfrutar del pádel en Granada.",
@@ -21,6 +31,7 @@ const I18N = {
     "feature3.titulo": "Ambiente inmejorable",
     "feature3.texto":
       "Ven a disfrutar del deporte y quédate después en nuestra zona de bar y tienda.",
+
     "tarifas.titulo": "Nuestras Tarifas",
     "tarifas.subtitulo": "Precios claros por pista. Sin sorpresas.",
     "tarifas.manana": "Entre semana mañana",
@@ -31,110 +42,18 @@ const I18N = {
     "tarifas.120": "120 minutos",
     "tarifas.nota":
       "* Precios orientativos. Consulta el precio final en la pantalla de reserva. El pago se realiza en el club.",
-    "huecos.titulo": "Huecos libres hoy",
+
     "huecos.subtitulo": "Actualizado en tiempo real. Reserva desde aquí.",
     "huecos.cargando": "Cargando disponibilidad...",
-    "huecos.vacio": "Hoy ya no quedan huecos.",
     "huecos.error": "No se pudo consultar la disponibilidad.",
     "huecos.ver": "Ver reservas",
-    "ubicacion.titulo": "¿Dónde estamos?",
-    "ubicacion.subtitulo": "Ven a conocernos, estamos muy cerca.",
-    "ubicacion.direccion":
-      "Polígono Tecnológico Los, C. Zamora, 130, 18151 Ogíjares, Granada",
-    "ubicacion.telefono": "+34 646 059 962",
-    "ubicacion.whatsapp": "Escríbenos por WhatsApp",
-    "ubicacion.horario":
-      "Lunes a Jueves: 09:00 a 14:00 y 17:00 a 23:30 // Viernes a Domingo: 9:00 a 14:00 y 17:00 a 22:00",
-    "ubicacion.cta": "Ver en Google Maps",
-    "ubicacion.cta-desc":
-      "Haz clic para abrir la ubicación exacta en tu aplicación de mapas.",
-    "footer.copyright":
-      "© Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización.",
-    "footer.privacidad": "Privacidad",
-    "footer.aviso": "Aviso Legal",
-    "footer.cookies": "Cookies",
-    "footer.acceso": "Acceso trabajadores",
-    "contacto.whatsapp": "Hablar por WhatsApp",
-    "contacto.llamar": "¿Prefieres llamar? ",
-    "reservar.titulo": "Reserva tu pista de pádel",
-    "reservar.hoy": "hoy",
-    "reservar.subtitulo": "Elige día, duración y hora. Se paga en el club.",
-    "reservar.dia": "Día",
-    "reservar.duracion": "Duración",
-    "reservar.horas": "Horas libres",
-    "reservar.tus-datos": "Tus datos",
-    "reservar.telefono": "Teléfono",
-    "reservar.continuar": "Continuar",
-    "reservar.tu-codigo": "Tu código",
-    "reservar.entrar": "Entrar",
-    "reservar.recuperar":
-      "¿Lo has olvidado? Llama al club y te lo restablecemos.",
-    "reservar.nombre": "Nombre y apellidos",
-    "reservar.crea-codigo": "Crea tu código",
-    "reservar.repite-codigo": "Repite el código",
-    "reservar.codigo-hint":
-      "Mínimo 6 caracteres. Lo necesitarás para ver y cancelar tus reservas.",
-    "reservar.consentimiento":
-      'He leído y acepto la <a href="privacidad" target="_blank" rel="noopener">política de privacidad</a>. Usaremos tu nombre y teléfono solo para gestionar tus reservas.',
-    "reservar.confirmar": "Confirmar reserva",
-    "reservar.recibida": "Reserva recibida",
-    "reservar.otra": "Reservar otra",
-    "reservar.ver-mis": "Ver mis reservas",
-    "reservar.pendiente": "Reserva confirmada",
-    "reservar.pago": "se paga en el club",
-    "reservar.buscando": "Buscando huecos...",
-    "reservar.no-huecos":
-      "No quedan huecos de {dur} este día. Prueba otro día o duración.",
-    "reservar.antelacion":
-      "Las reservas se hacen con {min} de antelación como mínimo.",
-    "reservar.antelacion-llama":
-      " Para reservar con menos antelación, llama al club.",
-    "reservar.reintentar": "Reintentar",
-    "reservar.noscript":
-      'Necesitas activar JavaScript para reservar. También puedes llamar al club: <a href="tel:+34646059962">646 05 99 62</a>.',
-    "mis-reservas.titulo": "Mis reservas",
-    "mis-reservas.subtitulo": "Solo se muestran las próximas.",
-    "mis-reservas.ident": "Teléfono o nombre completo",
-    "mis-reservas.codigo": "Tu código",
-    "mis-reservas.ver": "Ver mis reservas",
-    "mis-reservas.hola": "Hola, <b>{nombre}</b>",
-    "mis-reservas.salir": "Salir",
-    "mis-reservas.borrar": "Borrar mis datos",
-    "mis-reservas.vacio": "No tienes reservas próximas.",
-    "mis-reservas.confirmada": "Confirmada",
-    "mis-reservas.cancelar": "Cancelar reserva",
-    "mis-reservas.repetir": "Reservar otra vez",
-    "tienda.titulo": "Tienda",
-    "tienda.subtitulo":
-      "Esto es lo que tenemos en el club. Se compra en el club.",
-    "tienda.vacio":
-      "Ahora mismo no hay artículos en la tienda. Pregunta en el club.",
-    "tienda.cargando": "Cargando...",
-    "tienda.error": "No se pudo cargar la tienda.",
-    "reservar.subtitulo-completo":
-      "Elige día, duración y hora. Se paga en el club. Reserva con {min} de antelación; con menos, llama al club.",
-    "nav.reservar-corto": "Reservar",
-    "nav.mis": "Mis reservas",
-    "app.install": "Instalar",
-    "app.install-ios":
-      "En Safari pulsa Compartir y elige «Añadir a pantalla de inicio»",
-    "modal.cancel": "Cancelar",
-    "modal.accept": "Aceptar",
-    "reservar.checking": "Comprobando...",
-    "reservar.entering": "Entrando...",
-    "reservar.booking": "Reservando...",
-    "reservar.toast.push-soon": "El partido es en menos de 2 horas.",
-    "reservar.toast.push-unsupported": "Tu navegador no soporta notificaciones",
-    "reservar.toast.push-denied": "Permiso denegado",
-    "reservar.toast.push-ok": "Recordatorio activado.",
-    "reservar.toast.push-error": "No se pudo activar el recordatorio: ",
-    "reservar.toast.copied": "Copiado al portapapeles",
-    "reservar.toast.copy-error": "No se pudo copiar",
-    "tienda.retry": "Reintentar",
-    "tienda.cerrar": "Cerrar",
-    "tienda.foto.ver": "Ver foto de {titulo} más grande",
-    "aviso.pago":
-      "Las pistas se abonan antes de jugar el partido. Se recomienda llegar 10 minutos antes.",
+    "landing.huecosHoy": "Huecos libres hoy",
+    "landing.huecosManana": "Huecos libres mañana",
+    "landing.sin-huecos": "Hoy ya no quedan huecos.",
+    "landing.sin-huecos-manana": "Mañana no quedan huecos.",
+    "landing.otros-dias": "Ver otros días",
+    "landing.verTodosDias": "Ver todos los días",
+
     "instalaciones.titulo": "Nuestras Instalaciones",
     "instalaciones.subtitulo": "Descubre todo lo que Geopadel tiene para ti.",
     "pista1.titulo": "Pista 1 · Padel Master",
@@ -152,18 +71,119 @@ const I18N = {
     "palas.titulo": "Prueba de Palas",
     "palas.texto":
       "¿No sabes qué pala comprar? Ven al club y pruébala en tu propio partido antes de decidirte.",
+
+    "ubicacion.titulo": "¿Dónde estamos?",
+    "ubicacion.subtitulo": "Ven a conocernos, estamos muy cerca.",
+    "ubicacion.direccion":
+      "Polígono Tecnológico Los, C. Zamora, 130, 18151 Ogíjares, Granada",
+    "ubicacion.telefono": "+34 646 059 962",
+    "ubicacion.whatsapp": "Escríbenos por WhatsApp",
+    "ubicacion.horario":
+      "Lunes a Jueves: 09:00 a 14:00 y 17:00 a 23:30 // Viernes a Domingo: 9:00 a 14:00 y 17:00 a 22:00",
+    "ubicacion.cta": "Ver en Google Maps",
+    "ubicacion.cta-desc":
+      "Haz clic para abrir la ubicación exacta en tu aplicación de mapas.",
+
+    "footer.copyright":
+      "© Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización.",
+    "footer.privacidad": "Privacidad",
+    "footer.aviso": "Aviso Legal",
+    "footer.cookies": "Cookies",
+    "footer.acceso": "Acceso trabajadores",
+
+    "contacto.whatsapp": "Hablar por WhatsApp",
+    "contacto.llamar": "¿Prefieres llamar? ",
+
+    "aviso.pago":
+      "Las pistas se abonan antes de jugar el partido. Se recomienda llegar 10 minutos antes.",
+
+    "modal.cancel": "Cancelar",
+    "modal.accept": "Aceptar",
+
+    "app.install": "Instalar",
+    "app.install-ios":
+      "En Safari pulsa Compartir y elige «Añadir a pantalla de inicio»",
+
+    "reservar.titulo": "Reserva tu pista de pádel",
+    "reservar.subtitulo-completo":
+      "Elige día, duración y hora. Se paga en el club. Reserva con {min} de antelación; con menos, llama al club.",
+    "reservar.noscript":
+      'Necesitas activar JavaScript para reservar. También puedes llamar al club: <a href="tel:+34646059962">646 05 99 62</a>.',
+    "reservar.dia": "Día y hora",
+    "reservar.hoy": "hoy",
+    "reservar.duracion": "Duración",
+    "reservar.horas": "Horas libres",
+    "reservar.tus-datos": "Tus datos",
+    "reservar.step1": "Elige hueco",
+    "reservar.step2": "Tus datos",
+    "reservar.step3": "Confirmar",
+    "reservar.volver": "Volver",
+
+    "reservar.telefono": "Teléfono",
+    "reservar.continuar": "Continuar",
+    "reservar.tu-codigo": "Tu código",
+    "reservar.entrar": "Entrar",
+    "reservar.recuperar":
+      "¿Lo has olvidado? Llama al club y te lo restablecemos.",
+    "reservar.pedirCodigoWA": "Pedir por WhatsApp",
+    "reservar.nombre": "Nombre y apellidos",
+    "reservar.crea-codigo": "Crea tu código",
+    "reservar.repite-codigo": "Repite el código",
+    "reservar.codigo-hint":
+      "Mínimo 6 caracteres. Lo necesitarás para ver y cancelar tus reservas.",
+    "reservar.consentimiento":
+      'He leído y acepto la <a href="privacidad" target="_blank" rel="noopener">política de privacidad</a>. Usaremos tu nombre y teléfono solo para gestionar tus reservas.',
+    "reservar.confirmar": "Confirmar reserva",
+    "reservar.booking": "Reservando...",
+    "reservar.checking": "Comprobando...",
+    "reservar.entering": "Entrando...",
+
+    "reservar.searching": "Buscando huecos...",
     "reservar.error": "No se pudo cargar la disponibilidad.",
+    "reservar.reintentar": "Reintentar",
+    "reservar.antelacion":
+      "Las reservas se hacen con {min} de antelación como mínimo.",
+    "reservar.antelacion-llama":
+      " Para reservar con menos antelación, llama al club.",
     "reservar.two-hours":
       '<i class="ri-information-line" aria-hidden="true"></i>¿Necesitas <b>2 horas o más</b> o no encuentras la <b>hora que buscas</b>? Llámanos al <a href="tel:+34646059962">646 05 99 62</a> o escríbenos por <a href="https://wa.me/34646059962?text=Hola%2C%20quiero%20reservar%202%20horas" target="_blank" rel="noopener noreferrer">WhatsApp</a>.',
     "reservar.penas-torneos":
       '<i class="ri-team-line" aria-hidden="true"></i>¿Quieres reservar para una <b>peña</b> o un <b>torneo</b>? Consulta con el club por <a href="https://wa.me/34646059962?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20pe%C3%B1as%20o%20torneos" target="_blank" rel="noopener noreferrer">WhatsApp</a> o llamando al <a href="tel:+34646059962">646 05 99 62</a>.',
-    "reservar.searching": "Buscando huecos...",
     "reservar.valid-phone": "Teléfono válido",
     "reservar.invalid-phone": "Introduce al menos 9 cifras",
+    "reservar.numPistas.label": "¿Cuántas pistas quieres?",
+    "reservar.numPistas.disponibles": "libres",
+
+    "reservar.recibida": "Reserva recibida",
+    "reservar.pago": "se paga en el club",
+    "reservar.pagaAlLlegar": "Paga al llegar",
+    "reservar.efectivoTarjeta": "Efectivo o tarjeta",
+    "reservar.llegaAntes": "Llega 10 minutos antes",
+    "reservar.paraEmpezar": "Para empezar puntual",
+    "reservar.compartir": "Compartir",
+    "reservar.otra": "Reservar otra",
+    "reservar.ver-mis": "Ver mis reservas",
+    "reservar.anadirExtras": "Añadir email, recordatorio o reseña",
+    "reservar.confirmacionEmailTitulo": "¿Quieres la confirmación por email?",
+    "reservar.emailOpcional": "Correo electrónico",
+    "reservar.emailHint": "Si no lo indicas, no se enviará ningún correo.",
+    "reservar.enviarEmail": "Guardar email",
+    "reservar.emailInvalido": "Correo no válido.",
+    "reservar.emailGuardado":
+      "Email guardado. Si no lo recibes en 1 minuto, revisa spam o llámanos al club.",
+    "reservar.emailGuardadoBtn": "Correo guardado",
+    "reservar.emailError": "No se pudo guardar el correo. Inténtalo más tarde.",
+    "reservar.guardando": "Guardando...",
+    "reservar.recordatorioTitulo": "¿Quieres un recordatorio?",
+    "reservar.recordatorioHint": "Te avisamos 1–2 horas antes del partido.",
+    "reservar.activarRecordatorio": "Activar recordatorio",
+    "reservar.shareTexto":
+      "¡He reservado pista en Geopadel! {fecha} a las {hora} en {pista}. ¿Te apuntas?",
+
+    "reservar.toast.connection":
+      "No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.",
     "reservar.toast.dur-updated": "Duración actualizada.",
-    "reservar.toast.no-slot": "Ese hueco ya no está disponible.",
     "reservar.toast.choose-hour": "Elige una hora",
-    "reservar.toast.no-schedule": "Ese horario no se puede reservar.",
     "reservar.toast.name-required": "Escribe tu nombre y apellidos",
     "reservar.toast.code-short": "El código debe tener al menos 6 caracteres",
     "reservar.toast.code-mismatch": "Los códigos no coinciden",
@@ -172,54 +192,96 @@ const I18N = {
     "reservar.toast.captcha": "Completa la verificación anti-spam",
     "reservar.toast.phone-invalid": "Revisa el teléfono",
     "reservar.toast.code-empty": "Escribe tu código",
-    "reservar.toast.ident-required": "Escribe tu teléfono o nombre y tu código",
-    "reservar.waitlist.prompt":
-      "Déjanos tu teléfono para avisarte cuando se libere este hueco:",
-    "reservar.waitlist.title": "Aviso de disponibilidad",
+    "reservar.toast.copied": "Copiado al portapapeles",
+    "reservar.toast.copy-error": "No se pudo copiar",
+    "reservar.toast.push-soon": "El partido es en menos de 2 horas.",
+    "reservar.toast.push-unsupported": "Tu navegador no soporta notificaciones",
+    "reservar.toast.push-denied": "Permiso denegado",
+    "reservar.toast.push-ok": "Recordatorio activado.",
+    "reservar.toast.push-error": "No se pudo activar el recordatorio: ",
+    "reservar.toast.noSlotNextWeek":
+      "Ese hueco no está libre la próxima semana. Elige otra hora.",
+    "reservar.creandoCuenta": "Creando cuenta...",
+    "reservar.cuentaCreada": "Cuenta creada. Ya puedes ver tus reservas.",
+
+    "reservar.waitlist.cta": "Avísame si se libera",
+    "reservar.waitlist.promptShort":
+      "Todas nuestras pistas el {fecha} a las {hora} ({dur}) están ocupadas. Déjanos tu teléfono y te avisamos si vuelve a quedar libre.",
+    "reservar.waitlist.enviar": "Avisadme",
+    "reservar.waitlist.enviando": "Enviando...",
     "reservar.waitlist.invalid": "Teléfono no válido",
     "reservar.waitlist.saved":
       "Te avisaremos cuando se libere un hueco similar",
     "reservar.waitlist.error": "No se pudo guardar: ",
+
+    "mis-reservas.titulo": "Mis reservas",
+    "mis-reservas.subtitulo": "Solo se muestran las próximas.",
+    "mis-reservas.ver": "Ver mis reservas",
+    "mis-reservas.hola": "Hola, <b>{nombre}</b>",
+    "mis-reservas.salir": "Salir",
+    "mis-reservas.borrar": "Borrar mis datos",
+    "mis-reservas.vacio": "No tienes reservas próximas.",
+    "mis-reservas.confirmada": "Confirmada",
+    "mis-reservas.cancelar": "Cancelar reserva",
+    "mis-reservas.repetir": "Reservar otra vez",
+    "mis-reservas.todos": "Todos los",
+    "mis-reservas.recurrente":
+      "Reserva recurrente ({n} semanas). Para cancelar una semana concreta, llama al club.",
     "mis-reservas.cancel-confirm": "¿Cancelar esta reserva?",
     "mis-reservas.borrar-confirm":
       "Se borrarán tu nombre, teléfono y código, y se cancelarán tus reservas futuras. No se puede deshacer. ¿Continuar?",
     "mis-reservas.toast.cancelled": "Reserva cancelada",
     "mis-reservas.toast.deleted": "Tus datos se han borrado",
-    "mis-reservas.todos": "Todos los",
-    "landing.sin-huecos": "Hoy ya no quedan huecos.",
-    "landing.desde": "desde",
-    "landing.otros-dias": "Ver otros días",
-    "landing.no-disponible": "Disponibilidad no disponible ahora mismo.",
-    "reservar.waitlist.cta": "Avísame si se libera",
-    "reservar.toast.connection":
-      "No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.",
-    "mis-reservas.recurrente":
-      "Reserva recurrente ({n} semanas). Para cancelar una semana concreta, llama al club.",
-    "resena.titulo": "¿Te ha gustado Geopadel?",
-    "resena.texto":
-      "Si al jugar has disfrutado de nuestras pistas, déjanos una reseña en Google. ¡Nos ayuda muchísimo a seguir creciendo!",
-    "resena.cta": "Dejar reseña en Google",
-    "resena.ahora-no": "Ahora no",
-    "reservar.numPistas.label": "¿Cuántas pistas quieres?",
-    "reservar.numPistas.disponibles": "libres",
+    "mis-reservas.cargando": "Buscando...",
+    "mis-reservas.cancelando": "Cancelando...",
+    "mis-reservas.borrando": "Borrando...",
     "mis-reservas.login": "Entra para ver tus reservas",
     "mis-reservas.sin-codigo":
       "Aún no tienes código web. Rellena tus datos para crearlo y poder ver tus reservas.",
     "mis-reservas.crear": "Crear cuenta y ver reservas",
     "mis-reservas.cambiar-tel": "Usar otro teléfono",
+
+    "tienda.titulo": "Tienda",
+    "tienda.subtitulo":
+      "Esto es lo que tenemos en el club. Se compra en el club.",
+    "tienda.vacio":
+      "Ahora mismo no hay artículos en la tienda. Pregunta en el club.",
+    "tienda.cargando": "Cargando...",
+    "tienda.error": "No se pudo cargar la tienda.",
+    "tienda.retry": "Reintentar",
+    "tienda.cerrar": "Cerrar",
+    "tienda.foto.ver": "Ver foto de {titulo} más grande",
+
+    "resena.titulo": "¿Te ha gustado Geopadel?",
+    "resena.texto":
+      "Si al jugar has disfrutado de nuestras pistas, déjanos una reseña en Google. ¡Nos ayuda muchísimo a seguir creciendo!",
+    "resena.cta": "Dejar reseña en Google",
+    "resena.ahora-no": "Ahora no",
+
     "wa.titulo": "Únete a nuestra comunidad",
     "wa.desc": "Recibe avisos de huecos libres y novedades del club.",
     "wa.cta": "Unirme",
   },
+
   en: {
     "nav.tarifas": "Prices",
     "nav.ubicacion": "Location",
     "nav.tienda": "Shop",
+    "nav.huecos": "Slots",
+    "nav.instalaciones": "Facilities",
     "nav.reservar": "Book a court",
+    "nav.reservar-corto": "Book",
+    "nav.mis": "My bookings",
+
     "hero.titulo": "Your padel court in Ogíjares",
     "hero.subtitulo":
       "Check availability instantly, pick your time and play. Payment is made at the club.",
     "hero.cta": "Book a court now",
+    "hero.verTienda": "Visit the shop",
+    "hero.benefit1": "9 courts",
+    "hero.benefit2": "Pay at the club",
+    "hero.benefit3": "Book in 1 minute",
+
     "features.titulo": "Why play at Geopadel?",
     "features.subtitulo": "The best facilities to enjoy padel in Granada.",
     "feature1.titulo": "Book in 1 minute",
@@ -231,6 +293,7 @@ const I18N = {
     "feature3.titulo": "Unbeatable atmosphere",
     "feature3.texto":
       "Come to enjoy the sport and stay afterwards at our bar and shop area.",
+
     "tarifas.titulo": "Our Prices",
     "tarifas.subtitulo": "Clear prices per court. No surprises.",
     "tarifas.manana": "Weekday mornings",
@@ -241,106 +304,18 @@ const I18N = {
     "tarifas.120": "120 minutes",
     "tarifas.nota":
       "* Prices are indicative. Check the final price on the booking screen. Payment is made at the club.",
-    "huecos.titulo": "Free slots today",
+
     "huecos.subtitulo": "Updated in real time. Book from here.",
     "huecos.cargando": "Loading availability...",
-    "huecos.vacio": "No slots left for today.",
     "huecos.error": "Could not check availability.",
     "huecos.ver": "See bookings",
-    "ubicacion.titulo": "Where are we?",
-    "ubicacion.subtitulo": "Come and meet us, we are very close.",
-    "ubicacion.direccion":
-      "Polígono Tecnológico Los, C. Zamora, 130, 18151 Ogíjares, Granada",
-    "ubicacion.telefono": "+34 646 059 962",
-    "ubicacion.whatsapp": "Message us on WhatsApp",
-    "ubicacion.horario":
-      "Monday to Thursday: 09:00 to 14:00 and 17:00 to 23:30 // Friday to Sunday: 9:00 to 14:00 and 17:00 to 22:00",
-    "ubicacion.cta": "View on Google Maps",
-    "ubicacion.cta-desc": "Click to open the exact location in your maps app.",
-    "footer.copyright":
-      "© Geopadel · All rights reserved. Reproduction in whole or in part is prohibited without authorization.",
-    "footer.privacidad": "Privacy",
-    "footer.aviso": "Legal Notice",
-    "footer.cookies": "Cookies",
-    "footer.acceso": "Staff access",
-    "contacto.whatsapp": "Chat on WhatsApp",
-    "contacto.llamar": "Prefer to call? ",
-    "reservar.titulo": "Book your padel court",
-    "reservar.hoy": "today",
-    "reservar.subtitulo": "Pick day, duration and time. Payment at the club.",
-    "reservar.dia": "Day",
-    "reservar.duracion": "Duration",
-    "reservar.horas": "Available times",
-    "reservar.tus-datos": "Your details",
-    "reservar.telefono": "Phone",
-    "reservar.continuar": "Continue",
-    "reservar.tu-codigo": "Your code",
-    "reservar.entrar": "Log in",
-    "reservar.recuperar": "Forgot it? Call the club and we will reset it.",
-    "reservar.nombre": "Full name",
-    "reservar.crea-codigo": "Create your code",
-    "reservar.repite-codigo": "Repeat the code",
-    "reservar.codigo-hint":
-      "At least 6 characters. You will need it to view and cancel your bookings.",
-    "reservar.consentimiento":
-      'I have read and accept the <a href="privacidad" target="_blank" rel="noopener">privacy policy</a>. We will only use your name and phone to manage your bookings.',
-    "reservar.confirmar": "Confirm booking",
-    "reservar.recibida": "Booking received",
-    "reservar.otra": "Book another",
-    "reservar.ver-mis": "View my bookings",
-    "reservar.pendiente": "Booking confirmed",
-    "reservar.pago": "pay at the club",
-    "reservar.buscando": "Searching for slots...",
-    "reservar.no-huecos":
-      "No {dur} slots left this day. Try another day or duration.",
-    "reservar.antelacion": "Bookings must be made at least {min} in advance.",
-    "reservar.antelacion-llama": " To book with less notice, call the club.",
-    "reservar.reintentar": "Retry",
-    "reservar.noscript":
-      'You need JavaScript to book. You can also call the club: <a href="tel:+34646059962">646 05 99 62</a>.',
-    "mis-reservas.titulo": "My bookings",
-    "mis-reservas.subtitulo": "Only upcoming bookings are shown.",
-    "mis-reservas.ident": "Phone or full name",
-    "mis-reservas.codigo": "Your code",
-    "mis-reservas.ver": "View my bookings",
-    "mis-reservas.hola": "Hello, <b>{nombre}</b>",
-    "mis-reservas.salir": "Exit",
-    "mis-reservas.borrar": "Delete my data",
-    "mis-reservas.vacio": "You have no upcoming bookings.",
-    "mis-reservas.confirmada": "Confirmed",
-    "mis-reservas.cancelar": "Cancel booking",
-    "mis-reservas.repetir": "Book again",
-    "tienda.titulo": "Shop",
-    "tienda.subtitulo":
-      "This is what we have at the club. Purchase at the club.",
-    "tienda.vacio":
-      "There are no items in the shop right now. Ask at the club.",
-    "tienda.cargando": "Loading...",
-    "tienda.error": "Could not load the shop.",
-    "reservar.subtitulo-completo":
-      "Pick day, duration and time. Payment at the club. Book at least {min} in advance; for less, call the club.",
-    "nav.reservar-corto": "Book",
-    "nav.mis": "My bookings",
-    "app.install": "Install",
-    "app.install-ios": "In Safari tap Share and choose «Add to Home Screen»",
-    "modal.cancel": "Cancel",
-    "modal.accept": "Accept",
-    "reservar.checking": "Checking...",
-    "reservar.entering": "Logging in...",
-    "reservar.booking": "Booking...",
-    "reservar.toast.push-soon": "The match is in less than 2 hours.",
-    "reservar.toast.push-unsupported":
-      "Your browser doesn't support notifications",
-    "reservar.toast.push-denied": "Permission denied",
-    "reservar.toast.push-ok": "Reminder set.",
-    "reservar.toast.push-error": "Couldn't set the reminder: ",
-    "reservar.toast.copied": "Copied to clipboard",
-    "reservar.toast.copy-error": "Couldn't copy",
-    "tienda.retry": "Retry",
-    "tienda.cerrar": "Close",
-    "tienda.foto.ver": "See photo of {titulo} larger",
-    "aviso.pago":
-      "Courts must be paid before playing. Arriving 10 minutes early is recommended.",
+    "landing.huecosHoy": "Free slots today",
+    "landing.huecosManana": "Free slots tomorrow",
+    "landing.sin-huecos": "No slots left today.",
+    "landing.sin-huecos-manana": "No slots left tomorrow.",
+    "landing.otros-dias": "See other days",
+    "landing.verTodosDias": "See all days",
+
     "instalaciones.titulo": "Our Facilities",
     "instalaciones.subtitulo": "Discover everything Geopadel has for you.",
     "pista1.titulo": "Court 1 · Padel Master",
@@ -358,18 +333,114 @@ const I18N = {
     "palas.titulo": "Racket Testing",
     "palas.texto":
       "Not sure which racket to buy? Come to the club and test it in your own match before deciding.",
+
+    "ubicacion.titulo": "Where are we?",
+    "ubicacion.subtitulo": "Come and meet us, we are very close.",
+    "ubicacion.direccion":
+      "Polígono Tecnológico Los, C. Zamora, 130, 18151 Ogíjares, Granada",
+    "ubicacion.telefono": "+34 646 059 962",
+    "ubicacion.whatsapp": "Message us on WhatsApp",
+    "ubicacion.horario":
+      "Monday to Thursday: 09:00 to 14:00 and 17:00 to 23:30 // Friday to Sunday: 9:00 to 14:00 and 17:00 to 22:00",
+    "ubicacion.cta": "View on Google Maps",
+    "ubicacion.cta-desc": "Click to open the exact location in your maps app.",
+
+    "footer.copyright":
+      "© Geopadel · All rights reserved. Reproduction in whole or in part is prohibited without authorization.",
+    "footer.privacidad": "Privacy",
+    "footer.aviso": "Legal Notice",
+    "footer.cookies": "Cookies",
+    "footer.acceso": "Staff access",
+
+    "contacto.whatsapp": "Chat on WhatsApp",
+    "contacto.llamar": "Prefer to call? ",
+
+    "aviso.pago":
+      "Courts must be paid before playing. Arriving 10 minutes early is recommended.",
+
+    "modal.cancel": "Cancel",
+    "modal.accept": "Accept",
+
+    "app.install": "Install",
+    "app.install-ios": "In Safari tap Share and choose «Add to Home Screen»",
+
+    "reservar.titulo": "Book your padel court",
+    "reservar.subtitulo-completo":
+      "Pick day, duration and time. Payment at the club. Book at least {min} in advance; for less, call the club.",
+    "reservar.noscript":
+      'You need JavaScript to book. You can also call the club: <a href="tel:+34646059962">646 05 99 62</a>.',
+    "reservar.dia": "Day and time",
+    "reservar.hoy": "today",
+    "reservar.duracion": "Duration",
+    "reservar.horas": "Available times",
+    "reservar.tus-datos": "Your details",
+    "reservar.step1": "Pick a slot",
+    "reservar.step2": "Your details",
+    "reservar.step3": "Confirm",
+    "reservar.volver": "Back",
+
+    "reservar.telefono": "Phone",
+    "reservar.continuar": "Continue",
+    "reservar.tu-codigo": "Your code",
+    "reservar.entrar": "Log in",
+    "reservar.recuperar": "Forgot it? Call the club and we will reset it.",
+    "reservar.pedirCodigoWA": "Ask on WhatsApp",
+    "reservar.nombre": "Full name",
+    "reservar.crea-codigo": "Create your code",
+    "reservar.repite-codigo": "Repeat the code",
+    "reservar.codigo-hint":
+      "At least 6 characters. You will need it to view and cancel your bookings.",
+    "reservar.consentimiento":
+      'I have read and accept the <a href="privacidad" target="_blank" rel="noopener">privacy policy</a>. We will only use your name and phone to manage your bookings.',
+    "reservar.confirmar": "Confirm booking",
+    "reservar.booking": "Booking...",
+    "reservar.checking": "Checking...",
+    "reservar.entering": "Logging in...",
+
+    "reservar.searching": "Searching for slots...",
     "reservar.error": "Couldn't load availability.",
+    "reservar.reintentar": "Retry",
+    "reservar.antelacion": "Bookings must be made at least {min} in advance.",
+    "reservar.antelacion-llama": " To book with less notice, call the club.",
     "reservar.two-hours":
       '<i class="ri-information-line" aria-hidden="true"></i>Need <b>2 hours or more</b> or can\'t find <b>the time you want</b>? Call us at <a href="tel:+34646059962">646 05 99 62</a> or message us on <a href="https://wa.me/34646059962?text=Hola%2C%20quiero%20reservar%202%20horas" target="_blank" rel="noopener noreferrer">WhatsApp</a>.',
     "reservar.penas-torneos":
       '<i class="ri-team-line" aria-hidden="true"></i>Booking for a <b>group</b> or a <b>tournament</b>? Contact the club via <a href="https://wa.me/34646059962?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20pe%C3%B1as%20o%20torneos" target="_blank" rel="noopener noreferrer">WhatsApp</a> or call <a href="tel:+34646059962">646 05 99 62</a>.',
-    "reservar.searching": "Searching for slots...",
     "reservar.valid-phone": "Valid phone",
     "reservar.invalid-phone": "Enter at least 9 digits",
+    "reservar.numPistas.label": "How many courts?",
+    "reservar.numPistas.disponibles": "free",
+
+    "reservar.recibida": "Booking received",
+    "reservar.pago": "pay at the club",
+    "reservar.pagaAlLlegar": "Pay on arrival",
+    "reservar.efectivoTarjeta": "Cash or card",
+    "reservar.llegaAntes": "Arrive 10 minutes early",
+    "reservar.paraEmpezar": "So you can start on time",
+    "reservar.compartir": "Share",
+    "reservar.otra": "Book another",
+    "reservar.ver-mis": "View my bookings",
+    "reservar.anadirExtras": "Add email, reminder or review",
+    "reservar.confirmacionEmailTitulo": "Want the confirmation by email?",
+    "reservar.emailOpcional": "Email",
+    "reservar.emailHint": "If you don't enter one, no email will be sent.",
+    "reservar.enviarEmail": "Save email",
+    "reservar.emailInvalido": "Invalid email.",
+    "reservar.emailGuardado":
+      "Email saved. If you don't receive it within 1 minute, check spam or call the club.",
+    "reservar.emailGuardadoBtn": "Email saved",
+    "reservar.emailError": "Couldn't save the email. Try again later.",
+    "reservar.guardando": "Saving...",
+    "reservar.recordatorioTitulo": "Want a reminder?",
+    "reservar.recordatorioHint": "We'll notify you 1–2 hours before the match.",
+    "reservar.activarRecordatorio": "Set reminder",
+    "reservar.shareTexto":
+      "I've booked a court at Geopadel! {fecha} at {hora} on {pista}. Joining?",
+
+    "reservar.toast.connection":
+      "Couldn't connect. Check your connection and try again.",
     "reservar.toast.dur-updated": "Duration updated.",
-    "reservar.toast.no-slot": "That slot is no longer available.",
     "reservar.toast.choose-hour": "Pick a time",
-    "reservar.toast.no-schedule": "That time cannot be booked.",
     "reservar.toast.name-required": "Enter your full name",
     "reservar.toast.code-short": "The code must be at least 6 characters",
     "reservar.toast.code-mismatch": "The codes don't match",
@@ -377,45 +448,78 @@ const I18N = {
     "reservar.toast.captcha": "Complete the anti-spam check",
     "reservar.toast.phone-invalid": "Check the phone",
     "reservar.toast.code-empty": "Enter your code",
-    "reservar.toast.ident-required": "Enter your phone or name and your code",
-    "reservar.waitlist.prompt":
-      "Leave your phone so we can notify you when this slot opens:",
-    "reservar.waitlist.title": "Availability alert",
+    "reservar.toast.copied": "Copied to clipboard",
+    "reservar.toast.copy-error": "Couldn't copy",
+    "reservar.toast.push-soon": "The match is in less than 2 hours.",
+    "reservar.toast.push-unsupported":
+      "Your browser doesn't support notifications",
+    "reservar.toast.push-denied": "Permission denied",
+    "reservar.toast.push-ok": "Reminder set.",
+    "reservar.toast.push-error": "Couldn't set the reminder: ",
+    "reservar.toast.noSlotNextWeek":
+      "That time isn't free next week. Pick another slot.",
+    "reservar.creandoCuenta": "Creating account...",
+    "reservar.cuentaCreada": "Account created. You can now see your bookings.",
+
+    "reservar.waitlist.cta": "Notify me if it frees up",
+    "reservar.waitlist.promptShort":
+      "All our courts are busy on {fecha} at {hora} ({dur}). Leave your phone and we'll let you know if one frees up.",
+    "reservar.waitlist.enviar": "Notify me",
+    "reservar.waitlist.enviando": "Sending...",
     "reservar.waitlist.invalid": "Invalid phone",
     "reservar.waitlist.saved": "We'll notify you when a similar slot opens",
     "reservar.waitlist.error": "Couldn't save: ",
+
+    "mis-reservas.titulo": "My bookings",
+    "mis-reservas.subtitulo": "Only upcoming bookings are shown.",
+    "mis-reservas.ver": "View my bookings",
+    "mis-reservas.hola": "Hello, <b>{nombre}</b>",
+    "mis-reservas.salir": "Exit",
+    "mis-reservas.borrar": "Delete my data",
+    "mis-reservas.vacio": "You have no upcoming bookings.",
+    "mis-reservas.confirmada": "Confirmed",
+    "mis-reservas.cancelar": "Cancel booking",
+    "mis-reservas.repetir": "Book again",
+    "mis-reservas.todos": "Every",
+    "mis-reservas.recurrente":
+      "Recurring booking ({n} weeks). To cancel a specific week, call the club.",
     "mis-reservas.cancel-confirm": "Cancel this booking?",
     "mis-reservas.borrar-confirm":
       "Your name, phone and code will be deleted and your future bookings cancelled. This cannot be undone. Continue?",
     "mis-reservas.toast.cancelled": "Booking cancelled",
     "mis-reservas.toast.deleted": "Your data has been deleted",
-    "mis-reservas.todos": "Every",
-    "landing.sin-huecos": "No slots left today.",
-    "landing.desde": "from",
-    "landing.otros-dias": "See other days",
-    "landing.no-disponible": "Availability not available right now.",
-    "reservar.waitlist.cta": "Notify me if it frees up",
-    "reservar.toast.connection":
-      "Couldn't connect. Check your connection and try again.",
-    "mis-reservas.recurrente":
-      "Recurring booking ({n} weeks). To cancel a specific week, call the club.",
-    "resena.titulo": "Did you enjoy Geopadel?",
-    "resena.texto":
-      "If you enjoyed playing on our courts, leave us a review on Google. It helps us grow a lot!",
-    "resena.cta": "Leave a review on Google",
-    "resena.ahora-no": "Not now",
-    "reservar.numPistas.label": "How many courts?",
-    "reservar.numPistas.disponibles": "free",
+    "mis-reservas.cargando": "Searching...",
+    "mis-reservas.cancelando": "Cancelling...",
+    "mis-reservas.borrando": "Deleting...",
     "mis-reservas.login": "Log in to see your bookings",
     "mis-reservas.sin-codigo":
       "You don't have a web code yet. Fill in your details to create one and see your bookings.",
     "mis-reservas.crear": "Create account and view bookings",
     "mis-reservas.cambiar-tel": "Use another phone",
+
+    "tienda.titulo": "Shop",
+    "tienda.subtitulo":
+      "This is what we have at the club. Purchase at the club.",
+    "tienda.vacio":
+      "There are no items in the shop right now. Ask at the club.",
+    "tienda.cargando": "Loading...",
+    "tienda.error": "Could not load the shop.",
+    "tienda.retry": "Retry",
+    "tienda.cerrar": "Close",
+    "tienda.foto.ver": "See photo of {titulo} larger",
+
+    "resena.titulo": "Did you enjoy Geopadel?",
+    "resena.texto":
+      "If you enjoyed playing on our courts, leave us a review on Google. It helps us grow a lot!",
+    "resena.cta": "Leave a review on Google",
+    "resena.ahora-no": "Not now",
+
     "wa.titulo": "Join our community",
     "wa.desc": "Get notified about free slots and club news.",
     "wa.cta": "Join",
   },
 };
+
 let _idioma = "es";
 function t(clave, vars) {
   let texto =

@@ -1414,6 +1414,11 @@ i[class*=" ri-"] {
   opacity: 0.75;
 }
 
+#gpWaBanner .gp-wa-icon i,
+#gpWaBanner .gp-wa-close i {
+  margin-right: 0;
+}
+
 @media (max-width: 600px) {
   #gpWaBanner {
     padding: 10px 12px;
