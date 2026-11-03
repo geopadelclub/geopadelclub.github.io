@@ -106,7 +106,7 @@ async function dibujarClientesAjustes() {
       const telNorm = String(c.telefono || "").replace(/\D/g, "");
       const estaBloqueado = telNorm && cliBloqueados.has(telNorm);
       const deuda = deudasPorTel.get(telNorm) || 0;
-      const deudaMax = 50;
+      const deudaMax = 20;
       const debeDemasiado = deuda > deudaMax;
       const tel = c.telefono
         ? `<a href="tel:${esc(c.telefono)}" style="color:var(--blue);font-weight:700">${esc(c.telefono)}</a>`

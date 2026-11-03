@@ -1379,13 +1379,14 @@ async function confirmarGuardarReserva() {
       { p_telefono: telefono },
     );
     if (errDeuda) console.warn("No se pudo comprobar la deuda:", errDeuda);
-    const deudaMax = 50;
+    const deudaMax = 20;
     const deudaNum = Number(deuda) || 0;
     if (deudaNum > deudaMax) {
-      return toast(
-        `Este cliente debe ${eur(deudaNum)} (máximo ${eur(deudaMax)}). No se puede reservar hasta que resuelva la deuda.`,
-        "err",
+      const continuar = await customConfirm(
+        `Este cliente debe ${eur(deudaNum)} (límite web: ${eur(deudaMax)}).\n\nNo podrá reservar por la web hasta que resuelva la deuda, pero desde el panel sí se puede reservar.\n\n¿Crear la reserva igualmente?`,
+        "Cliente con deuda pendiente",
       );
+      if (!continuar) return;
     }
   }
 
