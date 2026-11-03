@@ -302,8 +302,20 @@ function textoError(e) {
         : "Tienes un pago pendiente. Llama al club.";
     case "no_cancelable":
       return motivoTexto(e.motivo);
+    case "error_servidor":
+      return en
+        ? "Server error. Please try again or call the club."
+        : "Error interno del servidor. Inténtalo de nuevo o llámanos al 646 05 99 62.";
+    case "method_not_allowed":
+    case "accion_invalida":
+    case "no_autorizado":
+      return en
+        ? "Unexpected error. Please call the club."
+        : "Error inesperado. Llámanos al 646 05 99 62.";
     default:
-      return en ? "Action failed." : "No se pudo completar.";
+      return en
+        ? "Something went wrong."
+        : "Algo ha fallado. Llámanos al 646 05 99 62.";
   }
 }
 
@@ -774,6 +786,7 @@ async function confirmarReserva() {
         flujo.fase === "nuevo" && document.getElementById("clConsent").checked,
     });
     if (!res || !res.ok) {
+      console.error("[reservar] respuesta fallida:", res);
       toast(textoError(res), "err");
       if (
         res &&
