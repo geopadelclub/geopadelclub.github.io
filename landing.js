@@ -30,7 +30,7 @@ function duracionLabel(min) {
 
 function getTargetFecha() {
   const ahora = ahoraMadrid();
-  if (ahora.h >= 22)
+  if (ahora.h >= 21)
     return { dia: "manana", fecha: sumarDiasISO(ahora.fecha, 1) };
   return { dia: "hoy", fecha: ahora.fecha };
 }
