@@ -207,6 +207,9 @@ const I18N = {
       "Aún no tienes código web. Rellena tus datos para crearlo y poder ver tus reservas.",
     "mis-reservas.crear": "Crear cuenta y ver reservas",
     "mis-reservas.cambiar-tel": "Usar otro teléfono",
+    "wa.titulo": "Únete a nuestra comunidad",
+    "wa.desc": "Recibe avisos de huecos libres y novedades del club.",
+    "wa.cta": "Unirme",
   },
   en: {
     "nav.tarifas": "Prices",
@@ -408,6 +411,9 @@ const I18N = {
       "You don't have a web code yet. Fill in your details to create one and see your bookings.",
     "mis-reservas.crear": "Create account and view bookings",
     "mis-reservas.cambiar-tel": "Use another phone",
+    "wa.titulo": "Join our community",
+    "wa.desc": "Get notified about free slots and club news.",
+    "wa.cta": "Join",
   },
 };
 let _idioma = "es";

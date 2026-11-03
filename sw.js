@@ -70,6 +70,7 @@ const PUBLICO = [
   "acciones.js",
   "i18n.js",
   "menu.js",
+  "whatsapp-banner.js",
 ];
 
 async function detectarModo() {

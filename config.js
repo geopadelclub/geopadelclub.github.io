@@ -7,3 +7,4 @@ const VAPID_PUBLIC_KEY =
   "BJfkXA8SbAnDIZUJ4FfmdUHKTRt65TkSvieTR5dQS99ySNW39wYkzCpvAz9ed7hQAeYdI1b5AVPFkfYm3sIIZpg";
 const GOOGLE_REVIEW_URL =
   "https://search.google.com/local/writereview?placeid=ChIJp61xYgz7cQ0RKyQe4cYAAaM";
+const WHATSAPP_COMMUNITY_URL = "https://chat.whatsapp.com/HqquouziFVq53Msrc4mAo8";

@@ -284,6 +284,7 @@
           <li><a href="#acceso">Acceso al panel</a></li>
           <li><a href="#resumen">Resumen</a></li>
           <li><a href="#reservas">Reservas</a></li>
+          <li><a href="#web-publica">Web pública</a></li>
           <li><a href="#tpv">Tienda (TPV)</a></li>
           <li><a href="#caja">Caja</a></li>
           <li><a href="#deudas">Deudas</a></li>
@@ -302,58 +303,88 @@
       <main class="guia-main">
         <h1>Guía del panel de gestión</h1>
         <p class="guia-lead">
-          Manual para el personal del club. Cubre todas las funciones, permisos
-          y limitaciones del panel.
+          Manual completo para el personal del club. Cubre todas las funciones,
+          permisos, límites y flujos de trabajo del panel, la web pública y los
+          procesos internos.
         </p>
 
         <h2 id="acceso">1. Acceso al panel</h2>
 
-        <h3>Cómo entrar</h3>
+        <h3>1.1 Cómo entrar</h3>
         <ol>
           <li>
             Abre <strong>geopadelclub.com/panel</strong> en el navegador
-            (Chrome, Edge o Safari actualizados).
+            (Chrome, Edge o Safari actualizados). <strong>No</strong> uses el
+            navegador de una TV ni un navegador muy antiguo: no cargará bien.
           </li>
           <li>
             Introduce tu <strong>usuario</strong> (sin
-            <code>@geopadel.app</code>) y tu <strong>contraseña</strong>.
+            <code>@geopadel.app</code>) y tu <strong>contraseña</strong>. El
+            usuario no lleva espacios ni mayúsculas: si te llamas Jorge, tu
+            usuario probablemente sea <code>jorge</code>.
           </li>
-          <li>Completa la verificación anti-spam (Turnstile) si aparece.</li>
+          <li>
+            Completa la verificación anti-spam (Turnstile) si aparece. Es un
+            checkbox de Cloudflare que confirma que eres humano. Si no lo
+            completas, no deja entrar.
+          </li>
           <li>Pulsa <strong>Entrar al Panel</strong>.</li>
         </ol>
 
-        <h3>Reglas de acceso</h3>
+        <h3>1.2 Roles y permisos</h3>
+        <p>Hay tres roles con permisos distintos:</p>
         <ul>
           <li>
-            <strong>3 roles distintos</strong>:
+            <strong>Jefa</strong> → acceso total. Puede:
             <ul>
-              <li>
-                <strong>Jefa</strong> → acceso total. Puede anular facturas,
-                reabrir cajas, borrar clientes (RGPD), restablecer códigos.
-              </li>
-              <li>
-                <strong>Trabajador</strong> → acceso completo excepto las
-                acciones exclusivas de jefa. Puede fichar.
-              </li>
-              <li>
-                <strong>Entrenador</strong> → <strong>solo</strong> ve la
-                pestaña Reservas, solo crea/edita
-                <strong>sus propios entrenamientos</strong>.
-              </li>
+              <li>Anular y rectificar facturas.</li>
+              <li>Reabrir cajas cerradas.</li>
+              <li>Borrar clientes (RGPD).</li>
+              <li>Restablecer códigos web de clientes.</li>
+              <li>Ver y gestionar bloqueos persistentes.</li>
+              <li>Ver y exportar la copia de seguridad completa.</li>
             </ul>
           </li>
           <li>
-            <strong>Sesión</strong>: dura un máximo de <strong>8 h</strong> o
-            hasta 8 h de inactividad. Aparecerá un aviso 2 minutos antes de
-            caducar.
+            <strong>Trabajador</strong> → acceso completo excepto las acciones
+            exclusivas de jefa. Puede reservar, cobrar, cerrar caja, fichar,
+            crear clientes, bloquear clientes con motivo, etc.
           </li>
-          <li><strong>5 intentos fallidos</strong> → bloqueo de 30 s.</li>
           <li>
-            <strong>Cambio de tema</strong>: botón 🌙/☀️ arriba a la derecha.
+            <strong>Entrenador</strong> → <strong>solo</strong> ve la pestaña
+            Reservas y solo crea/edita/mueve
+            <strong>sus propios entrenamientos</strong>. No ve Ventas, Equipo ni
+            Ajustes.
           </li>
         </ul>
 
-        <h3>Errores de login frecuentes</h3>
+        <h3>1.3 Seguridad de la sesión</h3>
+        <ul>
+          <li>
+            <strong>Duración máxima</strong>: 8 horas desde que entras. Aunque
+            estés activo, a las 8 horas te pedirá volver a entrar.
+          </li>
+          <li>
+            <strong>Inactividad</strong>: 8 horas sin tocar nada también cierran
+            la sesión.
+          </li>
+          <li>
+            <strong>Aviso previo</strong>: 2 minutos antes de caducar por
+            inactividad, aparece un aviso. Puedes pulsar "Seguir conectado" para
+            renovar.
+          </li>
+          <li>
+            <strong>5 intentos fallidos</strong> de contraseña → bloqueo de 30
+            segundos. Tras 15 minutos sin intentos, el contador se resetea.
+          </li>
+          <li>
+            <strong>Cerrar sesión</strong>: botón "Salir" arriba a la derecha.
+            Siempre ciérrala al terminar, sobre todo si el ordenador es
+            compartido.
+          </li>
+        </ul>
+
+        <h3>1.4 Errores de login frecuentes</h3>
         <div class="guia-tabla-wrap">
           <table class="guia-tabla">
             <thead>
@@ -367,57 +398,81 @@
               <tr>
                 <td>"Credenciales incorrectas"</td>
                 <td>Usuario o contraseña mal</td>
-                <td>Revisa mayúsculas y espacios</td>
+                <td>
+                  Revisa mayúsculas, espacios y que no tengas el Bloq Mayús
+                </td>
               </tr>
               <tr>
                 <td>"No se pudo verificar el anti-spam"</td>
-                <td>Fallo de Turnstile</td>
+                <td>Fallo de Turnstile o token caducado</td>
                 <td>Recarga la página y reinténtalo</td>
               </tr>
               <tr>
                 <td>"Usuario inactivo o sin perfil"</td>
-                <td>Cuenta desactivada</td>
+                <td>Cuenta desactivada o sin ficha en `usuarios`</td>
                 <td>Avisa a la jefa</td>
               </tr>
               <tr>
+                <td>"Este usuario no está confirmado"</td>
+                <td>El usuario no ha confirmado su email</td>
+                <td>Avisa a la jefa para que lo confirme</td>
+              </tr>
+              <tr>
                 <td>"Demasiados intentos"</td>
-                <td>5 fallos</td>
-                <td>Espera 30 s</td>
+                <td>5 fallos en menos de 15 minutos</td>
+                <td>Espera 30 segundos</td>
+              </tr>
+              <tr>
+                <td>"Error de conexión"</td>
+                <td>Sin internet o Supabase caído</td>
+                <td>Comprueba la red y reintenta</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <h2 id="resumen">2. Resumen (pantalla de inicio)</h2>
-        <p>Es lo primero que ves al entrar. Muestra:</p>
+        <h2 id="resumen">2. Resumen</h2>
+
+        <h3>2.1 Qué muestra</h3>
+        <p>Es la pantalla que ves nada más entrar. Contiene:</p>
         <ul>
-          <li><strong>Bienvenida</strong> con tu nombre y el día actual.</li>
           <li>
-            <strong>KPIs</strong>:
+            <strong>Bienvenida</strong> personalizada con tu nombre y el día
+            actual. Cambia según la hora (Buenos días / Buenas tardes / Buenas
+            noches).
+          </li>
+          <li>
+            <strong>KPIs</strong> (tarjetas con cifras):
             <ul>
-              <li><strong>Ingresos hoy</strong> (efectivo + tarjeta).</li>
               <li>
-                <strong>Deudas pendientes</strong> (total y nº de clientes).
+                <strong>Ingresos hoy</strong>: suma de efectivo y tarjeta de la
+                caja del día. Debajo desglosa cuánto es efectivo y cuánto
+                tarjeta.
               </li>
               <li>
-                <strong>Limpiezas pendientes</strong> (pistas sin limpiar en 2
-                semanas).
+                <strong>Deudas pendientes</strong>: total en euros que deben los
+                clientes y nº de clientes con deuda.
+              </li>
+              <li>
+                <strong>Limpiezas</strong>: número de pistas con tareas de
+                limpieza pendientes (más de 2 semanas sin limpiar o sin
+                registro).
               </li>
             </ul>
           </li>
           <li>
             <strong>Alertas</strong> (amarillas) si hay limpiezas vencidas o
-            deudas pendientes.
+            deudas pendientes. Cada alerta tiene un botón directo a la sección
+            correspondiente.
           </li>
           <li>
-            <strong>Acciones rápidas</strong>:
+            <strong>Acciones rápidas</strong>: botones grandes para las tareas
+            más frecuentes:
             <ul>
               <li>
                 <strong>Nueva reserva</strong> → abre el modal de creación.
               </li>
-              <li>
-                <strong>Abrir bar</strong> → va a la pestaña Ventas → Tienda.
-              </li>
+              <li><strong>Abrir bar</strong> → va a Ventas → Tienda.</li>
               <li><strong>Cerrar caja</strong> → va a Ventas → Caja.</li>
               <li>
                 <strong>Fichar</strong> (solo trabajadores) → va a Equipo →
@@ -430,66 +485,76 @@
             </ul>
           </li>
           <li>
-            <strong>Próximas reservas de hoy</strong> con hora, pista, cliente y
-            estado.
+            <strong>Próximas reservas de hoy</strong>: hora, pista, cliente y
+            estado de las siguientes reservas del día. Se ordenan por hora de
+            inicio.
           </li>
         </ul>
+
+        <h3>2.2 Para qué sirve</h3>
+        <p>
+          Es un <strong>vistazo rápido</strong> al estado del club. Al entrar,
+          en 10 segundos sabes si hay algo urgente (deuda, limpieza) y qué
+          reservas vienen después. No es una pantalla de trabajo en sí, sino de
+          orientación.
+        </p>
 
         <h2 id="reservas">3. Reservas — el corazón del panel</h2>
 
         <h3>3.1 El cuadrante (calendario Playtomic)</h3>
         <p>
-          Al entrar a <strong>Reservas</strong> verás un
-          <strong>calendario semanal</strong>:
+          Al entrar a <strong>Reservas</strong> ves el calendario del día. Está
+          organizado así:
         </p>
         <ul>
           <li>
-            <strong>Columnas</strong> = pistas (1 PADEL MASTER, Pista 2… Pista
-            9).
+            <strong>Columnas</strong>: una por pista (1 PADEL MASTER, Pista 2…
+            Pista 9).
           </li>
           <li>
-            <strong>Filas</strong> = franjas de 30 minutos (desde las 8:00 hasta
-            el cierre).
+            <strong>Filas</strong>: franjas de 30 minutos, desde las 8:00 hasta
+            el cierre del día.
           </li>
           <li>
-            <strong>Colores de tarjeta</strong>:
-            <ul>
-              <li>
-                🔵 Azul rayado → Reserva <strong>Normal</strong> sin cobrar.
-              </li>
-              <li>🟢 Verde liso → Reserva <strong>Normal</strong> pagada.</li>
-              <li>🟣 Lila rayado → <strong>Peña</strong> (recurrente).</li>
-              <li>🟠 Naranja rayado → <strong>Torneo</strong>.</li>
-              <li>🟢 Verde azulado rayado → <strong>Entrenamiento</strong>.</li>
-              <li>
-                🟢 Verde azulado claro con borde →
-                <strong>Tu entrenamiento</strong> (si eres entrenador).
-              </li>
-              <li>⚫ Gris rayado → <strong>Bloqueo</strong> de pista.</li>
-            </ul>
+            <strong>Línea roja horizontal</strong>: marca la hora actual (solo
+            si estás viendo el día de hoy).
+          </li>
+        </ul>
+
+        <h4>Colores de las tarjetas</h4>
+        <ul>
+          <li>🔵 Azul rayado → Reserva <strong>Normal</strong> sin cobrar.</li>
+          <li>🟢 Verde liso → Reserva <strong>Normal</strong> pagada.</li>
+          <li>🟣 Lila rayado → <strong>Peña</strong> (reserva recurrente).</li>
+          <li>🟠 Naranja rayado → <strong>Torneo</strong>.</li>
+          <li>🟢 Verde azulado rayado → <strong>Entrenamiento</strong>.</li>
+          <li>
+            🟢 Verde azulado claro con borde → <strong>Tu entrenamiento</strong>
+            (si eres entrenador).
+          </li>
+          <li>⚫ Gris rayado → <strong>Bloqueo</strong> de pista.</li>
+        </ul>
+
+        <h4>Insignias dentro de cada tarjeta</h4>
+        <ul>
+          <li>
+            <strong>Sin pagar</strong> (rojo),
+            <strong>Parcial 2/4</strong> (naranja) o
+            <strong>Pagado</strong> (verde). Indican cuántos jugadores han
+            pagado.
           </li>
           <li>
-            <strong>Insignias</strong> (badges):
-            <strong>Sin pagar</strong> (rojo) /
-            <strong>Parcial 2/4</strong> (naranja) /
-            <strong>Pagado</strong> (verde).
+            <strong>Puntitos verdes y rojos</strong>: cada uno representa un
+            jugador. Verde = ha pagado, rojo = pendiente.
           </li>
           <li>
-            <strong>Nota</strong> (amarilla) si la reserva tiene anotaciones.
+            <strong>Nota</strong> (icono amarillo con "Nota"): la reserva tiene
+            anotaciones que se ven al abrirla.
           </li>
           <li>
-            <strong>Puntitos</strong> de jugador: cada uno verde (pagado) o rojo
-            (pendiente).
+            <strong>🌐</strong> → Reserva hecha por el cliente desde la web.
           </li>
-          <li>
-            <strong>Iconos</strong>: 🌐 Reserva hecha desde la
-            <strong>web</strong> por el cliente; 🔁 Reserva
-            <strong>recurrente</strong>.
-          </li>
-          <li>
-            <strong>Línea roja horizontal</strong> = hora actual (solo si el día
-            es hoy).
-          </li>
+          <li><strong>🔁</strong> → Reserva recurrente (serie/peña).</li>
         </ul>
 
         <h3>3.2 Navegación por fechas</h3>
@@ -499,122 +564,167 @@
             <strong>◀◀ / ◀ / ▶ / ▶▶</strong> → semana anterior / día anterior /
             día siguiente / semana siguiente.
           </li>
-          <li><strong>Selector de fecha</strong> → elige un día concreto.</li>
           <li>
-            Arriba verás <strong>Ocupación %</strong> y
-            <strong>nº Reservas</strong>.
+            <strong>Selector de fecha</strong> → haz clic para abrir un
+            calendario y elegir un día concreto.
+          </li>
+          <li>
+            Arriba verás dos chips:
+            <ul>
+              <li>
+                <strong>Ocupación %</strong>: porcentaje de pistas ocupadas
+                frente a las disponibles en el día. Se calcula solo con las
+                franjas en las que se puede reservar.
+              </li>
+              <li>
+                <strong>Reservas</strong>: número total de reservas del día.
+              </li>
+            </ul>
           </li>
         </ul>
 
         <h3>3.3 Crear una reserva</h3>
-        <p><strong>Formas de abrir el formulario</strong>:</p>
+        <p><strong>Dos formas de abrir el formulario</strong>:</p>
         <ol>
           <li>
             Botón <strong>"Crear Reserva"</strong> (arriba a la derecha en
             escritorio, flotante en móvil).
           </li>
           <li>
-            <strong>Clic en un hueco vacío</strong> del calendario (crea en esa
-            pista y a esa hora).
+            <strong>Clic en un hueco vacío</strong> del calendario: crea la
+            reserva en esa pista y a esa hora automáticamente, sin tener que
+            seleccionarlas a mano.
           </li>
         </ol>
 
-        <p><strong>Rellenar el formulario</strong>:</p>
+        <h4>Rellenar el formulario</h4>
         <ul>
           <li>
-            <strong>Cliente</strong> → escribe 2 letras y elige del
-            <strong>autocompletado</strong>. Si no existe, escribe el nombre
-            completo.
+            <strong>Cliente</strong> → escribe 2 letras y espera al
+            autocompletado. Si no existe, escribe el nombre completo (nombre y
+            apellidos). Los nombres se normalizan automáticamente (sin tildes en
+            vocales, con Ñ, Title Case).
           </li>
           <li>
-            <strong>Teléfono</strong> → opcional. Si pones uno, se guardará
-            también en la ficha del cliente.
+            <strong>Teléfono</strong> → opcional. Si lo pones, se guarda también
+            en la ficha del cliente. Si ya existe un cliente con ese teléfono y
+            distinto nombre, el panel te preguntará si renombrar la ficha.
           </li>
           <li>
-            <strong>Pistas</strong> → marca una o varias. Si marcas varias, crea
-            una reserva por pista.
+            <strong>Pistas</strong> → marca una o varias. Si marcas varias, se
+            crea una reserva por pista en la misma franja. Muy útil para grupos
+            grandes que ocupan varias pistas a la vez.
           </li>
           <li>
-            <strong>Tipo de reserva</strong>: Normal / Peña / Entrenamiento /
-            Torneo (ver descripciones abajo).
+            <strong>Tipo de reserva</strong>:
+            <ul>
+              <li><strong>Normal</strong> → reserva estándar.</li>
+              <li>
+                <strong>Peña</strong> → reserva recurrente. Al marcarla, aparece
+                un campo para indicar cuántas semanas repetir (por defecto 12).
+                Todas las reservas de la serie comparten un ID interno.
+              </li>
+              <li>
+                <strong>Entrenamiento</strong> → solo múltiplos de 1 hora (60,
+                120, 180, 240, 300 min). Los entrenadores solo pueden crear este
+                tipo y solo a su nombre.
+              </li>
+              <li>
+                <strong>Torneo</strong> → permite horario ampliado (fuera del
+                horario habitual de reservas). No se puede arrastrar en el
+                calendario.
+              </li>
+            </ul>
           </li>
           <li><strong>Fecha</strong> y <strong>Hora inicio</strong>.</li>
           <li>
-            <strong>Duración</strong> (30, 60, 90, 120…).
-            <strong>Entrenamiento</strong>: solo 60, 120, 180, 240, 300.
+            <strong>Duración</strong>: desde 30 min hasta 5 h. En entrenamientos
+            solo múltiplos de 1 h.
           </li>
           <li>
-            <strong>Repetir peña (semanas)</strong>: solo si es Peña. Por
-            defecto 12.
-          </li>
-          <li><strong>Número de jugadores</strong>: 1 a 16. Por defecto 4.</li>
-          <li>
-            <strong>Precio</strong> → se calcula automáticamente según la
-            tarifa. Puedes editarlo manualmente.
+            <strong>Repetir peña (semanas)</strong>: solo aparece si es Peña y
+            la reserva es nueva. Por defecto 12. Máximo 52.
           </li>
           <li>
-            <strong>Método de cobro</strong>: Pago único o Pago dividido (ver
-            punto 3.7).
+            <strong>Número de jugadores</strong>: de 1 a 16. Por defecto 4.
           </li>
           <li>
-            <strong>Bloc de notas</strong> → apuntes visibles en el calendario.
+            <strong>Precio</strong>: se calcula automáticamente según la tarifa
+            del día (entre semana mañana/tarde, finde, festivo). Puedes editarlo
+            manualmente si necesitas un precio especial.
           </li>
-          <li>Pulsa <strong>Guardar reserva</strong>.</li>
+          <li>
+            <strong>Método de cobro</strong>: Pago único o Pago dividido. Ver
+            punto 3.7.
+          </li>
+          <li>
+            <strong>Bloc de notas</strong>: apuntes visibles en el calendario
+            (máximo 1000 caracteres). Útil para "debe dinero", "trae pala
+            prestada", "avisar si llega tarde", etc.
+          </li>
         </ul>
+
+        <p>Pulsa <strong>Guardar reserva</strong>.</p>
 
         <div class="guia-tip">
           <i class="ri-lightbulb-line" aria-hidden="true"></i>
           Si la fecha es <strong>festiva</strong>, el sistema aplica
-          automáticamente la <strong>tarifa de fin de semana</strong>, aunque
-          sea entre semana. No tienes que hacer nada: el precio sugerido ya
-          vendrá con el importe correcto. Ver
+          automáticamente la <strong>tarifa de fin de semana</strong> y el
+          <strong>horario de fin de semana</strong> (cierre a las 22:00, solo
+          tramos fijos de 90 min), aunque sea entre semana. Ver
           <a href="#festivos">sección de festivos</a>.
+        </div>
+
+        <div class="guia-tip">
+          <i class="ri-lightbulb-line" aria-hidden="true"></i>
+          Desde el <strong>panel</strong> se puede reservar a un cliente que
+          tenga
+          <strong>deuda pendiente por encima del límite web (20 €)</strong>. El
+          sistema avisará con un mensaje y pedirá confirmación. Esto es así
+          porque el club puede atender llamadas y permitir reservar al cliente
+          que se comprometa a pagar. La web pública sí bloquea automáticamente a
+          quien debe más de 20 €.
         </div>
 
         <div class="guia-warn">
           <i class="ri-error-warning-line" aria-hidden="true"></i>
           <strong>Barreras al crear</strong>: no se puede reservar si hay solape
-          con otra reserva/bloqueo; no se puede reservar fuera de horario
-          (14:00-17:00 cerrado entre semana); entrenamientos solo en horas
-          completas; si eres entrenador, solo puedes crear Entrenamientos en tu
-          nombre; si hay cobros, no se pueden cambiar precio/duración/jugadores
-          hasta quitarlos.
+          con otra reserva o bloqueo; no se puede reservar fuera de horario
+          (14:00-17:00 cerrado entre semana; 22:00 en finde y festivos);
+          entrenamientos solo en horas completas; si eres entrenador, solo
+          puedes crear Entrenamientos en tu nombre; si hay cobros, no se pueden
+          cambiar precio/duración/jugadores hasta quitarlos.
         </div>
 
         <h3>3.4 Editar una reserva</h3>
         <ol>
-          <li><strong>Clic</strong> sobre una tarjeta del calendario.</li>
-          <li>Se abre el modal con todos los datos.</li>
+          <li>
+            <strong>Clic</strong> sobre la tarjeta del calendario. Se abre el
+            modal con todos los datos.
+          </li>
           <li>Modifica lo que necesites.</li>
           <li><strong>Guardar reserva</strong>.</li>
         </ol>
 
-        <p><strong>Botones especiales del modal</strong>:</p>
+        <p><strong>Botones especiales del modal (edición)</strong>:</p>
         <ul>
           <li>
             <strong>Eliminar serie</strong> → borra esta reserva y todas las
-            futuras de la serie.
+            futuras de la serie. Solo aparece si la reserva tiene serie.
           </li>
           <li>
-            <strong>Historial</strong> → muestra todos los cambios (quién y
-            cuándo).
+            <strong>Historial</strong> → muestra todos los cambios con quién,
+            cuándo y qué valores anteriores había.
           </li>
           <li>
-            <strong>Eliminar</strong> → borra solo esta reserva (con devolución
-            de cobros si los hubiera).
+            <strong>Eliminar</strong> → borra solo esta reserva. Si tenía
+            cobros, los devuelve automáticamente (genera un registro negativo en
+            caja).
           </li>
           <li><strong>Cancelar</strong> → cierra sin guardar.</li>
         </ul>
 
-        <div class="guia-tip">
-          <i class="ri-lightbulb-line" aria-hidden="true"></i>
-          El antiguo botón "Justificante 80mm" del modal
-          <strong>ya no existe</strong>. Para emitir un justificante de una
-          reserva, hazlo desde <strong>Ventas → Facturas</strong> (tipo
-          Justificante), indicando el ID de la reserva en el campo opcional.
-        </div>
-
-        <h3>3.5 Mover / redimensionar una reserva</h3>
+        <h3>3.5 Mover y redimensionar</h3>
         <p><strong>Mover</strong>:</p>
         <ul>
           <li>
@@ -622,78 +732,89 @@
             hora.
           </li>
           <li>
-            <strong>Móvil</strong>: mantén pulsada la tarjeta 0,4 s hasta que
-            vibre y arrastra.
+            <strong>Móvil</strong>: mantén pulsada la tarjeta 0,4 segundos hasta
+            que vibre, y arrastra.
           </li>
         </ul>
         <p>
           <strong>Redimensionar</strong>: coge el borde superior o inferior de
-          la tarjeta y estira. Aumenta o reduce en bloques de 30 min, mínimo 1
-          h.
+          la tarjeta y estira. La duración cambia en bloques de 30 min, con un
+          mínimo de 1 hora.
         </p>
 
         <div class="guia-warn">
           <i class="ri-error-warning-line" aria-hidden="true"></i>
           <strong>Barreras</strong>: no se puede mover si hay solape o bloqueo;
           no se puede cambiar la duración si tiene cobros (quita primero los
-          pagos); Peña: al mover, solo cambia esa semana; Torneo: no se puede
-          arrastrar; Entrenador: solo puedes mover/redimensionar tus propios
-          entrenamientos.
+          pagos); en Peña, mover una semana solo afecta a esa semana; los
+          Torneos no se pueden arrastrar; el entrenador solo puede mover sus
+          propios entrenamientos.
         </div>
 
         <h3>3.6 Series (Peñas)</h3>
-        <p>Una <strong>Peña</strong> es una reserva recurrente:</p>
+        <p>
+          Una <strong>Peña</strong> es una reserva recurrente que se repite cada
+          semana.
+        </p>
         <ul>
-          <li>Se crean marcando "Peña" y eligiendo cuántas semanas repetir.</li>
           <li>
-            <strong>Todas</strong> las reservas comparten un
-            <code>serie</code> interno.
+            Se crean marcando tipo "Peña" y eligiendo cuántas semanas repetir
+            (por defecto 12).
+          </li>
+          <li>
+            Todas las reservas de la serie comparten un <code>serie</code>
+            interno (cadena de texto).
           </li>
           <li>
             Al <strong>mover</strong> una semana, solo cambia esa; las demás
-            siguen.
+            siguen en su día y hora.
           </li>
           <li>
-            Al <strong>editar nombre/teléfono</strong>, pregunta si aplicar
-            <strong>a toda la serie</strong> o solo a esa reserva.
+            Al <strong>editar nombre o teléfono</strong>, el panel pregunta si
+            aplicar el cambio a <strong>toda la serie</strong> o solo a esa
+            reserva.
           </li>
           <li>
-            Al <strong>eliminar</strong> desde el modal, elige si borrar
+            Al <strong>eliminar</strong> desde el modal, elige entre borrar
             <strong>solo esta</strong> o <strong>toda la serie</strong>.
           </li>
         </ul>
 
         <h3>3.7 Pagos (cobro)</h3>
+        <p>Hay dos modos de cobro:</p>
         <ul>
           <li>
-            <strong>Pago único</strong>: botón Efectivo o Tarjeta → marca todos
-            los jugadores como pagados. Botón ✕ → deshace el pago (solo si no
-            estaba guardada con cobros).
+            <strong>Pago único</strong>: pulsas <strong>Efectivo</strong> o
+            <strong>Tarjeta</strong> y se marcan todos los jugadores como
+            pagados. Si te equivocas, el botón <strong>✕</strong> deshace el
+            pago (solo si la reserva no se había guardado con cobros todavía).
           </li>
           <li>
             <strong>Pago dividido</strong>: marca cada jugador con 🟢 (efectivo)
-            o 🔵 (tarjeta). Botón ✕ en cada jugador → le quita el pago. El badge
-            "Parcial X/N" o "Pagado" se actualiza solo.
+            o 🔵 (tarjeta). El botón <strong>✕</strong> en cada jugador le quita
+            el pago. El badge se actualiza a "Parcial X/N" o "Pagado" según
+            corresponda.
           </li>
         </ul>
 
         <div class="guia-warn">
           <i class="ri-error-warning-line" aria-hidden="true"></i>
           Una vez cobrada, la reserva <strong>no se puede</strong> modificar en
-          precio, duración o jugadores hasta quitar los cobros uno a uno. Cada
+          precio, duración ni jugadores hasta quitar los cobros uno a uno. Cada
           pago genera un registro en <code>ventas</code> (visible en Caja). Cada
           devolución genera un registro negativo.
         </div>
 
         <h3>3.8 Bloqueos de pistas</h3>
-        <p>Al final de la pestaña Reservas:</p>
+        <p>Sirven para reservar una pista sin que sea para un cliente.</p>
         <ol>
           <li>Selecciona una pista (o "Todas") y un horario.</li>
           <li>Añade un motivo (torneo, mantenimiento, reserva privada…).</li>
           <li>Pulsa <strong>Bloquear en este día</strong>.</li>
         </ol>
         <p>
-          Los bloqueos aparecen en el calendario como franjas grises rayadas.
+          Aparecen en el calendario como franjas grises rayadas. No se pueden
+          reservar mientras el bloqueo esté activo.
         </p>
         <p>
           <strong>Barreras</strong>: no se puede bloquear un tramo con reservas
@@ -708,9 +829,9 @@
         </p>
         <ul>
           <li>
-            <strong>Avisar (WhatsApp)</strong> → abre WhatsApp Web o la app con
-            el chat del cliente ya cargado y un mensaje predefinido indicando
-            que se ha liberado el hueco.
+            <strong>Avisar (WhatsApp)</strong> → abre WhatsApp con el chat del
+            cliente ya cargado y un mensaje predefinido indicando que se ha
+            liberado el hueco.
             <strong>Tú tienes que pulsar Enviar en WhatsApp</strong>: el sistema
             no envía nada por sí solo. La fila se marca como "avisado" y
             desaparece de la lista.
@@ -728,24 +849,231 @@
           Puedes editarlo antes de enviarlo o añadir algo personal.
         </div>
 
+        <div class="guia-warn">
+          <i class="ri-error-warning-line" aria-hidden="true"></i>
+          Si cierras WhatsApp por error sin haber pulsado Enviar, el cliente se
+          queda marcado como "avisado" y desaparece de la lista. Para recuperar
+          su teléfono, ejecuta en el SQL Editor:
+          <code
+            >SELECT * FROM lista_espera WHERE estado = 'avisado' ORDER BY
+            created_at DESC LIMIT 10;</code
+          >. El primero de la lista es el último al que has avisado.
+        </div>
+
         <h3>3.10 Imprimir el día</h3>
         <ul>
-          <li>Pulsa <strong>"Imprimir día"</strong>.</li>
+          <li>Pulsa el botón <strong>"Imprimir día"</strong>.</li>
           <li>
-            Se genera un A4 horizontal con el
-            <strong>cuadrante del día</strong>.
+            Se genera un A4 horizontal con el cuadrante del día: pistas en
+            columnas, horas en filas, reservas con nombre, hora y precio.
           </li>
-          <li>Útil para colgar en el club o para reuniones.</li>
+          <li>
+            Útil para colgar en el club o para llevar a reuniones. Se imprime
+            directamente desde el navegador.
+          </li>
         </ul>
         <div class="guia-warn">
           <i class="ri-error-warning-line" aria-hidden="true"></i>
           Si la red falla, la impresión se cancela con un aviso. No imprime
-          datos antiguos.
+          datos antiguos para no confundir.
         </div>
 
-        <h2 id="tpv">4. Ventas → Tienda (TPV del bar)</h2>
+        <h3>3.11 Plantillas WhatsApp para mañana</h3>
+        <p>
+          Genera automáticamente plantillas para pegar en tu grupo de WhatsApp
+          con los huecos libres de <strong>mañana</strong>. Es muy útil para
+          llenar partidos que se quedarían vacíos.
+        </p>
 
-        <h3>4.1 Seleccionar mesa</h3>
+        <h4>Cómo funciona</h4>
+        <ul>
+          <li>
+            Pulsa <strong>"Generar plantillas"</strong>. El sistema consulta la
+            disponibilidad de mañana (respetando festivos y tramos horarios).
+          </li>
+          <li>
+            Muestra
+            <strong>una plantilla por cada hueco libre de 90 minutos</strong>.
+            Aunque haya varias pistas libres a la misma hora, solo se genera
+            <strong>una plantilla por franja</strong> para no duplicar mensajes
+            en el grupo.
+          </li>
+          <li>
+            <strong>Formato</strong>: <code>Miércoles 20:00 - 21:30</code> y
+            luego 4 emojis iguales. Los emojis son aleatorios por partido
+            (distintos entre plantillas) para que cada mensaje se vea diferente
+            en el grupo.
+          </li>
+        </ul>
+
+        <h4>Ejemplo de plantilla</h4>
+        <pre
+          style="
+            background: var(--surface-2);
+            padding: 12px;
+            border-radius: 8px;
+            font-family: &quot;Courier New&quot;, monospace;
+            font-size: 14px;
+            line-height: 1.6;
+          "
+        >
+Miércoles 20:00 - 21:30
+💯
+💯
+💯
+💯</pre
+        >
+
+        <h4>Botones disponibles</h4>
+        <ul>
+          <li>
+            <strong>Copiar</strong> (por plantilla) → copia solo esa plantilla
+            al portapapeles.
+          </li>
+          <li>
+            <strong>Copiar todas</strong> → copia todas las plantillas separadas
+            por <code>---</code>.
+          </li>
+          <li>
+            <strong>Modo envío paso a paso</strong> → abre un panel con la
+            primera plantilla. Copia el texto, pégalo en WhatsApp, envíalo, y
+            pulsa "Copiar y siguiente" para avanzar. La última se cierra sola.
+            Muestra una barra de progreso.
+          </li>
+        </ul>
+
+        <div class="guia-tip">
+          <i class="ri-lightbulb-line" aria-hidden="true"></i>
+          Si mañana es festivo o fin de semana, solo aparecerán los tramos
+          permitidos (9:00, 10:30, 12:00, 17:00, 18:30 y 20:00). Si mañana no
+          hay huecos libres de 90 minutos, verás un aviso.
+        </div>
+
+        <h2 id="web-publica">4. Web pública (reservar)</h2>
+        <p>
+          La web pública (<strong>geopadelclub.com/reservar</strong>) es donde
+          los clientes reservan por su cuenta. El personal del club no tiene que
+          hacer nada, pero conviene conocerla para ayudar cuando un cliente
+          llame con dudas.
+        </p>
+
+        <h3>4.1 Reservar pista</h3>
+        <p>
+          El cliente entra, elige día y duración, y ve las horas libres con el
+          precio. Puede reservar <strong>varias pistas a la misma hora</strong>
+          si hay disponibilidad.
+        </p>
+        <ul>
+          <li>
+            <strong>Multi-pista</strong>: si en una franja hay 2 o más pistas
+            libres, aparece un selector
+            <strong>"¿Cuántas pistas quieres?"</strong>. El precio se actualiza
+            en directo. Se pueden reservar hasta el número de pistas libres de
+            esa franja.
+          </li>
+          <li>
+            <strong>Precio</strong>: se calcula automáticamente según la tarifa
+            (entre semana mañana/tarde, fin de semana, festivos).
+          </li>
+          <li>
+            <strong>Confirmación por email</strong>: tras reservar, el cliente
+            puede indicar su correo. Recibirá <strong>un solo email</strong> con
+            todas las pistas reservadas (si reservó varias). Si no indica email,
+            no se envía nada.
+          </li>
+          <li>
+            <strong>Aviso de pista sujeta a cambios</strong>: el email de
+            confirmación incluye una nota avisando de que el club puede
+            reasignar la pista el día del partido.
+          </li>
+          <li>
+            <strong>Lista de espera</strong>: si el hueco está ocupado, el
+            cliente puede apuntarse para que le avisen si se libera. El club
+            recibe la solicitud en el panel (ver punto 3.9).
+          </li>
+          <li>
+            <strong>Reseña de Google</strong>: tras la reserva, el cliente ve un
+            bloque pidiendo dejar una reseña en Google. Si ya la ha visto antes
+            o ha pulsado "Ahora no", no se le vuelve a mostrar en ese navegador.
+          </li>
+        </ul>
+
+        <h3>4.2 Mis reservas</h3>
+        <p>
+          Sección donde el cliente ve y cancela sus reservas. El acceso está
+          protegido por teléfono + código.
+        </p>
+        <ul>
+          <li>
+            <strong>Si el cliente ya tiene código</strong>: introduce su
+            teléfono → pulsa Continuar → introduce su código → ve sus reservas.
+          </li>
+          <li>
+            <strong>Si el cliente no tiene código</strong> (por ejemplo, porque
+            reservó por WhatsApp o por teléfono):
+            <ul>
+              <li>
+                Introduce su teléfono → Continuar → el sistema detecta que no
+                tiene código y muestra el formulario de
+                <strong>crear cuenta</strong>.
+              </li>
+              <li>
+                Rellena nombre y apellidos, crea un código, repite el código y
+                acepta la política de privacidad.
+              </li>
+              <li>
+                Pulsa <strong>"Crear cuenta y ver reservas"</strong>. Se crea la
+                cuenta y ve sus reservas (probablemente vacías si nunca reservó
+                por la web).
+              </li>
+            </ul>
+          </li>
+          <li>
+            <strong>Cancelar reserva</strong>: cada reserva tiene un botón
+            "Cancelar reserva" (con confirmación). La cancelación solo se
+            permite si faltan más de 24 horas para el partido y no tiene pagos
+            registrados.
+          </li>
+          <li>
+            <strong>Reservar otra vez</strong>: botón para repetir la reserva
+            una semana después.
+          </li>
+          <li>
+            <strong>Borrar mis datos</strong>: el cliente puede borrar sus datos
+            por RGPD. <strong>Ojo</strong>: si estaba bloqueado, el bloqueo se
+            mantiene (ver sección 10.1).
+          </li>
+        </ul>
+
+        <h3>4.3 Bloqueos que afectan a la web</h3>
+        <p>La web pública respeta automáticamente:</p>
+        <ul>
+          <li>Las reservas existentes (no se pueden solapar).</li>
+          <li>Los bloqueos de pista.</li>
+          <li>
+            El horario de cierre del día (22:00 en finde/festivo, 23:30 entre
+            semana).
+          </li>
+          <li>El descanso de 14:00 a 17:00 entre semana.</li>
+          <li>La antelación mínima de 30 minutos.</li>
+          <li>El número máximo de reservas futuras por cliente (20).</li>
+          <li>Clientes bloqueados manualmente (no pueden reservar).</li>
+          <li>Clientes con deuda > 20 € (no pueden reservar por la web).</li>
+        </ul>
+
+        <div class="guia-tip">
+          <i class="ri-lightbulb-line" aria-hidden="true"></i>
+          Si un cliente llama diciendo que la web no le deja reservar, las
+          causas más probables son: <strong>deuda pendiente</strong> (ver en
+          Ajustes), <strong>bloqueo manual</strong> (ver en Ajustes → Teléfonos
+          bloqueados), o <strong>límite de 20 reservas futuras</strong>. Desde
+          el panel sí se puede reservar en todos estos casos (con aviso), así
+          que si el cliente insiste, resérvala tú desde el panel.
+        </div>
+
+        <h2 id="tpv">5. Ventas → Tienda (TPV del bar)</h2>
+
+        <h3>5.1 Seleccionar mesa</h3>
         <ul>
           <li>
             Arriba verás una fila de <strong>botones de mesa</strong>: Suelto,
@@ -753,51 +1081,57 @@
           </li>
           <li>
             Cada mesa muestra su <strong>total acumulado</strong> en un badge
-            rojo si tiene artículos.
+            rojo si tiene artículos pendientes.
           </li>
-          <li>Pulsa una mesa para activarla.</li>
+          <li>
+            Pulsa una mesa para activarla. Todo lo que añadas va a esa mesa.
+          </li>
         </ul>
 
-        <h3>4.2 Añadir productos</h3>
+        <h3>5.2 Añadir productos</h3>
         <ul>
           <li>
-            Filtra por <strong>categoría</strong> (Todos, Bebidas, Comida,
-            Tienda, Pistas).
+            Filtra por <strong>categoría</strong> con los botones de arriba:
+            Todos, Bebidas, Comida, Tienda, Pistas.
           </li>
-          <li>Usa el buscador para encontrar un producto.</li>
+          <li>Usa el buscador para encontrar un producto por nombre.</li>
           <li>
             <strong>Pulsa el producto</strong> para añadirlo a la mesa activa.
+            La lista del ticket se actualiza al instante.
           </li>
-          <li>La lista del ticket se actualiza al instante.</li>
         </ul>
 
-        <h3>4.3 Quitar productos</h3>
+        <h3>5.3 Quitar productos</h3>
         <ul>
           <li>
             En el <strong>ticket</strong>, pulsa un artículo para quitar
             <strong>una unidad</strong>.
           </li>
           <li>
-            Botón <strong>Deshacer último cambio</strong> (aparece 8 s) →
-            recupera el estado anterior.
+            Botón <strong>"Deshacer último cambio"</strong> (aparece 8 segundos
+            después de cada cambio) → recupera el estado anterior.
           </li>
         </ul>
 
-        <h3>4.4 Cobrar</h3>
+        <h3>5.4 Cobrar</h3>
         <ul>
           <li>
             <strong>Efectivo</strong> o <strong>Tarjeta</strong> → se guarda en
-            <code>ventas</code> y la mesa se vacía.
+            <code>ventas</code> y la mesa se vacía. La caja del día se actualiza
+            automáticamente.
           </li>
-          <li>La caja del día se actualiza automáticamente.</li>
           <li>
             <strong>Emitir justificante 80mm</strong> → pregunta método de pago
-            y emite un ticket para el cliente (si tienes la impresora USB
-            conectada, la imprime).
+            y emite un ticket para el cliente. Si tienes la impresora USB
+            conectada, la imprime; si no, abre el diálogo del navegador.
           </li>
         </ul>
 
-        <h3>4.5 Escaparate de la tienda (web pública)</h3>
+        <h3>5.5 Escaparate de la tienda (web pública)</h3>
+        <p>
+          Artículos visibles en la web pública (pestaña "Tienda"). Es solo
+          escaparate: no se puede comprar desde la web, solo ver.
+        </p>
         <ul>
           <li>
             <strong>Nuevo artículo</strong> → foto (se reduce a WebP
@@ -812,34 +1146,50 @@
           </li>
         </ul>
 
-        <h2 id="caja">5. Ventas → Caja</h2>
+        <h2 id="caja">6. Ventas → Caja</h2>
 
-        <h3>5.1 Resumen del día</h3>
+        <h3>6.1 Resumen del día</h3>
         <ul>
           <li>
-            <strong>Efectivo en cajón</strong>, <strong>Total datáfono</strong>,
-            <strong>Total general</strong>.
+            <strong>Efectivo en cajón</strong>: suma de todo lo cobrado en
+            efectivo hoy (menos devoluciones).
           </li>
+          <li>
+            <strong>Total datáfono</strong>: suma de todo lo cobrado con tarjeta
+            hoy.
+          </li>
+          <li><strong>Total general</strong>: efectivo + tarjeta.</li>
           <li>Cambia la fecha con el selector para ver días anteriores.</li>
         </ul>
 
-        <h3>5.2 Cierre de caja</h3>
+        <h3>6.2 Cierre de caja</h3>
         <ol>
-          <li>Cuenta billetes y monedas.</li>
+          <li>Cuenta los billetes y las monedas que hay en el cajón.</li>
           <li>
-            Introduce los importes: <strong>Billetes (€)</strong>,
-            <strong>Monedas (€)</strong>, <strong>Datáfono (€)</strong>.
+            Introduce los importes en el formulario:
+            <ul>
+              <li><strong>Billetes (€)</strong>: total contado en billetes.</li>
+              <li><strong>Monedas (€)</strong>: total contado en monedas.</li>
+              <li>
+                <strong>Datáfono (€)</strong>: total que marca el datáfono.
+              </li>
+            </ul>
           </li>
           <li>
-            Verás un resumen con:
+            El sistema calcula en vivo:
             <ul>
               <li>
-                <strong>Efectivo esperado</strong> (lo que dice el sistema más
-                el fondo de caja de 100 €).
+                <strong>Efectivo esperado</strong>: lo que dice el sistema +
+                fondo de caja (100 €).
               </li>
               <li>
-                <strong>Descuadre de efectivo</strong> y de datáfono (diferencia
-                entre lo contado y lo que dice el sistema).
+                <strong>Descuadre de efectivo</strong>: diferencia entre lo
+                contado y lo esperado. En verde si está bien, en rojo si hay
+                descuadre.
+              </li>
+              <li>
+                <strong>Descuadre de datáfono</strong>: lo que has contado vs lo
+                que dice el sistema.
               </li>
               <li>
                 <strong>Cuánto va al sobre</strong> y
@@ -848,7 +1198,10 @@
             </ul>
           </li>
           <li>Pulsa <strong>Confirmar cierre de caja</strong>.</li>
-          <li>Si hay descuadre, pide confirmación antes de cerrar.</li>
+          <li>
+            Si hay descuadre o falta de fondo, te pedirá confirmación antes de
+            cerrar.
+          </li>
         </ol>
 
         <div class="guia-tip">
@@ -885,7 +1238,7 @@
           nombre y fecha.
         </div>
 
-        <h3>5.3 Historial de cierres</h3>
+        <h3>6.3 Historial de cierres</h3>
         <p>
           Debajo del cierre tienes el <strong>historial</strong> con todos los
           cierres del mes seleccionado. Por defecto muestra el
@@ -896,15 +1249,16 @@
           <li>
             <strong>Reabrir</strong> (solo jefa) → pide un motivo (mínimo 5
             caracteres), mueve el cierre a <code>cierres_historial</code> y
-            permite volver a cerrarlo.
+            permite volver a cerrarlo. La reapertura queda registrada con quién
+            y cuándo.
           </li>
         </ul>
 
-        <h3>5.4 Exportar y copia de seguridad (solo jefa)</h3>
+        <h3>6.4 Exportar y copia de seguridad (solo jefa)</h3>
         <ul>
           <li>
             <strong>Descargar copia completa (ZIP)</strong> → todas las tablas
-            en CSV + LEEME.txt.
+            en CSV + LEEME.txt con instrucciones.
           </li>
           <li>
             <strong>Botones individuales</strong> → Reservas, Clientes, Ventas,
@@ -914,50 +1268,88 @@
         <div class="guia-tip">
           <i class="ri-lightbulb-line" aria-hidden="true"></i>
           Recomendación: <strong>una copia semanal</strong>. Guárdala en
-          pendrive + Google Drive.
+          pendrive + Google Drive. El sistema te avisa si han pasado más de 7
+          días desde la última copia.
         </div>
 
-        <h2 id="deudas">6. Ventas → Deudas</h2>
+        <h2 id="deudas">7. Ventas → Deudas</h2>
 
-        <h3>6.1 Añadir deuda</h3>
+        <h3>7.1 Añadir deuda</h3>
         <ul>
+          <li><strong>Nombre</strong>: nombre del cliente que debe.</li>
           <li>
-            <strong>Nombre</strong>, <strong>Teléfono</strong> (opcional),
-            <strong>Día</strong>, <strong>Hora</strong>,
-            <strong>Importe</strong>.
+            <strong>Teléfono</strong> (opcional): si lo pones, la deuda se
+            vincula al cliente y se puede reclamar desde su ficha.
+          </li>
+          <li><strong>Día</strong> y <strong>Hora</strong> del partido.</li>
+          <li>
+            <strong>Importe</strong>: cantidad que debe, en euros (mínimo 0,01
+            €).
           </li>
           <li>Pulsa <strong>Añadir deuda</strong>.</li>
         </ul>
 
-        <h3>6.2 Gestionar deudas</h3>
-        <p>Tabla con filtros (Pendientes / Resueltas / Todas) y buscador:</p>
+        <h3>7.2 Gestionar deudas</h3>
+        <p>
+          Tabla con filtros (Pendientes / Resueltas / Todas) y buscador por
+          nombre o teléfono.
+        </p>
         <ul>
           <li>
             <strong>Resolver</strong> → marca como resuelta con tu nombre y
-            fecha.
+            fecha. La deuda se atenúa en la lista.
           </li>
           <li><strong>Reabrir</strong> → vuelve a pendiente.</li>
           <li>
             <strong>Eliminar</strong> → anula la deuda (registra quién y
             cuándo).
           </li>
-          <li>Las resueltas se muestran atenuadas.</li>
         </ul>
 
-        <h2 id="facturas">7. Ventas → Facturas</h2>
+        <div class="guia-warn">
+          <i class="ri-error-warning-line" aria-hidden="true"></i>
+          <strong>Importante</strong>: si un cliente acumula más de
+          <strong>20 €</strong> en deudas pendientes, no podrá reservar por la
+          web hasta que resuelva la deuda. En el panel sí se puede reservar (con
+          aviso). Consulta el límite y las deudas desde
+          <strong>Ajustes → Clientes</strong>: aparece una columna "Deuda" con
+          el total por cliente.
+        </div>
 
-        <h3>7.1 Emitir un documento</h3>
+        <h3>7.3 Cómo consultar la deuda de un cliente</h3>
+        <ul>
+          <li>
+            Ve a <strong>Ajustes → Clientes</strong> y busca por nombre o
+            teléfono.
+          </li>
+          <li>
+            La columna <strong>Deuda</strong> muestra el total pendiente.
+            <ul>
+              <li>Gris (—) = no debe nada.</li>
+              <li>Naranja = debe algo pero menos de 20 €.</li>
+              <li>
+                <strong>Rojo con "NO PUEDE RESERVAR"</strong> = debe más de 20 €
+                y la web le bloqueará.
+              </li>
+            </ul>
+          </li>
+        </ul>
+
+        <h2 id="facturas">8. Ventas → Facturas</h2>
+
+        <h3>8.1 Emitir un documento</h3>
         <p>
           <strong>Tipo Justificante</strong> (recomendado para particulares):
         </p>
         <ul>
           <li>
-            <strong>Fecha</strong>, <strong>Método de pago</strong>,
+            <strong>Fecha</strong> (por defecto hoy),
+            <strong>Método de pago</strong>,
             <strong>ID reserva</strong> (opcional).
           </li>
           <li>
-            Añade <strong>líneas</strong> (concepto, cantidad, precio con IVA).
-            IVA 21 % por defecto.
+            Añade <strong>líneas</strong> con concepto, cantidad y precio con
+            IVA. IVA 21 % por defecto (configurable).
           </li>
           <li>
             Pulsa <strong>Emitir documento</strong>. Genera un número
@@ -982,23 +1374,29 @@
           <strong>siempre</strong> emite factura completa.
         </div>
 
-        <h3>7.2 Rectificar una factura (solo jefa)</h3>
+        <h3>8.2 Rectificar una factura (solo jefa)</h3>
         <ul>
           <li>Botón <strong>Rectificar</strong> sobre una factura emitida.</li>
-          <li>Introduce el <strong>motivo</strong> de la rectificación.</li>
+          <li>
+            Introduce el <strong>motivo</strong> de la rectificación (mínimo 5
+            caracteres).
+          </li>
           <li>
             Emite → genera una <strong>factura rectificativa</strong> que
-            referencia a la original.
+            referencia a la original. Se marca con una "R" al lado del número.
           </li>
         </ul>
 
-        <h3>7.3 Anular una factura (solo jefa)</h3>
+        <h3>8.3 Anular una factura (solo jefa)</h3>
         <ul>
           <li>Botón <strong>Anular</strong>.</li>
-          <li>Motivo obligatorio.</li>
+          <li>
+            Motivo obligatorio (mínimo 5 caracteres). Se guarda quién la anula y
+            cuándo.
+          </li>
           <li>
             La factura queda marcada como "Anulada" pero
-            <strong>no se borra</strong>.
+            <strong>no se borra</strong>: sigue en el listado para la auditoría.
           </li>
         </ul>
 
@@ -1010,7 +1408,7 @@
           inalterable.
         </div>
 
-        <h3>7.4 Lista de documentos emitidos</h3>
+        <h3>8.4 Lista de documentos emitidos</h3>
         <p>
           La tabla muestra los documentos más recientes, ordenados del más nuevo
           al más antiguo. El <strong>límite depende del filtro</strong>:
@@ -1033,7 +1431,7 @@
           la búsqueda o cambia el filtro de tipo.
         </p>
 
-        <h3>7.5 Imprimir facturas</h3>
+        <h3>8.5 Imprimir facturas</h3>
         <ul>
           <li>
             <strong>80 mm (USB)</strong> → si la impresora térmica está
@@ -1042,13 +1440,12 @@
           </li>
           <li><strong>A4</strong> → formato legal completo.</li>
           <li>
-            Si no tienes impresora USB conectada ni se detecta ninguna
-            autorizada, el sistema abrirá el diálogo de impresión del navegador
-            para A4.
+            Si no hay impresora USB conectada ni se detecta ninguna autorizada,
+            el sistema abrirá el diálogo de impresión del navegador para A4.
           </li>
         </ul>
 
-        <h3>7.6 Conectar impresora térmica</h3>
+        <h3>8.6 Conectar impresora térmica</h3>
         <ul>
           <li>
             <strong>Primera vez</strong>: pulsa el botón <strong>🔌 USB</strong>
@@ -1081,9 +1478,9 @@
           vez. En <strong>Chrome/Edge en PC</strong> funciona sin problemas.
         </div>
 
-        <h2 id="fichaje">8. Equipo → Fichaje</h2>
+        <h2 id="fichaje">9. Equipo → Fichaje</h2>
 
-        <h3>8.1 Fichar (solo trabajadores)</h3>
+        <h3>9.1 Fichar (solo trabajadores)</h3>
         <ul>
           <li>Botón <strong>Entrada</strong> → registra tu entrada.</li>
           <li>Botón <strong>Salida</strong> → registra tu salida.</li>
@@ -1097,6 +1494,11 @@
             trabajados con horario, fecha de vigencia, observaciones.
           </li>
           <li>Puedes ver los <strong>últimos 10 fichajes</strong> debajo.</li>
+          <li>
+            <strong>Recordatorio</strong>: si pasan 5 minutos sin que hayas
+            fichado entrada después de entrar al panel, aparece un aviso.
+            Después se repite cada 10 minutos hasta que fiches.
+          </li>
         </ul>
 
         <div class="guia-warn">
@@ -1108,7 +1510,7 @@
           "jefa" no ficha.
         </div>
 
-        <h3>8.2 Registro de jornada</h3>
+        <h3>9.2 Registro de jornada</h3>
         <ul>
           <li>
             Elige <strong>Empleado</strong> (solo jefa puede ver a otros),
@@ -1117,17 +1519,28 @@
           <li>Atajos: Hoy / Este mes / Mes anterior.</li>
           <li>Pulsa <strong>Ver registro</strong>.</li>
           <li>
-            Muestra: <strong>Resumen por mes</strong> y
-            <strong>Detalle por día</strong> con tramos, pausas, jornada
-            contractual, horas trabajadas, exceso, incidencias.
+            Muestra:
+            <ul>
+              <li>
+                <strong>Resumen por mes</strong>: días trabajados, horas
+                totales, ordinarias, exceso, incidencias.
+              </li>
+              <li>
+                <strong>Detalle por día</strong>: tramos, pausas, jornada
+                contractual, horas trabajadas, exceso, incidencias.
+              </li>
+            </ul>
           </li>
           <li><strong>Descargar CSV</strong> → para nóminas o inspección.</li>
-          <li><strong>Imprimir / PDF</strong> → A4 por empleado, con firma.</li>
+          <li>
+            <strong>Imprimir / PDF</strong> → A4 por empleado, con espacio para
+            firma.
+          </li>
         </ul>
 
-        <h2 id="limpieza">9. Equipo → Limpieza</h2>
+        <h2 id="limpieza">10. Equipo → Limpieza</h2>
 
-        <h3>9.1 Registrar limpieza</h3>
+        <h3>10.1 Registrar limpieza</h3>
         <ol>
           <li>
             Marca las <strong>pistas</strong> limpiadas (Todas / Ninguna / una a
@@ -1142,46 +1555,146 @@
           <li>Pulsa <strong>Registrar limpieza</strong>.</li>
         </ol>
 
-        <h3>9.2 Última limpieza por pista</h3>
+        <h3>10.2 Última limpieza por pista</h3>
         <p>
           Tabla con la última limpieza de cada tarea en cada pista. En
           <strong>rojo</strong> las vencidas (&gt;2 semanas o sin registro).
         </p>
 
-        <h3>9.3 Historial de limpiezas</h3>
+        <h3>10.3 Historial de limpiezas</h3>
         <p>
           Últimas 40 limpiezas registradas. Puedes <strong>eliminar</strong> una
           entrada (registra quién y cuándo).
         </p>
 
-        <h2 id="ajustes">10. Ajustes</h2>
+        <h2 id="ajustes">11. Ajustes</h2>
 
-        <h3>10.1 Clientes y acceso web</h3>
+        <h3>11.1 Clientes y acceso web</h3>
+        <p>
+          Busca un cliente por nombre o teléfono (mínimo 2 letras o 3 cifras).
+          La tabla muestra: nombre, teléfono, deuda y acciones.
+        </p>
+
+        <h4>Crear cliente desde aquí</h4>
         <ul>
           <li>
-            Busca un cliente por nombre o teléfono (mínimo 2 letras o 3 cifras).
+            Si buscas un teléfono que <strong>no existe</strong> como cliente,
+            aparece un botón <strong>"Crear cliente con teléfono XXX"</strong>.
           </li>
           <li>
-            Acciones:
+            Púlsalo → te pide nombre y apellidos (obligatorio al menos 2
+            palabras).
+          </li>
+          <li>
+            Se crea el cliente aunque ya exista otro con el mismo nombre (pueden
+            ser dos personas distintas). El teléfono sí debe ser único.
+          </li>
+          <li>
+            El nombre se normaliza automáticamente (Title Case, sin tildes en
+            vocales, con Ñ).
+          </li>
+        </ul>
+
+        <h4>Acciones sobre un cliente</h4>
+        <ul>
+          <li>
+            <strong>Restablecer código</strong> (solo jefa) → borra el código
+            web y habilita el acceso para que el cliente cree uno nuevo en su
+            próxima reserva. Hazlo solo si has comprobado que es él.
+          </li>
+          <li>
+            <strong>Habilitar acceso web</strong> → permite al cliente crear su
+            código en la próxima reserva online. Solo si has comprobado que es
+            él.
+          </li>
+          <li>
+            <strong>Bloquear</strong> → impide al cliente hacer reservas.
             <ul>
+              <li>Pide un motivo (mínimo 5 caracteres).</li>
               <li>
-                <strong>Restablecer código</strong> (solo jefa) → borra el
-                código web y habilita el acceso para que cree uno nuevo.
+                El bloqueo se guarda en la ficha del cliente (<code
+                  >bloqueado = true</code
+                >) y en una tabla persistente (<code>clientes_bloqueados</code>)
+                que <strong>sobrevive al borrado RGPD</strong>.
               </li>
+              <li>Caduca automáticamente a los <strong>12 meses</strong>.</li>
               <li>
-                <strong>Habilitar acceso web</strong> → permite al cliente crear
-                su código en la próxima reserva.
+                Mientras esté bloqueado: no puede reservar ni por la web ni
+                desde el panel. Sí puede ver sus reservas antiguas.
               </li>
+            </ul>
+          </li>
+          <li>
+            <strong>Desbloquear</strong> → el cliente vuelve a poder reservar
+            con normalidad. Se borra de ambas tablas.
+          </li>
+          <li>
+            <strong>Borrar datos (RGPD)</strong> (solo jefa) → borra la ficha,
+            cancela reservas futuras sin cobros, quita nombre y teléfono de
+            reservas antiguas y deudas (los importes se conservan sin datos
+            personales).
+            <ul>
+              <li>Solo si no tiene deudas pendientes ni cobros.</li>
               <li>
-                <strong>Borrar datos (RGPD)</strong> (solo jefa) → borra la
-                ficha, cancela reservas futuras sin cobros, quita nombre de
-                reservas antiguas. Solo si no tiene deudas pendientes ni cobros.
+                <strong>Importante</strong>: si estaba bloqueado, el bloqueo
+                <strong>NO se borra</strong>: se queda en
+                <code>clientes_bloqueados</code> para que no pueda saltarse el
+                bloqueo borrándose.
               </li>
             </ul>
           </li>
         </ul>
 
-        <h3>10.2 Tarifas</h3>
+        <h4>Columna "Deuda"</h4>
+        <ul>
+          <li>Muestra el total pendiente de cada cliente.</li>
+          <li><strong>—</strong> (gris) → no debe nada.</li>
+          <li><strong>Naranja</strong> → debe algo pero menos del límite.</li>
+          <li>
+            <strong>Rojo con "NO PUEDE RESERVAR"</strong> → debe más de 20 € y
+            la web le bloqueará. Desde el panel sí se puede reservar (con
+            aviso).
+          </li>
+        </ul>
+
+        <h3>11.2 Teléfonos bloqueados (persistentes)</h3>
+        <p>
+          Lista de todos los bloqueos activos que no han caducado. Incluye tanto
+          los que tienen ficha como los que fueron borrados por RGPD.
+        </p>
+        <ul>
+          <li>
+            <strong>Teléfono</strong>: número bloqueado. Si tiene ficha, debajo
+            verás el nombre. Si no, verás el badge
+            <strong>"SIN FICHA (RGPD)"</strong> en naranja.
+          </li>
+          <li>
+            <strong>Motivo</strong>: razón del bloqueo (ej. "Impago agosto
+            2026", "Conducta incívica").
+          </li>
+          <li><strong>Bloqueado por</strong>: usuario que lo bloqueó.</li>
+          <li><strong>Fecha</strong>: cuándo se bloqueó.</li>
+          <li><strong>Caduca</strong>: cuándo caducará automáticamente.</li>
+          <li>
+            <strong>Desbloquear</strong>: borra el bloqueo de ambas tablas. El
+            cliente podrá volver a reservar.
+          </li>
+          <li>
+            Botón <strong>Refrescar</strong>: recarga la lista. Útil después de
+            bloquear o desbloquear desde otra pestaña.
+          </li>
+        </ul>
+
+        <div class="guia-tip">
+          <i class="ri-lightbulb-line" aria-hidden="true"></i>
+          Aunque borres a un cliente por RGPD, si estaba bloqueado seguirá
+          apareciendo aquí como "SIN FICHA". Así no puede saltarse el bloqueo
+          borrando sus datos. Si quieres desbloquearlo, pulsa "Desbloquear": el
+          teléfono queda libre y, si vuelve, podrá crear una ficha nueva sin
+          bloqueo.
+        </div>
+
+        <h3>11.3 Tarifas</h3>
         <ul>
           <li>
             <strong>Entre semana mañana</strong>,
@@ -1202,7 +1715,7 @@
           solo. Ver <a href="#festivos">sección de festivos</a>.
         </div>
 
-        <h3>10.3 Catálogo (productos)</h3>
+        <h3>11.4 Catálogo (productos)</h3>
         <ul>
           <li>
             <strong>Nuevo producto</strong> → nombre, precio, categoría
@@ -1215,7 +1728,7 @@
           <li>Los "Inactivos" no aparecen en el TPV pero sí en el catálogo.</li>
         </ul>
 
-        <h3>10.4 Datos fiscales</h3>
+        <h3>11.5 Datos fiscales</h3>
         <ul>
           <li>
             Nombre del club, razón social, NIF, dirección, CP, ciudad,
@@ -1231,14 +1744,31 @@
           </li>
         </ul>
 
-        <h2 id="festivos">11. Días festivos</h2>
+        <h2 id="festivos">12. Días festivos</h2>
         <p>
-          El club aplica la <strong>tarifa de fin de semana</strong> a los días
-          festivos, aunque caigan en día de diario. Esto se gestiona de forma
-          automática:
+          El club aplica <strong>tarifa de fin de semana</strong> y
+          <strong>horario de fin de semana</strong> a los días festivos, aunque
+          caigan en día de diario. Esto se gestiona de forma automática.
         </p>
 
-        <h3>Cómo funciona</h3>
+        <h3>12.1 Qué cambia en un festivo</h3>
+        <ul>
+          <li>
+            <strong>Precio</strong>: se aplica la tarifa de fin de semana
+            (normalmente más cara que entre semana mañana).
+          </li>
+          <li>
+            <strong>Horario de cierre</strong>: se cierra a las
+            <strong>22:00</strong> en lugar de las 23:30 de entre semana.
+          </li>
+          <li>
+            <strong>Tramos permitidos</strong>: como en fin de semana, solo se
+            puede reservar en tramos fijos de 90 minutos (9:00, 10:30, 12:00,
+            17:00, 18:30 y 20:00). No se puede reservar 60 min en festivo.
+          </li>
+        </ul>
+
+        <h3>12.2 Cómo funciona internamente</h3>
         <ul>
           <li>
             El panel de administración mantiene una
@@ -1252,22 +1782,23 @@
           </li>
           <li>
             No hay que hacer nada manualmente: cuando creas una reserva en una
-            fecha que está en la lista, el precio se calcula automáticamente con
-            la tarifa de fin de semana, tanto en el panel como en la web
-            pública.
+            fecha que está en la lista, el sistema aplica automáticamente la
+            tarifa y el horario de fin de semana, tanto en el panel como en la
+            web pública.
           </li>
         </ul>
 
-        <h3>Qué implica para ti</h3>
+        <h3>12.3 Qué implica para ti</h3>
         <ul>
           <li>
             <strong>En el panel</strong>: al crear o editar una reserva en
             festivo, el precio sugerido ya vendrá con la tarifa de fin de
-            semana. Puedes cambiarlo manualmente si lo necesitas.
+            semana, y el calendario mostrará las franjas de 22:00 a 23:30 como
+            cerradas.
           </li>
           <li>
             <strong>En la web</strong>: el cliente ve el precio de fin de semana
-            al elegir hora en un día festivo.
+            y solo le deja reservar en los tramos válidos.
           </li>
           <li>
             <strong>Reservas existentes</strong>: si una reserva ya se creó en
@@ -1277,10 +1808,14 @@
           </li>
         </ul>
 
-        <h3>Cómo saber si un día es festivo</h3>
+        <h3>12.4 Cómo saber si un día es festivo</h3>
         <ul>
           <li>
             Si creas una reserva en el panel, el precio sugerido ya lo refleja.
+          </li>
+          <li>
+            Si el calendario del día muestra franjas cerradas a partir de las
+            22:00 (en vez de 23:30), es festivo.
           </li>
           <li>
             Si tienes dudas, pregunta a la jefa o consulta el calendario
@@ -1296,7 +1831,7 @@
           edítala y guarda para que se recalcule, o corrígela manualmente.
         </div>
 
-        <h2 id="barreras">12. Barreras y limitaciones</h2>
+        <h2 id="barreras">13. Barreras y limitaciones</h2>
         <div class="guia-tabla-wrap">
           <table class="guia-tabla">
             <thead>
@@ -1308,9 +1843,25 @@
             </thead>
             <tbody>
               <tr>
-                <td>Crear reserva</td>
+                <td>Crear reserva (panel)</td>
                 <td>Todos</td>
-                <td>No solape, no fuera de horario</td>
+                <td>
+                  No solape, no fuera de horario. Con deuda > 20 € pide
+                  confirmación
+                </td>
+              </tr>
+              <tr>
+                <td>Crear reserva (web)</td>
+                <td>Clientes</td>
+                <td>
+                  No solape, no fuera de horario. Bloqueado si debe > 20 € o
+                  está bloqueado
+                </td>
+              </tr>
+              <tr>
+                <td>Reservar varias pistas a la vez</td>
+                <td>Todos</td>
+                <td>Máximo el número de pistas libres en esa franja</td>
               </tr>
               <tr>
                 <td>Editar precio/duración con cobros</td>
@@ -1363,9 +1914,24 @@
                 <td>Motivo obligatorio</td>
               </tr>
               <tr>
-                <td>Borrar cliente</td>
+                <td>Crear cliente desde Ajustes</td>
+                <td>Todos</td>
+                <td>Teléfono único, nombre mínimo 2 palabras</td>
+              </tr>
+              <tr>
+                <td>Bloquear cliente</td>
+                <td>Todos</td>
+                <td>Motivo obligatorio. Caduca a los 12 meses</td>
+              </tr>
+              <tr>
+                <td>Desbloquear cliente</td>
+                <td>Todos</td>
+                <td>Se borra de ficha y de bloqueos persistentes</td>
+              </tr>
+              <tr>
+                <td>Borrar cliente (RGPD)</td>
                 <td>Solo jefa</td>
-                <td>Sin deudas ni cobros pendientes</td>
+                <td>Sin deudas ni cobros pendientes. Bloqueo persiste</td>
               </tr>
               <tr>
                 <td>Restablecer código web</td>
@@ -1411,7 +1977,7 @@
           </table>
         </div>
 
-        <h2 id="errores">13. Errores frecuentes y qué hacer</h2>
+        <h2 id="errores">14. Errores frecuentes y qué hacer</h2>
         <div class="guia-tabla-wrap">
           <table class="guia-tabla">
             <thead>
@@ -1424,18 +1990,21 @@
             <tbody>
               <tr>
                 <td>"Esa pista ya está ocupada"</td>
-                <td>Solape</td>
+                <td>Solape con otra reserva</td>
                 <td>Cambia pista u hora</td>
               </tr>
               <tr>
                 <td>"Horario no permitido"</td>
-                <td>Franja cerrada</td>
-                <td>Cambia horario</td>
+                <td>
+                  Franja cerrada (descanso, cierre, fuera de tramos de 90 min en
+                  finde/festivo)
+                </td>
+                <td>Cambia horario o día</td>
               </tr>
               <tr>
                 <td>"La pista está bloqueada"</td>
                 <td>Bloqueo activo</td>
-                <td>Elige otra pista</td>
+                <td>Elige otra pista u hora</td>
               </tr>
               <tr>
                 <td>"Esta reserva tiene cobros"</td>
@@ -1451,6 +2020,21 @@
                 <td>"No puedes reducir jugadores que ya han pagado"</td>
                 <td>Cobros parciales</td>
                 <td>Quita primero sus pagos</td>
+              </tr>
+              <tr>
+                <td>"Este cliente está bloqueado y no puede reservar"</td>
+                <td>Ficha bloqueada</td>
+                <td>Desbloquear en Ajustes → Clientes</td>
+              </tr>
+              <tr>
+                <td>"Este teléfono está bloqueado y no puede reservar"</td>
+                <td>Bloqueo persistente (RGPD)</td>
+                <td>Desbloquear en Ajustes → Teléfonos bloqueados</td>
+              </tr>
+              <tr>
+                <td>"Este cliente debe XX € (máximo 20 €)"</td>
+                <td>Deuda > 20 €</td>
+                <td>Resolver deuda o confirmar reserva manual</td>
               </tr>
               <tr>
                 <td>"No se pudo actualizar el teléfono del cliente"</td>
@@ -1497,69 +2081,105 @@
                 <td>Primera vez o driver</td>
                 <td>Pulsa 🔌 USB y elige la impresora</td>
               </tr>
+              <tr>
+                <td>"Ya existe un cliente con ese teléfono"</td>
+                <td>Duplicado al crear cliente</td>
+                <td>Borra la ficha duplicada o usa otro teléfono</td>
+              </tr>
+              <tr>
+                <td>"Ya existe una cuenta con este teléfono"</td>
+                <td>Ya tiene código web</td>
+                <td>Pídele que use "Tu código" o resetéalo</td>
+              </tr>
             </tbody>
           </table>
         </div>
 
-        <h2 id="buenas">14. Buenas prácticas</h2>
+        <h2 id="buenas">15. Buenas prácticas</h2>
         <ol>
           <li>
             <strong>Cierra caja al final del día</strong> antes de irte. Nunca
-            dejes una caja sin cerrar (salvo que la jefa lo autorice).
+            dejes una caja sin cerrar (salvo que la jefa lo autorice). El cierre
+            es lo que permite cuadrar el efectivo del día siguiente.
           </li>
           <li>
             <strong>Registra los pagos en el momento</strong>. No acumules
-            cobros para el final.
+            cobros para el final: si el cliente se va, olvidas cobrarle y hay
+            que perseguirlo.
           </li>
           <li>
-            <strong>Ficha siempre</strong> entrada y salida, incluso si sales a
-            comer.
+            <strong>Ficha siempre entrada y salida</strong>, incluso si sales a
+            comer. Si no fichas la salida, la pausa no se descuenta y la jornada
+            queda falseada.
           </li>
           <li>
             <strong>No compartas tu usuario</strong>. Cada acción queda
-            registrada con tu nombre.
+            registrada con tu nombre: si otro hace algo con tu usuario, te lo
+            cargas tú.
           </li>
           <li>
-            <strong>Revisa el resumen</strong> al entrar: te avisa de deudas y
-            limpiezas pendientes.
+            <strong>Revisa el resumen al entrar</strong>: te avisa de deudas y
+            limpiezas pendientes antes de que se conviertan en problema.
           </li>
           <li>
             <strong>Copia de seguridad semanal</strong> (solo jefa) → pendrive +
-            Google Drive.
+            Google Drive. Si algo se rompe, la copia es lo único que te salva.
           </li>
           <li>
             <strong>Ante una duda con un cliente</strong>, abre el modal y mira
-            el historial antes de tocar nada.
+            el historial de la reserva antes de tocar nada. Muchas veces el
+            "problema" está explicado en una nota interna.
           </li>
           <li>
             <strong>Si algo falla y no sabes por qué</strong>, cierra el
-            navegador, vuelve a abrir y prueba. Si persiste, avisa.
+            navegador, vuelve a abrir y prueba. Si persiste, avisa. El 90% de
+            los problemas se resuelven recargando.
           </li>
           <li>
             <strong>No toques el código HTML/CSS</strong> ni las herramientas de
-            desarrollador. Puedes romper la app.
+            desarrollador. Puedes romper la app sin darte cuenta.
           </li>
           <li>
-            <strong>Reporta fallos</strong> con: qué hiciste, qué esperabas, qué
-            pasó, y captura de pantalla.
+            <strong>Reporta fallos con detalle</strong>: qué hiciste, qué
+            esperabas, qué pasó, captura de pantalla, y a qué hora. Cuanto más
+            concreto, más rápido se arregla.
+          </li>
+          <li>
+            <strong>Bloquea a un cliente con motivo claro</strong>. No bloquees
+            "porque sí": el motivo queda registrado y caduca a los 12 meses. Si
+            no estás seguro, pregunta a la jefa.
+          </li>
+          <li>
+            <strong>Si vas a crear una plantilla WhatsApp</strong>, revisa antes
+            el calendario del día siguiente: si hay algún hueco con poca
+            antelación, quizá no merezca la pena ofertarlo.
           </li>
         </ol>
 
-        <h2 id="soporte">15. Soporte</h2>
+        <h2 id="soporte">16. Soporte</h2>
         <ul>
           <li>
             <strong>Jefa del club</strong>: para permisos, reaperturas,
-            rectificaciones, RGPD.
+            rectificaciones, RGPD, bloqueos manuales, ajustes fiscales.
           </li>
           <li>
             <strong>Soporte técnico</strong>: para errores de la app, pérdida de
-            conexión, incidencias graves.
+            conexión, incidencias graves, problemas con la impresora, dudas
+            sobre el funcionamiento de la web.
           </li>
           <li>
             <strong>Nunca llames al cliente</strong> para pedirle datos por
-            teléfono si te los puede dar por la web.
+            teléfono si te los puede dar por la web. Usa los canales oficiales
+            (web, WhatsApp del club) para evitar problemas de privacidad.
           </li>
         </ul>
+
+        <div class="guia-tip" style="margin-top: 30px">
+          <i class="ri-information-line" aria-hidden="true"></i>
+          <strong>Última actualización</strong>: noviembre de 2026. Si detectas
+          algo en el panel que no está explicado aquí, avisa para añadirlo a la
+          próxima revisión.
+        </div>
       </main>
     </div>
 
