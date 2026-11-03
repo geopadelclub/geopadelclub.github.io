@@ -1331,12 +1331,11 @@ i[class*=" ri-"] {
   letter-spacing: 0.02em;
 }
 
-/* ============ Banner comunidad WhatsApp ============ */
 #gpWaBanner {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: linear-gradient(135deg, #25d366 0%, #1fa855 100%);
+  background: linear-gradient(135deg, #0a5844 0%, #0b6e55 100%);
   color: #ffffff;
   padding: 12px 16px;
   font-family:
@@ -1379,7 +1378,7 @@ i[class*=" ri-"] {
 
 #gpWaBanner .gp-wa-cta {
   background: #ffffff;
-  color: #25d366;
+  color: #0b3d1e;
   padding: 10px 18px;
   border-radius: 8px;
   font-weight: 800;
