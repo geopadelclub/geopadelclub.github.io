@@ -582,9 +582,10 @@ if ($("facCfgGuardar"))
   $("facCfgGuardar").addEventListener("click", guardarConfigFacturas);
 if ($("facRefrescar"))
   $("facRefrescar").addEventListener("click", cargarFacturas);
-if ($("facBuscar")) $("facBuscar").addEventListener("input", dibujarFacturas);
-if ($("facFiltroTipo"))
-  $("facFiltroTipo").addEventListener("change", cargarFacturas);
+if (typeof window.accion === "function") {
+  window.accion("filtrar-facturas", dibujarFacturas);
+  window.accion("recargar-facturas", cargarFacturas);
+}
 if ($("facCancelarRect"))
   $("facCancelarRect").addEventListener("click", cancelarRectificacion);
 if ($("facBody"))

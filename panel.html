@@ -977,10 +977,12 @@
                 </select>
                 <input
                   type="search"
-                  id="deudaBuscar"
+                  id="cliBuscar"
                   class="toolbar-input"
                   placeholder="Buscar por nombre o teléfono..."
-                  data-oninput="dibujar-deudas"
+                  autocomplete="off"
+                  aria-label="Buscar cliente"
+                  data-oninput="filtrar-clientes"
                 />
               </div>
               <div class="table-wrap">
@@ -1186,11 +1188,13 @@
                   class="toolbar-input"
                   type="search"
                   placeholder="Buscar por número, cliente o NIF..."
+                  data-oninput="filtrar-facturas"
                 />
                 <select
                   id="facFiltroTipo"
                   class="toolbar-select"
                   aria-label="Filtrar por tipo de documento"
+                  data-onchange="recargar-facturas"
                 >
                   <option value="Todos">Todos</option>
                   <option value="Factura">Facturas</option>

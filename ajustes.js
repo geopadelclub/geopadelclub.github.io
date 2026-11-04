@@ -143,7 +143,9 @@ async function entrarAjustes() {
     await cargarBloqueosPersistentes();
 }
 
-$("cliBuscar").addEventListener("input", debounce(dibujarClientesAjustes, 300));
+if (typeof window.accion === "function") {
+  window.accion("filtrar-clientes", debounce(dibujarClientesAjustes, 300));
+}
 
 async function crearClienteDesdeAjustes(tel) {
   if (!tel || tel.length < 9) return;
@@ -411,8 +413,8 @@ function dibujarBloqueosPersistentes(lista) {
 <td><b>${esc(b.telefono_norm)}</b>${fichaTxt}</td>
 <td>${esc(b.motivo || "—")}</td>
 <td>${esc(b.bloqueado_por || "—")}</td>
-<td>${esc(fmtFecha(b.bloqueado_at))}</td>
-<td>${esc(fmtFecha(b.expira_at))}</td>
+<td>${esc(fechaCorta(b.bloqueado_at))}</td>
+<td>${esc(fechaCorta(b.expira_at))}</td>
 <td><button type="button" class="btn-add gray" data-bloqueo-tel="${esc(b.telefono_norm)}"><i class="ri-lock-unlock-line" aria-hidden="true"></i>Desbloquear</button></td>
 </tr>`;
     })

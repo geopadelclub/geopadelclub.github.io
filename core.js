@@ -58,6 +58,13 @@ const ROLES_ADMIN = ["trabajador", "jefa"];
 const FILTRO_NO_CANCELADA = "estado.is.null,estado.neq.Cancelada";
 let horaInicioGrid = 8,
   horaFinGrid = 21.5;
+function debounce(fn, ms) {
+  let t;
+  return (...a) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...a), ms);
+  };
+}
 let usuarioSesion = null;
 let datosLocales = {
   productos: [],
@@ -297,13 +304,6 @@ function obtenerCierreMin(iso) {
   )
     return CIERRE_FINDE_MIN;
   return CIERRE_SEMANA_MIN;
-}
-function debounce(fn, ms) {
-  let t;
-  return (...a) => {
-    clearTimeout(t);
-    t = setTimeout(() => fn(...a), ms);
-  };
 }
 function esCerrado(min, iso) {
   const cierre = obtenerCierreMin(iso);
