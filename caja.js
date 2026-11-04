@@ -192,34 +192,36 @@ async function cargarHistorialCaja() {
     tiposBody.innerHTML =
       '<tr><td colspan="4" class="tabla-empty">Cargando…</td></tr>';
 
-  const { data, error } = await supabaseClient.rpc("informe_caja", {
-    p_desde: desde,
-    p_hasta: hasta,
-  });
+  try {
+    const { data, error } = await supabaseClient.rpc("informe_caja", {
+      p_desde: desde,
+      p_hasta: hasta,
+    });
 
-  if (error) {
-    console.error(error);
-    tb.innerHTML = `<tr><td colspan="8" class="tabla-empty" style="color:var(--red)">Error: ${esc(error.message)}</td></tr>`;
+    if (error) throw error;
+    if (!data || !data.ok) throw new Error("No se pudo cargar el informe");
+
+    dibujarCierresRango(data.cierres);
+    dibujarDesgloseTipos(data.ventas, data.totales);
+  } catch (err) {
+    console.error(err);
+    tb.innerHTML = `<tr><td colspan="8" class="tabla-empty" style="color:var(--red)">Error: ${esc(err.message || err)}</td></tr>`;
     if (tiposBody)
       tiposBody.innerHTML = `<tr><td colspan="4" class="tabla-empty" style="color:var(--red)">Error al cargar</td></tr>`;
-    return;
   }
-  if (!data || !data.ok) {
-    tb.innerHTML =
-      '<tr><td colspan="8" class="tabla-empty" style="color:var(--red)">No se pudo cargar el informe</td></tr>';
-    if (tiposBody)
-      tiposBody.innerHTML =
-        '<tr><td colspan="4" class="tabla-empty" style="color:var(--red)">No se pudo cargar el desglose</td></tr>';
-    return;
-  }
+}
 
+function dibujarCierresRango(cierres) {
+  const tb = $("histCajaBody");
+  if (!tb) return;
   const adm = esJefa();
   const dif = (n) => {
     const x = Number(n) || 0;
     return `<b class="${Math.abs(x) < 0.005 ? "dif-ok" : "dif-ko"}">${x > 0 ? "+" : ""}${eur(x)}</b>`;
   };
+
   tb.innerHTML =
-    (data.cierres || [])
+    (cierres || [])
       .map(
         (d) => `<tr>
 <td><b>${esc(d.fecha)}</b></td>
@@ -234,6 +236,20 @@ async function cargarHistorialCaja() {
       )
       .join("") ||
     '<tr><td colspan="8" class="tabla-empty">Sin cierres en este rango</td></tr>';
+}
+
+function dibujarDesgloseTipos(ventas, totales) {
+  const elEf = $("informeTotalEfectivo");
+  const elTa = $("informeTotalTarjeta");
+  const elTo = $("informeTotalGeneral");
+  const tiposBody = $("informeTiposBody");
+
+  const tot = totales || { efectivo: 0, tarjeta: 0, total: 0 };
+  if (elEf) elEf.innerText = eur(tot.efectivo);
+  if (elTa) elTa.innerText = eur(tot.tarjeta);
+  if (elTo) elTo.innerText = eur(tot.total);
+
+  if (!tiposBody) return;
 
   const TIPO_LABELS = {
     Bebidas: "Bebidas",
@@ -243,47 +259,39 @@ async function cargarHistorialCaja() {
     "Devolución Pistas": "Pistas",
     Bar: "Bar (histórico)",
   };
+
   const agrupado = {};
-  (data.ventas || []).forEach((v) => {
+  (ventas || []).forEach((v) => {
     const label = TIPO_LABELS[v.tipo] || v.tipo || "Otros";
     if (!agrupado[label]) agrupado[label] = { efectivo: 0, tarjeta: 0 };
     agrupado[label].efectivo += Number(v.efectivo) || 0;
     agrupado[label].tarjeta += Number(v.tarjeta) || 0;
   });
-  const totales = data.totales || { efectivo: 0, tarjeta: 0, total: 0 };
 
-  const elEf = $("informeTotalEfectivo");
-  const elTa = $("informeTotalTarjeta");
-  const elTo = $("informeTotalGeneral");
-  if (elEf) elEf.innerText = eur(totales.efectivo);
-  if (elTa) elTa.innerText = eur(totales.tarjeta);
-  if (elTo) elTo.innerText = eur(totales.total);
+  const filas = Object.entries(agrupado)
+    .filter(([, v]) => v.efectivo !== 0 || v.tarjeta !== 0)
+    .sort(
+      (a, b) => b[1].efectivo + b[1].tarjeta - (a[1].efectivo + a[1].tarjeta),
+    );
 
-  if (tiposBody) {
-    const filas = Object.entries(agrupado)
-      .filter(([, v]) => v.efectivo !== 0 || v.tarjeta !== 0)
-      .sort(
-        (a, b) => b[1].efectivo + b[1].tarjeta - (a[1].efectivo + a[1].tarjeta),
-      );
-    tiposBody.innerHTML = filas.length
-      ? filas
-          .map(
-            ([label, v]) => `<tr>
+  tiposBody.innerHTML = filas.length
+    ? filas
+        .map(
+          ([label, v]) => `<tr>
 <td><b>${esc(label)}</b></td>
 <td>${eur(v.efectivo)}</td>
 <td>${eur(v.tarjeta)}</td>
 <td><b>${eur(v.efectivo + v.tarjeta)}</b></td>
 </tr>`,
-          )
-          .join("") +
-        `<tr class="fila-total">
+        )
+        .join("") +
+      `<tr class="fila-total">
 <td><b>TOTAL</b></td>
-<td><b>${eur(totales.efectivo)}</b></td>
-<td><b>${eur(totales.tarjeta)}</b></td>
-<td><b>${eur(totales.total)}</b></td>
+<td><b>${eur(tot.efectivo)}</b></td>
+<td><b>${eur(tot.tarjeta)}</b></td>
+<td><b>${eur(tot.total)}</b></td>
 </tr>`
-      : '<tr><td colspan="4" class="tabla-empty">Sin ventas en este rango</td></tr>';
-  }
+    : '<tr><td colspan="4" class="tabla-empty">Sin ventas en este rango</td></tr>';
 }
 async function reabrirCierre(fecha, btn) {
   if (!esJefa()) return toast("Solo la jefa puede reabrir una caja", "err");
