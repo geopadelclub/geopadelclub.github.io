@@ -2115,6 +2115,55 @@ function telWhatsApp(tel) {
   return t;
 }
 
+async function anadirEsperaManual(e) {
+  e.preventDefault();
+  const msg = $("msgEsp");
+  const btn = $("btnEspAdd");
+  if (!msg || !btn) return;
+  msg.innerText = "";
+  const fecha = $("espFecha").value;
+  const hora = $("espHora").value;
+  const dur = parseInt($("espDuracion").value, 10) || 90;
+  const rawTel = $("espTelefono").value.trim();
+  if (!fecha || !hora) {
+    msg.style.color = "var(--red)";
+    msg.innerText = "Indica fecha y hora";
+    return;
+  }
+  if (!telefonoValido(rawTel)) {
+    msg.style.color = "var(--red)";
+    msg.innerText = "El teléfono no parece válido (mínimo 9 cifras)";
+    return;
+  }
+  const tel = normalizarTelefono(rawTel);
+  setBusy(
+    btn,
+    true,
+    '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Añadiendo...',
+  );
+  try {
+    const horaNorm = hora.length === 5 ? hora + ":00" : hora;
+    const { error } = await supabaseClient.from("lista_espera").insert({
+      fecha,
+      hora: horaNorm,
+      duracion: dur,
+      telefono: tel,
+      estado: "pendiente",
+    });
+    if (error) throw error;
+    msg.style.color = "var(--green)";
+    msg.innerText = "Añadido a la lista";
+    $("espTelefono").value = "";
+    cargarListaEspera();
+  } catch (err) {
+    console.error(err);
+    msg.style.color = "var(--red)";
+    msg.innerText = "No se pudo añadir: " + (err.message || err);
+  } finally {
+    setBusy(btn, false);
+  }
+}
+
 document.addEventListener("click", async (e) => {
   const btnAvisar = e.target.closest("[data-espera-avisar]");
   if (btnAvisar) {
@@ -2178,6 +2227,14 @@ document.addEventListener("click", async (e) => {
 if ($("btnRefrescarEspera")) {
   $("btnRefrescarEspera").addEventListener("click", cargarListaEspera);
 }
+
+(function initListaEsperaManual() {
+  const form = $("formListaEspera");
+  if (!form) return;
+  const f = $("espFecha");
+  if (f && !f.value) f.value = fechaLocalISO();
+  form.addEventListener("submit", anadirEsperaManual);
+})();
 
 const navReservasBtn = $("nav-reservas");
 if (navReservasBtn) {

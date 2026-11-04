@@ -325,6 +325,41 @@
                 <i class="ri-refresh-line" aria-hidden="true"></i>Refrescar
               </button>
             </div>
+            <p class="limp-leyenda">
+              Solicitudes que llegan desde la web. También puedes añadir una
+              manualmente aquí.
+            </p>
+            <form id="formListaEspera" novalidate>
+              <div class="form-inline">
+                <label>Fecha<input type="date" id="espFecha" required /></label>
+                <label
+                  >Hora<input type="time" id="espHora" step="1800" required
+                /></label>
+                <label
+                  >Duración
+                  <select id="espDuracion">
+                    <option value="60">60 min</option>
+                    <option value="90" selected>90 min</option>
+                    <option value="120">120 min</option>
+                  </select>
+                </label>
+                <label
+                  >Teléfono<input
+                    type="tel"
+                    id="espTelefono"
+                    maxlength="20"
+                    autocomplete="off"
+                    required
+                /></label>
+              </div>
+              <div class="mt-14">
+                <button type="submit" class="btn-add" id="btnEspAdd">
+                  <i class="ri-add-line" aria-hidden="true"></i>Añadir a la
+                  lista
+                </button>
+              </div>
+              <div id="msgEsp" class="msg-inline" aria-live="polite"></div>
+            </form>
             <div class="table-wrap">
               <table class="tabla-productos" style="min-width: 500px">
                 <thead>
