@@ -137,15 +137,12 @@ ${soloJefa ? `<button type="button" class="btn-add danger" data-cli="borrar" dat
 }
 
 async function entrarAjustes() {
-  $("cliBuscar").value = "";
   await dibujarClientesAjustes();
   if (typeof cargarBloqueosPersistentes === "function")
     await cargarBloqueosPersistentes();
 }
 
-if (typeof window.accion === "function") {
-  window.accion("filtrar-clientes", debounce(dibujarClientesAjustes, 300));
-}
+$("cliBuscar").addEventListener("input", debounce(dibujarClientesAjustes, 300));
 
 async function crearClienteDesdeAjustes(tel) {
   if (!tel || tel.length < 9) return;

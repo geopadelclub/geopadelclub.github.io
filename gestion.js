@@ -424,6 +424,8 @@ async function eliminarLimpieza(id) {
   toast("Registro eliminado");
   cargarLimpiezas(false);
 }
+$("deudaFiltro")?.addEventListener("change", dibujarDeudas);
+$("deudaBuscar")?.addEventListener("input", debounce(dibujarDeudas, 300));
 $("formDeuda").addEventListener("submit", anadirDeuda);
 $("deudasBody").addEventListener("click", (e) => {
   const b = e.target.closest("button[data-act]");
