@@ -34,25 +34,13 @@ function fechaDesdeISO(iso) {
 const fechaWeb = (iso) => fechaBonita(iso, true);
 const idioma = () =>
   typeof _idioma !== "undefined" && _idioma === "en" ? "en-GB" : "es-ES";
-function minutos(hhmm) {
-  const [h, m] = String(hhmm).split(":").map(Number);
-  return (h || 0) * 60 + (m || 0);
-}
-function horaStr(min) {
-  return `${String(Math.floor(min / 60)).padStart(2, "0")}:${String(min % 60).padStart(2, "0")}`;
-}
-function duracionTxt(min) {
-  const h = Math.floor(min / 60);
-  const m = min % 60;
-  return h ? (m ? `${h} h ${m} min` : `${h} h`) : `${m} min`;
-}
 const antMin = () =>
   Number.isFinite(Number(cfg.anticipacion_min))
     ? Number(cfg.anticipacion_min)
     : 30;
 function horaReservable(fecha, hora) {
   const [y, m, d] = fecha.split("-").map(Number);
-  const min = minutos(hora);
+  const min = timeToMin(hora);
   const objetivo = Date.UTC(y, m - 1, d, Math.floor(min / 60), min % 60);
   return objetivo - ahoraMadrid().msUTC >= antMin() * 60000;
 }
@@ -613,7 +601,7 @@ function mostrarPaso2() {
       : eur(total);
   document.getElementById("clResumen").innerHTML = `
     <span><i class="ri-calendar-event-line" aria-hidden="true"></i>${esc(fechaWeb(sel.fecha))}</span>
-    <span><i class="ri-time-line" aria-hidden="true"></i>${esc(sel.hora)} – ${horaStr(minutos(sel.hora) + sel.dur)}</span>
+    <span><i class="ri-time-line" aria-hidden="true"></i>${esc(sel.hora)} – ${minToTimeStr(timeToMin(sel.hora) + sel.dur)}</span>
     <span id="clPrecioTotal"><i class="ri-money-euro-circle-line" aria-hidden="true"></i>${totalTxt}</span>
     ${selectorHtml}
   `;
@@ -856,7 +844,7 @@ function mostrarExito(reservas) {
       : `${eur(total)} · ${t("reservar.pago")}`;
   document.getElementById("okDetalle").innerHTML = `
     <div><i class="ri-calendar-event-line" aria-hidden="true"></i>${esc(fechaWeb(lista[0].fecha))}</div>
-    <div><i class="ri-time-line" aria-hidden="true"></i>${esc(lista[0].hora)} – ${horaStr(minutos(lista[0].hora) + lista[0].duracion)} (${esc(duracionTxt(lista[0].duracion))})</div>
+    <div><i class="ri-time-line" aria-hidden="true"></i>${esc(lista[0].hora)} – ${minToTimeStr(timeToMin(lista[0].hora) + lista[0].duracion)} (${esc(duracionTxt(lista[0].duracion))})</div>
     ${pistasHtml}
     <div><i class="ri-money-euro-circle-line" aria-hidden="true"></i>${precioHtml}</div>
     <div><i class="ri-checkbox-circle-line" aria-hidden="true"></i>${t("mis-reservas.confirmada")}</div>
@@ -1157,7 +1145,7 @@ function dibujarMisReservas(data) {
   document.getElementById("misLista").innerHTML = grupos.length
     ? grupos
         .map((g) => {
-          const fin = horaStr(minutos(g.hora) + g.duracion);
+          const fin = minToTimeStr(timeToMin(g.hora) + g.duracion);
           const tipoChip =
             g.tipo && g.tipo !== "Normal"
               ? `<span class="chip">${esc(g.tipo === "Pena" ? "Peña" : g.tipo)}</span>`

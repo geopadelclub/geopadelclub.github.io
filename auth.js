@@ -217,6 +217,8 @@ async function mostrarPanelAdmin() {
   aplicarPermisosRol();
   if (typeof aplicarPermisosCopia === "function") aplicarPermisosCopia();
   if (typeof aplicarPermisosFichajes === "function") aplicarPermisosFichajes();
+  if (typeof aplicarPermisosFacConfig === "function")
+    aplicarPermisosFacConfig();
   renderSelectorMesas();
   iniciarSuscripcionRealtime();
   iniciarVigilanciaSesion();

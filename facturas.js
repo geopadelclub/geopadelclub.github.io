@@ -4,13 +4,8 @@ let facConfig = null,
   facCargando = !1,
   facRectificando = null,
   facClientesGuardados = [];
-const facFecha = (e) => {
-    const [t, n, r] = String(e || "")
-      .slice(0, 10)
-      .split("-");
-    return r ? `${r}/${n}/${t}` : "";
-  },
-  facTipoTxt = (e) => (e === "Factura" ? "Factura" : "Justificante de pago");
+const facTipoTxt = (e) =>
+  e === "Factura" ? "Factura" : "Justificante de pago";
 function facSet(e, t) {
   const n = $(e);
   if (n) n.value = t ?? "";
@@ -39,6 +34,10 @@ function facConfigIds() {
     "facCfgTextoLegal",
     "facCfgPie",
   ];
+}
+function aplicarPermisosFacConfig() {
+  const card = $("cardFacConfig");
+  if (card) card.hidden = !(typeof esJefa === "function" && esJefa());
 }
 function facAplicarPermisosConfig() {
   const esBoss = typeof esJefa === "function" && esJefa();
@@ -417,7 +416,7 @@ function dibujarFacturas() {
           e.estado === "Anulada"
             ? `Anulada${e.anulada_por ? ` por ${esc(e.anulada_por)}` : ""}${e.motivo_anulacion ? `<small class="esc-desc">${esc(e.motivo_anulacion)}</small>` : ""}`
             : esc(e.estado);
-      return `<tr><td><b>${esc(e.numero)}</b>${s}</td><td>${esc(facFecha(e.fecha))}</td><td>${esc(facTipoTxt(e.tipo))}</td><td>${i}</td><td>${esc(e.metodo_pago || "—")}</td><td><b>${eur(e.total)}</b></td><td><span class="fac-estado ${e.estado === "Anulada" ? "no" : "ok"}">${estadoTxt}</span></td><td><div class="fac-acciones"><button type="button" class="btn-add blue" data-fac="webusb" data-id="${esc(e.id)}">80 mm (USB)</button>${a}${o}${anul}</div></td></tr>`;
+      return `<tr><td><b>${esc(e.numero)}</b>${s}</td><td>${esc(fechaCorta(e.fecha))}</td><td>${esc(facTipoTxt(e.tipo))}</td><td>${i}</td><td>${esc(e.metodo_pago || "—")}</td><td><b>${eur(e.total)}</b></td><td><span class="fac-estado ${e.estado === "Anulada" ? "no" : "ok"}">${estadoTxt}</span></td><td><div class="fac-acciones"><button type="button" class="btn-add blue" data-fac="webusb" data-id="${esc(e.id)}">80 mm (USB)</button>${a}${o}${anul}</div></td></tr>`;
     })
     .join("");
 }
@@ -481,7 +480,7 @@ function htmlTicketFactura(e) {
       ? `<div class="r"><span>Cliente</span><span>${esc(e.cliente_nombre)}</span></div>${e.cliente_nif ? `<div class="r"><span>NIF</span><span>${esc(e.cliente_nif)}</span></div>` : ""}${e.cliente_direccion ? `<div class="r"><span>Dirección</span><span>${esc(e.cliente_direccion)}</span></div>` : ""}`
       : `<div class="r"><span>Atendido por</span><span>${esc(e.empleado || "—")}</span></div>`,
     m = r ? `<div class="c s">${esc(t.pie_factura || "")}</div>` : "";
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{size:80mm auto;margin:0}html,body{margin:0;padding:0;background:#fff;color:#000;font-family:"Courier New",monospace;font-size:12px;line-height:1.25}.t{width:72mm;margin:0 auto;padding:3mm 0}.c{text-align:center}.b{font-weight:700}.r{display:flex;justify-content:space-between;gap:4mm}.hr{border-top:1px dashed #000;margin:2mm 0}.s{font-size:10px}.big{font-size:16px;font-weight:800}.m{text-transform:uppercase}</style></head><body><div class="t"><div class="c b big">${esc(a)}</div>${o ? `<div class="c b" style="font-size:11px">${esc(o)}</div>` : ""}<div class="c s">${esc(t.nif || "")}</div><div class="c s">${esc(n)}</div><div class="c s">${esc(t.telefono || "")} · ${esc(t.email || "")}</div><div class="hr"></div><div class="c b m">${r ? (i ? "FACTURA RECTIFICATIVA" : "FACTURA") : "JUSTIFICANTE DE PAGO"}</div><div class="r"><span>Nº ${esc(e.numero)}</span><span>${esc(facFecha(e.fecha))}</span></div>${d}<div class="r"><span>Pago</span><span>${esc(e.metodo_pago || "")}</span></div><div class="hr"></div>${l}<div class="hr"></div><div class="r"><span>Base</span><span>${s(e.base_imponible)}</span></div><div class="r"><span>IVA ${esc(e.iva_porcentaje)}%</span><span>${s(e.cuota_iva)}</span></div><div class="r b big"><span>TOTAL</span><span>${s(e.total)}</span></div>${e.notas ? `<div class="hr"></div><div class="s">${esc(e.notas)}</div>` : ""}<div class="hr"></div><div class="c s">${c}</div>${m}<div class="c s">${esc(t.web || "")}</div></div></body></html>`;
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{size:80mm auto;margin:0}html,body{margin:0;padding:0;background:#fff;color:#000;font-family:"Courier New",monospace;font-size:12px;line-height:1.25}.t{width:72mm;margin:0 auto;padding:3mm 0}.c{text-align:center}.b{font-weight:700}.r{display:flex;justify-content:space-between;gap:4mm}.hr{border-top:1px dashed #000;margin:2mm 0}.s{font-size:10px}.big{font-size:16px;font-weight:800}.m{text-transform:uppercase}</style></head><body><div class="t"><div class="c b big">${esc(a)}</div>${o ? `<div class="c b" style="font-size:11px">${esc(o)}</div>` : ""}<div class="c s">${esc(t.nif || "")}</div><div class="c s">${esc(n)}</div><div class="c s">${esc(t.telefono || "")} · ${esc(t.email || "")}</div><div class="hr"></div><div class="c b m">${r ? (i ? "FACTURA RECTIFICATIVA" : "FACTURA") : "JUSTIFICANTE DE PAGO"}</div><div class="r"><span>Nº ${esc(e.numero)}</span><span>${esc(fechaCorta(e.fecha))}</span></div>${d}<div class="r"><span>Pago</span><span>${esc(e.metodo_pago || "")}</span></div><div class="hr"></div>${l}<div class="hr"></div><div class="r"><span>Base</span><span>${s(e.base_imponible)}</span></div><div class="r"><span>IVA ${esc(e.iva_porcentaje)}%</span><span>${s(e.cuota_iva)}</span></div><div class="r b big"><span>TOTAL</span><span>${s(e.total)}</span></div>${e.notas ? `<div class="hr"></div><div class="s">${esc(e.notas)}</div>` : ""}<div class="hr"></div><div class="c s">${c}</div>${m}<div class="c s">${esc(t.web || "")}</div></div></body></html>`;
 }
 function htmlA4Factura(e) {
   const t = facConfig || {},
@@ -515,7 +514,7 @@ function htmlA4Factura(e) {
         ? `<div class="box" style="margin-top:5mm"><h3>Rectifica a</h3><p>Factura original: ${esc(e.numero_original || "—")}</p>${e.motivo_rectificacion ? `<p>Motivo: ${esc(e.motivo_rectificacion)}</p>` : ""}</div>`
         : "",
     h = i && t.pie_factura ? `${esc(t.pie_factura)}<br>` : "";
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{size:A4 portrait;margin:14mm}html,body{margin:0;padding:0;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif;font-size:11pt;line-height:1.35}.page{width:100%;max-width:186mm;margin:0 auto}.head{display:flex;justify-content:space-between;gap:10mm;border-bottom:2px solid #111;padding-bottom:5mm}.logo{height:18mm;width:auto;border-radius:3mm}.issuer h1{font-size:18pt;margin:0 0 1mm}.issuer h2{font-size:12pt;margin:0 0 2mm;color:#444;font-weight:700}.issuer p{margin:0 0 1mm;font-size:9.5pt}.doc{text-align:right;min-width:65mm}.doc h2{font-size:18pt;margin:0 0 3mm;text-transform:uppercase}.doc p{margin:0 0 1.5mm;font-size:10pt}.boxes{display:grid;grid-template-columns:1.2fr 1fr;gap:6mm;margin-top:7mm}.box{border:1px solid #bbb;border-radius:2mm;padding:4mm}.box h3{font-size:10pt;margin:0 0 2.5mm;text-transform:uppercase;border-bottom:1px solid #ddd;padding-bottom:1.5mm}.box p{margin:0 0 1.5mm;font-size:10pt}table{width:100%;border-collapse:collapse;margin-top:7mm}th,td{border-bottom:1px solid #ccc;padding:2.5mm 2mm;text-align:left;vertical-align:top}th{background:#eef3ef;font-size:9pt;text-transform:uppercase}.r{text-align:right}.b{font-weight:700}.totals{display:flex;justify-content:flex-end;margin-top:5mm}.totals table{width:80mm;margin:0}.totals td{border:0;padding:1.5mm 2mm}.totals tr:last-child td{border-top:2px solid #111;font-size:13pt;font-weight:800}.legal{margin-top:8mm;padding-top:4mm;border-top:1px solid #bbb;font-size:8.5pt;color:#333}.foot{margin-top:5mm;font-size:8.5pt;color:#555;text-align:center}</style></head><body><div class="page"><div class="head"><div><img class="logo" src="${n}" alt="Geopadel"><div class="issuer"><h1>${esc(o)}</h1>${s ? `<h2>${esc(s)}</h2>` : ""}<p>${esc(t.nif || "")}</p><p>${esc(r)}</p><p>${esc(t.telefono || "")} · ${esc(t.email || "")}</p></div></div><div class="doc"><h2>${i ? (a ? "Factura rectificativa" : "Factura") : "Justificante de pago"}</h2><p><b>Nº:</b> ${esc(e.numero)}</p><p><b>Fecha:</b> ${esc(facFecha(e.fecha))}</p><p><b>Pago:</b> ${esc(e.metodo_pago || "")}</p></div></div><div class="boxes">${u}<div class="box"><h3>Documento</h3><p>${i ? (a ? "Factura rectificativa" : "Factura legal") : "Justificante de pago"}</p><p>${i ? "Válido fiscalmente" : "No válido como factura"}</p>${e.notas ? `<p><b>Notas:</b> ${esc(e.notas)}</p>` : ""}</div></div>${m}<table><thead><tr><th>Concepto</th><th class="r">Cant.</th><th class="r">Precio unit.</th><th class="r">IVA</th><th class="r">Base</th><th class="r">Cuota</th><th class="r">Total</th></tr></thead><tbody>${c}</tbody></table><div class="totals"><table><tr><td>Base imponible</td><td class="r">${l(e.base_imponible)}</td></tr><tr><td>IVA ${esc(e.iva_porcentaje)}%</td><td class="r">${l(e.cuota_iva)}</td></tr><tr><td>TOTAL</td><td class="r">${l(e.total)}</td></tr></table></div><div class="legal">${d}</div><div class="foot">${h}${esc(t.web || "")}</div></div></body></html>`;
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{size:A4 portrait;margin:14mm}html,body{margin:0;padding:0;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif;font-size:11pt;line-height:1.35}.page{width:100%;max-width:186mm;margin:0 auto}.head{display:flex;justify-content:space-between;gap:10mm;border-bottom:2px solid #111;padding-bottom:5mm}.logo{height:18mm;width:auto;border-radius:3mm}.issuer h1{font-size:18pt;margin:0 0 1mm}.issuer h2{font-size:12pt;margin:0 0 2mm;color:#444;font-weight:700}.issuer p{margin:0 0 1mm;font-size:9.5pt}.doc{text-align:right;min-width:65mm}.doc h2{font-size:18pt;margin:0 0 3mm;text-transform:uppercase}.doc p{margin:0 0 1.5mm;font-size:10pt}.boxes{display:grid;grid-template-columns:1.2fr 1fr;gap:6mm;margin-top:7mm}.box{border:1px solid #bbb;border-radius:2mm;padding:4mm}.box h3{font-size:10pt;margin:0 0 2.5mm;text-transform:uppercase;border-bottom:1px solid #ddd;padding-bottom:1.5mm}.box p{margin:0 0 1.5mm;font-size:10pt}table{width:100%;border-collapse:collapse;margin-top:7mm}th,td{border-bottom:1px solid #ccc;padding:2.5mm 2mm;text-align:left;vertical-align:top}th{background:#eef3ef;font-size:9pt;text-transform:uppercase}.r{text-align:right}.b{font-weight:700}.totals{display:flex;justify-content:flex-end;margin-top:5mm}.totals table{width:80mm;margin:0}.totals td{border:0;padding:1.5mm 2mm}.totals tr:last-child td{border-top:2px solid #111;font-size:13pt;font-weight:800}.legal{margin-top:8mm;padding-top:4mm;border-top:1px solid #bbb;font-size:8.5pt;color:#333}.foot{margin-top:5mm;font-size:8.5pt;color:#555;text-align:center}</style></head><body><div class="page"><div class="head"><div><img class="logo" src="${n}" alt="Geopadel"><div class="issuer"><h1>${esc(o)}</h1>${s ? `<h2>${esc(s)}</h2>` : ""}<p>${esc(t.nif || "")}</p><p>${esc(r)}</p><p>${esc(t.telefono || "")} · ${esc(t.email || "")}</p></div></div><div class="doc"><h2>${i ? (a ? "Factura rectificativa" : "Factura") : "Justificante de pago"}</h2><p><b>Nº:</b> ${esc(e.numero)}</p><p><b>Fecha:</b> ${esc(fechaCorta(e.fecha))}</p><p><b>Pago:</b> ${esc(e.metodo_pago || "")}</p></div></div><div class="boxes">${u}<div class="box"><h3>Documento</h3><p>${i ? (a ? "Factura rectificativa" : "Factura legal") : "Justificante de pago"}</p><p>${i ? "Válido fiscalmente" : "No válido como factura"}</p>${e.notas ? `<p><b>Notas:</b> ${esc(e.notas)}</p>` : ""}</div></div>${m}<table><thead><tr><th>Concepto</th><th class="r">Cant.</th><th class="r">Precio unit.</th><th class="r">IVA</th><th class="r">Base</th><th class="r">Cuota</th><th class="r">Total</th></tr></thead><tbody>${c}</tbody></table><div class="totals"><table><tr><td>Base imponible</td><td class="r">${l(e.base_imponible)}</td></tr><tr><td>IVA ${esc(e.iva_porcentaje)}%</td><td class="r">${l(e.cuota_iva)}</td></tr><tr><td>TOTAL</td><td class="r">${l(e.total)}</td></tr></table></div><div class="legal">${d}</div><div class="foot">${h}${esc(t.web || "")}</div></div></body></html>`;
 }
 function imprimirHTML(e) {
   const t = document.createElement("iframe");
@@ -735,7 +734,7 @@ function formatearTicketTexto(e) {
   d += "\x1B\x61\x01";
   d += u + "\n";
   d += `Nº: ${e.numero}` + "\n";
-  d += `Fecha: ${facFecha(e.fecha)}` + "\n";
+  d += `Fecha: ${fechaCorta(e.fecha)}` + "\n";
   d += "\x1B\x61\x00";
   d += l2 + "\n";
   if (r) {

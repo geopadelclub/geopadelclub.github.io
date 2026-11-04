@@ -11,23 +11,6 @@ const MAPA_TARIFAS = {
 
 let _landingAntelacion = 30;
 let _huecos = { fecha: null, dia: null, data: null, error: false };
-
-function formatearPrecio(v) {
-  return Number(v).toLocaleString("es-ES", {
-    style: "currency",
-    currency: "EUR",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  });
-}
-
-function duracionLabel(min) {
-  const h = Math.floor(min / 60);
-  const m = min % 60;
-  if (!h) return `${m} min`;
-  return m ? `${h} h ${m} min` : `${h} h`;
-}
-
 function getTargetFecha() {
   const ahora = ahoraMadrid();
   if (ahora.h >= 21)
@@ -70,7 +53,7 @@ async function cargarTarifasLanding() {
         if (precio === null || precio === undefined || precio === "") return;
         const el = document.querySelector(`[data-tarifa="${k}-${dur}"]`);
         if (!el) return;
-        el.textContent = formatearPrecio(precio);
+        el.textContent = eur(precio, true);
         el.classList.remove("skeleton");
       });
     });
@@ -151,12 +134,12 @@ function renderHuecos() {
     .map((s) => {
       const op = opcionMasBarata(s.opciones);
       const libres = Number(op.libres) || 1;
-      const durTxt = duracionLabel(op.dur);
+      const durTxt = duracionTxt(op.dur);
       const libresTxt =
         libres > 1 ? ` · ${libres} ${t("reservar.numPistas.disponibles")}` : "";
       return `<a class="hueco-chip" href="reservar?fecha=${_huecos.fecha}&hora=${s.hora}&dur=${op.dur}" aria-label="${s.hora} ${durTxt}">
         <b>${s.hora}</b>
-        <span class="hueco-chip-precio">${formatearPrecio(op.precio)}</span>
+        <span class="hueco-chip-precio">${eur(op.precio, true)}</span>
         <small>${durTxt}${libresTxt}</small>
       </a>`;
     })

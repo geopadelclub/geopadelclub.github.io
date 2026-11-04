@@ -4,15 +4,10 @@ let fxEmpleados = {},
   fxEmpleadosListos = !1,
   fxJefas = new Set();
 const fxPad = (e) => String(e).padStart(2, "0"),
-  fxHM = (e) => `${Math.floor(e / 60)}:${fxPad(e % 60)}`,
   fxDec = (e) => (e / 60).toFixed(2).replace(".", ","),
   fxHora = (e) => `${fxPad(e.getHours())}:${fxPad(e.getMinutes())}`,
   fxTs = (e) => e.created_at,
   fxNombre = (e) => fxEmpleados[e] || e,
-  fxFecha = (e) => {
-    const [t, n, r] = String(e).split("-");
-    return `${r}/${n}/${t}`;
-  },
   fxDiaSemana = (e) => {
     const [t, n, r] = e.split("-").map(Number);
     return new Date(t, n - 1, r, 12)
@@ -191,10 +186,10 @@ const fxTramosTxt = (e) =>
       )
       .join(" · ") +
     (e.enCurso ? (e.tramos.length ? " · " : "") + "en curso" : ""),
-  fxMin = (e) => (e ? fxHM(e) + " h" : "—"),
+  fxMin = (e) => (e ? minToTimeStr(e) + " h" : "—"),
   fxJornadaTxt = (e) =>
     e.jorn
-      ? fxHM(e.jorn) + " h" + (e.sinContrato ? " *" : "")
+      ? minToTimeStr(e.jorn) + " h" + (e.sinContrato ? " *" : "")
       : e.sinContrato
         ? "— *"
         : "Libranza";
@@ -211,7 +206,7 @@ function fxFilasDia(e, t) {
       : e.enCurso
         ? "En curso"
         : "";
-    return `<tr><td><b>${esc(fxNombre(e.emp))}</b></td><td>${esc(fxDiaSemana(e.fecha))} ${esc(fxFecha(e.fecha))}</td><td>${esc(fxTramosTxt(e))}</td><td>${esc(fxMin(e.pausa))}</td><td>${esc(fxJornadaTxt(e))}</td><td><b>${esc(fxMin(e.total))}</b></td><td>${esc(fxMin(e.ord))}</td><td>${esc(fxMin(e.extra))}</td><td>${n || "—"}</td></tr>`;
+    return `<tr><td><b>${esc(fxNombre(e.emp))}</b></td><td>${esc(fxDiaSemana(e.fecha))} ${esc(fechaCorta(e.fecha))}</td><td>${esc(fxTramosTxt(e))}</td><td>${esc(fxMin(e.pausa))}</td><td>${esc(fxJornadaTxt(e))}</td><td><b>${esc(fxMin(e.total))}</b></td><td>${esc(fxMin(e.ord))}</td><td>${esc(fxMin(e.extra))}</td><td>${n || "—"}</td></tr>`;
   });
 }
 function fxFilasMes(e) {
@@ -252,7 +247,7 @@ function fxDibujar(e) {
     { t: 0, o: 0, e: 0, i: 0, n: 0 },
   );
   $("fxContenido").innerHTML =
-    `<div class="card"><div class="kpi-row"><div class="kpi ef"><span>Horas trabajadas</span><h2>${esc(fxHM(t.t))} h</h2></div><div class="kpi"><span>Ordinarias</span><h2>${esc(fxHM(t.o))} h</h2></div><div class="kpi ta"><span>Exceso sobre jornada</span><h2>${esc(fxHM(t.e))} h</h2></div><div class="kpi"><span>Días trabajados</span><h2>${t.n}</h2></div><div class="kpi"><span>Incidencias</span><h2 class="${t.i ? "limp-ko" : ""}">${t.i}</h2></div></div></div><div class="card"><h3><i class="ri-calendar-2-line" aria-hidden="true"></i>Resumen por mes</h3>${fxTabla(FX_CAB_MES, fxFilasMes(e.meses), "tabla-productos", "Sin fichajes en este periodo")}<p class="limp-leyenda" style="margin-top:12px">Los meses solo suman los días incluidos en el periodo elegido.</p></div><div class="card"><h3><i class="ri-list-check-2" aria-hidden="true"></i>Detalle por día</h3>${fxTabla(FX_CAB_DIA, fxFilasDia(e.dias, !0), "tabla-productos", "Sin fichajes en este periodo")}<p class="limp-leyenda" style="margin-top:12px">Horas netas = suma de cada tramo Entrada→Salida. Las pausas son el tiempo entre una Salida y la siguiente Entrada del mismo día y no se cuentan como trabajadas. «Jornada del día» sale del contrato de cada trabajador (minutos reales del horario de cada día según el contrato; los días de libranza tienen jornada 0). «Exceso s/ jornada» = horas que superan esa jornada; que sean horas extraordinarias legalmente depende del convenio y del contrato. ${e.sinContrato.length ? `<b>*</b> Sin contrato indicado (${esc(e.sinContrato.map(fxNombre).join(", "))}): no se puede calcular el exceso hasta que lo indiquen.` : ""} Una incidencia es una Entrada sin Salida (o al revés): conviene revisarla.</p></div>`;
+    `<div class="card"><div class="kpi-row"><div class="kpi ef"><span>Horas trabajadas</span><h2>${esc(minToTimeStr(t.t))} h</h2></div><div class="kpi"><span>Ordinarias</span><h2>${esc(minToTimeStr(t.o))} h</h2></div><div class="kpi ta"><span>Exceso sobre jornada</span><h2>${esc(minToTimeStr(t.e))} h</h2></div><div class="kpi"><span>Días trabajados</span><h2>${t.n}</h2></div><div class="kpi"><span>Incidencias</span><h2 class="${t.i ? "limp-ko" : ""}">${t.i}</h2></div></div></div><div class="card"><h3><i class="ri-calendar-2-line" aria-hidden="true"></i>Resumen por mes</h3>${fxTabla(FX_CAB_MES, fxFilasMes(e.meses), "tabla-productos", "Sin fichajes en este periodo")}<p class="limp-leyenda" style="margin-top:12px">Los meses solo suman los días incluidos en el periodo elegido.</p></div><div class="card"><h3><i class="ri-list-check-2" aria-hidden="true"></i>Detalle por día</h3>${fxTabla(FX_CAB_DIA, fxFilasDia(e.dias, !0), "tabla-productos", "Sin fichajes en este periodo")}<p class="limp-leyenda" style="margin-top:12px">Horas netas = suma de cada tramo Entrada→Salida. Las pausas son el tiempo entre una Salida y la siguiente Entrada del mismo día y no se cuentan como trabajadas. «Jornada del día» sale del contrato de cada trabajador (minutos reales del horario de cada día según el contrato; los días de libranza tienen jornada 0). «Exceso s/ jornada» = horas que superan esa jornada; que sean horas extraordinarias legalmente depende del convenio y del contrato. ${e.sinContrato.length ? `<b>*</b> Sin contrato indicado (${esc(e.sinContrato.map(fxNombre).join(", "))}): no se puede calcular el exceso hasta que lo indiquen.` : ""} Una incidencia es una Entrada sin Salida (o al revés): conviene revisarla.</p></div>`;
 }
 async function fxCargarContratos(e) {
   const t = {};
@@ -378,7 +373,7 @@ async function fxExportarCSV() {
     const n = (e) => e.map(fxCelda).join(";"),
       r = [
         n(["REGISTRO DE JORNADA · GEOPADEL"]),
-        n(["Periodo", `${fxFecha(e.desde)} a ${fxFecha(e.hasta)}`]),
+        n(["Periodo", `${fechaCorta(e.desde)} a ${fechaCorta(e.hasta)}`]),
         n([
           "Criterio",
           "Jornada del día según el contrato de cada trabajador (minutos reales del horario de cada día; libranza = 0). * = sin contrato",
@@ -403,14 +398,14 @@ async function fxExportarCSV() {
       r.push(
         n([
           fxNombre(e.emp),
-          fxFecha(e.fecha),
+          fechaCorta(e.fecha),
           fxTramosTxt(e),
-          fxHM(e.pausa),
-          fxHM(e.jorn) + (e.sinContrato ? " *" : ""),
-          fxHM(e.total),
+          minToTimeStr(e.pausa),
+          minToTimeStr(e.jorn) + (e.sinContrato ? " *" : ""),
+          minToTimeStr(e.total),
           fxDec(e.total),
-          fxHM(e.ord),
-          fxHM(e.extra),
+          minToTimeStr(e.ord),
+          minToTimeStr(e.extra),
           e.incid.join(" | "),
         ]),
       ),
@@ -435,10 +430,10 @@ async function fxExportarCSV() {
           fxNombre(e.emp),
           fxMesTxt(e.mes),
           e.dias,
-          fxHM(e.total),
+          minToTimeStr(e.total),
           fxDec(e.total),
-          fxHM(e.ord),
-          fxHM(e.extra),
+          minToTimeStr(e.ord),
+          minToTimeStr(e.extra),
           e.incid,
         ]),
       ),
@@ -459,7 +454,7 @@ function fxHtmlEmpleado(e, t) {
     i = FX_CAB_DIA.slice(1),
     a = FX_CAB_MES.slice(1),
     o = (e) => e.replace(/<tr><td>.*?<\/td>/, "<tr>");
-  return `<section class="fx-page"><div class="fx-head"><img src="./geopadel.webp" alt="Geopadel" width="150" height="150"><div><h1>Registro de jornada</h1><p>${esc(fxNombre(e))} · ${esc(fxFecha(t.desde))} – ${esc(fxFecha(t.hasta))}</p></div><div class="fx-meta">Geopadel<br>Impreso: ${esc(t.generado.toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" }))}</div></div><h2>Resumen por mes</h2>${fxTabla(a, fxFilasMes(r).map(o), "fx-table", "Sin fichajes")}<h2>Detalle por día</h2>${fxTabla(i, fxFilasDia(n, !1).map(o), "fx-table", "Sin fichajes")}<p class="fx-nota">Horas netas = suma de tramos Entrada→Salida; las pausas no se cuentan. Exceso sobre la jornada del día según el contrato del trabajador (minutos reales del horario de cada día)${t.res.sinContrato.includes(e) ? ` (* sin contrato indicado: no se calcula exceso)` : ""}. Registro diario de jornada (art. 34.9 del Estatuto de los Trabajadores); los registros se conservan 4 años.</p><div class="fx-firmas"><div>Firma del trabajador</div><div>Firma de la empresa</div></div></section>`;
+  return `<section class="fx-page"><div class="fx-head"><img src="./geopadel.webp" alt="Geopadel" width="150" height="150"><div><h1>Registro de jornada</h1><p>${esc(fxNombre(e))} · ${esc(fechaCorta(t.desde))} – ${esc(fechaCorta(t.hasta))}</p></div><div class="fx-meta">Geopadel<br>Impreso: ${esc(t.generado.toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" }))}</div></div><h2>Resumen por mes</h2>${fxTabla(a, fxFilasMes(r).map(o), "fx-table", "Sin fichajes")}<h2>Detalle por día</h2>${fxTabla(i, fxFilasDia(n, !1).map(o), "fx-table", "Sin fichajes")}<p class="fx-nota">Horas netas = suma de tramos Entrada→Salida; las pausas no se cuentan. Exceso sobre la jornada del día según el contrato del trabajador (minutos reales del horario de cada día)${t.res.sinContrato.includes(e) ? ` (* sin contrato indicado: no se calcula exceso)` : ""}. Registro diario de jornada (art. 34.9 del Estatuto de los Trabajadores); los registros se conservan 4 años.</p><div class="fx-firmas"><div>Firma del trabajador</div><div>Firma de la empresa</div></div></section>`;
 }
 async function fxImprimir() {
   const e = $("fxImprimir");

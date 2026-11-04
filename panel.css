@@ -2657,10 +2657,6 @@ body {
   }
 }
 
-.gp-brand-link {
-  text-decoration: none;
-}
-
 .loading-placeholder {
   text-align: center;
   color: var(--muted);

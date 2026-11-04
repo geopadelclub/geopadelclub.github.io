@@ -291,7 +291,10 @@ function obtenerCierreMin(iso) {
   const [y, m, d] = dateIso.split("-").map(Number);
   const day = new Date(y, m - 1, d, 12).getDay();
   if (day === 0 || day === 6) return CIERRE_FINDE_MIN;
-  if (Array.isArray(datosLocales.festivos) && datosLocales.festivos.includes(dateIso))
+  if (
+    Array.isArray(datosLocales.festivos) &&
+    datosLocales.festivos.includes(dateIso)
+  )
     return CIERRE_FINDE_MIN;
   return CIERRE_SEMANA_MIN;
 }
@@ -301,15 +304,6 @@ function debounce(fn, ms) {
     clearTimeout(t);
     t = setTimeout(() => fn(...a), ms);
   };
-}
-function timeToMin(tStr) {
-  const parts = String(tStr || "0:0").split(":");
-  return (parseInt(parts[0], 10) || 0) * 60 + (parseInt(parts[1], 10) || 0);
-}
-function minToTimeStr(min) {
-  const h = Math.floor(min / 60),
-    m = min % 60;
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 function esCerrado(min, iso) {
   const cierre = obtenerCierreMin(iso);

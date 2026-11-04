@@ -217,6 +217,10 @@ textarea {
   gap: 10px;
 }
 
+.gp-brand-link {
+  text-decoration: none;
+}
+
 .theme-toggle {
   width: 38px;
   height: 38px;

@@ -7,10 +7,6 @@ const esErrorTabla = (err) =>
   /relation|does not exist|schema cache|could not find/i.test(
     String((err && err.message) || ""),
   );
-const fmtFecha = (iso) => {
-  const [y, m, d] = String(iso).slice(0, 10).split("-");
-  return `${d}/${m}/${y}`;
-};
 const fmtFechaHora = (v) => {
   const d = new Date(v);
   return isNaN(d.getTime())
@@ -95,7 +91,7 @@ function dibujarDeudas() {
       return `<tr class="${res ? "deuda-resuelta" : ""}">
 <td><b>${esc(d.nombre)}</b></td>
 <td>${tel}</td>
-<td>${esc(fmtFecha(d.fecha))}${hora ? " · " + esc(hora) : ""}</td>
+<td>${esc(fechaCorta(d.fecha))}${hora ? " · " + esc(hora) : ""}</td>
 <td><b>${eur(d.importe)}</b></td>
 <td>${estado}</td>
 <td>${accion}<button type="button" class="btn-add danger" data-act="eliminar" data-id="${esc(d.id)}"><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar</button></td>
@@ -316,7 +312,7 @@ function dibujarLimpieza() {
         if (!l)
           return '<td class="limp-cell"><span class="limp-ko">Sin registro</span></td>';
         const venc = Date.now() - new Date(l.fecha_hora).getTime() > lim;
-        return `<td class="limp-cell"><span class="${venc ? "limp-ko" : "limp-ok"}">${esc(fmtFecha(fechaLocalISO(new Date(l.fecha_hora))))}</span><small>hace ${diasDesde(l.fecha_hora)} d · ${esc(l.empleado)}</small></td>`;
+        return `<td class="limp-cell"><span class="${venc ? "limp-ko" : "limp-ok"}">${esc(fechaCorta(fechaLocalISO(new Date(l.fecha_hora))))}</span><small>hace ${diasDesde(l.fecha_hora)} d · ${esc(l.empleado)}</small></td>`;
       }).join("");
       return `<tr><td><b>${esc(p)}</b></td>${celdas}</tr>`;
     })

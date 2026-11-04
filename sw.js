@@ -61,6 +61,7 @@ const PUBLICO = [
   "reservar.css",
   "reservar.js",
   "tienda.html",
+  "tienda.css",
   "tienda-publica.js",
   "privacidad.html",
   "aviso-legal.html",

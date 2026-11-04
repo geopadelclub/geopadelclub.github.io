@@ -12,10 +12,11 @@ const esc = (e) =>
           "'": "&#39;",
         })[e],
     ),
-  eur = (e) =>
+  eur = (e, short = false) =>
     (Number(e) || 0).toLocaleString("es-ES", {
       style: "currency",
       currency: "EUR",
+      ...(short ? { minimumFractionDigits: 0, maximumFractionDigits: 2 } : {}),
     }),
   redondear2 = (e) => Math.round((Number(e) || 0) * 100) / 100;
 function toast(e, t = "ok", n = 3500) {
@@ -510,4 +511,30 @@ function normalizarNombre(s) {
       (m, sep, letra) => sep + letra.toUpperCase(),
     );
   return t;
+}
+
+function timeToMin(tStr) {
+  const parts = String(tStr || "0:0").split(":");
+  return (parseInt(parts[0], 10) || 0) * 60 + (parseInt(parts[1], 10) || 0);
+}
+
+function minToTimeStr(min) {
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+function fechaCorta(iso) {
+  const [y, m, d] = String(iso || "")
+    .slice(0, 10)
+    .split("-");
+  return d ? `${d}/${m}/${y}` : "";
+}
+
+function duracionTxt(min) {
+  const n = Number(min) || 0;
+  if (!n) return "";
+  const h = Math.floor(n / 60);
+  const m = n % 60;
+  return h ? (m ? `${h} h ${m} min` : `${h} h`) : `${m} min`;
 }
