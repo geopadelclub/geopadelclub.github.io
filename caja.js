@@ -335,3 +335,174 @@ $("histCajaBody").addEventListener("click", (e) => {
 if (typeof window.accion === "function") {
   window.accion("cargar-historial-caja", () => cargarHistorialCaja());
 }
+
+async function imprimirInformeCaja() {
+  const desde = $("histCajaDesde")?.value;
+  const hasta = $("histCajaHasta")?.value;
+  if (!desde || !hasta) return toast("Selecciona un rango de fechas", "warn");
+  if (desde > hasta) return toast("El rango de fechas no es válido", "warn");
+
+  const btn = $("btnImprimirInformeCaja");
+  setBusy(
+    btn,
+    true,
+    '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Preparando...',
+  );
+
+  try {
+    const { data, error } = await supabaseClient.rpc("informe_caja", {
+      p_desde: desde,
+      p_hasta: hasta,
+    });
+    if (error) throw error;
+    if (!data || !data.ok) throw new Error("No se pudo cargar el informe");
+
+    const TIPO_LABELS = {
+      Bebidas: "Bebidas",
+      Comida: "Comida",
+      Tienda: "Tienda",
+      Pistas: "Pistas",
+      "Devolución Pistas": "Devoluciones pistas",
+      Bar: "Bar (histórico)",
+    };
+
+    const agrupado = {};
+    (data.ventas || []).forEach((v) => {
+      const label = TIPO_LABELS[v.tipo] || v.tipo || "Otros";
+      if (!agrupado[label]) agrupado[label] = { ef: 0, ta: 0 };
+      agrupado[label].ef += Number(v.efectivo) || 0;
+      agrupado[label].ta += Number(v.tarjeta) || 0;
+    });
+    const filasVentas = Object.entries(agrupado)
+      .filter(([, v]) => v.ef !== 0 || v.ta !== 0)
+      .sort((a, b) => b[1].ef + b[1].ta - (a[1].ef + a[1].ta));
+
+    const totales = data.totales || { efectivo: 0, tarjeta: 0, total: 0 };
+    const fechaGen = new Date().toLocaleString("es-ES", {
+      dateStyle: "short",
+      timeStyle: "short",
+    });
+
+    const htmlVentas =
+      filasVentas
+        .map(
+          ([label, v]) =>
+            `<tr>
+        <td><b>${esc(label)}</b></td>
+        <td class="r">${eur(v.ef)}</td>
+        <td class="r">${eur(v.ta)}</td>
+        <td class="r b">${eur(v.ef + v.ta)}</td>
+      </tr>`,
+        )
+        .join("") ||
+      '<tr><td colspan="4" class="tabla-empty">Sin ventas en este rango</td></tr>';
+
+    const htmlVentasTotal = `
+      <tr style="background:#f6f9f7;font-weight:bold;border-top:2px solid #444;">
+        <td>TOTAL</td>
+        <td class="r">${eur(totales.efectivo)}</td>
+        <td class="r">${eur(totales.tarjeta)}</td>
+        <td class="r">${eur(totales.total)}</td>
+      </tr>`;
+
+    const htmlCierres =
+      (data.cierres || [])
+        .map(
+          (c) =>
+            `<tr>
+        <td><b>${esc(c.fecha)}</b></td>
+        <td class="r">${eur(c.efectivo_sistema)}</td>
+        <td class="r">${eur(c.tarjeta)}</td>
+        <td class="r b">${eur(c.total)}</td>
+        <td class="r ${Math.abs(c.dif_efectivo) > 0.005 ? "limp-ko" : ""}">${c.dif_efectivo > 0 ? "+" : ""}${eur(c.dif_efectivo)}</td>
+        <td class="r ${Math.abs(c.dif_datafono) > 0.005 ? "limp-ko" : ""}">${c.dif_datafono > 0 ? "+" : ""}${eur(c.dif_datafono)}</td>
+        <td>${esc(c.cerrado_por)}</td>
+      </tr>`,
+        )
+        .join("") ||
+      '<tr><td colspan="7" class="tabla-empty">Sin cierres en este rango</td></tr>';
+
+    const html = `
+      <section class="fx-page">
+        <div class="fx-head">
+          <img src="./geopadel.webp" alt="Geopadel" width="150" height="150">
+          <div>
+            <h1>Informe de Caja</h1>
+            <p>Del ${esc(desde)} al ${esc(hasta)}</p>
+          </div>
+          <div class="fx-meta">
+            Geopadel<br>Impreso: ${esc(fechaGen)}
+          </div>
+        </div>
+
+        <h2>1. Desglose de ventas por tipo</h2>
+        <table class="fx-table">
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th class="r">Efectivo</th>
+              <th class="r">Tarjeta</th>
+              <th class="r">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${htmlVentas}
+            ${htmlVentasTotal}
+          </tbody>
+        </table>
+
+        <h2 style="margin-top:8mm;">2. Cierres de caja diarios</h2>
+        <table class="fx-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th class="r">Efectivo sis.</th>
+              <th class="r">Datáfono sis.</th>
+              <th class="r">Total</th>
+              <th class="r">Dif. efectivo</th>
+              <th class="r">Dif. datáfono</th>
+              <th>Cerrado por</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${htmlCierres}
+          </tbody>
+        </table>
+
+        <p class="fx-nota">
+          * Los descuadres en rojo indican una diferencia entre lo contado y lo registrado en el sistema.
+          Los totales de "Desglose de ventas" y "Cierres de caja" pueden variar si hay ventas de días sin cerrar o ajustes manuales.
+        </p>
+      </section>`;
+
+    const area = $("printArea");
+    area.innerHTML = html;
+
+    await Promise.all(
+      Array.from(area.querySelectorAll("img")).map((im) =>
+        im.complete
+          ? null
+          : new Promise((res) => {
+              im.onload = im.onerror = res;
+            }),
+      ),
+    );
+
+    window.print();
+  } catch (err) {
+    console.error(err);
+    toast("No se pudo preparar la impresión: " + (err.message || err), "err");
+  } finally {
+    setBusy(btn, false);
+  }
+}
+
+if ($("btnImprimirInformeCaja")) {
+  $("btnImprimirInformeCaja").addEventListener("click", imprimirInformeCaja);
+}
+window.addEventListener("afterprint", () => {
+  setTimeout(() => {
+    const a = $("printArea");
+    if (a) a.innerHTML = "";
+  }, 1000);
+});
