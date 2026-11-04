@@ -2143,14 +2143,28 @@ async function anadirEsperaManual(e) {
   );
   try {
     const horaNorm = hora.length === 5 ? hora + ":00" : hora;
-    const { error } = await supabaseClient.from("lista_espera").insert({
-      fecha,
-      hora: horaNorm,
-      duracion: dur,
-      telefono: tel,
-      estado: "pendiente",
-    });
+    const { data, error } = await supabaseClient.rpc(
+      "gp_lista_espera_insertar",
+      {
+        p_fecha: fecha,
+        p_hora: horaNorm,
+        p_duracion: dur,
+        p_telefono: tel,
+      },
+    );
     if (error) throw error;
+    if (!data || !data.ok) {
+      const t = {
+        sin_permiso: "No tienes permiso para añadir a la lista",
+        fecha_invalida: "La fecha no es válida",
+        hora_invalida: "La hora no es válida",
+        duracion_invalida: "La duración no es válida",
+        telefono_invalido: "El teléfono no es válido",
+      };
+      msg.style.color = "var(--red)";
+      msg.innerText = t[data && data.error] || "No se pudo añadir";
+      return;
+    }
     msg.style.color = "var(--green)";
     msg.innerText = "Añadido a la lista";
     $("espTelefono").value = "";
