@@ -5,6 +5,66 @@
   padding: 16px 14px 40px;
 }
 
+.cl-intro {
+  margin: 4px 2px 16px;
+}
+
+.cl-intro h1 {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--heading);
+  line-height: 1.15;
+}
+
+.cl-intro p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cl-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 24px 8px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cl-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--blue);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.tienda-footer {
+  text-align: center;
+  padding: 24px;
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.tienda-footer a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.tienda-footer a:hover {
+  color: var(--primary);
+}
+
 .tienda-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
