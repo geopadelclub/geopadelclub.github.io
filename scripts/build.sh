@@ -15,7 +15,7 @@ for t in terser cleancss html-minifier-terser; do
   fi
 done
 
-EXCLUDE_PATTERN='^(assets|node_modules|\.git|\.github)/|^(sw|bump-sw|copia-worker|copia-zip)\.js$|\.min\.(js|css)$'
+EXCLUDE_PATTERN='^(assets|node_modules|\.git|\.github|tests)/|^(sw|bump-sw|copia-worker|copia-zip)\.js$|\.min\.(js|css)$'
 
 echo "→ Minificando JS..."
 git ls-files -z '*.js' \

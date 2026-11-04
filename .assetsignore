@@ -3,6 +3,8 @@
 .wrangler
 node_modules
 scripts
+tests/
+*.test.js
 package.json
 package-lock.json
 wrangler.toml
