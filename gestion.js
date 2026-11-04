@@ -58,7 +58,7 @@ function dibujarDeudas() {
   const tb = $("deudasBody");
   if (!tb) return;
   const filtro = $("deudaFiltro")?.value || "Pendiente";
-  const q = $("deudaBuscar").value.toLowerCase().trim();
+  const q = ($("deudaBuscar")?.value || "").toLowerCase().trim();
   const lista = deudas.filter((d) => {
     if (filtro === "Pendiente" && d.estado === "Resuelta") return false;
     if (filtro === "Resuelta" && d.estado !== "Resuelta") return false;
