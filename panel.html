@@ -734,12 +734,28 @@
                   <i class="ri-file-list-3-line" aria-hidden="true"></i
                   >Historial de cierres de caja
                 </h3>
-                <input
-                  type="month"
-                  id="histCajaMes"
-                  class="date-picker-input"
-                  aria-label="Mes del historial de cierres"
-                />
+                <div class="date-range-group">
+                  <label
+                    >Desde
+                    <input
+                      type="date"
+                      id="histCajaDesde"
+                      class="date-picker-input"
+                      aria-label="Desde"
+                      data-onchange="cargar-historial-caja"
+                    />
+                  </label>
+                  <label
+                    >Hasta
+                    <input
+                      type="date"
+                      id="histCajaHasta"
+                      class="date-picker-input"
+                      aria-label="Hasta"
+                      data-onchange="cargar-historial-caja"
+                    />
+                  </label>
+                </div>
               </div>
               <div class="table-wrap">
                 <table class="tabla-productos" style="min-width: 680px">
@@ -758,6 +774,49 @@
                   <tbody id="histCajaBody">
                     <tr>
                       <td colspan="8" class="tabla-empty">—</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card" id="cardInformeTipos">
+              <h3>
+                <i class="ri-pie-chart-line" aria-hidden="true"></i>Desglose del
+                periodo
+              </h3>
+              <p class="limp-leyenda">
+                Totales por tipo de venta entre las fechas seleccionadas arriba.
+              </p>
+              <div class="kpi-row">
+                <div class="kpi ef">
+                  <span>Efectivo</span>
+                  <p id="informeTotalEfectivo" class="kpi-value">0,00 €</p>
+                </div>
+                <div class="kpi ta">
+                  <span>Tarjeta</span>
+                  <p id="informeTotalTarjeta" class="kpi-value">0,00 €</p>
+                </div>
+                <div class="kpi">
+                  <span>Total general</span>
+                  <p id="informeTotalGeneral" class="kpi-value">0,00 €</p>
+                </div>
+              </div>
+              <div class="table-wrap mt-14">
+                <table class="tabla-productos" style="min-width: 480px">
+                  <thead>
+                    <tr>
+                      <th>Tipo</th>
+                      <th>Efectivo</th>
+                      <th>Tarjeta</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody id="informeTiposBody">
+                    <tr>
+                      <td colspan="4" class="tabla-empty">
+                        Elige un rango de fechas
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -975,6 +1034,12 @@
                 /></label>
               </div>
               <div id="facBloqueCliente" class="fac-grid">
+                <label class="fac-span2"
+                  >Cliente guardado
+                  <select id="facClienteGuardado" class="fac-cliente-guardado">
+                    <option value="">— Nuevo cliente —</option>
+                  </select>
+                </label>
                 <label
                   >Cliente<input
                     id="facClienteNombre"
@@ -1002,6 +1067,16 @@
                     type="text"
                     maxlength="180"
                 /></label>
+                <div class="fac-span2 flex-end">
+                  <button
+                    type="button"
+                    class="btn-add gray"
+                    id="facGuardarCliente"
+                  >
+                    <i class="ri-save-line" aria-hidden="true"></i>Guardar como
+                    habitual
+                  </button>
+                </div>
               </div>
               <div id="facBloqueEmpleado" class="fac-grid">
                 <label

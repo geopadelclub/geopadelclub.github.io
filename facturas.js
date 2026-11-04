@@ -2,7 +2,8 @@
 let facConfig = null,
   facLista = [],
   facCargando = !1,
-  facRectificando = null;
+  facRectificando = null,
+  facClientesGuardados = [];
 const facFecha = (e) => {
     const [t, n, r] = String(e || "")
       .slice(0, 10)
@@ -198,6 +199,8 @@ function limpiarFormFactura() {
     "facMotivoRectificacion",
   ].forEach((e) => facSet(e, ""));
   facSet("facEmpleado", nombreEmpleadoActual());
+  const sel = $("facClienteGuardado");
+  if (sel) sel.value = "";
   const e = $("facLineas");
   if (e) e.innerHTML = "";
   agregarLineaFactura();
@@ -216,6 +219,8 @@ function prepararRectificativa(e) {
   facSet("facTipo", "Factura");
   facSet("facClienteNombre", t.cliente_nombre || "");
   facSet("facClienteNif", t.cliente_nif || "");
+  const selGuardado = $("facClienteGuardado");
+  if (selGuardado) selGuardado.value = "";
   facSet("facFecha", fechaLocalISO());
   facActualizarCamposPorTipo();
   facSet("facFacturaOriginal", t.numero);
@@ -547,7 +552,7 @@ async function entrarFacturas() {
   if (!facConfig) await cargarConfigFacturas();
   iniciarFormFactura();
   facActualizarModoRectificativa();
-  await cargarFacturas();
+  await Promise.all([cargarFacturas(), cargarClientesFacturacion()]);
   if (navigator.usb && !usbDevice) await conectarImpresoraUSB(!0);
 }
 async function entrarFacturasConfig() {
@@ -816,3 +821,91 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   window.addEventListener("focus", _reintentarConexionUSB);
 });
+
+async function cargarClientesFacturacion() {
+  const sel = $("facClienteGuardado");
+  if (!sel) return;
+  try {
+    const { data, error } = await supabaseClient
+      .from("clientes_facturacion")
+      .select("id,nombre,nif,direccion,cp,ciudad,provincia,email,telefono")
+      .order("nombre");
+    if (error) throw error;
+    facClientesGuardados = data || [];
+    const actual = sel.value;
+    sel.innerHTML =
+      '<option value="">— Nuevo cliente —</option>' +
+      facClientesGuardados
+        .map(
+          (c) =>
+            `<option value="${esc(c.id)}">${esc(c.nombre)} · ${esc(c.nif)}</option>`,
+        )
+        .join("");
+    sel.value = actual;
+  } catch (e) {
+    console.error("cargarClientesFacturacion", e);
+  }
+}
+
+function aplicarClienteGuardado() {
+  const sel = $("facClienteGuardado");
+  if (!sel || !sel.value) return;
+  const c = facClientesGuardados.find(
+    (x) => String(x.id) === String(sel.value),
+  );
+  if (!c) return;
+  facSet("facClienteNombre", c.nombre);
+  facSet("facClienteNif", c.nif);
+  facSet("facClienteDireccion", c.direccion);
+  facSet("facClienteEmail", c.email);
+  facSet("facClienteTelefono", c.telefono);
+}
+
+async function guardarClienteActualComoHabitual() {
+  const nombre = facVal("facClienteNombre");
+  const nif = facVal("facClienteNif");
+  if (!nombre || !nif) {
+    toast("Rellena el nombre y el NIF antes de guardar", "warn");
+    return;
+  }
+  const btn = $("facGuardarCliente");
+  setBusy(
+    btn,
+    true,
+    '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Guardando...',
+  );
+  try {
+    const { data, error } = await supabaseClient.rpc(
+      "gp_guardar_cliente_facturacion",
+      {
+        p_nombre: nombre,
+        p_nif: nif,
+        p_direccion: facVal("facClienteDireccion"),
+        p_email: facVal("facClienteEmail"),
+        p_telefono: facVal("facClienteTelefono"),
+      },
+    );
+    if (error) throw error;
+    if (!data || !data.ok)
+      throw new Error((data && data.error) || "No se pudo guardar");
+    toast("Cliente guardado para futuras facturas");
+    await cargarClientesFacturacion();
+    const sel = $("facClienteGuardado");
+    if (sel && data.id != null) sel.value = String(data.id);
+  } catch (e) {
+    console.error(e);
+    toast("No se pudo guardar: " + (e.message || e), "err");
+  } finally {
+    setBusy(btn, false);
+  }
+}
+
+if ($("facClienteGuardado")) {
+  $("facClienteGuardado").addEventListener("change", aplicarClienteGuardado);
+}
+if ($("facGuardarCliente")) {
+  $("facGuardarCliente").addEventListener(
+    "click",
+    guardarClienteActualComoHabitual,
+  );
+}

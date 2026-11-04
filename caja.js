@@ -161,42 +161,125 @@ async function cerrarCajaHoy() {
 }
 async function cargarHistorialCaja() {
   const tb = $("histCajaBody");
-  const mesInput = $("histCajaMes");
+  const tiposBody = $("informeTiposBody");
+  const desdeInput = $("histCajaDesde");
+  const hastaInput = $("histCajaHasta");
+  if (!tb || !desdeInput || !hastaInput) return;
+
   const hoy = new Date();
-  const mesPorDefecto = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}`;
-  const mes = (mesInput && mesInput.value) || mesPorDefecto;
-  const [y, m] = mes.split("-").map(Number);
-  const desde = `${y}-${String(m).padStart(2, "0")}-01`;
-  const ultimoDia = new Date(y, m, 0).getDate();
-  const hasta = `${y}-${String(m).padStart(2, "0")}-${String(ultimoDia).padStart(2, "0")}`;
-  const { data, error } = await supabaseClient
-    .from("cierres")
-    .select(
-      "fecha, efectivo_sistema, tarjeta, total, dif_efectivo, dif_datafono, cerrado_por",
-    )
-    .gte("fecha", desde)
-    .lte("fecha", hasta)
-    .order("fecha", { ascending: false });
-  if (error) {
-    tb.innerHTML = `<tr><td colspan="8" class="tabla-empty" style="color:var(--red)">Error: ${esc(error.message)}</td></tr>`;
+  const primerDiaMes = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-01`;
+  if (!desdeInput.value) desdeInput.value = primerDiaMes;
+  if (!hastaInput.value) hastaInput.value = fechaLocalISO();
+
+  const desde = desdeInput.value;
+  const hasta = hastaInput.value;
+
+  if (desde > hasta) {
+    tb.innerHTML =
+      '<tr><td colspan="8" class="tabla-empty" style="color:var(--red)">La fecha "Desde" no puede ser posterior a la fecha "Hasta"</td></tr>';
+    if (tiposBody)
+      tiposBody.innerHTML =
+        '<tr><td colspan="4" class="tabla-empty" style="color:var(--red)">Revisa el rango de fechas</td></tr>';
     return;
   }
+
+  tb.innerHTML = '<tr><td colspan="8" class="tabla-empty">Cargando…</td></tr>';
+  if (tiposBody)
+    tiposBody.innerHTML =
+      '<tr><td colspan="4" class="tabla-empty">Cargando…</td></tr>';
+
+  const { data, error } = await supabaseClient.rpc("informe_caja", {
+    p_desde: desde,
+    p_hasta: hasta,
+  });
+
+  if (error) {
+    console.error(error);
+    tb.innerHTML = `<tr><td colspan="8" class="tabla-empty" style="color:var(--red)">Error: ${esc(error.message)}</td></tr>`;
+    if (tiposBody)
+      tiposBody.innerHTML = `<tr><td colspan="4" class="tabla-empty" style="color:var(--red)">Error al cargar</td></tr>`;
+    return;
+  }
+  if (!data || !data.ok) {
+    tb.innerHTML =
+      '<tr><td colspan="8" class="tabla-empty" style="color:var(--red)">No se pudo cargar el informe</td></tr>';
+    if (tiposBody)
+      tiposBody.innerHTML =
+        '<tr><td colspan="4" class="tabla-empty" style="color:var(--red)">No se pudo cargar el desglose</td></tr>';
+    return;
+  }
+
+  const adm = esJefa();
   const dif = (n) => {
     const x = Number(n) || 0;
     return `<b class="${Math.abs(x) < 0.005 ? "dif-ok" : "dif-ko"}">${x > 0 ? "+" : ""}${eur(x)}</b>`;
   };
-  const adm = esJefa();
   tb.innerHTML =
-    (data || [])
+    (data.cierres || [])
       .map(
         (d) => `<tr>
-<td><b>${esc(d.fecha)}</b></td><td>${eur(d.efectivo_sistema)}</td><td>${eur(d.tarjeta)}</td>
-<td><b>${eur(d.total)}</b></td><td>${dif(d.dif_efectivo)}</td><td>${dif(d.dif_datafono)}</td>
+<td><b>${esc(d.fecha)}</b></td>
+<td>${eur(d.efectivo_sistema)}</td>
+<td>${eur(d.tarjeta)}</td>
+<td><b>${eur(d.total)}</b></td>
+<td>${dif(d.dif_efectivo)}</td>
+<td>${dif(d.dif_datafono)}</td>
 <td><i class="ri-lock-line" aria-hidden="true"></i>${esc(d.cerrado_por)}</td>
-<td>${adm ? `<button type="button" class="btn-add gray" data-reabrir="${esc(d.fecha)}"><i class="ri-lock-unlock-line" aria-hidden="true"></i>Reabrir</button>` : ""}</td></tr>`,
+<td>${adm ? `<button type="button" class="btn-add gray" data-reabrir="${esc(d.fecha)}"><i class="ri-lock-unlock-line" aria-hidden="true"></i>Reabrir</button>` : ""}</td>
+</tr>`,
       )
       .join("") ||
-    '<tr><td colspan="8" class="tabla-empty">Sin cierres este mes</td></tr>';
+    '<tr><td colspan="8" class="tabla-empty">Sin cierres en este rango</td></tr>';
+
+  const TIPO_LABELS = {
+    Bebidas: "Bebidas",
+    Comida: "Comida",
+    Tienda: "Tienda",
+    Pistas: "Pistas",
+    "Devolución Pistas": "Devoluciones de pistas",
+    Bar: "Bar (histórico)",
+  };
+  const agrupado = {};
+  (data.ventas || []).forEach((v) => {
+    const label = TIPO_LABELS[v.tipo] || v.tipo || "Otros";
+    if (!agrupado[label]) agrupado[label] = { efectivo: 0, tarjeta: 0 };
+    agrupado[label].efectivo += Number(v.efectivo) || 0;
+    agrupado[label].tarjeta += Number(v.tarjeta) || 0;
+  });
+  const totales = data.totales || { efectivo: 0, tarjeta: 0, total: 0 };
+
+  const elEf = $("informeTotalEfectivo");
+  const elTa = $("informeTotalTarjeta");
+  const elTo = $("informeTotalGeneral");
+  if (elEf) elEf.innerText = eur(totales.efectivo);
+  if (elTa) elTa.innerText = eur(totales.tarjeta);
+  if (elTo) elTo.innerText = eur(totales.total);
+
+  if (tiposBody) {
+    const filas = Object.entries(agrupado)
+      .filter(([, v]) => v.efectivo !== 0 || v.tarjeta !== 0)
+      .sort(
+        (a, b) => b[1].efectivo + b[1].tarjeta - (a[1].efectivo + a[1].tarjeta),
+      );
+    tiposBody.innerHTML = filas.length
+      ? filas
+          .map(
+            ([label, v]) => `<tr>
+<td><b>${esc(label)}</b></td>
+<td>${eur(v.efectivo)}</td>
+<td>${eur(v.tarjeta)}</td>
+<td><b>${eur(v.efectivo + v.tarjeta)}</b></td>
+</tr>`,
+          )
+          .join("") +
+        `<tr class="fila-total">
+<td><b>TOTAL</b></td>
+<td><b>${eur(totales.efectivo)}</b></td>
+<td><b>${eur(totales.tarjeta)}</b></td>
+<td><b>${eur(totales.total)}</b></td>
+</tr>`
+      : '<tr><td colspan="4" class="tabla-empty">Sin ventas en este rango</td></tr>';
+  }
 }
 async function reabrirCierre(fecha, btn) {
   if (!esJefa()) return toast("Solo la jefa puede reabrir una caja", "err");
@@ -236,11 +319,12 @@ function alCambiarFechaCaja() {
 function entrarCaja() {
   const inp = $("cajaFecha");
   if (inp && !inp.value) inp.value = fechaLocalISO();
-  const mesInput = $("histCajaMes");
-  if (mesInput && !mesInput.value) {
-    const d = new Date();
-    mesInput.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-  }
+  const desde = $("histCajaDesde");
+  const hasta = $("histCajaHasta");
+  const hoy = new Date();
+  if (desde && !desde.value)
+    desde.value = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-01`;
+  if (hasta && !hasta.value) hasta.value = fechaLocalISO();
   cargarCajaHoy();
   cargarHistorialCaja();
 }
@@ -248,6 +332,6 @@ $("histCajaBody").addEventListener("click", (e) => {
   const b = e.target.closest("button[data-reabrir]");
   if (b) reabrirCierre(b.dataset.reabrir, b);
 });
-if ($("histCajaMes")) {
-  $("histCajaMes").addEventListener("change", cargarHistorialCaja);
+if (typeof window.accion === "function") {
+  window.accion("cargar-historial-caja", () => cargarHistorialCaja());
 }
