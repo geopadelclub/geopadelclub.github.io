@@ -141,7 +141,7 @@ function agregarLineaFactura(e = "", t = 1, n = 0) {
   const i = document.createElement("div");
   i.className = "fac-linea";
   i.dataset.linea = "1";
-  i.innerHTML = `<label>Concepto<input class="fac-concepto" type="text" maxlength="160" value="${esc(e)}"></label><label>Cantidad<input class="fac-cantidad" type="number" min="0.01" step="0.01" value="${esc(t)}"></label><label>Precio IVA inc.<input class="fac-precio" type="number" min="0" step="0.01" value="${esc(n)}"></label><div class="fac-linea-total"><span>Total</span><b>0,00 €</b></div><button type="button" class="btn-add danger" data-fac-quitar aria-label="Quitar línea"><i class="ri-close-line" aria-hidden="true"></i></button>`;
+  i.innerHTML = `<label>Concepto<input class="fac-concepto" type="text" maxlength="160" value="${esc(e)}"></label><label>Cantidad<input class="fac-cantidad" type="number" inputmode="decimal" min="0.01" step="0.01" value="${esc(t)}"></label><label>Precio IVA inc.<input class="fac-precio" type="number" inputmode="decimal" min="0" step="0.01" value="${esc(n)}"></label><div class="fac-linea-total"><span>Total</span><b>0,00 €</b></div><button type="button" class="btn-add danger" data-fac-quitar aria-label="Quitar línea"><i class="ri-close-line" aria-hidden="true"></i></button>`;
   r.appendChild(i);
   actualizarTotalesFactura();
 }
