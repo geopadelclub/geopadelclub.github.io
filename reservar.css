@@ -181,6 +181,7 @@
   margin-bottom: 4px;
   scrollbar-width: thin;
   scrollbar-color: var(--border-strong) transparent;
+  min-height: 76px;
 }
 
 .cl-days::-webkit-scrollbar {
