@@ -236,7 +236,7 @@ async function cargarHistorialCaja() {
     Comida: "Comida",
     Tienda: "Tienda",
     Pistas: "Pistas",
-    "Devolución Pistas": "Devoluciones de pistas",
+    "Devolución Pistas": "Pistas",
     Bar: "Bar (histórico)",
   };
   const agrupado = {};
@@ -362,7 +362,7 @@ async function imprimirInformeCaja() {
       Comida: "Comida",
       Tienda: "Tienda",
       Pistas: "Pistas",
-      "Devolución Pistas": "Devoluciones pistas",
+      "Devolución Pistas": "Pistas",
       Bar: "Bar (histórico)",
     };
 
