@@ -39,12 +39,16 @@ function getFondoCaja() {
 function calcularCierre(bil, mon, efSistema) {
   const FONDO_CAJA = getFondoCaja();
   const efContado = redondear2(bil + mon);
+  const idealBilletes = FONDO_CAJA - mon;
+  const billetesRedondeados = Math.round(idealBilletes / 5) * 5;
+
   const dejarBilletes = redondear2(
-    Math.max(0, Math.min(bil, FONDO_CAJA - mon)),
+    Math.max(0, Math.min(bil, billetesRedondeados)),
   );
   const sobre = redondear2(bil - dejarBilletes);
   const cajaFinal = redondear2(mon + dejarBilletes);
   const esperado = redondear2(efSistema + FONDO_CAJA);
+
   return {
     efContado,
     dejarBilletes,
@@ -73,7 +77,7 @@ function calcCierre() {
   const partes = [
     `<span>Efectivo esperado (sistema ${eur(c.totalEfectivo)} + fondo ${eur(FONDO_CAJA)}) ${eur(r.esperado)} · ${f(r.dE)}</span>`,
     `<span>Datáfono en sistema ${eur(c.totalTarjeta)} · ${f(dD)}</span>`,
-    `<span><b>Guardar en el sobre: ${eur(r.sobre)}</b> (solo billetes; las monedas se quedan)</span>`,
+    `<span style="background:var(--surface-3); padding:6px 10px; border-radius:6px; margin-top:6px; display:inline-block;"><b>💵 Saca al sobre: ${eur(r.sobre)} en billetes</b> (las monedas se quedan en el cajón)</span>`,
     `<span>Quedan en caja: <b>${eur(r.cajaFinal)}</b> (${eur(v("cjMonedas"))} en monedas + ${eur(r.dejarBilletes)} en billetes)</span>`,
   ];
   if (r.faltaFondo > 0)
