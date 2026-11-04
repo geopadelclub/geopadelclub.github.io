@@ -23,7 +23,7 @@
         <span data-i18n="wa.desc">Recibe avisos de huecos libres y novedades del club.</span>
       </div>
       <a href="${url}" target="_blank" rel="noopener noreferrer" class="gp-wa-cta" data-i18n="wa.cta">Unirme</a>
-      <button type="button" class="gp-wa-close" aria-label="Cerrar"><i class="ri-close-line" aria-hidden="true"></i></button>
+      <button type="button" class="gp-wa-close" aria-label="Cerrar" data-i18n-aria="tienda.cerrar"><i class="ri-close-line" aria-hidden="true"></i></button>
     `;
 
     const header = document.querySelector("header");

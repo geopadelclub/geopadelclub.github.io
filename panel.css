@@ -1775,14 +1775,6 @@ tr.deuda-resuelta td {
   color: var(--muted);
 }
 
-.res-kpi-blue {
-  border-left: 4px solid var(--blue-btn);
-}
-
-.res-kpi-blue span i {
-  color: var(--blue-btn);
-}
-
 .res-kpi-green {
   border-left: 4px solid var(--green);
 }
@@ -2376,7 +2368,6 @@ tr.deuda-resuelta td {
   opacity: 0.5;
 }
 
-.cl-res,
 .tabla-productos tr {
   content-visibility: auto;
   contain-intrinsic-size: 50px;

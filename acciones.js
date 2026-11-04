@@ -61,10 +61,6 @@
     "dibujar-deudas",
     () => typeof dibujarDeudas === "function" && dibujarDeudas(),
   );
-  A(
-    "cargar-deudas",
-    () => typeof cargarDeudas === "function" && cargarDeudas(),
-  );
   A("cerrar-modal", () => typeof cerrarModal === "function" && cerrarModal());
   A(
     "guardar-reserva",

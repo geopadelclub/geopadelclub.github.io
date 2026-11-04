@@ -285,9 +285,6 @@ function detenerVigilanciaSesion() {
   }
   _avisoSesionActivo = false;
 }
-function inicializarFechaHoy() {
-  $("fechaCuadrante").value = fechaLocalISO();
-}
 function obtenerCierreMin(iso) {
   const dateIso =
     iso || ($("fechaCuadrante") ? $("fechaCuadrante").value : fechaLocalISO());
@@ -304,13 +301,6 @@ function debounce(fn, ms) {
     clearTimeout(t);
     t = setTimeout(() => fn(...a), ms);
   };
-}
-function rangoDiaISO(iso) {
-  const [y, m, d] = iso.split("-").map(Number);
-  return [
-    new Date(y, m - 1, d, 0, 0, 0).toISOString(),
-    new Date(y, m - 1, d + 1, 0, 0, 0).toISOString(),
-  ];
 }
 function timeToMin(tStr) {
   const parts = String(tStr || "0:0").split(":");

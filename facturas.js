@@ -41,12 +41,13 @@ function facConfigIds() {
   ];
 }
 function facAplicarPermisosConfig() {
+  const esBoss = typeof esJefa === "function" && esJefa();
   facConfigIds().forEach((e) => {
     const t = $(e);
-    if (t) t.disabled = !1;
+    if (t) t.disabled = !esBoss;
   });
   const e = $("facCfgGuardar");
-  if (e) e.disabled = !1;
+  if (e) e.disabled = !esBoss;
 }
 async function cargarConfigFacturas() {
   if (!supabaseClient) return null;
