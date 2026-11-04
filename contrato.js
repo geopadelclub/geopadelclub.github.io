@@ -87,7 +87,7 @@ function ctResumenHtml(e) {
       return `<tr><td><b>${esc(n)}</b></td><td>${esc(i)}</td></tr>`;
     }).join(""),
     n = new Date(e.created_at);
-  return `<p style="font-size:15px;font-weight:700;color:var(--heading);margin-bottom:6px">${esc(ctNum(e.horas_semanales))} h semanales</p>\n<p class="limp-leyenda">Declarado el ${esc(isNaN(n.getTime()) ? "" : n.toLocaleDateString("es-ES"))}${e.vigente_desde ? " · vigente desde " + esc(fmtFecha(e.vigente_desde)) : ""}</p>\n${e.notas ? `<p class="limp-leyenda">Nota: ${esc(e.notas)}</p>` : ""}\n<div class="table-wrap"><table class="tabla-productos" style="min-width:260px"><tbody>${t}</tbody></table></div>`;
+  return `<p style="font-size:15px;font-weight:700;color:var(--heading);margin-bottom:6px">${esc(ctNum(e.horas_semanales))} h semanales</p>\n<p class="limp-leyenda">Declarado el ${esc(isNaN(n.getTime()) ? "" : n.toLocaleDateString("es-ES"))}${e.vigente_desde ? " · vigente desde " + esc(fechaCorta(e.vigente_desde)) : ""}</p>\n${e.notas ? `<p class="limp-leyenda">Nota: ${esc(e.notas)}</p>` : ""}\n<div class="table-wrap"><table class="tabla-productos" style="min-width:260px"><tbody>${t}</tbody></table></div>`;
 }
 async function dibujarContratoResumen() {
   const e = $("contratoResumen");
