@@ -616,15 +616,31 @@
                           >Tarjeta
                         </button>
                       </div>
-                      <button
-                        type="button"
-                        id="btnJustificante"
-                        class="btn-pay btn-justificante"
-                        data-action="emitir-justificante-tpv"
-                      >
-                        <i class="ri-receipt-line" aria-hidden="true"></i>Emitir
-                        justificante 80mm
-                      </button>
+                      <div class="tpv-imp-row">
+                        <button
+                          type="button"
+                          id="btnJustificante"
+                          class="btn-pay btn-justificante"
+                          data-action="emitir-justificante-tpv"
+                        >
+                          <i class="ri-receipt-line" aria-hidden="true"></i
+                          >Emitir justificante 80mm
+                        </button>
+                        <button
+                          type="button"
+                          id="btnConectarImpresoraTPV"
+                          class="btn-pay btn-conectar-imp"
+                          data-action="conectar-impresora"
+                          title="Conectar impresora térmica"
+                          aria-label="Conectar impresora térmica"
+                        >
+                          <i class="ri-usb-line" aria-hidden="true"></i>
+                        </button>
+                      </div>
+                      <span id="estadoImpresoraTPV" class="imp-badge imp-ko">
+                        <i class="ri-usb-off-line" aria-hidden="true"></i>USB
+                        desconectada
+                      </span>
                       <div id="msgVenta" class="msg-inline text-center"></div>
                     </div>
                   </div>
@@ -1201,6 +1217,10 @@
                 >
                   <i class="ri-usb-line" aria-hidden="true"></i>
                 </button>
+                <span id="estadoImpresora" class="imp-badge imp-ko">
+                  <i class="ri-usb-off-line" aria-hidden="true"></i>USB
+                  desconectada
+                </span>
               </div>
               <div id="msgFactura" class="msg-inline"></div>
             </div>
@@ -1788,7 +1808,7 @@
             </button>
             <div id="msgTarifas" class="msg-inline"></div>
           </div>
-          <div class="card">
+          <div class="card" id="cardCatalogo">
             <div class="card-head">
               <h3>
                 <i class="ri-store-2-line" aria-hidden="true"></i>Catálogo

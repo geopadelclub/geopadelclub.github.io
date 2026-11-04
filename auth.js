@@ -237,18 +237,70 @@ async function mostrarPanelAdmin() {
 }
 
 function aplicarPermisosRol() {
-  if (!esEntrenador()) return;
-  document.querySelectorAll(".nav-tab").forEach((btn) => {
-    const tab = btn.dataset.tab;
-    if (tab !== "reservas") btn.style.display = "none";
-  });
+  const todosNavTabs = document.querySelectorAll(".nav-tab");
   const cardEspera = $("cardListaEspera");
-  if (cardEspera) cardEspera.style.display = "none";
   const cardBloqueos = $("cardBloqueos");
-  if (cardBloqueos) cardBloqueos.style.display = "none";
   const btnImprimir = $("btnImprimir");
-  if (btnImprimir) btnImprimir.style.display = "none";
-  cambiarPestana("reservas");
+  const subnavCaja = $("subnav-caja");
+  const cardCatalogo = $("cardCatalogo");
+  const btnTar = $("btnGuardarTarifas");
+  const tarifaIds = [
+    "tarSemMan60",
+    "tarSemMan",
+    "tarSemMan120",
+    "tarSemTar60",
+    "tarSemTar",
+    "tarSemTar120",
+    "tarFinde60",
+    "tarFinde",
+    "tarFinde120",
+    "tarEntreno60",
+  ];
+
+  if (esEntrenador()) {
+    todosNavTabs.forEach((btn) => {
+      btn.style.display = btn.dataset.tab !== "reservas" ? "none" : "";
+    });
+    if (cardEspera) cardEspera.style.display = "none";
+    if (cardBloqueos) cardBloqueos.style.display = "none";
+    if (btnImprimir) btnImprimir.style.display = "none";
+    if (subnavCaja) subnavCaja.style.display = "";
+    if (cardCatalogo) cardCatalogo.style.display = "";
+    if (btnTar) btnTar.style.display = "";
+    tarifaIds.forEach((id) => {
+      const el = $(id);
+      if (el) el.disabled = false;
+    });
+    cambiarPestana("reservas");
+    return;
+  }
+
+  if (esTrabajador()) {
+    todosNavTabs.forEach((btn) => (btn.style.display = ""));
+    if (cardEspera) cardEspera.style.display = "";
+    if (cardBloqueos) cardBloqueos.style.display = "";
+    if (btnImprimir) btnImprimir.style.display = "";
+    if (subnavCaja) subnavCaja.style.display = "none";
+    if (cardCatalogo) cardCatalogo.style.display = "none";
+    if (btnTar) btnTar.style.display = "none";
+    tarifaIds.forEach((id) => {
+      const el = $(id);
+      if (el) el.disabled = true;
+    });
+    return;
+  }
+
+  todosNavTabs.forEach((btn) => (btn.style.display = ""));
+  if (cardEspera) cardEspera.style.display = "";
+  if (cardBloqueos) cardBloqueos.style.display = "";
+  if (btnImprimir) btnImprimir.style.display = "";
+  if (subnavCaja) subnavCaja.style.display = "";
+  if (cardCatalogo) cardCatalogo.style.display = "";
+  if (btnTar) btnTar.style.display = "";
+  tarifaIds.forEach((id) => {
+    const el = $(id);
+    if (el) el.disabled = false;
+  });
 }
 let loginEnCurso = !1;
 $("loginForm").addEventListener("submit", async function (e) {
@@ -665,7 +717,7 @@ async function cargarMisFichajes() {
       ? iso || "-"
       : d.toLocaleString("es-ES", { dateStyle: "short", timeStyle: "medium" });
   };
-  ultimoFichaje = { tipo: filas[0].tipo };
+  ultimoFichaje = { tipo: filas[0].tipo, created_at: filas[0].created_at };
   $("estadoFichaje").innerText =
     `Último fichaje: ${filas[0].tipo} · ${fmt(filas[0].created_at)}`;
   tb.innerHTML = filas

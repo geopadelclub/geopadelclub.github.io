@@ -53,6 +53,10 @@ if ($("tarEntreno60")) {
   $("tarEntreno60").addEventListener("input", actualizarEntrenoAuto);
 }
 async function guardarTarifasUI() {
+  if (!(typeof esJefa === "function" && esJefa())) {
+    toast("No tienes permiso para modificar tarifas", "err");
+    return;
+  }
   const msg = $("msgTarifas"),
     btn = $("btnGuardarTarifas");
   const opcional = (id) => {

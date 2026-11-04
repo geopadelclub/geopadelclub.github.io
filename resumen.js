@@ -1,6 +1,13 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
 async function entrarResumen() {
   if (!usuarioSesion) return;
+  if (!esJefa() && typeof cargarMisFichajes === "function") {
+    try {
+      await cargarMisFichajes();
+    } catch (e) {
+      console.error(e);
+    }
+  }
   dibujarResumen();
   try {
     if (!limpiezas.length) await cargarLimpiezas(false);
@@ -63,11 +70,37 @@ function dibujarResumen() {
       })
       .join("");
   else m = '<li class="res-agenda-vacia">No hay más reservas para hoy.</li>';
-  const h = typeof esJefa === "function" && !esJefa(),
-    f = h
-      ? '<button type="button" class="res-accion" data-ir="fichajes"><i class="ri-time-line" aria-hidden="true"></i><span>Fichar</span></button>'
-      : "";
-  e.innerHTML = `<div class="res-bienvenida"><div><h2>${resumenSaludo()}, ${esc(n)}</h2><p>${esc(u)} · Aquí tienes el resumen del día.</p></div></div><div class="res-kpis"><div class="res-kpi res-kpi-green"><span><i class="ri-money-euro-circle-line" aria-hidden="true"></i>Ingresos hoy</span><h3>${eur(r.totalGeneral)}</h3><small>${eur(r.totalEfectivo)} efectivo · ${eur(r.totalTarjeta)} tarjeta</small></div><div class="res-kpi res-kpi-red"><span><i class="ri-wallet-3-line" aria-hidden="true"></i>Deudas pendientes</span><h3>${eur(l)}</h3><small>${s.length} ${s.length === 1 ? "cliente" : "clientes"}</small></div><div class="res-kpi res-kpi-amber"><span><i class="ri-brush-line" aria-hidden="true"></i>Limpiezas</span><h3>${c.length}</h3><small>${d === 0 ? "Todo al día" : `${d} ${d === 1 ? "tarea pendiente" : "tareas pendientes"}`}</small></div></div>${p ? `<div class="res-alertas">${p}</div>` : ""}<div class="res-acciones"><h3><i class="ri-flashlight-line" aria-hidden="true"></i>Acciones rápidas</h3><div class="res-acciones-grid"><button type="button" class="res-accion" data-ir="nueva-reserva"><i class="ri-add-line" aria-hidden="true"></i><span>Nueva reserva</span></button><button type="button" class="res-accion" data-ir="tienda"><i class="ri-goblet-line" aria-hidden="true"></i><span>Abrir bar</span></button><button type="button" class="res-accion" data-ir="caja"><i class="ri-lock-line" aria-hidden="true"></i><span>Cerrar caja</span></button><a href="guia.html" target="_blank" rel="noopener" class="res-accion" style="text-decoration: none"><i class="ri-book-open-line" aria-hidden="true"></i><span>Ver guía</span></a>${f}</div></div><div class="res-agenda"><h3><i class="ri-list-ordered" aria-hidden="true"></i>Próximas reservas</h3><ul class="res-agenda-lista">${m}</ul></div>`;
+
+  const esT = typeof esTrabajador === "function" && esTrabajador();
+  let kpiIngresos;
+  if (esT) {
+    if (ultimoFichaje && ultimoFichaje.created_at) {
+      const ff = new Date(ultimoFichaje.created_at);
+      const hora = isNaN(ff.getTime())
+        ? "—"
+        : ff.toLocaleTimeString("es-ES", {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+      const fechaTxt = isNaN(ff.getTime())
+        ? ""
+        : ff.toLocaleDateString("es-ES", {
+            day: "2-digit",
+            month: "short",
+          });
+      kpiIngresos = `<div class="res-kpi res-kpi-green"><span><i class="ri-time-line" aria-hidden="true"></i>Último fichaje</span><h3>${esc(ultimoFichaje.tipo)} ${esc(hora)}</h3><small>${esc(fechaTxt)}</small></div>`;
+    } else {
+      kpiIngresos = `<div class="res-kpi res-kpi-green"><span><i class="ri-time-line" aria-hidden="true"></i>Último fichaje</span><h3>—</h3><small>Sin fichajes registrados</small></div>`;
+    }
+  } else {
+    kpiIngresos = `<div class="res-kpi res-kpi-green"><span><i class="ri-money-euro-circle-line" aria-hidden="true"></i>Ingresos hoy</span><h3>${eur(r.totalGeneral)}</h3><small>${eur(r.totalEfectivo)} efectivo · ${eur(r.totalTarjeta)} tarjeta</small></div>`;
+  }
+
+  const btnFicharOCaja = esT
+    ? '<button type="button" class="res-accion" data-ir="fichajes"><i class="ri-time-line" aria-hidden="true"></i><span>Fichar</span></button>'
+    : '<button type="button" class="res-accion" data-ir="caja"><i class="ri-lock-line" aria-hidden="true"></i><span>Cerrar caja</span></button>';
+
+  e.innerHTML = `<div class="res-bienvenida"><div><h2>${resumenSaludo()}, ${esc(n)}</h2><p>${esc(u)} · Aquí tienes el resumen del día.</p></div></div><div class="res-kpis">${kpiIngresos}<div class="res-kpi res-kpi-red"><span><i class="ri-wallet-3-line" aria-hidden="true"></i>Deudas pendientes</span><h3>${eur(l)}</h3><small>${s.length} ${s.length === 1 ? "cliente" : "clientes"}</small></div><div class="res-kpi res-kpi-amber"><span><i class="ri-brush-line" aria-hidden="true"></i>Limpiezas</span><h3>${c.length}</h3><small>${d === 0 ? "Todo al día" : `${d} ${d === 1 ? "tarea pendiente" : "tareas pendientes"}`}</small></div></div>${p ? `<div class="res-alertas">${p}</div>` : ""}<div class="res-acciones"><h3><i class="ri-flashlight-line" aria-hidden="true"></i>Acciones rápidas</h3><div class="res-acciones-grid"><button type="button" class="res-accion" data-ir="nueva-reserva"><i class="ri-add-line" aria-hidden="true"></i><span>Nueva reserva</span></button><button type="button" class="res-accion" data-ir="tienda"><i class="ri-goblet-line" aria-hidden="true"></i><span>Abrir bar</span></button>${btnFicharOCaja}<a href="guia.html" target="_blank" rel="noopener" class="res-accion" style="text-decoration: none"><i class="ri-book-open-line" aria-hidden="true"></i><span>Ver guía</span></a></div></div><div class="res-agenda"><h3><i class="ri-list-ordered" aria-hidden="true"></i>Próximas reservas</h3><ul class="res-agenda-lista">${m}</ul></div>`;
 }
 document.addEventListener("click", (e) => {
   const t = e.target.closest("[data-ir]");

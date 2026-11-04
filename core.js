@@ -108,6 +108,11 @@ const esEntrenador = () =>
     .trim()
     .toLowerCase() === "entrenador";
 
+const esTrabajador = () =>
+  !!usuarioSesion &&
+  String(usuarioSesion.rol || "")
+    .trim()
+    .toLowerCase() === "trabajador";
 async function cargarConfigPanel() {
   if (CFG_PANEL_CARGADA || !supabaseClient) return;
   try {

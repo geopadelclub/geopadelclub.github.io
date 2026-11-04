@@ -231,7 +231,12 @@ function prepararRectificativa(e) {
 }
 function cancelarRectificacion() {
   facRectificando = null;
-  $("facTipo").disabled = !1;
+  if (!esJefa()) {
+    $("facTipo").value = "Justificante";
+    $("facTipo").disabled = true;
+  } else {
+    $("facTipo").disabled = false;
+  }
   facSet("facFacturaOriginal", "");
   facSet("facMotivoRectificacion", "");
   facActualizarModoRectificativa();
@@ -330,7 +335,12 @@ async function emitirDocumentoFactura() {
       throw new Error(res && res.error ? res.error : "No se pudo emitir");
     toast(`Documento ${res.numero} emitido`);
     limpiarFormFactura();
-    $("facTipo").disabled = !1;
+    if (!esJefa()) {
+      $("facTipo").value = "Justificante";
+      $("facTipo").disabled = true;
+    } else {
+      $("facTipo").disabled = false;
+    }
     facActualizarCamposPorTipo();
     await cargarFacturas();
   } catch (err) {
@@ -551,6 +561,11 @@ async function entrarFacturas() {
   if (!supabaseClient) return;
   if (!facConfig) await cargarConfigFacturas();
   iniciarFormFactura();
+  if (!esJefa()) {
+    $("facTipo").value = "Justificante";
+    $("facTipo").disabled = true;
+    facActualizarCamposPorTipo();
+  }
   facActualizarModoRectificativa();
   await Promise.all([cargarFacturas(), cargarClientesFacturacion()]);
   if (navigator.usb && !usbDevice) await conectarImpresoraUSB(!0);
@@ -601,15 +616,31 @@ if ($("facBody"))
   });
 let usbDevice = null,
   usbEndpoint = null;
+function actualizarEstadoImpresora() {
+  const ok = !!(usbDevice && usbEndpoint);
+  const ids = ["estadoImpresora", "estadoImpresoraTPV"];
+  ids.forEach((id) => {
+    const el = $(id);
+    if (!el) return;
+    el.className = "imp-badge " + (ok ? "imp-ok" : "imp-ko");
+    el.innerHTML = ok
+      ? '<i class="ri-usb-line" aria-hidden="true"></i>USB conectada'
+      : '<i class="ri-usb-off-line" aria-hidden="true"></i>USB desconectada';
+  });
+}
 async function conectarImpresoraUSB(silencioso = false) {
   if (!navigator.usb) {
     if (!silencioso) toast("Este navegador no soporta impresoras USB", "err");
+    actualizarEstadoImpresora();
     return false;
   }
   try {
     if (usbDevice && usbEndpoint) {
       try {
-        if (usbDevice.opened) return true;
+        if (usbDevice.opened) {
+          actualizarEstadoImpresora();
+          return true;
+        }
       } catch (e) {
         usbDevice = null;
         usbEndpoint = null;
@@ -620,7 +651,10 @@ async function conectarImpresoraUSB(silencioso = false) {
     if (autorizados.length > 0) {
       dispositivo = autorizados[0];
     } else {
-      if (silencioso) return false;
+      if (silencioso) {
+        actualizarEstadoImpresora();
+        return false;
+      }
       dispositivo = await navigator.usb.requestDevice({ filters: [] });
     }
     usbDevice = dispositivo;
@@ -628,7 +662,14 @@ async function conectarImpresoraUSB(silencioso = false) {
       await usbDevice.open();
     }
     if (usbDevice.configuration === null) {
-      await usbDevice.selectConfiguration(1);
+      try {
+        await usbDevice.selectConfiguration(1);
+      } catch (e) {
+        console.warn("selectConfiguration(1) falló, probando(0)", e);
+        try {
+          await usbDevice.selectConfiguration(0);
+        } catch (e2) {}
+      }
     }
     usbEndpoint = null;
     for (const iface of usbDevice.configuration.interfaces) {
@@ -647,12 +688,14 @@ async function conectarImpresoraUSB(silencioso = false) {
       if (usbEndpoint) break;
     }
     if (!usbEndpoint) throw new Error("No se encontró el puerto de salida");
+    actualizarEstadoImpresora();
     if (!silencioso) toast("Impresora conectada correctamente", "ok");
     return true;
   } catch (err) {
     console.error("Error al conectar la impresora:", err);
     usbDevice = null;
     usbEndpoint = null;
+    actualizarEstadoImpresora();
     if (!silencioso)
       toast("No se pudo conectar: " + (err.message || err), "err");
     return false;
@@ -710,8 +753,6 @@ function formatearTicketTexto(e) {
       (Number(e) || 0)
         .toLocaleString("es-ES", { style: "currency", currency: "EUR" })
         .replace("€", "EUR"),
-    l = " ".repeat,
-    c = Math.max,
     l2 = "-".repeat(n),
     c2 = "=".repeat(n);
   let d = "";
@@ -750,7 +791,7 @@ function formatearTicketTexto(e) {
   (e.lineas || []).forEach((e) => {
     const t =
         e.concepto.length > 20
-          ? e.concepto.substring(0, 20) + "..."
+          ? e.concepto.substring(0, 17) + "..."
           : e.concepto,
       n = String(e.cantidad).padEnd(5),
       r = s(e.total).padStart(10);
@@ -778,28 +819,35 @@ function formatearTicketTexto(e) {
 }
 async function imprimirTicketWebUSB(e) {
   try {
+    if (!usbDevice || !usbEndpoint) {
+      const ok = await conectarImpresoraUSB(true);
+      if (!ok) {
+        toast(
+          "No hay impresora conectada. Pulsa el botón USB para conectarla.",
+          "warn",
+          6000,
+        );
+        return;
+      }
+    }
     const t = await obtenerFactura(e);
     if (!t) return toast("No se encontró el documento", "err");
-    const n = formatearTicketTexto(t),
-      r = textoABytes(n),
-      i = await enviarBytesAImpresora(r);
+    const n = formatearTicketTexto(t);
+    const r = textoABytes(n);
+    const i = await enviarBytesAImpresora(r);
     if (i) toast("Ticket enviado a la impresora", "ok");
   } catch (e) {
     console.error("Error al imprimir:", e);
     toast("No se pudo imprimir: " + (e.message || e), "err");
   }
 }
-if (typeof window.accion === "function")
-  window.accion(
-    "conectar-impresora",
-    () => typeof conectarImpresoraUSB === "function" && conectarImpresoraUSB(),
-  );
 function _reintentarConexionUSB() {
   if (!navigator.usb) return;
   if (typeof usuarioSesion === "undefined" || !usuarioSesion) return;
   if (usbDevice && usbEndpoint) return;
   conectarImpresoraUSB(true);
 }
+actualizarEstadoImpresora();
 document.addEventListener("DOMContentLoaded", () => {
   if (!navigator.usb) return;
   const esperarSesion = () => {
@@ -817,7 +865,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (usbDevice && e.device === usbDevice) {
       usbDevice = null;
       usbEndpoint = null;
-      console.log("Impresora desconectada");
+      actualizarEstadoImpresora();
+      toast("Impresora desconectada", "warn");
     }
   });
   window.addEventListener("focus", _reintentarConexionUSB);

@@ -461,15 +461,33 @@ async function emitirJustificanteTPV() {
     if (!data || !data.ok)
       throw new Error((data && data.error) || "No se pudo emitir");
     toast(`Justificante ${data.numero} emitido (${eur(data.total)})`);
+
     const usbReady =
       typeof usbDevice !== "undefined" &&
       usbDevice &&
       typeof usbEndpoint !== "undefined" &&
       usbEndpoint;
-    if (usbReady && typeof imprimirTicketWebUSB === "function")
+
+    if (!usbReady) {
+      const reconectada =
+        typeof conectarImpresoraUSB === "function"
+          ? await conectarImpresoraUSB(true)
+          : false;
+      if (reconectada && typeof imprimirTicketWebUSB === "function") {
+        await imprimirTicketWebUSB(data.id);
+        return;
+      }
+      if (typeof imprimirFactura === "function") {
+        await imprimirFactura(data.id, "ticket");
+      }
+      return;
+    }
+
+    if (typeof imprimirTicketWebUSB === "function") {
       await imprimirTicketWebUSB(data.id);
-    else if (typeof imprimirFactura === "function")
+    } else if (typeof imprimirFactura === "function") {
       await imprimirFactura(data.id, "ticket");
+    }
   } catch (e) {
     console.error(e);
     toast("No se pudo emitir el justificante: " + (e.message || e), "err");
