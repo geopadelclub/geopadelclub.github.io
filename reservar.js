@@ -385,14 +385,6 @@ function renderDuraciones() {
         `<button type="button" class="cl-dur${d === sel.dur ? " active" : ""}" data-dur="${d}" aria-pressed="${d === sel.dur}">${esc(duracionTxt(d))}</button>`,
     )
     .join("");
-  let hint = document.getElementById("clDurHint");
-  if (!hint) {
-    hint = document.createElement("div");
-    hint.id = "clDurHint";
-    hint.className = "cl-hint-box";
-    document.getElementById("clDur").after(hint);
-  }
-  hint.innerHTML = `<p class="cl-hint-info">${t("reservar.two-hours")}</p><p class="cl-hint-info">${t("reservar.penas-torneos")}</p>`;
 }
 
 async function seleccionarDia(fecha, silent = false) {
