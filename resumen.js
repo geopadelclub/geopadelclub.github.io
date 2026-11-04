@@ -38,7 +38,7 @@ function dibujarResumen() {
     i = datosLocales.reservas || [],
     a = resumenReservasProximas(),
     s = (typeof deudas !== "undefined" ? deudas : []).filter(
-      (e) => e.estado !== "Resuelta",
+      (e) => e.estado === "Pendiente",
     ),
     l = s.reduce((e, t) => e + (Number(t.importe) || 0), 0),
     c = typeof limpiezasVencidas === "function" ? limpiezasVencidas() : [],

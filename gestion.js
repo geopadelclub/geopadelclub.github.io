@@ -33,7 +33,7 @@ async function cargarDeudas() {
       supabaseClient
         .from("deudas")
         .select(
-          "id, nombre, telefono, fecha, hora, importe, estado, resuelta_por, resuelta_at, creado_por",
+          "id, nombre, telefono, fecha, hora, importe, estado, resuelta_por, resuelta_at, anulada_por, anulada_at, creado_por",
         )
         .order("fecha", { ascending: false })
         .order("hora", { ascending: false })
@@ -48,7 +48,7 @@ async function cargarDeudas() {
   deudas = data || [];
   const total = redondear2(
     deudas
-      .filter((d) => d.estado !== "Resuelta")
+      .filter((d) => d.estado === "Pendiente")
       .reduce((s, d) => s + (Number(d.importe) || 0), 0),
   );
   $("deudaTotal").innerText = eur(total);
@@ -60,8 +60,9 @@ function dibujarDeudas() {
   const filtro = $("deudaFiltro")?.value || "Pendiente";
   const q = ($("deudaBuscar")?.value || "").toLowerCase().trim();
   const lista = deudas.filter((d) => {
-    if (filtro === "Pendiente" && d.estado === "Resuelta") return false;
+    if (filtro === "Pendiente" && d.estado !== "Pendiente") return false;
     if (filtro === "Resuelta" && d.estado !== "Resuelta") return false;
+    if (filtro === "Anulada" && d.estado !== "Anulada") return false;
     return (
       !q ||
       String(d.nombre).toLowerCase().includes(q) ||
@@ -78,23 +79,35 @@ function dibujarDeudas() {
   tb.innerHTML = lista
     .map((d) => {
       const res = d.estado === "Resuelta";
+      const anu = d.estado === "Anulada";
       const tel = d.telefono
         ? `<a href="tel:${esc(d.telefono)}" style="color:var(--blue);font-weight:700">${esc(d.telefono)}</a>`
         : "—";
       const hora = String(d.hora || "").slice(0, 5);
-      const estado = res
-        ? `<span class="badge-deuda ok"><i class="ri-check-line" aria-hidden="true"></i>Resuelta</span>${d.resuelta_por ? `<small style="display:block;color:var(--muted);font-weight:600;margin-top:3px">${esc(d.resuelta_por)} · ${esc(fmtFechaHora(d.resuelta_at))}</small>` : ""}`
-        : '<span class="badge-deuda pend"><i class="ri-time-line" aria-hidden="true"></i>Pendiente</span>';
-      const accion = res
-        ? `<button type="button" class="btn-add gray" data-act="reabrir" data-id="${esc(d.id)}"><i class="ri-arrow-go-back-line" aria-hidden="true"></i>Reabrir</button>`
-        : `<button type="button" class="btn-add" data-act="resolver" data-id="${esc(d.id)}"><i class="ri-check-double-line" aria-hidden="true"></i>Resolver</button>`;
-      return `<tr class="${res ? "deuda-resuelta" : ""}">
+      let estado = "";
+      if (res) {
+        estado = `<span class="badge-deuda ok"><i class="ri-check-line" aria-hidden="true"></i>Resuelta</span>${d.resuelta_por ? `<small style="display:block;color:var(--muted);font-weight:600;margin-top:3px">${esc(d.resuelta_por)} · ${esc(fmtFechaHora(d.resuelta_at))}</small>` : ""}`;
+      } else if (anu) {
+        estado = `<span class="badge-deuda anu"><i class="ri-close-line" aria-hidden="true"></i>Anulada</span>${d.anulada_por ? `<small style="display:block;color:var(--muted);font-weight:600;margin-top:3px">${esc(d.anulada_por)} · ${esc(fmtFechaHora(d.anulada_at))}</small>` : ""}`;
+      } else {
+        estado =
+          '<span class="badge-deuda pend"><i class="ri-time-line" aria-hidden="true"></i>Pendiente</span>';
+      }
+      let acciones = "";
+      if (res || anu) {
+        acciones = `<button type="button" class="btn-add gray" data-act="reabrir" data-id="${esc(d.id)}"><i class="ri-arrow-go-back-line" aria-hidden="true"></i>Reabrir</button>`;
+      } else {
+        acciones =
+          `<button type="button" class="btn-add" data-act="resolver" data-id="${esc(d.id)}"><i class="ri-check-double-line" aria-hidden="true"></i>Resolver</button>` +
+          `<button type="button" class="btn-add danger" data-act="eliminar" data-id="${esc(d.id)}"><i class="ri-close-line" aria-hidden="true"></i>Anular</button>`;
+      }
+      return `<tr class="${res ? "deuda-resuelta" : ""}${anu ? " deuda-anulada" : ""}">
 <td><b>${esc(d.nombre)}</b></td>
 <td>${tel}</td>
 <td>${esc(fechaCorta(d.fecha))}${hora ? " · " + esc(hora) : ""}</td>
 <td><b>${eur(d.importe)}</b></td>
 <td>${estado}</td>
-<td>${accion}<button type="button" class="btn-add danger" data-act="eliminar" data-id="${esc(d.id)}"><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar</button></td>
+<td>${acciones}</td>
 </tr>`;
     })
     .join("");
@@ -161,15 +174,23 @@ async function cambiarEstadoDeuda(id, resolver) {
   if (!d) return;
   const msg = resolver
     ? `¿Marcar como resuelta la deuda de ${d.nombre} (${eur(d.importe)})?`
-    : "¿Volver a poner esta deuda como pendiente?";
+    : `¿Volver a poner como pendiente la deuda de ${d.nombre} (${eur(d.importe)})?`;
   if (!(await customConfirm(msg))) return;
   const upd = resolver
     ? {
         estado: "Resuelta",
         resuelta_por: nombreUsuario(),
         resuelta_at: new Date().toISOString(),
+        anulada_por: null,
+        anulada_at: null,
       }
-    : { estado: "Pendiente", resuelta_por: null, resuelta_at: null };
+    : {
+        estado: "Pendiente",
+        resuelta_por: null,
+        resuelta_at: null,
+        anulada_por: null,
+        anulada_at: null,
+      };
   const { error } = await supabaseClient
     .from("deudas")
     .update(upd)
@@ -184,7 +205,7 @@ async function eliminarDeuda(id) {
   if (!d) return;
   if (
     !(await customConfirm(
-      `¿Anular la deuda de ${d.nombre} (${eur(d.importe)})?`,
+      `¿Anular la deuda de ${d.nombre} (${eur(d.importe)})?\n\nSe conservará en el histórico como "Anulada" pero no contará en el total pendiente. No se puede deshacer desde esta pantalla (sí se puede reabrir después).`,
     ))
   )
     return;
@@ -194,8 +215,14 @@ async function eliminarDeuda(id) {
     p_empleado: empleado,
   });
   if (error || (data && !data.ok)) {
+    const t = {
+      sin_permiso: "No tienes permiso para anular deudas",
+      no_encontrada_o_ya_resuelta: "La deuda ya está anulada o no existe",
+    };
     return toast(
-      "No se pudo anular la deuda: " + (error?.message || data?.error),
+      (data && data.error && t[data.error]) ||
+        "No se pudo anular la deuda: " +
+          (error?.message || data?.error || "error desconocido"),
       "err",
     );
   }
