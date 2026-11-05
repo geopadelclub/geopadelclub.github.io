@@ -1515,9 +1515,11 @@ async function confirmarGuardarReserva() {
     if (idExistente) {
       if (esEntrenador() && !puedeEditarReserva(reservaEnEdicion))
         return toast("No puedes editar esta reserva", "err");
-      if (pistasSel.length !== 1)
+      if (pistasSel.length === 0)
+        return toast("Selecciona al menos una pista", "warn");
+      if (esEntrenador() && pistasSel.length !== 1)
         return toast(
-          "Al editar una reserva selecciona una única pista",
+          "Al editar un entrenamiento selecciona una única pista",
           "warn",
         );
       const hayPagos = String(reservaEnEdicion.pagosJugadores || "")
@@ -1613,8 +1615,29 @@ async function confirmarGuardarReserva() {
         }
       }
 
+      const pistasExtra = pistasSel.slice(1);
+      if (pistasExtra.length > 0) {
+        const filasNuevas = pistasExtra.map((p) => ({
+          ...payloadBase,
+          pista: p,
+          fecha: iso,
+          serie: "",
+          pago_estado: "Sin pagar",
+          pagos_jugadores: Array(numJugadores).fill("0").join(","),
+          notas: notas || null,
+        }));
+        const { error: errIns } = await supabaseClient
+          .from("reservas")
+          .insert(filasNuevas);
+        if (errIns) throw errIns;
+      }
+
       await guardarClienteSilencioso(cliente, telefono, tipoCli);
-      toast("Reserva actualizada");
+      const extraMsg =
+        pistasExtra.length > 0
+          ? ` y ${pistasExtra.length} pista${pistasExtra.length === 1 ? "" : "s"} añadida${pistasExtra.length === 1 ? "" : "s"}`
+          : "";
+      toast(`Reserva actualizada${extraMsg}`);
       cerrarModal();
       cargarReservasHoy();
       return;
