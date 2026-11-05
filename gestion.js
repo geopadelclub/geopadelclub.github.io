@@ -205,7 +205,7 @@ async function eliminarDeuda(id) {
   if (!d) return;
   if (
     !(await customConfirm(
-      `¿Anular la deuda de ${d.nombre} (${eur(d.importe)})?\n\nSe conservará en el histórico como "Anulada" pero no contará en el total pendiente. No se puede deshacer desde esta pantalla (sí se puede reabrir después).`,
+      `¿Anular la deuda de ${d.nombre} (${eur(d.importe)})?\n\nSe conservará en el histórico como "Anulada" pero no contará en el total pendiente. Puedes reabrirla después con el botón "Reabrir".`,
     ))
   )
     return;

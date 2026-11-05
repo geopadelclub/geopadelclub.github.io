@@ -155,4 +155,9 @@
     () =>
       typeof emitirJustificanteTPV === "function" && emitirJustificanteTPV(),
   );
+  A(
+  "conectar-impresora",
+  () =>
+    typeof conectarImpresoraUSB === "function" && conectarImpresoraUSB(false),
+);
 })();
