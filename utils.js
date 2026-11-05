@@ -218,15 +218,12 @@ function enlazarBuscadorCliente(e, t, n) {
   async function buscar(q, qTel) {
     const key = q + "|" + qTel;
     if (cache.has(key)) return cache.get(key);
-
     let query = supabaseClient
       .from("clientes")
       .select("id, nombre, telefono, tipo_cliente, nombre_entidad")
       .limit(20);
-
     if (q) query = query.ilike("nombre", "%" + q + "%");
     if (qTel) query = query.ilike("telefono", "%" + qTel + "%");
-
     const { data, error } = await query;
     if (error) {
       console.error("Error buscando clientes:", error);
@@ -239,6 +236,7 @@ function enlazarBuscadorCliente(e, t, n) {
   function s(i) {
     if (i.dataset.cliBound) return;
     i.dataset.cliBound = "1";
+    if (!i.parentNode) return;
     const wrap = document.createElement("div");
     wrap.className = "cli-wrap";
     i.parentNode.insertBefore(wrap, i);
