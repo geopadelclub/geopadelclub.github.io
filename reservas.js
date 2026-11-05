@@ -2085,7 +2085,18 @@ function cerrarHistorial() {
 async function cargarListaEspera() {
   const tb = $("listaEsperaBody");
   if (!tb) return;
+
+  try {
+    await supabaseClient.rpc("gp_lista_espera_caducar");
+  } catch (e) {
+    console.warn("No se pudo caducar la lista de espera:", e);
+  }
+
   const hoy = fechaLocalISO();
+  const ahoraMad = ahoraMadrid();
+  const minAhora = ahoraMad.minutos;
+  const MARGEN_CADUCADA = 15;
+
   const { data, error } = await supabaseClient
     .from("lista_espera")
     .select("*")
@@ -2100,7 +2111,13 @@ async function cargarListaEspera() {
     return;
   }
 
-  listaEsperaCache = data || [];
+  listaEsperaCache = (data || []).filter((x) => {
+    if (x.fecha !== hoy) return true;
+    if (!x.hora) return true;
+    const [h, m] = String(x.hora).split(":").map(Number);
+    const minSol = (h || 0) * 60 + (m || 0);
+    return minSol + MARGEN_CADUCADA >= minAhora;
+  });
 
   if (!listaEsperaCache.length) {
     tb.innerHTML =
