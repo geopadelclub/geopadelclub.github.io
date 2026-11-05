@@ -431,6 +431,16 @@
         color: var(--orange-text);
         border-color: var(--orange);
       }
+      .guia-badge-nuevo {
+        background: var(--primary);
+        color: var(--on-primary);
+        border-color: var(--primary);
+        font-size: 10px;
+        padding: 0 6px;
+        margin-left: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
 
       @media (max-width: 600px) {
         .guia-main h1 {
@@ -534,7 +544,7 @@
         </p>
         <p class="guia-meta">
           Última actualización: noviembre de 2026 · Aplica a la versión
-          <code>geopadel-b62b41b5b0</code>
+          <code>geopadel-53c639c253</code>
         </p>
 
         <!-- ══════════════════════════════════════════════════════════════════ -->
@@ -767,6 +777,7 @@
           críticas:
         </p>
         <ul>
+          <li>Ver la pestaña <strong>Caja</strong> completa.</li>
           <li>Anular y rectificar facturas.</li>
           <li>Reabrir cajas cerradas.</li>
           <li>Borrar clientes por RGPD.</li>
@@ -774,6 +785,8 @@
           <li>Ver y gestionar bloqueos persistentes.</li>
           <li>Ver y exportar la copia de seguridad completa.</li>
           <li>Editar datos fiscales de la facturación.</li>
+          <li>Ver y editar tarifas.</li>
+          <li>Ver y editar el catálogo de productos.</li>
           <li>
             Ver el registro de jornada de cualquier empleado (los demás solo el
             propio).
@@ -784,17 +797,59 @@
           3.2 Trabajador
           <span class="guia-badge guia-badge-trabajador">Trabajador</span>
         </h3>
-        <p>Acceso completo al panel excepto las acciones exclusivas de jefa:</p>
+        <p>
+          Acceso operativo completo (reservas, bar, deudas, fichaje, limpieza),
+          con las siguientes limitaciones respecto a la jefa:
+        </p>
         <ul>
-          <li>Reservar, cobrar, mover, eliminar reservas.</li>
+          <li>
+            <strong>No ve la pestaña Caja</strong>: la sub-pestaña "Caja" está
+            oculta dentro de Ventas. Solo ve Tienda, Deudas y Facturas.
+          </li>
+          <li>
+            <strong>Solo emite justificantes</strong> (nunca facturas legales).
+            El selector de tipo está bloqueado en "Justificante de pago".
+          </li>
+          <li>
+            <strong>No puede anular ni rectificar facturas</strong> (aunque
+            puede verlas en el listado y reimprimirlas).
+          </li>
+          <li>
+            <strong>Ve las tarifas pero no puede editarlas</strong>: los campos
+            están deshabilitados (grises) y el botón "Guardar tarifas" está
+            oculto.
+          </li>
+          <li>
+            <strong>No ve el catálogo</strong>: la tarjeta "Catálogo" está
+            oculta en Ajustes. Sí puede vender productos en el TPV (catálogo
+            interno de ventas), pero no gestionarlos.
+          </li>
+          <li>
+            <strong>No puede editar datos fiscales</strong> de la empresa.
+          </li>
+          <li>
+            <strong>No puede reabrir cajas</strong> cerradas. Si necesita
+            reabrir, debe pedírselo a la jefa.
+          </li>
+          <li>
+            <strong>No puede borrar clientes por RGPD</strong>, ni restablecer
+            códigos web.
+          </li>
+          <li>
+            <strong>No puede acceder a la copia de seguridad</strong> completa.
+          </li>
+        </ul>
+        <p>Sí puede:</p>
+        <ul>
+          <li>Reservar, cobrar, mover y eliminar reservas (con las reglas).</li>
           <li>Crear y editar clientes.</li>
           <li>Bloquear clientes (con motivo obligatorio).</li>
-          <li>Gestionar TPV, bar, caja del día.</li>
-          <li>Emitir facturas y justificantes.</li>
+          <li>Gestionar TPV del bar y cobrar mesas.</li>
+          <li>Emitir justificantes de pago.</li>
+          <li>Resolver, anular y reabrir deudas.</li>
           <li>Fichar entrada/salida.</li>
           <li>Registrar limpiezas.</li>
-          <li>Resolver deudas.</li>
-          <li>Emitir justificantes y facturas.</li>
+          <li>Añadir solicitudes a la lista de espera.</li>
         </ul>
 
         <h3>
@@ -862,15 +917,15 @@
                 <td><span class="guia-badge guia-badge-ko">No</span></td>
               </tr>
               <tr>
-                <td>Ver Caja</td>
+                <td><strong>Ver pestaña Caja</strong></td>
                 <td><span class="guia-badge guia-badge-ok">Sí</span></td>
-                <td><span class="guia-badge guia-badge-ok">Sí</span></td>
+                <td><span class="guia-badge guia-badge-ko">No</span></td>
                 <td><span class="guia-badge guia-badge-ko">No</span></td>
               </tr>
               <tr>
-                <td>Cerrar caja</td>
+                <td><strong>Cerrar caja</strong></td>
                 <td><span class="guia-badge guia-badge-ok">Sí</span></td>
-                <td><span class="guia-badge guia-badge-ok">Sí</span></td>
+                <td><span class="guia-badge guia-badge-ko">No</span></td>
                 <td><span class="guia-badge guia-badge-ko">No</span></td>
               </tr>
               <tr>
@@ -880,7 +935,7 @@
                 <td><span class="guia-badge guia-badge-ko">No</span></td>
               </tr>
               <tr>
-                <td>Ver Deudas</td>
+                <td>Ver Deudas (resolver, anular, reabrir)</td>
                 <td><span class="guia-badge guia-badge-ok">Sí</span></td>
                 <td><span class="guia-badge guia-badge-ok">Sí</span></td>
                 <td><span class="guia-badge guia-badge-ko">No</span></td>
@@ -889,6 +944,18 @@
                 <td>Ver Facturas</td>
                 <td><span class="guia-badge guia-badge-ok">Sí</span></td>
                 <td><span class="guia-badge guia-badge-ok">Sí</span></td>
+                <td><span class="guia-badge guia-badge-ko">No</span></td>
+              </tr>
+              <tr>
+                <td><strong>Emitir justificantes</strong></td>
+                <td><span class="guia-badge guia-badge-ok">Sí</span></td>
+                <td><span class="guia-badge guia-badge-ok">Sí</span></td>
+                <td><span class="guia-badge guia-badge-ko">No</span></td>
+              </tr>
+              <tr>
+                <td><strong>Emitir facturas legales</strong></td>
+                <td><span class="guia-badge guia-badge-ok">Sí</span></td>
+                <td><span class="guia-badge guia-badge-ko">No</span></td>
                 <td><span class="guia-badge guia-badge-ko">No</span></td>
               </tr>
               <tr>
@@ -910,7 +977,41 @@
                 <td><span class="guia-badge guia-badge-ko">No</span></td>
               </tr>
               <tr>
-                <td>Ver / editar Ajustes</td>
+                <td>Ver Ajustes (clientes, bloqueos)</td>
+                <td><span class="guia-badge guia-badge-ok">Sí</span></td>
+                <td><span class="guia-badge guia-badge-ok">Sí</span></td>
+                <td><span class="guia-badge guia-badge-ko">No</span></td>
+              </tr>
+              <tr>
+                <td><strong>Ver tarifas</strong></td>
+                <td><span class="guia-badge guia-badge-ok">Sí</span></td>
+                <td><span class="guia-badge guia-badge-ok">Sí</span></td>
+                <td><span class="guia-badge guia-badge-ko">No</span></td>
+              </tr>
+              <tr>
+                <td><strong>Editar tarifas</strong></td>
+                <td><span class="guia-badge guia-badge-ok">Sí</span></td>
+                <td>
+                  <span class="guia-badge guia-badge-ko"
+                    >No (solo lectura)</span
+                  >
+                </td>
+                <td><span class="guia-badge guia-badge-ko">No</span></td>
+              </tr>
+              <tr>
+                <td><strong>Ver catálogo</strong></td>
+                <td><span class="guia-badge guia-badge-ok">Sí</span></td>
+                <td><span class="guia-badge guia-badge-ko">No</span></td>
+                <td><span class="guia-badge guia-badge-ko">No</span></td>
+              </tr>
+              <tr>
+                <td><strong>Editar catálogo</strong></td>
+                <td><span class="guia-badge guia-badge-ok">Sí</span></td>
+                <td><span class="guia-badge guia-badge-ko">No</span></td>
+                <td><span class="guia-badge guia-badge-ko">No</span></td>
+              </tr>
+              <tr>
+                <td>Añadir a la lista de espera manualmente</td>
                 <td><span class="guia-badge guia-badge-ok">Sí</span></td>
                 <td><span class="guia-badge guia-badge-ok">Sí</span></td>
                 <td><span class="guia-badge guia-badge-ko">No</span></td>
@@ -995,6 +1096,12 @@
           queda también abajo, centrada, con un máximo de 760px. La pestaña
           activa se resalta en verde lima.
         </p>
+        <div class="guia-tip">
+          <i class="ri-lightbulb-line" aria-hidden="true"></i>
+          <strong>Las pestañas cambian según el rol</strong>: si eres
+          trabajador, la sub-pestaña <strong>Caja</strong> dentro de Ventas no
+          aparece. Si eres entrenador, solo ves Reservas.
+        </div>
 
         <h3>4.3 Subnavegación</h3>
         <p>
@@ -1004,6 +1111,8 @@
         <ul>
           <li>
             <strong>Ventas</strong>: Tienda (TPV) · Caja · Deudas · Facturas.
+            <br />
+            <em>La sub-pestaña <strong>Caja</strong> solo la ve la jefa.</em>
           </li>
           <li><strong>Equipo</strong>: Fichaje · Limpieza.</li>
         </ul>
@@ -1086,6 +1195,7 @@
           <li>Cómo va el día en ingresos.</li>
           <li>Si hay deudas o limpiezas pendientes.</li>
           <li>Qué reservas vienen después.</li>
+          <li>Cuándo fichaste por última vez (si no eres jefa).</li>
         </ul>
 
         <h3>5.1 Saludo</h3>
@@ -1099,24 +1209,59 @@
         </p>
 
         <h3>5.2 KPIs del día</h3>
+        <p>Los KPIs cambian según el rol:</p>
+
+        <h4>Para la jefa</h4>
         <ul>
           <li>
             <i class="ri-money-euro-circle-line guia-icon-inline"></i>
-            <strong>Ingresos hoy</strong>: total de caja del día (efectivo +
-            tarjeta). Debajo, el desglose (X € efectivo, Y € tarjeta).
+            <strong>Ingresos hoy</strong> (verde): total de caja del día
+            (efectivo + tarjeta). Debajo, el desglose (X € efectivo, Y €
+            tarjeta).
           </li>
           <li>
             <i class="ri-wallet-3-line guia-icon-inline"></i>
-            <strong>Deudas pendientes</strong>: suma de deudas no resueltas y
-            número de clientes que las tienen.
+            <strong>Deudas pendientes</strong> (rojo): suma de deudas con estado
+            "Pendiente" y número de clientes que las tienen.
           </li>
           <li>
             <i class="ri-brush-line guia-icon-inline"></i>
-            <strong>Limpiezas</strong>: número de pistas con tareas vencidas
-            (&gt; 2 semanas sin limpiar o sin registro). Si está todo al día, se
-            indica.
+            <strong>Limpiezas</strong> (ámbar): número de pistas con tareas
+            vencidas (&gt; 2 semanas sin limpiar o sin registro).
           </li>
         </ul>
+
+        <h4>
+          Para el trabajador
+          <span class="guia-badge guia-badge-nuevo">Actualizado</span>
+        </h4>
+        <ul>
+          <li>
+            <i class="ri-time-line guia-icon-inline"></i>
+            <strong>Último fichaje</strong> (ámbar): muestra el tipo (Entrada /
+            Salida) y la hora del último fichaje registrado. Si no ha fichado
+            nunca, muestra "—" y "Sin fichajes registrados".
+          </li>
+          <li>
+            <i class="ri-money-euro-circle-line guia-icon-inline"></i>
+            <strong>Ingresos hoy</strong> (verde): igual que para la jefa.
+            Muestra el total del día y el desglose efectivo / tarjeta. Así el
+            trabajador puede saber cuánto se ha cobrado sin necesidad de entrar
+            a Caja.
+          </li>
+          <li>
+            <i class="ri-wallet-3-line guia-icon-inline"></i>
+            <strong>Deudas pendientes</strong> (rojo): igual que la jefa.
+          </li>
+          <li>
+            <i class="ri-brush-line guia-icon-inline"></i>
+            <strong>Limpiezas</strong> (ámbar): igual que la jefa.
+          </li>
+        </ul>
+        <p>
+          En escritorio los 4 KPIs aparecen en una fila (o 2x2 en pantallas
+          medianas). En móvil, uno debajo de otro.
+        </p>
 
         <h3>5.3 Alertas</h3>
         <p>Aparecen en amarillo cuando hay algo urgente:</p>
@@ -1132,6 +1277,9 @@
         </ul>
 
         <h3>5.4 Acciones rápidas</h3>
+        <p>Los botones cambian según el rol:</p>
+
+        <h4>Para la jefa</h4>
         <ul>
           <li>
             <i class="ri-add-line guia-icon-inline"></i>
@@ -1149,10 +1297,30 @@
             <i class="ri-book-open-line guia-icon-inline"></i>
             <strong>Ver guía</strong>: abre esta página.
           </li>
+        </ul>
+
+        <h4>
+          Para el trabajador
+          <span class="guia-badge guia-badge-nuevo">Actualizado</span>
+        </h4>
+        <ul>
+          <li>
+            <i class="ri-add-line guia-icon-inline"></i>
+            <strong>Nueva reserva</strong>: abre el modal de reserva.
+          </li>
+          <li>
+            <i class="ri-goblet-line guia-icon-inline"></i>
+            <strong>Abrir bar</strong>: va a Ventas → Tienda (TPV).
+          </li>
           <li>
             <i class="ri-time-line guia-icon-inline"></i>
-            <strong>Fichar</strong>: solo aparece a trabajadores y entrenadores
-            (no a jefa). Va a Equipo → Fichaje.
+            <strong>Fichar</strong>: va a Equipo → Fichaje. Reemplaza al botón
+            "Cerrar caja" que antes veía el trabajador, ya que no puede acceder
+            a la pestaña Caja.
+          </li>
+          <li>
+            <i class="ri-book-open-line guia-icon-inline"></i>
+            <strong>Ver guía</strong>: abre esta página.
           </li>
         </ul>
 
@@ -1689,7 +1857,9 @@
         <p>
           Cuando un cliente intenta reservar un hueco que está ocupado, desde la
           web pública puede apuntarse a la lista de espera. Esa solicitud llega
-          al panel.
+          al panel. Además, el personal del club también puede añadir
+          solicitudes manualmente
+          <span class="guia-badge guia-badge-nuevo">Nuevo</span>.
         </p>
 
         <h3>10.1 Ver solicitudes</h3>
@@ -1699,7 +1869,40 @@
           las solicitudes con estado “pendiente” y de hoy en adelante.
         </p>
 
-        <h3>10.2 Avisar por WhatsApp</h3>
+        <h3>
+          10.2 Añadir manualmente
+          <span class="guia-badge guia-badge-nuevo">Nuevo</span>
+        </h3>
+        <p>
+          Si un cliente llama por teléfono y quiere apuntarse a la lista de
+          espera, puedes añadirlo desde el panel. Justo encima de la tabla hay
+          un formulario con:
+        </p>
+        <ul>
+          <li><strong>Fecha</strong>: por defecto, hoy.</li>
+          <li><strong>Hora</strong>: en tramos de 30 minutos.</li>
+          <li>
+            <strong>Duración</strong>: desplegable con 60 / 90 / 120 min. Por
+            defecto 90.
+          </li>
+          <li>
+            <strong>Teléfono</strong>: obligatorio (9-15 dígitos). Se normaliza
+            quitando el +34.
+          </li>
+          <li>
+            <strong>Botón “Añadir a la lista”</strong>: crea la solicitud y la
+            muestra inmediatamente en la tabla.
+          </li>
+        </ul>
+        <div class="guia-tip">
+          <i class="ri-lightbulb-line" aria-hidden="true"></i>
+          El formulario usa la función de servidor
+          <code>gp_lista_espera_insertar</code>, que valida fecha, hora,
+          duración y teléfono. Si falta algún dato o es inválido, se muestra el
+          motivo debajo del botón sin recargar la página.
+        </div>
+
+        <h3>10.3 Avisar por WhatsApp</h3>
         <ol>
           <li>Pulsa <strong>“Avisar (WhatsApp)”</strong> en la fila.</li>
           <li>
@@ -1732,18 +1935,25 @@ LIMIT 10;</pre
           El primero de la lista es el último al que has avisado.
         </div>
 
-        <h3>10.3 Quitar de la lista</h3>
+        <h3>10.4 Quitar de la lista</h3>
         <p>
           Botón <strong>“Quitar”</strong>: elimina la solicitud sin avisar al
           cliente. Útil si el cliente ya reservó por otra vía o pidió que le
           quitaras.
         </p>
 
-        <h3>10.4 Límites de la lista de espera</h3>
+        <h3>10.5 Límites de la lista de espera</h3>
         <ul>
-          <li>Máximo 10 solicitudes por IP en 24 h.</li>
-          <li>Máximo 5 solicitudes por teléfono en 24 h.</li>
-          <li>Requiere Turnstile (anti-spam) desde la web.</li>
+          <li>
+            <strong>Desde la web</strong> (RPC <code>lista_espera</code>):
+            máximo 10 solicitudes por IP en 24 h y 5 por teléfono en 24 h.
+            Requiere Turnstile.
+          </li>
+          <li>
+            <strong>Desde el panel</strong> (RPC
+            <code>gp_lista_espera_insertar</code>): sin límite de IP, porque va
+            con sesión de trabajador autenticado. Los datos sí se validan.
+          </li>
           <li>Se borra automáticamente a los 30 días.</li>
         </ul>
 
@@ -2180,7 +2390,7 @@ Miércoles 20:00 - 21:30
         <p>
           Pestaña dentro de <strong>Ventas → Tienda</strong>. Es el punto de
           venta para el bar: se selecciona una mesa y se van añadiendo
-          productos.
+          productos. Accesible tanto para jefa como para trabajador.
         </p>
 
         <h3>14.1 Mesas</h3>
@@ -2257,17 +2467,28 @@ Miércoles 20:00 - 21:30
             Emite un <strong>justificante</strong> (no factura) con el desglose
             de la cuenta.
           </li>
-          <li>Si la impresora USB está conectada, imprime el ticket.</li>
           <li>
-            Si no hay impresora, abre el diálogo del navegador para imprimir en
-            A4 o PDF.
+            Si la impresora USB está conectada, imprime el ticket por la
+            térmica. El indicador <strong>“USB conectada”</strong> (verde) a la
+            izquierda del botón confirma que está lista.
+          </li>
+          <li>
+            Si no hay impresora, el sistema intenta reconectarla silenciosamente
+            y, si no puede, abre el diálogo del navegador para imprimir en A4 o
+            PDF.
+          </li>
+          <li>
+            El botón <strong>🔌 USB</strong> al lado del botón de justificante
+            permite conectar la impresora manualmente si no está detectada
+            <span class="guia-badge guia-badge-nuevo">Nuevo</span>.
           </li>
         </ul>
 
         <h3>14.6 Escaparate de la tienda (web pública)</h3>
         <p>
           Lo que ven los clientes en <code>/tienda</code>. Es solo escaparate:
-          no se compra por la web, se compra en el club.
+          no se compra por la web, se compra en el club. Esta tarjeta la ve
+          cualquier trabajador con acceso a Ventas → Tienda.
         </p>
         <ul>
           <li>
@@ -2293,6 +2514,14 @@ Miércoles 20:00 - 21:30
 
         <!-- ══════════════════════════════════════════════════════════════════ -->
         <h2 id="caja">15. Caja</h2>
+
+        <div class="guia-warn">
+          <i class="ri-error-warning-line" aria-hidden="true"></i>
+          <strong>Solo visible para jefa</strong>. El trabajador no tiene acceso
+          a la sub-pestaña Caja. Si necesita consultar los ingresos del día, los
+          ve en el Resumen (KPI "Ingresos hoy"). Si necesita reabrir un cierre,
+          debe pedírselo a la jefa.
+        </div>
 
         <p>
           Pestaña dentro de <strong>Ventas → Caja</strong>. Gestiona el efectivo
@@ -2465,7 +2694,8 @@ Miércoles 20:00 - 21:30
 
         <p>
           Pestaña dentro de <strong>Ventas → Deudas</strong>. Registra dinero
-          que los clientes deben al club.
+          que los clientes deben al club. Accesible tanto para jefa como para
+          trabajador.
         </p>
 
         <h3>16.1 Añadir deuda</h3>
@@ -2480,28 +2710,107 @@ Miércoles 20:00 - 21:30
           <li>Pulsa “Añadir deuda”.</li>
         </ul>
 
-        <h3>16.2 Gestionar deudas</h3>
+        <h3>
+          16.2 Gestionar deudas
+          <span class="guia-badge guia-badge-nuevo">Actualizado</span>
+        </h3>
+        <p>Cada deuda puede estar en <strong>tres estados</strong>:</p>
+        <div class="guia-tabla-wrap">
+          <table class="guia-tabla">
+            <thead>
+              <tr>
+                <th>Estado</th>
+                <th>Qué significa</th>
+                <th>Acciones disponibles</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Pendiente</strong> (naranja)</td>
+                <td>Deuda activa. Suma al total "Pendiente de cobro".</td>
+                <td>Resolver · Anular</td>
+              </tr>
+              <tr>
+                <td><strong>Resuelta</strong> (verde)</td>
+                <td>Pagada. No suma al total pendiente.</td>
+                <td>Reabrir · Anular</td>
+              </tr>
+              <tr>
+                <td><strong>Anulada</strong> (gris)</td>
+                <td>
+                  Eliminada del sistema lógicamente (no se borra físicamente).
+                  No suma al total.
+                </td>
+                <td>Reabrir</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>Filtros disponibles</h4>
         <ul>
           <li>
-            Filtros: Pendientes / Resueltas / Todas. Buscador por nombre o
-            teléfono.
+            <strong>Pendientes</strong>: solo las pendientes. Es el filtro por
+            defecto.
           </li>
+          <li><strong>Resueltas</strong>: solo las pagadas.</li>
           <li>
-            <strong>Resolver</strong>: marca como resuelta con tu nombre y
-            fecha. La fila se atenúa.
+            <strong>Anuladas</strong>: solo las anuladas
+            <span class="guia-badge guia-badge-nuevo">Nuevo</span>.
           </li>
-          <li><strong>Reabrir</strong>: vuelve a pendiente.</li>
-          <li>
-            <strong>Eliminar</strong>: anula la deuda (registra quién y cuándo).
-          </li>
-          <li><strong>CSV</strong>: exporta todas las deudas.</li>
+          <li><strong>Todas</strong>: todas las deudas.</li>
         </ul>
+
+        <h4>Acciones</h4>
+        <ul>
+          <li>
+            <strong>Resolver</strong> (solo en Pendientes): marca como resuelta
+            con tu nombre y la fecha/hora actual. La fila se atenúa y aparece el
+            badge verde "Resuelta".
+          </li>
+          <li>
+            <strong>Reabrir</strong> (en Resueltas o Anuladas): vuelve a
+            <strong>Pendiente</strong> y limpia las marcas de resolución y
+            anulación. Vuelve a sumar al total.
+          </li>
+          <li>
+            <strong>Anular</strong> (en Pendientes o Resueltas)
+            <span class="guia-badge guia-badge-nuevo">Actualizado</span>: antes
+            solo se podía anular una Pendiente; ahora también se puede anular
+            una Resuelta. La deuda queda con badge gris "Anulada", se muestra
+            tachada en el listado, y no suma al total pendiente.
+          </li>
+        </ul>
+
+        <div class="guia-tip">
+          <i class="ri-lightbulb-line" aria-hidden="true"></i>
+          <strong>¿Anular o resolver?</strong>
+          <ul>
+            <li>
+              <strong>Resolver</strong>: el cliente ha pagado. Queda rastro del
+              cobro con tu nombre y la fecha. Es lo normal.
+            </li>
+            <li>
+              <strong>Anular</strong>: la deuda no debía existir (error de
+              registro, condonación, cliente equivocado…). No deja rastro de
+              cobro, solo de la anulación.
+            </li>
+          </ul>
+          Ambas se pueden reabrir después si te equivocas.
+        </div>
+
+        <div class="guia-tip">
+          <i class="ri-lightbulb-line" aria-hidden="true"></i>
+          El botón <strong>“CSV”</strong> junto a “Pendiente de cobro” exporta
+          todas las deudas en un archivo CSV que se abre con Excel.
+        </div>
 
         <h3>16.3 Impacto en la web</h3>
         <div class="guia-warn">
           <i class="ri-error-warning-line" aria-hidden="true"></i>
-          Si un cliente acumula más de <strong>20 €</strong> en deudas
-          pendientes, la web pública <strong>no le deja reservar</strong> y le
+          Si un cliente acumula más de <strong>20 €</strong> en deudas con
+          estado <strong>Pendiente</strong> (las Resueltas y Anuladas no
+          cuentan), la web pública <strong>no le deja reservar</strong> y le
           muestra un mensaje con el total. Desde el panel sí se puede reservar
           (con aviso).
         </div>
@@ -2530,6 +2839,23 @@ Miércoles 20:00 - 21:30
           Pestaña dentro de <strong>Ventas → Facturas</strong>. Emite documentos
           fiscales o justificantes de pago.
         </p>
+
+        <div class="guia-warn">
+          <i class="ri-error-warning-line" aria-hidden="true"></i>
+          <strong>Diferencia por rol</strong>:
+          <ul>
+            <li>
+              <strong>Jefa</strong>: puede emitir Justificantes y Facturas.
+              Puede anular y rectificar.
+            </li>
+            <li>
+              <strong>Trabajador</strong>:
+              <strong>solo emite Justificantes de pago</strong>. El selector de
+              tipo está bloqueado en "Justificante de pago" y no se puede
+              cambiar. Tampoco puede anular ni rectificar facturas.
+            </li>
+          </ul>
+        </div>
 
         <h3>17.1 Diferencia entre factura y justificante</h3>
         <div class="guia-tabla-wrap">
@@ -2573,7 +2899,7 @@ Miércoles 20:00 - 21:30
           </li>
         </ol>
 
-        <h3>17.3 Emitir una factura</h3>
+        <h3>17.3 Emitir una factura (solo jefa)</h3>
         <ol>
           <li>Tipo: <strong>Factura legal</strong>.</li>
           <li>
@@ -2652,14 +2978,18 @@ Miércoles 20:00 - 21:30
         </div>
 
         <!-- ══════════════════════════════════════════════════════════════════ -->
-        <h2 id="impresora">18. Impresora térmica (WebUSB)</h2>
+        <h2 id="impresora">
+          18. Impresora térmica (WebUSB)
+          <span class="guia-badge guia-badge-nuevo">Actualizado</span>
+        </h2>
 
         <h3>18.1 Conectar la primera vez</h3>
         <ol>
           <li>Conecta la impresora por USB al ordenador.</li>
           <li>
             En el panel, dentro de Facturas, pulsa el botón 🔌 USB al lado de
-            “Emitir documento”.
+            “Emitir documento”. También hay un botón USB idéntico en la tarjeta
+            del <strong>TPV</strong>, al lado de “Emitir justificante 80mm”.
           </li>
           <li>
             Aparecerá un diálogo del navegador para seleccionar el dispositivo.
@@ -2670,16 +3000,77 @@ Miércoles 20:00 - 21:30
           </li>
         </ol>
 
-        <h3>18.2 Reconexión automática</h3>
+        <h3>
+          18.2 Indicador de estado
+          <span class="guia-badge guia-badge-nuevo">Nuevo</span>
+        </h3>
+        <p>
+          Junto a los botones USB hay un indicador visual del estado de la
+          impresora:
+        </p>
+        <ul>
+          <li>
+            <span
+              style="
+                display: inline-block;
+                background: var(--green-soft);
+                color: var(--green-text);
+                border: 1px solid var(--green);
+                padding: 2px 8px;
+                border-radius: 9999px;
+                font-size: 12px;
+                font-weight: 800;
+              "
+              ><i class="ri-usb-line"></i> USB conectada</span
+            >
+            → la impresora está lista para imprimir.
+          </li>
+          <li>
+            <span
+              style="
+                display: inline-block;
+                background: var(--surface-3);
+                color: var(--muted);
+                border: 1px solid var(--border-strong);
+                padding: 2px 8px;
+                border-radius: 9999px;
+                font-size: 12px;
+                font-weight: 800;
+              "
+              ><i class="ri-usb-off-line"></i> USB desconectada</span
+            >
+            → no hay impresora conectada. Pulsa el botón 🔌 USB para conectarla.
+          </li>
+        </ul>
+        <p>
+          El indicador está presente en dos sitios: en Facturas y en el TPV. Se
+          actualiza automáticamente cuando conectas o desconectas la impresora.
+        </p>
+
+        <h3>18.3 Reconexión automática</h3>
         <p>Tras la primera vez, la impresora se reconecta sola:</p>
         <ul>
           <li>Al cargar el panel con la sesión iniciada.</li>
           <li>Al enchufarla o encenderla con el panel abierto.</li>
           <li>Al volver a la pestaña del panel si estaba en segundo plano.</li>
-          <li>Al intentar imprimir si no estaba conectada.</li>
+          <li>
+            <strong
+              >Al intentar imprimir un justificante si no estaba
+              conectada</strong
+            >: el sistema intenta reconectarla silenciosamente antes de abrir el
+            diálogo del navegador.
+          </li>
         </ul>
+        <div class="guia-tip">
+          <i class="ri-lightbulb-line" aria-hidden="true"></i>
+          Si desenchufas la impresora, verás un toast amarillo
+          <strong>“Impresora desconectada”</strong> y el indicador pasará a rojo
+          ("USB desconectada"). Cuando la vuelvas a enchufar, se reconectará
+          automáticamente y verás el toast verde
+          <strong>“Impresora conectada correctamente”</strong>.
+        </div>
 
-        <h3>18.3 Problemas frecuentes</h3>
+        <h3>18.4 Problemas frecuentes</h3>
         <div class="guia-tabla-wrap">
           <table class="guia-tabla">
             <thead>
@@ -2717,8 +3108,18 @@ Miércoles 20:00 - 21:30
                 <td>Se imprime mal el texto (tildes)</td>
                 <td>Página de códigos de la impresora</td>
                 <td>
-                  El sistema ya envía CP850. Si sigue fallando, configura la
-                  impresora en CP850.
+                  El sistema envía CP437. Si tu impresora usa otra página de
+                  códigos, avisa a soporte.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  El indicador dice "USB desconectada" pero la impresora está
+                  enchufada
+                </td>
+                <td>El navegador no ha autorizado el dispositivo</td>
+                <td>
+                  Pulsa el botón 🔌 USB y selecciona la impresora en el diálogo.
                 </td>
               </tr>
             </tbody>
@@ -2833,6 +3234,13 @@ Miércoles 20:00 - 21:30
           minutos hasta que fiches. Se detiene al fichar entrada.
         </p>
 
+        <h3>19.6 KPI en Resumen</h3>
+        <p>
+          El último fichaje se muestra también en la pantalla de Resumen (KPI
+          ámbar "Último fichaje"). Se actualiza al fichar y al recargar la
+          pantalla.
+        </p>
+
         <!-- ══════════════════════════════════════════════════════════════════ -->
         <h2 id="limpieza">20. Limpieza</h2>
 
@@ -2889,11 +3297,17 @@ Miércoles 20:00 - 21:30
             <strong>Teléfonos bloqueados</strong>: lista persistente de bloqueos
             (incluye clientes borrados por RGPD).
           </li>
-          <li><strong>Tarifas</strong>: precios por duración y franja.</li>
-          <li><strong>Catálogo</strong>: productos del bar.</li>
           <li>
-            <strong>Datos fiscales</strong>: datos de la empresa para facturas
-            (solo jefa).
+            <strong>Tarifas</strong>: precios por duración y franja.
+            <em>(Trabajador: solo lectura.)</em>
+          </li>
+          <li>
+            <strong>Catálogo</strong>: productos del bar.
+            <em>(Solo jefa.)</em>
+          </li>
+          <li>
+            <strong>Datos fiscales</strong>: datos de la empresa para facturas.
+            <em>(Solo jefa.)</em>
           </li>
         </ul>
 
@@ -3077,9 +3491,22 @@ Miércoles 20:00 - 21:30
         </div>
 
         <!-- ══════════════════════════════════════════════════════════════════ -->
-        <h2 id="tarifas">24. Tarifas</h2>
+        <h2 id="tarifas">
+          24. Tarifas
+          <span class="guia-badge guia-badge-nuevo">Actualizado</span>
+        </h2>
 
         <p>Configuración de precios por franja y duración.</p>
+
+        <div class="guia-warn">
+          <i class="ri-error-warning-line" aria-hidden="true"></i>
+          <strong>Permisos</strong>: la jefa puede ver y editar las tarifas. El
+          trabajador puede ver los precios pero los campos están
+          <strong>deshabilitados (grises)</strong> y el botón “Guardar tarifas”
+          no se muestra. Si intenta guardar por consola, la función de guardado
+          le devolverá un toast de error ("No tienes permiso para modificar
+          tarifas").
+        </div>
 
         <h3>24.1 Franjas</h3>
         <ul>
@@ -3110,7 +3537,7 @@ Miércoles 20:00 - 21:30
           </li>
         </ul>
 
-        <h3>24.3 Editar tarifas</h3>
+        <h3>24.3 Editar tarifas (solo jefa)</h3>
         <ul>
           <li>
             Los campos de 60 min y 120 min son opcionales (si los dejas vacíos,
@@ -3126,7 +3553,18 @@ Miércoles 20:00 - 21:30
         </ul>
 
         <!-- ══════════════════════════════════════════════════════════════════ -->
-        <h2 id="catalogo">25. Catálogo de productos</h2>
+        <h2 id="catalogo">
+          25. Catálogo de productos
+          <span class="guia-badge guia-badge-nuevo">Actualizado</span>
+        </h2>
+
+        <div class="guia-warn">
+          <i class="ri-error-warning-line" aria-hidden="true"></i>
+          <strong>Solo visible para jefa</strong>. El trabajador no ve la
+          tarjeta "Catálogo" en Ajustes. Sí puede vender productos en el TPV (la
+          tarjeta de Ventas → Tienda), pero no puede gestionarlos
+          (añadir/editar/eliminar).
+        </div>
 
         <p>
           Productos del bar. Se usan en el TPV y se pueden editar desde aquí.
@@ -3464,7 +3902,7 @@ Miércoles 20:00 - 21:30
           <li><strong>Antelación mínima web</strong>: 30 min.</li>
           <li><strong>Días máximos web</strong>: 30 días vista.</li>
           <li><strong>Reservas futuras máx. web</strong>: 20.</li>
-          <li><strong>Deuda máx. web</strong>: 20 €.</li>
+          <li><strong>Deuda máx. web</strong>: 20 € (solo Pendientes).</li>
           <li><strong>Cancelación web</strong>: 24 h antes.</li>
           <li><strong>Semanas máx. peña</strong>: 52.</li>
           <li><strong>Pistas por reserva web</strong>: hasta 20.</li>
@@ -3535,13 +3973,23 @@ Miércoles 20:00 - 21:30
           <li><strong>Pagado</strong>: todos los jugadores han pagado.</li>
         </ul>
 
-        <h3>31.7 Estados de una deuda</h3>
+        <h3>
+          31.7 Estados de una deuda
+          <span class="guia-badge guia-badge-nuevo">Actualizado</span>
+        </h3>
         <ul>
-          <li><strong>Pendiente</strong>: activa.</li>
-          <li><strong>Resuelta</strong>: pagada (con quién y cuándo).</li>
           <li>
-            <strong>Anulada</strong>: eliminada del sistema (no se borra
-            físicamente). Solo jefa puede anular.
+            <strong>Pendiente</strong>: activa. Suma al total "Pendiente de
+            cobro". Se puede resolver o anular.
+          </li>
+          <li>
+            <strong>Resuelta</strong>: pagada (con quién y cuándo). No suma al
+            total. Se puede reabrir o anular.
+          </li>
+          <li>
+            <strong>Anulada</strong>: eliminada del sistema lógicamente (no se
+            borra físicamente). No suma al total. Se puede reabrir. Se muestra
+            tachada en el listado.
           </li>
         </ul>
 
@@ -3619,7 +4067,7 @@ Miércoles 20:00 - 21:30
               </tr>
               <tr>
                 <td>“Este cliente debe XX € (máximo 20 €)”</td>
-                <td>Deuda > 20 €</td>
+                <td>Deuda &gt; 20 € (solo Pendientes)</td>
                 <td>Resolver deuda o confirmar reserva manual.</td>
               </tr>
               <tr>
@@ -3668,6 +4116,28 @@ Miércoles 20:00 - 21:30
                 <td>Pulsa 🔌 USB y elige la impresora.</td>
               </tr>
               <tr>
+                <td>
+                  “No hay impresora conectada. Pulsa el botón USB para
+                  conectarla.”
+                </td>
+                <td>
+                  Intentaste imprimir sin impresora y la reconexión silenciosa
+                  falló
+                </td>
+                <td>
+                  Pulsa el botón 🔌 USB junto al botón de imprimir y selecciona
+                  la impresora.
+                </td>
+              </tr>
+              <tr>
+                <td>“Impresora desconectada” (toast amarillo)</td>
+                <td>Desenchufaste la impresora</td>
+                <td>
+                  Vuelve a enchufarla. Se reconectará automáticamente o pulsa 🔌
+                  USB.
+                </td>
+              </tr>
+              <tr>
                 <td>“Ya existe un cliente con ese teléfono”</td>
                 <td>Duplicado al crear cliente</td>
                 <td>Borra la ficha duplicada o usa otro teléfono.</td>
@@ -3706,7 +4176,7 @@ Miércoles 20:00 - 21:30
                 <td>“No se pudo emitir el justificante”</td>
                 <td>Error de validación</td>
                 <td>
-                  Revisa líneas (concepto, cantidad > 0, precio ≥ 0), IVA,
+                  Revisa líneas (concepto, cantidad &gt; 0, precio ≥ 0), IVA,
                   método.
                 </td>
               </tr>
@@ -3724,6 +4194,47 @@ Miércoles 20:00 - 21:30
                 <td>“Ese teléfono ya pertenece al cliente X”</td>
                 <td>El teléfono existe con otro nombre</td>
                 <td>Renombrar la ficha o crear una nueva.</td>
+              </tr>
+              <tr>
+                <td>
+                  “No tienes permiso para añadir a la lista” (lista de espera
+                  manual) <span class="guia-badge guia-badge-nuevo">Nuevo</span>
+                </td>
+                <td>Rol insuficiente (no staff)</td>
+                <td>Avisa a la jefa.</td>
+              </tr>
+              <tr>
+                <td>
+                  “El teléfono no parece válido (mínimo 9 cifras)” (lista de
+                  espera manual)
+                </td>
+                <td>
+                  El teléfono tiene menos de 9 dígitos o caracteres inválidos
+                </td>
+                <td>Revisa el teléfono.</td>
+              </tr>
+              <tr>
+                <td>“Indica fecha y hora” (lista de espera manual)</td>
+                <td>Faltan fecha u hora</td>
+                <td>Rellena los dos campos antes de guardar.</td>
+              </tr>
+              <tr>
+                <td>
+                  “No tienes permiso para modificar tarifas”
+                  <span class="guia-badge guia-badge-nuevo">Nuevo</span>
+                </td>
+                <td>Intentas guardar tarifas siendo trabajador</td>
+                <td>Pide a la jefa que las modifique.</td>
+              </tr>
+              <tr>
+                <td>
+                  “La deuda ya está anulada o no existe”
+                  <span class="guia-badge guia-badge-nuevo">Actualizado</span>
+                </td>
+                <td>La deuda ya estaba en estado Anulada</td>
+                <td>
+                  Recarga la lista. Si quieres reabrirla, pulsa "Reabrir".
+                </td>
               </tr>
             </tbody>
           </table>
@@ -3827,6 +4338,23 @@ Miércoles 20:00 - 21:30
             <strong>Nunca cierres una caja dos veces</strong>: si te equivocas,
             pide a la jefa que la reabra con motivo.
           </li>
+          <li>
+            <strong>Revisa el indicador USB</strong> antes de emitir
+            justificantes en el TPV o en Facturas: si dice "USB desconectada",
+            pulsa el botón USB primero para evitar que se abra el diálogo del
+            navegador.
+          </li>
+          <li>
+            <strong
+              >Si eres trabajador y necesitas cambiar tarifas o catálogo</strong
+            >, pídeselo a la jefa. Tu usuario no tiene permiso de escritura
+            sobre esas tablas.
+          </li>
+          <li>
+            <strong>Cuando anules una deuda, escribe siempre el motivo</strong>
+            en el campo de confirmación: queda registrado en el histórico y
+            ayuda a la auditoría.
+          </li>
         </ol>
 
         <!-- ══════════════════════════════════════════════════════════════════ -->
@@ -3921,7 +4449,8 @@ Miércoles 20:00 - 21:30
               <tr>
                 <td><strong>Soft delete</strong></td>
                 <td>
-                  Marcar como “Eliminado” sin borrar físicamente (productos).
+                  Marcar como “Eliminado” sin borrar físicamente (productos,
+                  deudas anuladas).
                 </td>
               </tr>
               <tr>
@@ -3932,6 +4461,13 @@ Miércoles 20:00 - 21:30
                 <td><strong>Consentimiento</strong></td>
                 <td>
                   Aceptación expresa de la política de privacidad al reservar.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>CP437</strong></td>
+                <td>
+                  Página de códigos que usa la impresora térmica para imprimir
+                  tildes, ñ y símbolos correctamente.
                 </td>
               </tr>
             </tbody>
@@ -3999,7 +4535,7 @@ Miércoles 20:00 - 21:30
         <h3>35.8 ¿Por qué un cliente no puede reservar por la web?</h3>
         <ul>
           <li>Está bloqueado (ficha o teléfono persistente).</li>
-          <li>Tiene deuda &gt; 20 €.</li>
+          <li>Tiene deuda &gt; 20 € en estado Pendiente.</li>
           <li>Ya tiene 20 reservas futuras.</li>
           <li>No hay huecos libres válidos.</li>
         </ul>
@@ -4031,9 +4567,9 @@ Miércoles 20:00 - 21:30
 
         <h3>35.13 ¿Cómo elimino un producto que ya no vendo?</h3>
         <p>
-          En Ajustes → Catálogo, pulsa “Eliminar”. Se marca como Eliminado y no
-          se borra físicamente (para no romper ventas antiguas). No aparecerá en
-          el TPV ni en el escaparate.
+          En Ajustes → Catálogo (solo jefa), pulsa “Eliminar”. Se marca como
+          Eliminado y no se borra físicamente (para no romper ventas antiguas).
+          No aparecerá en el TPV ni en el escaparate.
         </p>
 
         <h3>35.14 ¿Puedo cambiar el fondo de caja?</h3>
@@ -4084,6 +4620,89 @@ Miércoles 20:00 - 21:30
           medida.
         </p>
 
+        <h3>
+          35.21 ¿Por qué el botón "Cerrar caja" ya no aparece en Resumen cuando
+          soy trabajador? <span class="guia-badge guia-badge-nuevo">Nuevo</span>
+        </h3>
+        <p>
+          Porque el trabajador ya no tiene acceso a la pestaña Caja. En su
+          lugar, el Resumen muestra el botón <strong>“Fichar”</strong> y el KPI
+          "Último fichaje". Los ingresos del día los puedes ver en el KPI verde
+          "Ingresos hoy" del propio Resumen (con el desglose efectivo /
+          tarjeta).
+        </p>
+
+        <h3>
+          35.22 Soy trabajador, ¿por qué no puedo emitir facturas?
+          <span class="guia-badge guia-badge-nuevo">Nuevo</span>
+        </h3>
+        <p>
+          Por diseño: solo la jefa puede emitir facturas legales. Los
+          trabajadores emiten únicamente <strong>Justificantes de pago</strong>
+          (documentos no válidos fiscalmente). El selector de tipo está
+          bloqueado en "Justificante de pago" y no se puede cambiar.
+        </p>
+
+        <h3>
+          35.23 Soy trabajador, ¿por qué no puedo editar las tarifas?
+          <span class="guia-badge guia-badge-nuevo">Nuevo</span>
+        </h3>
+        <p>
+          Los campos están visibles (para que puedas consultar los precios) pero
+          deshabilitados. El botón "Guardar tarifas" no se muestra. Si necesitas
+          un cambio, pídeselo a la jefa.
+        </p>
+
+        <h3>
+          35.24 ¿Cómo añado a alguien a la lista de espera manualmente?
+          <span class="guia-badge guia-badge-nuevo">Nuevo</span>
+        </h3>
+        <p>
+          En Reservas → tarjeta "Lista de espera", rellena el formulario de
+          arriba (fecha, hora, duración, teléfono) y pulsa
+          <strong>“Añadir a la lista”</strong>. La fila aparece inmediatamente
+          en la tabla con los botones habituales de "Avisar (WhatsApp)" y
+          "Quitar".
+        </p>
+
+        <h3>
+          35.25 ¿Cómo sé si la impresora térmica está conectada?
+          <span class="guia-badge guia-badge-nuevo">Nuevo</span>
+        </h3>
+        <p>
+          Al lado de los botones de imprimir (en Facturas y en TPV) hay un
+          badge:
+        </p>
+        <ul>
+          <li><strong>Verde "USB conectada"</strong>: lista para imprimir.</li>
+          <li>
+            <strong>Gris "USB desconectada"</strong>: no hay impresora. Pulsa el
+            botón 🔌 USB para conectarla.
+          </li>
+        </ul>
+
+        <h3>
+          35.26 ¿Qué pasa si anulo una deuda Resuelta?
+          <span class="guia-badge guia-badge-nuevo">Actualizado</span>
+        </h3>
+        <p>
+          Antes no se podía. Ahora sí: la deuda pasa a estado "Anulada", se
+          muestra tachada en el listado y deja de sumar al total. Puedes
+          reabrirla después si te equivocas, volviendo a estado "Pendiente".
+        </p>
+
+        <h3>35.27 ¿Qué diferencia hay entre anular y resolver una deuda?</h3>
+        <ul>
+          <li>
+            <strong>Resolver</strong>: el cliente ha pagado. Queda rastro del
+            cobro con nombre y fecha.
+          </li>
+          <li>
+            <strong>Anular</strong>: la deuda no debía existir (error,
+            condonación, cliente equivocado…). No deja rastro de cobro.
+          </li>
+        </ul>
+
         <!-- ══════════════════════════════════════════════════════════════════ -->
         <h2 id="soporte">36. Soporte</h2>
 
@@ -4092,7 +4711,7 @@ Miércoles 20:00 - 21:30
           <li>
             <strong>Jefa del club</strong>: permisos, reaperturas de caja,
             rectificaciones, RGPD, bloqueos manuales, ajustes fiscales, copia de
-            seguridad.
+            seguridad, edición de tarifas y catálogo.
           </li>
           <li>
             <strong>Soporte técnico</strong>: errores de la app, pérdida de
@@ -4112,8 +4731,12 @@ Miércoles 20:00 - 21:30
           <li>Qué ha pasado realmente (mensaje exacto si lo hay).</li>
           <li>Captura de pantalla si es posible.</li>
           <li>Hora aproximada (con zona horaria).</li>
-          <li>Usuario con el que estabas conectado.</li>
+          <li>Usuario con el que estabas conectado (y rol).</li>
           <li>Navegador y dispositivo (Chrome en PC, Safari en iPhone…).</li>
+          <li>
+            Si es un problema de impresora: estado del badge (verde/gris),
+            navegador y si has probado el botón 🔌 USB.
+          </li>
         </ol>
 
         <h3>36.3 Canales oficiales</h3>
