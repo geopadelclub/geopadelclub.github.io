@@ -1118,6 +1118,7 @@ function abrirModalNuevaReserva(
   $("modalPrecio").value = precioSugerido().toFixed(2);
   actualizarVistasJugadoresSplit();
   resetBtnGuardar();
+  actualizarBotonWhatsAppModal();
   abrirOverlay("modalReserva");
   setTimeout(() => $("modalCliente").focus(), 60);
 }
@@ -1205,6 +1206,7 @@ function abrirModalEditarReserva(res) {
 
   actualizarVistasJugadoresSplit();
   resetBtnGuardar();
+  actualizarBotonWhatsAppModal();
   abrirOverlay("modalReserva");
 }
 
@@ -1719,11 +1721,37 @@ async function confirmarGuardarReserva() {
     }
 
     await guardarClienteSilencioso(cliente, telefono, tipoCli);
+    const avisarPorWA =
+      telefono && telefonoValido(telefono) && insertData && insertData[0];
+    const datosAviso = {
+      cliente,
+      telefono,
+      fecha: iso,
+      horaInicio,
+      duracionMin,
+      pista: pistasSel[0],
+      precio: importe,
+    };
+
     toast(
       filas.length > 1 ? `${filas.length} reservas creadas` : "Reserva creada",
     );
     cerrarModal();
     cargarReservasHoy();
+    if (avisarPorWA) {
+      setTimeout(async () => {
+        try {
+          const quiereAvisar = await customConfirm(
+            `¿Quieres avisar a ${cliente.split(" ")[0]} por WhatsApp de que su reserva está confirmada?\n\nSe abrirá WhatsApp con un mensaje predefinido con los datos de la reserva.`,
+            "Avisar al cliente",
+          );
+          if (quiereAvisar) abrirWhatsAppReserva(datosAviso);
+        } catch (e) {
+          console.error("Error al ofrecer aviso por WhatsApp:", e);
+        }
+      }, 250);
+    }
+    return;
   } catch (err) {
     console.error(err);
     if (err && err.code === "23P01") {
@@ -2171,7 +2199,38 @@ function telWhatsApp(tel) {
   if (t.length === 9) return "34" + t;
   return t;
 }
-
+function construirMensajeWhatsAppReserva(r) {
+  const dur = parseInt(r.duracionMin, 10) || 90;
+  const [h, m] = String(r.horaInicio || "0:0")
+    .split(":")
+    .map(Number);
+  const fin = minToTimeStr((h || 0) * 60 + (m || 0) + dur);
+  const nombrePila =
+    String(r.cliente || "")
+      .trim()
+      .split(" ")[0] || "cliente";
+  const fecha = fechaBonita(r.fecha, true);
+  const precio = eur(r.precio);
+  return `Hola ${nombrePila}, tu reserva en Geopadel está confirmada:\n\n📅 ${fecha}\n🕒 ${r.horaInicio} – ${fin}\n📍 ${r.pista}\n💶 ${precio} (se paga en el club)\n\n¡Nos vemos en la pista!`;
+}
+function abrirWhatsAppReserva(r) {
+  if (!r || !r.telefono) return toast("El cliente no tiene teléfono", "warn");
+  const tel = telWhatsApp(r.telefono);
+  if (!tel) return toast("El teléfono no es válido", "warn");
+  const msg = construirMensajeWhatsAppReserva(r);
+  window.open(
+    `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`,
+    "_blank",
+    "noopener,noreferrer",
+  );
+}
+function actualizarBotonWhatsAppModal() {
+  const btn = $("btnWhatsAppReserva");
+  if (!btn) return;
+  const id = $("modalReservaId").value;
+  const tel = ($("modalTelefono").value || "").trim();
+  btn.style.display = id && telefonoValido(tel) ? "" : "none";
+}
 async function anadirEsperaManual(e) {
   e.preventDefault();
   const msg = $("msgEsp");
@@ -2711,6 +2770,20 @@ function abrirModoEnvioPlantillas(plantillas) {
         render();
       }
     });
+  }
+  if ($("btnWhatsAppReserva")) {
+    $("btnWhatsAppReserva").addEventListener("click", () => {
+      const id = $("modalReservaId").value;
+      if (!id) return;
+      const r = (datosLocales.reservas || []).find(
+        (x) => String(x.id) === String(id),
+      );
+      if (r) abrirWhatsAppReserva(r);
+      else toast("No se encontró la reserva", "err");
+    });
+  }
+  if ($("modalTelefono")) {
+    $("modalTelefono").addEventListener("input", actualizarBotonWhatsAppModal);
   }
 
   function cerrar() {

@@ -1449,3 +1449,13 @@ i[class*=" ri-"] {
     transition: none;
   }
 }
+.btn-add.wa {
+  background: #25d366;
+  color: #0b3d1e;
+}
+.btn-add.wa:hover {
+  filter: brightness(0.94);
+}
+.btn-add.wa i {
+  color: #0b3d1e;
+}
