@@ -479,10 +479,11 @@ function renderHuecos() {
     .map((s) => {
       if (s.op) {
         const libres = s.op.libres || 1;
-        const libresTxt =
-          libres > 1
-            ? ` · ${libres} ${t("reservar.numPistas.disponibles")}`
-            : "";
+        const libresTxt = ` · ${libres} ${
+          libres === 1
+            ? t("reservar.numPistas.disponible")
+            : t("reservar.numPistas.disponibles")
+        }`;
         const urgencia =
           libres >= 3
             ? "libres-alto"
@@ -1331,10 +1332,11 @@ async function cargarHorasModificar() {
       }
       if (s.op && s.op.libres > 0) {
         const libres = s.op.libres || 1;
-        const libresTxt =
-          libres > 1
-            ? ` · ${libres} ${t("reservar.numPistas.disponibles")}`
-            : "";
+        const libresTxt = ` · ${libres} ${
+          libres === 1
+            ? t("reservar.numPistas.disponible")
+            : t("reservar.numPistas.disponibles")
+        }`;
         return `<button type="button" class="cl-slot" data-mod-hora="${esc(s.hora)}">${esc(s.hora)}<span>${eur(s.op.precio)}${libresTxt}</span></button>`;
       }
       return `<button type="button" class="cl-slot cl-slot-ocupado" disabled>${esc(s.hora)}<span>${t("reservar.waitlist.cta")}</span></button>`;

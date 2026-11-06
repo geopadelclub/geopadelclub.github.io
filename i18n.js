@@ -152,6 +152,7 @@ const I18N = {
     "reservar.valid-phone": "Teléfono válido",
     "reservar.invalid-phone": "Introduce al menos 9 cifras",
     "reservar.numPistas.label": "¿Cuántas pistas quieres?",
+    "reservar.numPistas.disponible": "libre",
     "reservar.numPistas.disponibles": "libres",
 
     "reservar.recibida": "Reserva recibida",
@@ -412,6 +413,7 @@ const I18N = {
     "reservar.valid-phone": "Valid phone",
     "reservar.invalid-phone": "Enter at least 9 digits",
     "reservar.numPistas.label": "How many courts?",
+    "reservar.numPistas.disponible": "free",
     "reservar.numPistas.disponibles": "free",
 
     "reservar.recibida": "Booking received",

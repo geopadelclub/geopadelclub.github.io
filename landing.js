@@ -135,8 +135,11 @@ function renderHuecos() {
       const op = opcionMasBarata(s.opciones);
       const libres = Number(op.libres) || 1;
       const durTxt = duracionTxt(op.dur);
-      const libresTxt =
-        libres > 1 ? ` · ${libres} ${t("reservar.numPistas.disponibles")}` : "";
+      const libresTxt = ` · ${libres} ${
+        libres === 1
+          ? t("reservar.numPistas.disponible")
+          : t("reservar.numPistas.disponibles")
+      }`;
       return `<a class="hueco-chip" href="reservar?fecha=${_huecos.fecha}&hora=${s.hora}&dur=${op.dur}" aria-label="${s.hora} ${durTxt}">
         <b>${s.hora}</b>
         <span class="hueco-chip-precio">${eur(op.precio, true)}</span>
