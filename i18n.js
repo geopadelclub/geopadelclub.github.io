@@ -250,7 +250,6 @@ const I18N = {
     "tienda.error": "No se pudo cargar la tienda.",
     "tienda.retry": "Reintentar",
     "tienda.cerrar": "Cerrar",
-    "tienda.foto.ver": "Ver foto de {titulo} más grande",
 
     "resena.titulo": "¿Te ha gustado Geopadel?",
     "resena.texto":
@@ -262,6 +261,9 @@ const I18N = {
     "wa.desc": "Recibe avisos de huecos libres y novedades del club.",
     "wa.cta": "Unirme",
     "mis-reservas.modificar": "Modificar",
+    "tienda.foto.ver": "Ver foto de {titulo} más grande",
+    "tienda.whatsapp.cta": "Preguntar por WhatsApp",
+    "tienda.whatsapp.aria": "Preguntar por {titulo} por WhatsApp",
   },
 
   en: {
@@ -507,7 +509,6 @@ const I18N = {
     "tienda.error": "Could not load the shop.",
     "tienda.retry": "Retry",
     "tienda.cerrar": "Close",
-    "tienda.foto.ver": "See photo of {titulo} larger",
 
     "resena.titulo": "Did you enjoy Geopadel?",
     "resena.texto":
@@ -519,6 +520,9 @@ const I18N = {
     "wa.desc": "Get notified about free slots and club news.",
     "wa.cta": "Join",
     "mis-reservas.modificar": "Change",
+    "tienda.foto.ver": "See photo of {titulo} larger",
+    "tienda.whatsapp.cta": "Ask on WhatsApp",
+    "tienda.whatsapp.aria": "Ask about {titulo} on WhatsApp",
   },
 };
 

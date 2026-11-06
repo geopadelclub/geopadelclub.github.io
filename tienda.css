@@ -260,3 +260,54 @@
 .cl-legal-tienda {
   margin-top: 40px;
 }
+.tienda-wa-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: #25d366;
+  color: #0b3d1e;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.28);
+  transition:
+    filter 0.15s,
+    transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tienda-wa-btn:hover {
+  filter: brightness(0.95);
+}
+
+.tienda-wa-btn:active {
+  transform: scale(0.97);
+}
+
+.tienda-wa-btn:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.tienda-wa-btn i {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 480px) {
+  .tienda-wa-btn {
+    padding: 9px 12px;
+    font-size: 12.5px;
+  }
+  .tienda-wa-btn i {
+    font-size: 16px;
+  }
+}

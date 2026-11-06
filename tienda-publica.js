@@ -20,12 +20,24 @@ function tiendaTarjeta(a, index) {
   const fotoHtml = foto
     ? `<button type="button" class="tienda-foto-btn" data-foto-id="${esc(a.id)}" aria-label="${esc(t("tienda.foto.ver", { titulo: a.titulo }))}">${img}</button>`
     : img;
+
+  const precioTxt = eur(a.precio);
+  const waMsg =
+    _idioma === "en"
+      ? `Hi, I saw "${a.titulo}" for ${precioTxt} in your online shop and I'm interested. Could you give me more information?`
+      : `Hola, he visto «${a.titulo}» por ${precioTxt} en vuestra tienda online y estoy interesado/a. ¿Me podéis dar más información?`;
+  const waUrl = `https://wa.me/34646059962?text=${encodeURIComponent(waMsg)}`;
+
   return `<article class="tienda-card${foto ? " con-foto" : ""}">
     <div class="tienda-foto">${fotoHtml}</div>
     <div class="tienda-info">
       <h2>${esc(a.titulo)}</h2>
       ${a.descripcion ? `<p>${esc(a.descripcion)}</p>` : ""}
-      <div class="tienda-precio">${eur(a.precio)}</div>
+      <div class="tienda-precio">${precioTxt}</div>
+      <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="tienda-wa-btn" aria-label="${esc(t("tienda.whatsapp.aria", { titulo: a.titulo }))}">
+        <i class="ri-whatsapp-line" aria-hidden="true"></i>
+        <span>${esc(t("tienda.whatsapp.cta"))}</span>
+      </a>
     </div>
   </article>`;
 }
@@ -143,6 +155,10 @@ document.addEventListener("DOMContentLoaded", () => {
   iniciarTema();
   $("btnTema").addEventListener("click", alternarTema);
   cargarTienda(false);
+});
+
+document.addEventListener("idioma-cambiado", () => {
+  if (tiendaCache.lista) dibujarTienda(tiendaCache.lista);
 });
 if ($("tiendaGrid")) {
   $("tiendaGrid").addEventListener("click", (e) => {
