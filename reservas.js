@@ -2,6 +2,17 @@
 let reqReservas = 0;
 let _pendingPagoUnico = null;
 let listaEsperaCache = [];
+let _guardandoReserva = false;
+
+function resetBtnGuardar() {
+  const btn = $("btnGuardarReserva");
+  if (!btn) return;
+  btn.disabled = false;
+  btn.innerHTML =
+    '<i class="ri-save-line" aria-hidden="true"></i>Guardar reserva';
+  delete btn.dataset.txt;
+  _guardandoReserva = false;
+}
 async function cargarReservasHoy() {
   const iso = $("fechaCuadrante").value || fechaLocalISO();
   const miReq = ++reqReservas;
@@ -1106,6 +1117,7 @@ function abrirModalNuevaReserva(
   alCambiarTipo();
   $("modalPrecio").value = precioSugerido().toFixed(2);
   actualizarVistasJugadoresSplit();
+  resetBtnGuardar();
   abrirOverlay("modalReserva");
   setTimeout(() => $("modalCliente").focus(), 60);
 }
@@ -1192,6 +1204,7 @@ function abrirModalEditarReserva(res) {
   $("btnHistorialReserva").style.display = ocultar ? "none" : "inline-block";
 
   actualizarVistasJugadoresSplit();
+  resetBtnGuardar();
   abrirOverlay("modalReserva");
 }
 
@@ -1287,6 +1300,7 @@ async function cambiarPagoJugador(numJugador, nuevoMetodo, btn) {
 function cerrarModal() {
   cerrarOverlay("modalReserva");
   _pendingPagoUnico = null;
+  resetBtnGuardar();
 }
 
 async function guardarClienteSilencioso(
@@ -1381,6 +1395,7 @@ async function guardarClienteSilencioso(
 }
 
 async function confirmarGuardarReserva() {
+  if (_guardandoReserva) return;
   const cliente = $("modalCliente").value.trim();
   if (!cliente) return toast("Introduce el nombre del cliente", "warn");
   const pistasSel = obtenerPistasSeleccionadasModal();
@@ -1488,6 +1503,7 @@ async function confirmarGuardarReserva() {
   }
   const notas = $("modalNotas").value.trim();
   const btn = $("btnGuardarReserva");
+  _guardandoReserva = true;
   setBusy(
     btn,
     true,
@@ -1724,6 +1740,7 @@ async function confirmarGuardarReserva() {
     }
     toast("Error al guardar la reserva: " + (err.message || err), "err");
   } finally {
+    _guardandoReserva = false;
     setBusy(btn, false);
   }
 }

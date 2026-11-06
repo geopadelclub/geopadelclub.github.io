@@ -116,3 +116,26 @@ document.addEventListener("click", (e) => {
   }
   if (typeof cambiarPestana === "function") cambiarPestana(n);
 });
+async function recargarResumen() {
+  const btn = $("btnRecargarResumen");
+  if (!btn || btn.disabled) return;
+  const htmlOrig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML =
+    '<i class="ri-refresh-line ri-spin" aria-hidden="true"></i>Recargando...';
+  try {
+    await cargarDatosGlobales();
+    await entrarResumen();
+    toast("Resumen actualizado", "ok");
+  } catch (e) {
+    console.error(e);
+    toast("No se pudo recargar el resumen", "err");
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = htmlOrig;
+  }
+}
+
+if ($("btnRecargarResumen")) {
+  $("btnRecargarResumen").addEventListener("click", recargarResumen);
+}

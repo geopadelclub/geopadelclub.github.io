@@ -730,6 +730,55 @@
     </div>
 
     <dialog
+      id="modalModificarReserva"
+      class="modal-overlay"
+      aria-labelledby="modTitulo"
+    >
+      <form method="dialog" class="modal-card-double small">
+        <div class="modal-header-bar">
+          <h4>
+            <span class="gp-modal-brand">GEOPADEL</span> ·
+            <span id="modTitulo">Modificar reserva</span>
+          </h4>
+          <button
+            type="button"
+            class="modal-close"
+            id="modCerrar"
+            aria-label="Cerrar"
+          >
+            <i class="ri-close-line" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="modal-single-body">
+          <div id="modActual" class="mod-actual"></div>
+
+          <div class="form-group">
+            <label for="modFecha">Nueva fecha</label>
+            <input type="date" id="modFecha" />
+          </div>
+
+          <div class="form-group">
+            <label for="modDuracion">Duración</label>
+            <select id="modDuracion"></select>
+          </div>
+
+          <label class="mod-hora-label">Nueva hora</label>
+          <div id="modHoras" class="cl-slots" aria-live="polite"></div>
+
+          <div id="modMsg" class="msg-inline" aria-live="polite"></div>
+        </div>
+        <div class="modal-footer-bar">
+          <button type="button" class="btn-add gray" id="modCancelar">
+            Cancelar
+          </button>
+          <button type="button" class="btn-add blue" id="modGuardar">
+            <i class="ri-save-line" aria-hidden="true"></i>Guardar cambios
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog
       id="modalConfirmDialog"
       class="modal-overlay"
       aria-labelledby="confirmDialogTitle"

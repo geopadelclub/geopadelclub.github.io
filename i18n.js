@@ -261,6 +261,7 @@ const I18N = {
     "wa.titulo": "Únete a nuestra comunidad",
     "wa.desc": "Recibe avisos de huecos libres y novedades del club.",
     "wa.cta": "Unirme",
+    "mis-reservas.modificar": "Modificar",
   },
 
   en: {
@@ -517,6 +518,7 @@ const I18N = {
     "wa.titulo": "Join our community",
     "wa.desc": "Get notified about free slots and club news.",
     "wa.cta": "Join",
+    "mis-reservas.modificar": "Change",
   },
 };
 

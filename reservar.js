@@ -26,6 +26,8 @@ let waitlistHora = null;
 let ultimaReserva = null;
 let ts = { id: null, token: "", hostId: null };
 const TTL_HUECOS = 3e4;
+let modReserva = null;
+let modSlotsCache = [];
 
 function fechaDesdeISO(iso) {
   const [y, m, d] = iso.split("-").map(Number);
@@ -206,6 +208,22 @@ function motivoTexto(motivo) {
     return "Tiene pagos registrados. Llama al club para cambiarla.";
   return "Llama al club para cambiarla.";
 }
+function motivoModificarTexto(motivo) {
+  const en = _idioma === "en";
+  if (motivo === "plazo")
+    return en
+      ? `Can only be modified ${cfg.cancelar_horas} h in advance. Call the club.`
+      : `Solo se puede modificar con ${cfg.cancelar_horas} h de antelación. Llama al club.`;
+  if (motivo === "tipo")
+    return en
+      ? "This booking can only be changed by calling the club."
+      : "Esta reserva solo se puede cambiar llamando al club.";
+  if (motivo === "pagada")
+    return en
+      ? "It has registered payments. Call the club to change it."
+      : "Tiene pagos registrados. Llama al club para cambiarla.";
+  return en ? "Call the club to change it." : "Llama al club para cambiarla.";
+}
 function textoError(e) {
   const err = e && e.error;
   const en = _idioma === "en";
@@ -290,6 +308,8 @@ function textoError(e) {
         : "Tienes un pago pendiente. Llama al club.";
     case "no_cancelable":
       return motivoTexto(e.motivo);
+    case "no_modificable":
+      return motivoModificarTexto(e.motivo);
     case "error_servidor":
       return en
         ? "Server error. Please try again or call the club."
@@ -1167,9 +1187,12 @@ function dibujarMisReservas(data) {
                 : `<div class="cl-res-acciones">${repetir}</div><p class="cl-hint">${t("mis-reservas.recurrente", { n: fechas.length })}</p>`;
           } else {
             const repetir = `<button type="button" class="btn-add gray" data-repetir="${esc(g.id)}" data-fecha="${esc(g.fecha)}" data-hora="${esc(g.hora)}" data-dur="${esc(g.duracion)}"><i class="ri-repeat-line" aria-hidden="true"></i>${t("mis-reservas.repetir")}</button>`;
+            const modificar = g.motivo
+              ? ""
+              : `<button type="button" class="btn-add gray" data-modificar="${esc(g.id)}"><i class="ri-edit-line" aria-hidden="true"></i>${t("mis-reservas.modificar")}</button>`;
             acciones = g.motivo
               ? `<div class="cl-res-acciones"><p class="cl-hint">${esc(motivoTexto(g.motivo))}</p>${repetir}</div>`
-              : `<div class="cl-res-acciones"><button type="button" class="btn-add danger" data-cancelar="${esc(g.id)}"><i class="ri-delete-bin-line" aria-hidden="true"></i>${t("mis-reservas.cancelar")}</button>${repetir}</div>`;
+              : `<div class="cl-res-acciones"><button type="button" class="btn-add danger" data-cancelar="${esc(g.id)}"><i class="ri-delete-bin-line" aria-hidden="true"></i>${t("mis-reservas.cancelar")}</button>${modificar}${repetir}</div>`;
           }
           return `<article class="cl-res"><div class="cl-res-top"><b>${fechaTxt}</b><div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">${entidadChip} ${tipoChip} ${confirmada}</div></div><div class="cl-res-info"><span><i class="ri-time-line" aria-hidden="true"></i>${esc(g.hora)} – ${fin}</span><span><i class="ri-map-pin-line" aria-hidden="true"></i>${esc(g.pista)}</span><span><i class="ri-money-euro-circle-line" aria-hidden="true"></i>${eur(g.precio)}</span></div>${acciones}</article>`;
         })
@@ -1193,6 +1216,7 @@ async function cargarMisReservas(ident, codigo) {
       return;
     }
     cuenta = { ident, codigo, nombre: res.nombre };
+    window.__misReservasCache = res.reservas || [];
     document.getElementById("misCodigo").value = "";
     dibujarMisReservas(res);
     mostrarMis(true);
@@ -1232,6 +1256,121 @@ async function repetirReserva(btn) {
     toast(t("reservar.toast.noSlotNextWeek"), "warn");
     renderHuecos();
   }
+}
+
+function rellenarDuracionesModificar() {
+  const el = document.getElementById("modDuracion");
+  if (!el) return;
+  const durs = cfg.duraciones || [60, 90];
+  el.innerHTML = durs
+    .map((d) => `<option value="${d}">${esc(duracionTxt(d))}</option>`)
+    .join("");
+  if (modReserva && durs.includes(modReserva.duracion))
+    el.value = String(modReserva.duracion);
+}
+
+async function cargarHorasModificar() {
+  const cont = document.getElementById("modHoras");
+  if (!cont || !modReserva) return;
+  const fecha = document.getElementById("modFecha").value;
+  const dur =
+    parseInt(document.getElementById("modDuracion").value, 10) ||
+    modReserva.duracion;
+  if (!fecha) {
+    cont.innerHTML = `<p class="cl-empty">Elige una fecha</p>`;
+    return;
+  }
+
+  cont.innerHTML = `<p class="cl-empty">${t("reservar.searching")}</p>`;
+  try {
+    const data = await rpc("web_disponibilidad", { p_fecha: fecha });
+    if (!data || !data.ok) {
+      cont.innerHTML = `<p class="cl-empty">${t("reservar.error")}</p>`;
+      return;
+    }
+    modSlotsCache = data.slots || [];
+  } catch (e) {
+    console.error(e);
+    cont.innerHTML = `<p class="cl-empty">${t("reservar.error")}</p>`;
+    return;
+  }
+
+  const hoy = fechaLocalISO();
+  const esMismoDiaOriginal = fecha === modReserva.fecha;
+  const slots = modSlotsCache
+    .filter((s) => !s.durs_validas || s.durs_validas.includes(dur))
+    .map((s) => {
+      const op = (s.opciones || []).find((o) => o.dur === dur);
+      const esActual =
+        esMismoDiaOriginal &&
+        s.hora === modReserva.hora &&
+        dur === modReserva.duracion;
+      return { hora: s.hora, op, esActual };
+    })
+    .filter((s) => {
+      if (fecha === hoy) return horaReservable(fecha, s.hora);
+      return true;
+    });
+
+  if (!slots.length) {
+    cont.innerHTML = `<p class="cl-empty">${t("reservar.antelacion", { min: duracionTxt(antMin()) })}${t("reservar.antelacion-llama")}</p>`;
+    return;
+  }
+
+  cont.innerHTML = slots
+    .map((s) => {
+      if (s.esActual) {
+        const precio = s.op ? s.op.precio : modReserva.precio;
+        return `<button type="button" class="cl-slot active" data-mod-hora="${esc(s.hora)}">${esc(s.hora)}<span>${eur(precio)} · actual</span></button>`;
+      }
+      if (s.op && s.op.libres > 0) {
+        const libres = s.op.libres || 1;
+        const libresTxt =
+          libres > 1
+            ? ` · ${libres} ${t("reservar.numPistas.disponibles")}`
+            : "";
+        return `<button type="button" class="cl-slot" data-mod-hora="${esc(s.hora)}">${esc(s.hora)}<span>${eur(s.op.precio)}${libresTxt}</span></button>`;
+      }
+      return `<button type="button" class="cl-slot cl-slot-ocupado" disabled>${esc(s.hora)}<span>${t("reservar.waitlist.cta")}</span></button>`;
+    })
+    .join("");
+
+  if (!cont.querySelector(".cl-slot.active")) {
+    const s = cont.querySelector(`[data-mod-hora="${modReserva.hora}"]`);
+    if (s && !s.disabled) s.classList.add("active");
+  }
+}
+
+function abrirModalModificar(g) {
+  if (!g) return;
+  modReserva = {
+    id: g.id,
+    fecha: g.fecha,
+    hora: g.hora,
+    duracion: g.duracion,
+    pista: g.pista,
+    precio: g.precio,
+  };
+  document.getElementById("modActual").innerHTML = `
+    <div>${esc(fechaWeb(g.fecha))} · ${esc(g.hora)} · ${esc(duracionTxt(g.duracion))}</div>
+    <small>Pista ${esc(g.pista)}</small>
+  `;
+  const inp = document.getElementById("modFecha");
+  inp.min = fechaLocalISO();
+  inp.max = sumarDiasISO(fechaLocalISO(), cfg.dias_max || 30);
+  inp.value = g.fecha;
+  rellenarDuracionesModificar();
+  document.getElementById("modMsg").innerText = "";
+  cargarHorasModificar();
+  const dlg = document.getElementById("modalModificarReserva");
+  if (dlg && !dlg.open) dlg.showModal();
+}
+
+function cerrarModalModificar() {
+  const dlg = document.getElementById("modalModificarReserva");
+  if (dlg && dlg.open) dlg.close();
+  modReserva = null;
+  modSlotsCache = [];
 }
 
 function refrescarHuecosSiToca() {
@@ -1436,6 +1575,15 @@ document.getElementById("misLista").addEventListener("click", async (e) => {
     repetirReserva(rep);
     return;
   }
+  const mod = e.target.closest("button[data-modificar]");
+  if (mod && cuenta) {
+    const id = mod.dataset.modificar;
+    const grupo = agruparReservas(window.__misReservasCache || []).find(
+      (g) => String(g.id) === String(id),
+    );
+    if (grupo) abrirModalModificar(grupo);
+    return;
+  }
   const canc = e.target.closest("button[data-cancelar]");
   if (!canc || !cuenta) return;
   if (!(await customConfirm(t("mis-reservas.cancel-confirm")))) return;
@@ -1458,6 +1606,107 @@ document.getElementById("misLista").addEventListener("click", async (e) => {
     setBusy(canc, false);
   }
 });
+
+(function initModalModificar() {
+  const dlg = document.getElementById("modalModificarReserva");
+  if (!dlg) return;
+  document.getElementById("modCerrar").addEventListener("click", () => {
+    cerrarModalModificar();
+  });
+  document.getElementById("modCancelar").addEventListener("click", () => {
+    cerrarModalModificar();
+  });
+  dlg.addEventListener("cancel", () => {
+    modReserva = null;
+    modSlotsCache = [];
+  });
+  document.getElementById("modFecha").addEventListener("change", () => {
+    cargarHorasModificar();
+  });
+  document.getElementById("modDuracion").addEventListener("change", () => {
+    cargarHorasModificar();
+  });
+  document.getElementById("modHoras").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-mod-hora]");
+    if (!b || b.disabled) return;
+    document
+      .querySelectorAll("#modHoras .cl-slot")
+      .forEach((x) => x.classList.remove("active"));
+    b.classList.add("active");
+  });
+  document.getElementById("modGuardar").addEventListener("click", async () => {
+    if (!modReserva || !cuenta) return;
+    const msg = document.getElementById("modMsg");
+    const fecha = document.getElementById("modFecha").value;
+    const dur = parseInt(document.getElementById("modDuracion").value, 10);
+    const selEl = document.querySelector("#modHoras .cl-slot.active");
+    const hora = selEl ? selEl.dataset.modHora : null;
+    if (!fecha || !hora) {
+      msg.style.color = "var(--red)";
+      msg.innerText = t("reservar.toast.choose-hour");
+      return;
+    }
+    if (!horaReservable(fecha, hora)) {
+      msg.style.color = "var(--red)";
+      msg.innerText =
+        t("reservar.antelacion", { min: duracionTxt(antMin()) }) +
+        t("reservar.antelacion-llama");
+      return;
+    }
+    const esMismoSlot =
+      fecha === modReserva.fecha &&
+      hora === modReserva.hora &&
+      dur === modReserva.duracion;
+    if (esMismoSlot) {
+      msg.style.color = "var(--muted)";
+      msg.innerText = "No has cambiado nada.";
+      return;
+    }
+    const [y, m, d] = fecha.split("-").map(Number);
+    const min = timeToMin(hora);
+    const objetivo = Date.UTC(y, m - 1, d, Math.floor(min / 60), min % 60);
+    const horas = (objetivo - ahoraMadrid().msUTC) / 3600000;
+    if (horas < 24) {
+      const ok = await customConfirm(
+        `Esta reserva quedará a menos de 24 h del partido.\n\nDespués de guardar NO podrás modificar ni cancelar online (solo llamando al club).\n\n¿Continuar?`,
+        "Cambio a menos de 24 h",
+      );
+      if (!ok) return;
+    }
+    const btn = document.getElementById("modGuardar");
+    setBusy(btn, true, SPIN + "Guardando...");
+    try {
+      const res = await llamarEdge("modificar", {
+        p_ident: cuenta.ident,
+        p_codigo: cuenta.codigo,
+        p_reserva_id: modReserva.id,
+        p_nueva_fecha: fecha,
+        p_nueva_hora: hora,
+        p_nueva_duracion: dur,
+      });
+      if (!res || !res.ok) {
+        msg.style.color = "var(--red)";
+        msg.innerText = textoError(res);
+        if (
+          res &&
+          (res.error === "sin_disponibilidad" || res.error === "hora_pasada")
+        ) {
+          cargarHorasModificar();
+        }
+        return;
+      }
+      cerrarModalModificar();
+      toast("Reserva modificada");
+      await cargarMisReservas(cuenta.ident, cuenta.codigo);
+    } catch (e) {
+      console.error(e);
+      msg.style.color = "var(--red)";
+      msg.innerText = t("reservar.toast.connection");
+    } finally {
+      setBusy(btn, false);
+    }
+  });
+})();
 
 setInterval(refrescarHuecosSiToca, 6e4);
 window.addEventListener("online", () => {

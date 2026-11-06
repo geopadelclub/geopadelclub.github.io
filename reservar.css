@@ -1058,3 +1058,30 @@
     transition-duration: 0.01ms !important;
   }
 }
+.mod-actual {
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  border-radius: var(--radius-md);
+  background: var(--surface-3);
+  border-left: 4px solid var(--primary);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--heading);
+  line-height: 1.45;
+}
+.mod-actual small {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.mod-hora-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  margin: 12px 0 6px;
+}
+#modHoras {
+  min-height: 56px;
+}
