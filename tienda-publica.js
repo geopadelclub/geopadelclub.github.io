@@ -7,15 +7,10 @@ function tiendaFoto(path) {
     ? `${SUPABASE_URL}/storage/v1/object/public/tienda/${encodeURI(path)}`
     : "";
 }
-function tiendaTarjeta(a, index, lcpIndex = 0) {
+function tiendaTarjeta(a, index) {
   const foto = tiendaFoto(a.foto_path);
-  const isLcp = index === lcpIndex;
-  const isEarly = index <= lcpIndex + 2;
-  const imgAttrs = isLcp
-    ? 'loading="eager" fetchpriority="high"'
-    : isEarly
-      ? 'loading="eager"'
-      : 'loading="lazy"';
+  const imgAttrs =
+    index < 6 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
 
   const img = foto
     ? `<img src="${esc(foto)}" alt="${esc(a.titulo)}" ${imgAttrs} decoding="async" width="400" height="400">`
@@ -50,29 +45,7 @@ function dibujarTienda(lista) {
     g.innerHTML = `<p class="cl-empty">${t("tienda.vacio")}</p>`;
     return;
   }
-  let lcpIndex = 0;
-  for (let i = 0; i < lista.length; i++) {
-    if (lista[i].foto_path) {
-      lcpIndex = i;
-      break;
-    }
-  }
-  g.innerHTML = lista.map((a, i) => tiendaTarjeta(a, i, lcpIndex)).join("");
-
-  const urlLcp = lcpIndex >= 0 ? tiendaFoto(lista[lcpIndex].foto_path) : "";
-  if (urlLcp) {
-    const previo = document.querySelector("link[data-tienda-lcp]");
-    if (previo && previo.href !== urlLcp) previo.remove();
-    if (!document.querySelector("link[data-tienda-lcp]")) {
-      const link = document.createElement("link");
-      link.rel = "preload";
-      link.as = "image";
-      link.href = urlLcp;
-      link.setAttribute("fetchpriority", "high");
-      link.setAttribute("data-tienda-lcp", "1");
-      document.head.appendChild(link);
-    }
-  }
+  g.innerHTML = lista.map((a, i) => tiendaTarjeta(a, i)).join("");
 }
 async function cargarTienda(forzar) {
   const g = $("tiendaGrid");
