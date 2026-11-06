@@ -1036,7 +1036,11 @@ i[class*=" ri-"] {
 .pago-dot i,
 .btn-install i,
 .btn-playtomic-nav i,
-.plus i {
+.plus i,
+.btn-conectar-imp i,
+.btn-pay-reset i,
+.btn-del-prod[aria-label] i,
+.esc-acciones .btn-add[aria-label] i {
   margin-right: 0;
 }
 
