@@ -213,8 +213,17 @@
       </nav>
       <main class="container-fluid">
         <section id="tab-resumen" class="tab-content active">
-          <div class="resumen-bar">
-            <button type="button" class="btn-add gray" id="btnRecargarResumen">
+          <div class="res-header-bar">
+            <div class="res-saludo">
+              <h2 id="resSaludoTitulo" class="res-saludo-titulo">Cargando…</h2>
+              <p id="resSaludoSub" class="res-saludo-sub"></p>
+            </div>
+            <button
+              type="button"
+              class="btn-add gray res-refresh-btn"
+              id="btnRecargarResumen"
+              data-action="recargar-resumen"
+            >
               <i class="ri-refresh-line" aria-hidden="true"></i>Recargar
             </button>
           </div>

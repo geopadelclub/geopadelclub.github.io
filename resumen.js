@@ -17,8 +17,10 @@ async function entrarResumen() {
   dibujarResumen();
 }
 function resumenSaludo() {
-  const e = new Date().getHours();
-  return e < 12 ? "Buenos días" : e < 20 ? "Buenas tardes" : "Buenas noches";
+  const h = ahoraMadrid().h;
+  if (h >= 6 && h < 12) return "Buenos días";
+  if (h >= 12 && h < 20) return "Buenas tardes";
+  return "Buenas noches";
 }
 function resumenReservasProximas() {
   const e = new Date(),
@@ -51,6 +53,12 @@ function dibujarResumen() {
     c = typeof limpiezasVencidas === "function" ? limpiezasVencidas() : [],
     d = c.reduce((e, t) => e + t.items.length, 0),
     u = fechaBonita(fechaLocalISO(), !0);
+
+  const elTitulo = $("resSaludoTitulo");
+  const elSub = $("resSaludoSub");
+  if (elTitulo) elTitulo.textContent = `${resumenSaludo()}, ${n}`;
+  if (elSub) elSub.textContent = `${u} · Aquí tienes el resumen del día.`;
+
   let p = "";
   if (d > 0)
     p += `<div class="res-alerta res-alerta-warn"><i class="ri-brush-line" aria-hidden="true"></i><div><b>${d} ${d === 1 ? "limpieza pendiente" : "limpiezas pendientes"}</b><p>Hay pistas sin limpiar en las últimas 2 semanas.</p></div><button type="button" class="btn-add" data-ir="limpieza">Ir a Limpieza</button></div>`;
@@ -104,7 +112,7 @@ function dibujarResumen() {
     ? '<button type="button" class="res-accion" data-ir="fichajes"><i class="ri-time-line" aria-hidden="true"></i><span>Fichar</span></button>'
     : '<button type="button" class="res-accion" data-ir="caja"><i class="ri-lock-line" aria-hidden="true"></i><span>Cerrar caja</span></button>';
 
-  e.innerHTML = `<div class="res-bienvenida"><div><h2>${resumenSaludo()}, ${esc(n)}</h2><p>${esc(u)} · Aquí tienes el resumen del día.</p></div></div><div class="res-kpis">${kpis}<div class="res-kpi res-kpi-red"><span><i class="ri-wallet-3-line" aria-hidden="true"></i>Deudas pendientes</span><h3>${eur(l)}</h3><small>${s.length} ${s.length === 1 ? "cliente" : "clientes"}</small></div><div class="res-kpi res-kpi-amber"><span><i class="ri-brush-line" aria-hidden="true"></i>Limpiezas</span><h3>${c.length}</h3><small>${d === 0 ? "Todo al día" : `${d} ${d === 1 ? "tarea pendiente" : "tareas pendientes"}`}</small></div></div>${p ? `<div class="res-alertas">${p}</div>` : ""}<div class="res-acciones"><h3><i class="ri-flashlight-line" aria-hidden="true"></i>Acciones rápidas</h3><div class="res-acciones-grid"><button type="button" class="res-accion" data-ir="nueva-reserva"><i class="ri-add-line" aria-hidden="true"></i><span>Nueva reserva</span></button><button type="button" class="res-accion" data-ir="tienda"><i class="ri-goblet-line" aria-hidden="true"></i><span>Abrir bar</span></button>${btnFicharOCaja}<a href="guia.html" target="_blank" rel="noopener" class="res-accion" style="text-decoration: none"><i class="ri-book-open-line" aria-hidden="true"></i><span>Ver guía</span></a></div></div><div class="res-agenda"><h3><i class="ri-list-ordered" aria-hidden="true"></i>Próximas reservas</h3><ul class="res-agenda-lista">${m}</ul></div>`;
+  e.innerHTML = `<div class="res-kpis">${kpis}<div class="res-kpi res-kpi-red"><span><i class="ri-wallet-3-line" aria-hidden="true"></i>Deudas pendientes</span><h3>${eur(l)}</h3><small>${s.length} ${s.length === 1 ? "cliente" : "clientes"}</small></div><div class="res-kpi res-kpi-amber"><span><i class="ri-brush-line" aria-hidden="true"></i>Limpiezas</span><h3>${c.length}</h3><small>${d === 0 ? "Todo al día" : `${d} ${d === 1 ? "tarea pendiente" : "tareas pendientes"}`}</small></div></div>${p ? `<div class="res-alertas">${p}</div>` : ""}<div class="res-acciones"><h3><i class="ri-flashlight-line" aria-hidden="true"></i>Acciones rápidas</h3><div class="res-acciones-grid"><button type="button" class="res-accion" data-ir="nueva-reserva"><i class="ri-add-line" aria-hidden="true"></i><span>Nueva reserva</span></button><button type="button" class="res-accion" data-ir="tienda"><i class="ri-goblet-line" aria-hidden="true"></i><span>Abrir bar</span></button>${btnFicharOCaja}<a href="guia.html" target="_blank" rel="noopener" class="res-accion" style="text-decoration: none"><i class="ri-book-open-line" aria-hidden="true"></i><span>Ver guía</span></a></div></div><div class="res-agenda"><h3><i class="ri-list-ordered" aria-hidden="true"></i>Próximas reservas</h3><ul class="res-agenda-lista">${m}</ul></div>`;
 }
 document.addEventListener("click", (e) => {
   const t = e.target.closest("[data-ir]");
@@ -131,11 +139,14 @@ async function recargarResumen() {
     console.error(e);
     toast("No se pudo recargar el resumen", "err");
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = htmlOrig;
+    const b = $("btnRecargarResumen");
+    if (b) {
+      b.disabled = false;
+      b.innerHTML = htmlOrig;
+    }
   }
 }
 
-if ($("btnRecargarResumen")) {
-  $("btnRecargarResumen").addEventListener("click", recargarResumen);
+if (typeof window.accion === "function") {
+  window.accion("recargar-resumen", recargarResumen);
 }
