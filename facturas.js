@@ -490,7 +490,11 @@ function htmlTicketFactura(e) {
       ? `<div class="r"><span>Cliente</span><span>${esc(e.cliente_nombre)}</span></div>${e.cliente_nif ? `<div class="r"><span>NIF</span><span>${esc(e.cliente_nif)}</span></div>` : ""}${e.cliente_direccion ? `<div class="r"><span>Dirección</span><span>${esc(e.cliente_direccion)}</span></div>` : ""}`
       : `<div class="r"><span>Atendido por</span><span>${esc(e.empleado || "—")}</span></div>`,
     m = r ? `<div class="c s">${esc(t.pie_factura || "")}</div>` : "";
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{size:80mm auto;margin:0}html,body{margin:0;padding:0;background:#fff;color:#000;font-family:"Courier New",monospace;font-size:12px;line-height:1.25}.t{width:72mm;margin:0 auto;padding:3mm 0}.c{text-align:center}.b{font-weight:700}.r{display:flex;justify-content:space-between;gap:4mm}.hr{border-top:1px dashed #000;margin:2mm 0}.s{font-size:10px}.big{font-size:16px;font-weight:800}.m{text-transform:uppercase}</style></head><body><div class="t"><div class="c b big">${esc(a)}</div>${o ? `<div class="c b" style="font-size:11px">${esc(o)}</div>` : ""}<div class="c s">${esc(t.nif || "")}</div><div class="c s">${esc(n)}</div><div class="c s">${esc(t.telefono || "")} · ${esc(t.email || "")}</div><div class="hr"></div><div class="c b m">${r ? (i ? "FACTURA RECTIFICATIVA" : "FACTURA") : "JUSTIFICANTE DE PAGO"}</div><div class="r"><span>Nº ${esc(e.numero)}</span><span>${esc(fechaCorta(e.fecha))}</span></div>${d}<div class="r"><span>Pago</span><span>${esc(e.metodo_pago || "")}</span></div><div class="hr"></div>${l}<div class="hr"></div><div class="r"><span>Base</span><span>${s(e.base_imponible)}</span></div><div class="r"><span>IVA ${esc(e.iva_porcentaje)}%</span><span>${s(e.cuota_iva)}</span></div><div class="r b big"><span>TOTAL</span><span>${s(e.total)}</span></div>${e.notas ? `<div class="hr"></div><div class="s">${esc(e.notas)}</div>` : ""}<div class="hr"></div><div class="c s">${c}</div>${m}<div class="c s">${esc(t.web || "")}</div></div></body></html>`;
+  const qrHtml =
+    !r && typeof GOOGLE_REVIEW_URL !== "undefined" && GOOGLE_REVIEW_URL
+      ? `<div class="hr"></div><div class="c b" style="font-size:13px;margin-top:1mm">¿Te ha gustado Geopadel?</div><div class="c s" style="margin-top:1mm">Déjanos una reseña en Google:</div><div class="c" style="margin-top:2mm"><img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&amp;margin=0&amp;data=${encodeURIComponent(GOOGLE_REVIEW_URL)}" alt="QR reseña Google" width="160" height="160" style="display:inline-block;border:0;background:#fff"></div><div class="c s" style="margin-top:1mm">Escanéalo con la cámara del móvil</div>`
+      : "";
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{size:80mm auto;margin:0}html,body{margin:0;padding:0;background:#fff;color:#000;font-family:"Courier New",monospace;font-size:12px;line-height:1.25}.t{width:72mm;margin:0 auto;padding:3mm 0}.c{text-align:center}.b{font-weight:700}.r{display:flex;justify-content:space-between;gap:4mm}.hr{border-top:1px dashed #000;margin:2mm 0}.s{font-size:10px}.big{font-size:16px;font-weight:800}.m{text-transform:uppercase}</style></head><body><div class="t"><div class="c b big">${esc(a)}</div>${o ? `<div class="c b" style="font-size:11px">${esc(o)}</div>` : ""}<div class="c s">${esc(t.nif || "")}</div><div class="c s">${esc(n)}</div><div class="c s">${esc(t.telefono || "")} · ${esc(t.email || "")}</div><div class="hr"></div><div class="c b m">${r ? (i ? "FACTURA RECTIFICATIVA" : "FACTURA") : "JUSTIFICANTE DE PAGO"}</div><div class="r"><span>Nº ${esc(e.numero)}</span><span>${esc(fechaCorta(e.fecha))}</span></div>${d}<div class="r"><span>Pago</span><span>${esc(e.metodo_pago || "")}</span></div><div class="hr"></div>${l}<div class="hr"></div><div class="r"><span>Base</span><span>${s(e.base_imponible)}</span></div><div class="r"><span>IVA ${esc(e.iva_porcentaje)}%</span><span>${s(e.cuota_iva)}</span></div><div class="r b big"><span>TOTAL</span><span>${s(e.total)}</span></div>${e.notas ? `<div class="hr"></div><div class="s">${esc(e.notas)}</div>` : ""}<div class="hr"></div><div class="c s">${c}</div>${m}${qrHtml}<div class="c s">${esc(t.web || "")}</div></div></body></html>`;
 }
 function htmlA4Factura(e) {
   const t = facConfig || {},
@@ -742,6 +746,41 @@ function textoABytes(e) {
   }
   return n;
 }
+function bytesQRResena(url) {
+  if (!url) return new Uint8Array(0);
+  const data = new TextEncoder().encode(url);
+  const len = data.length;
+  const pL = (len + 3) & 0xff;
+  const pH = ((len + 3) >> 8) & 0xff;
+  const partes = [
+    new Uint8Array([0x1d, 0x28, 0x6b, 0x04, 0x00, 0x31, 0x41, 0x32, 0x00]),
+    new Uint8Array([0x1d, 0x28, 0x6b, 0x03, 0x00, 0x31, 0x43, 0x06]),
+    new Uint8Array([0x1d, 0x28, 0x6b, 0x03, 0x00, 0x31, 0x45, 0x31]),
+    new Uint8Array([0x1d, 0x28, 0x6b, pL, pH, 0x31, 0x50, 0x30]),
+    data,
+    new Uint8Array([0x1d, 0x28, 0x6b, 0x03, 0x00, 0x31, 0x51, 0x30]),
+    new Uint8Array([0x0a, 0x0a]),
+  ];
+  const total = partes.reduce((s, p) => s + p.length, 0);
+  const out = new Uint8Array(total);
+  let off = 0;
+  for (const p of partes) {
+    out.set(p, off);
+    off += p.length;
+  }
+  return out;
+}
+
+function textoABytesConQR(texto, urlQR) {
+  const base = textoABytes(texto);
+  const CORTE = new Uint8Array([0x1d, 0x56, 0x41, 0x10]);
+  const qr = urlQR ? bytesQRResena(urlQR) : new Uint8Array(0);
+  const out = new Uint8Array(base.length + qr.length + CORTE.length);
+  out.set(base, 0);
+  out.set(qr, base.length);
+  out.set(CORTE, base.length + qr.length);
+  return out;
+}
 function formatearTicketTexto(e) {
   const t = facConfig || {},
     n = 42,
@@ -813,8 +852,18 @@ function formatearTicketTexto(e) {
   d += "\x1B\x61\x01";
   d += p + "\n";
   if (r && t.pie_factura) d += t.pie_factura + "\n";
-  d += "\n\n\n";
-  d += "\x1D\x56\x41\x10";
+  const esJust = !r;
+  const urlQR =
+    (typeof GOOGLE_REVIEW_URL !== "undefined" && GOOGLE_REVIEW_URL) || "";
+  if (esJust && urlQR) {
+    d += "\n";
+    d += "\x1B\x61\x01";
+    d += "¿Te ha gustado Geopadel?\n";
+    d += "\n";
+    d += "Escanea y déjanos una reseña:\n";
+    d += "\n";
+  }
+  d += "\n\n";
   return d;
 }
 async function imprimirTicketWebUSB(e) {
@@ -833,7 +882,13 @@ async function imprimirTicketWebUSB(e) {
     const t = await obtenerFactura(e);
     if (!t) return toast("No se encontró el documento", "err");
     const n = formatearTicketTexto(t);
-    const r = textoABytes(n);
+    const urlQR =
+      t.tipo === "Justificante" &&
+      typeof GOOGLE_REVIEW_URL !== "undefined" &&
+      GOOGLE_REVIEW_URL
+        ? GOOGLE_REVIEW_URL
+        : "";
+    const r = textoABytesConQR(n, urlQR);
     const i = await enviarBytesAImpresora(r);
     if (i) toast("Ticket enviado a la impresora", "ok");
   } catch (e) {

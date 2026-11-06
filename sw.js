@@ -31,6 +31,7 @@ const PANEL = [
   "panel.html",
   "core.js",
   "auth.js",
+  "busqueda-global.js",
   "datos.js",
   "reservas.js",
   "bar.js",

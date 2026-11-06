@@ -50,6 +50,7 @@
     <script defer src="modales.js"></script>
     <script defer src="core.js"></script>
     <script defer src="auth.js"></script>
+    <script defer src="busqueda-global.js"></script>
     <script defer src="datos.js"></script>
     <script defer src="reservas.js"></script>
     <script defer src="bar.js"></script>
@@ -142,6 +143,25 @@
             height="150"
           />
         </a>
+        <div class="gp-search" id="gpBuscadorWrap">
+          <input
+            type="search"
+            id="gpBuscador"
+            class="gp-search-input"
+            placeholder="Buscar cliente, reserva, deuda o factura..."
+            autocomplete="off"
+            role="combobox"
+            aria-expanded="false"
+            aria-controls="gpBuscadorResultados"
+            aria-label="Buscador global"
+          />
+          <div
+            id="gpBuscadorResultados"
+            class="gp-search-results"
+            role="listbox"
+            hidden
+          ></div>
+        </div>
         <div class="user-info">
           <span>
             <strong id="nombreEmpleado">...</strong>
