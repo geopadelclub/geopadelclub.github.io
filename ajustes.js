@@ -36,7 +36,7 @@ async function cargarDeudasClientes(tels) {
 
     const deudasPorTel = new Map();
     (data || []).forEach((d) => {
-      if (d.estado === "Resuelta") return;
+      if (d.estado && d.estado !== "Pendiente") return;
       const tel = String(d.telefono || "").replace(/\D/g, "");
       if (!tel || !telsNorm.includes(tel)) return;
       deudasPorTel.set(
