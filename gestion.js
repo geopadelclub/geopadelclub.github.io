@@ -81,7 +81,7 @@ function dibujarDeudas() {
       const res = d.estado === "Resuelta";
       const anu = d.estado === "Anulada";
       const tel = d.telefono
-        ? `<a href="tel:${esc(d.telefono)}" style="color:var(--blue);font-weight:700">${esc(d.telefono)}</a>`
+        ? `<a href="tel:${esc(d.telefono)}" style="color:var(--blue);font-weight:700">${esc(d.telefono)}</a>${botonCopiarTel(d.telefono)}`
         : "—";
       const hora = String(d.hora || "").slice(0, 5);
       let estado = "";

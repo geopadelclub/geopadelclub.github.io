@@ -3089,3 +3089,28 @@ body {
     max-height: 60vh;
   }
 }
+.btn-copiar-tel {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  margin-left: 6px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.btn-copiar-tel:hover {
+  background: var(--surface-3);
+  color: var(--primary);
+}
+.btn-copiar-tel i {
+  margin: 0;
+  font-size: 13px;
+}

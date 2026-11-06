@@ -487,3 +487,73 @@ function duracionTxt(min) {
   const m = n % 60;
   return h ? (m ? `${h} h ${m} min` : `${h} h`) : `${m} min`;
 }
+async function copiarTexto(texto) {
+  const t = String(texto || "").trim();
+  if (!t) return false;
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(t);
+      return true;
+    }
+  } catch (e) {}
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = t;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    return ok;
+  } catch (e) {
+    return false;
+  }
+}
+
+async function copiarTelefono(tel) {
+  const t = String(tel || "").trim();
+  if (!t) return;
+  const ok = await copiarTexto(t);
+  if (ok) toast("Teléfono copiado: " + t, "ok", 2000);
+  else toast("No se pudo copiar", "err");
+}
+
+function botonCopiarTel(tel) {
+  const t = String(tel || "").trim();
+  if (!t) return "";
+  return `<button type="button" class="btn-copiar-tel" data-copiar-tel="${esc(t)}" aria-label="Copiar teléfono" title="Copiar ${esc(t)}"><i class="ri-file-copy-line" aria-hidden="true"></i></button>`;
+}
+
+function aplicarEnterGuardar(dialogId, btnSelector) {
+  const dlg = document.getElementById(dialogId);
+  if (!dlg) return;
+  dlg.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" || e.shiftKey) return;
+    const tag = (e.target.tagName || "").toUpperCase();
+    if (tag !== "INPUT") return;
+    const type = (e.target.type || "").toLowerCase();
+    if (
+      type === "checkbox" ||
+      type === "radio" ||
+      type === "submit" ||
+      type === "date" ||
+      type === "time" ||
+      type === "color" ||
+      type === "file"
+    )
+      return;
+    const btn = document.querySelector(btnSelector);
+    if (!btn || btn.disabled) return;
+    e.preventDefault();
+    btn.click();
+  });
+}
+
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-copiar-tel]");
+  if (!b) return;
+  e.preventDefault();
+  e.stopPropagation();
+  copiarTelefono(b.dataset.copiarTel);
+});

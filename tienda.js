@@ -160,6 +160,7 @@ function abrirModalArticulo(id) {
   $("msgArticulo").innerText = "";
   ponerPreview(a && a.foto_path ? urlFoto(a.foto_path) : "");
   abrirOverlay("modalArticulo");
+  setTimeout(() => $("artTitulo").focus(), 60);
 }
 function cerrarModalArticulo() {
   cerrarOverlay("modalArticulo");
@@ -353,3 +354,4 @@ $("escaparateBody").addEventListener("click", (e) => {
   else if (acc === "subir") moverArticulo(a.id, -1);
   else if (acc === "bajar") moverArticulo(a.id, 1);
 });
+aplicarEnterGuardar("modalArticulo", "#btnGuardarArticulo");

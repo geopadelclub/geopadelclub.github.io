@@ -12,7 +12,11 @@ const HTML_MODAL_RESERVA = `
         <h5>Reserva</h5>
         <input type="hidden" id="modalReservaId" /><label for="modalCliente">Cliente</label>
         <input type="text" id="modalCliente" maxlength="80" placeholder="Escribe el nombre para buscar..." autocomplete="off" /><label for="modalTelefono">Teléfono</label>
-        <input type="tel" id="modalTelefono" maxlength="20" placeholder="Escribe el teléfono para buscar..." autocomplete="off" /><label>Pistas</label>
+        <div style="display: flex; gap: 6px; align-items: stretch">
+          <input type="tel" id="modalTelefono" maxlength="20" placeholder="Escribe el teléfono para buscar..." autocomplete="off" style="flex: 1; min-width: 0" />
+          <button type="button" id="btnCopiarTelReserva" class="btn-add gray" style="flex: 0 0 auto; padding: 0 14px" aria-label="Copiar teléfono" title="Copiar teléfono"><i class="ri-file-copy-line" aria-hidden="true"></i></button>
+        </div>
+        <label>Pistas</label>
         <div id="modalPistasContainer" class="pistas-checkbox-grid"></div>
         <label for="modalTipoReserva">Tipo de reserva</label>
         <select id="modalTipoReserva" data-onchange="al-cambiar-tipo">
@@ -82,6 +86,7 @@ const HTML_MODAL_RESERVA = `
   <button type="button" id="btnEliminarSerie" data-action="eliminar-serie" class="btn-add danger-dark" style="display: none"><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar serie</button>
   <button type="button" id="btnHistorialReserva" data-action="ver-historial" class="btn-add gray" style="display: none"><i class="ri-history-line" aria-hidden="true"></i>Historial</button>
   <button type="button" id="btnEliminarReserva" data-action="eliminar-reserva" class="btn-add danger" style="display: none"><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar</button>
+  <button type="button" id="btnDuplicarReserva" class="btn-add blue" style="display: none"><i class="ri-file-copy-2-line" aria-hidden="true"></i>Duplicar</button>
   <button type="button" id="btnWhatsAppReserva" class="btn-add wa" style="display:none"><i class="ri-whatsapp-line" aria-hidden="true"></i>Avisar por WhatsApp</button>
   <button type="button" data-action="cerrar-modal" class="btn-add gray">Cancelar</button>
 </div>

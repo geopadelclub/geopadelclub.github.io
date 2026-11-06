@@ -174,6 +174,7 @@ async function abrirContrato(e) {
   $("msgContrato").innerText = "";
   ctDibujarFilas(t);
   abrirOverlay("modalContrato");
+  setTimeout(() => $("ctHoras").focus(), 60);
   return !0;
 }
 function cerrarContrato(e) {
@@ -316,3 +317,4 @@ $("btnCancelarContrato").addEventListener("click", () => cerrarContrato(!1));
 $("btnCerrarContrato").addEventListener("click", () => cerrarContrato(!1));
 $("ctFilas").addEventListener("input", ctActualizar);
 $("ctFilas").addEventListener("change", ctActualizar);
+aplicarEnterGuardar("modalContrato", "#btnGuardarContrato");

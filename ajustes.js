@@ -109,7 +109,7 @@ async function dibujarClientesAjustes() {
       const deudaMax = 20;
       const debeDemasiado = deuda > deudaMax;
       const tel = c.telefono
-        ? `<a href="tel:${esc(c.telefono)}" style="color:var(--blue);font-weight:700">${esc(c.telefono)}</a>`
+        ? `<a href="tel:${esc(c.telefono)}" style="color:var(--blue);font-weight:700">${esc(c.telefono)}</a>${botonCopiarTel(c.telefono)}`
         : '<span style="color:var(--muted)">Sin teléfono</span>';
       const sinTel = c.telefono
         ? ""
@@ -407,7 +407,7 @@ function dibujarBloqueosPersistentes(lista) {
           ? `<br><small style="color:var(--muted);font-weight:600">${esc(b.cliente_nombre)}</small>`
           : "";
       return `<tr>
-<td><b>${esc(b.telefono_norm)}</b>${fichaTxt}</td>
+<td><b>${esc(b.telefono_norm)}</b>${botonCopiarTel(b.telefono_norm)}${fichaTxt}</td>
 <td>${esc(b.motivo || "—")}</td>
 <td>${esc(b.bloqueado_por || "—")}</td>
 <td>${esc(fechaCorta(b.bloqueado_at))}</td>

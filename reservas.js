@@ -1102,6 +1102,8 @@ function abrirModalNuevaReserva(
   $("btnEliminarSerie").style.display = "none";
   $("btnEliminarReserva").style.display = "none";
   $("btnHistorialReserva").style.display = "none";
+  const _btnDup = $("btnDuplicarReserva");
+  if (_btnDup) _btnDup.style.display = "none";
   $("modalNumJugadores").value = "4";
 
   document.querySelector('input[name="modalTipoPago"][value="unico"]').checked =
@@ -1153,6 +1155,8 @@ function abrirModalEditarReserva(res) {
   $("btnEliminarSerie").style.display = res.serie ? "inline-block" : "none";
   $("btnEliminarReserva").style.display = "inline-block";
   $("btnHistorialReserva").style.display = "inline-block";
+  const _btnDup2 = $("btnDuplicarReserva");
+  if (_btnDup2) _btnDup2.style.display = "inline-block";
   alCambiarTipo();
   $("modalNumJugadores").value = String(nJug);
   $("modalPrecio").value = parseFloat(res.precio || 0).toFixed(2);
@@ -1209,7 +1213,36 @@ function abrirModalEditarReserva(res) {
   actualizarBotonWhatsAppModal();
   abrirOverlay("modalReserva");
 }
-
+function duplicarReservaActual() {
+  const id = $("modalReservaId").value;
+  if (!id) return;
+  const r = (datosLocales.reservas || []).find(
+    (x) => String(x.id) === String(id),
+  );
+  if (!r) return toast("No se encontró la reserva", "err");
+  cerrarModal();
+  setTimeout(() => {
+    abrirModalNuevaReserva([r.pista], r.horaInicio, "Normal");
+    $("modalCliente").value = r.cliente || "";
+    $("modalCliente").dataset.tipo = "Particular";
+    $("modalTelefono").value = r.telefono || "";
+    $("modalFecha").value = sumarDiasISO(r.fecha, 7);
+    $("modalHora").value = r.horaInicio;
+    const dur = String(r.duracionMin || 90);
+    if (Array.from($("modalDuracion").options).some((o) => o.value === dur))
+      $("modalDuracion").value = dur;
+    $("modalNumJugadores").value = String(r.numJugadores || 4);
+    $("modalPrecio").value = parseFloat(r.precio || 0).toFixed(2);
+    $("modalNotas").value = r.notas || "";
+    actualizarVistasJugadoresSplit();
+    actualizarBotonWhatsAppModal();
+    toast(
+      "Reserva duplicada con fecha de la semana siguiente. Ajusta la fecha/hora y pulsa Guardar.",
+      "ok",
+      6000,
+    );
+  }, 250);
+}
 function actualizarVistasJugadoresSplit() {
   if (!reservaEnEdicion) return;
   const nJug = parseInt($("modalNumJugadores").value, 10) || 4;
@@ -1303,6 +1336,8 @@ function cerrarModal() {
   cerrarOverlay("modalReserva");
   _pendingPagoUnico = null;
   resetBtnGuardar();
+  const _btnDup = $("btnDuplicarReserva");
+  if (_btnDup) _btnDup.style.display = "none";
 }
 
 async function guardarClienteSilencioso(
@@ -2182,7 +2217,7 @@ async function cargarListaEspera() {
             <td><b>${esc(fmtF(x.fecha))}</b></td>
             <td>${x.hora ? esc(String(x.hora).slice(0, 5)) : '<span style="color:var(--muted)">—</span>'}</td>
             <td>${x.duracion} min</td>
-            <td><a href="tel:${esc(x.telefono)}" style="color:var(--blue);font-weight:700">${esc(x.telefono)}</a></td>
+            <td><a href="tel:${esc(x.telefono)}" style="color:var(--blue);font-weight:700">${esc(x.telefono)}</a>${botonCopiarTel(x.telefono)}</td>
             <td>
                 <button type="button" class="btn-add gray" data-espera-avisar="${esc(x.id)}"><i class="ri-whatsapp-line" aria-hidden="true"></i>Avisar (WhatsApp)</button>
                 <button type="button" class="btn-add danger" data-espera-borrar="${esc(x.id)}"><i class="ri-delete-bin-line" aria-hidden="true"></i>Quitar</button>
@@ -2683,6 +2718,14 @@ async function generarPlantillasManana() {
     setBusy(btn, false);
   }
 }
+if ($("btnDuplicarReserva")) {
+  $("btnDuplicarReserva").addEventListener("click", duplicarReservaActual);
+}
+if ($("btnCopiarTelReserva")) {
+  $("btnCopiarTelReserva").addEventListener("click", () => {
+    copiarTelefono($("modalTelefono").value);
+  });
+}
 function abrirModoEnvioPlantillas(plantillas) {
   if (!plantillas || !plantillas.length) return;
 
@@ -2808,3 +2851,4 @@ function abrirModoEnvioPlantillas(plantillas) {
 if ($("btnGenerarPlantillas")) {
   $("btnGenerarPlantillas").addEventListener("click", generarPlantillasManana);
 }
+aplicarEnterGuardar("modalReserva", "#btnGuardarReserva");

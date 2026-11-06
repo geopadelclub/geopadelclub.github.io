@@ -497,3 +497,4 @@ async function emitirJustificanteTPV() {
 }
 
 crearBotonDeshacer();
+aplicarEnterGuardar("modalProducto", "#btnGuardarProducto");
