@@ -1094,12 +1094,16 @@
   font-weight: 800;
 }
 .cl-slot.libres-medio:not(.active) {
-  border-color: var(--orange);
-  background: var(--orange-soft);
+  border-color: var(--amber);
+  background: var(--amber-soft);
 }
 .cl-slot.libres-medio:not(.active) span {
   color: var(--orange-text);
   font-weight: 800;
+}
+.cl-slot.libres-alto:not(.active) {
+  border-color: var(--green);
+  background: var(--green-soft);
 }
 .cl-slot.libres-alto:not(.active) span {
   color: var(--green-text);
@@ -1108,4 +1112,7 @@
 
 [data-theme="dark"] .cl-slot.libres-bajo:not(.active) {
   background: rgba(184, 78, 83, 0.16);
+}
+[data-theme="dark"] .cl-slot.libres-alto:not(.active) {
+  background: rgba(134, 212, 172, 0.12);
 }
