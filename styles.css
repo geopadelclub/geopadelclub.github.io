@@ -936,6 +936,26 @@ dialog.modal-overlay::backdrop {
   width: min(460px, calc(100% - 24px));
   pointer-events: none;
 }
+#toasts[popover] {
+  position: fixed;
+  top: calc(var(--header-h) + 14px + env(safe-area-inset-top));
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 2000;
+  width: min(460px, calc(100% - 24px));
+  pointer-events: none;
+}
 
 .toast {
   background: var(--surface);

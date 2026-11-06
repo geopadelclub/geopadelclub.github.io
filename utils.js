@@ -28,6 +28,12 @@ function toast(e, t = "ok", n = 3500) {
   i.setAttribute("role", t === "err" ? "alert" : "status");
   i.setAttribute("aria-live", t === "err" ? "assertive" : "polite");
   r.appendChild(i);
+  if (r.showPopover) {
+    try {
+      if (r.matches(":popover-open")) r.hidePopover();
+      r.showPopover();
+    } catch (err) {}
+  }
   const a = t === "err" ? Math.max(n, 6e3) : n;
   setTimeout(() => {
     i.classList.add("out");
@@ -557,3 +563,11 @@ document.addEventListener("click", (e) => {
   e.stopPropagation();
   copiarTelefono(b.dataset.copiarTel);
 });
+(function initToastsPopover() {
+  const t = document.getElementById("toasts");
+  if (!t || !t.showPopover) return;
+  if (!t.hasAttribute("popover")) t.setAttribute("popover", "manual");
+  try {
+    if (!t.matches(":popover-open")) t.showPopover();
+  } catch (e) {}
+})();
