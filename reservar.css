@@ -1085,3 +1085,27 @@
 #modHoras {
   min-height: 56px;
 }
+.cl-slot.libres-bajo:not(.active) {
+  border-color: var(--red);
+  background: #fbebec;
+}
+.cl-slot.libres-bajo:not(.active) span {
+  color: var(--red);
+  font-weight: 800;
+}
+.cl-slot.libres-medio:not(.active) {
+  border-color: var(--orange);
+  background: var(--orange-soft);
+}
+.cl-slot.libres-medio:not(.active) span {
+  color: var(--orange-text);
+  font-weight: 800;
+}
+.cl-slot.libres-alto:not(.active) span {
+  color: var(--green-text);
+  font-weight: 700;
+}
+
+[data-theme="dark"] .cl-slot.libres-bajo:not(.active) {
+  background: rgba(184, 78, 83, 0.16);
+}
