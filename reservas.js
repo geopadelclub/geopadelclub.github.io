@@ -1949,8 +1949,14 @@ function htmlPaginaImpresion(iso, reservas, meta) {
             mm >= 14 ? `<div class="pp-sub">${pagoTxt}${tipo}</div>` : "";
           const notaHtml =
             nota && mm >= 20 ? `<div class="pp-note">✎ ${esc(nota)}</div>` : "";
+          const iconoOrigen = r.esHappyHour
+            ? "🌞 "
+            : r.origen === "web"
+              ? "🌐 "
+              : "";
+
           return `<div class="${cls}" style="top:${top.toFixed(3)}%;height:${alto.toFixed(3)}%">
-<div class="pp-name">${r.serie ? "↻ " : ""}${esc(r.cliente)}</div>
+<div class="pp-name">${iconoOrigen}${r.serie ? "↻ " : ""}${esc(r.cliente)}</div>
 <div class="pp-time">${rango}</div>${detalle}${notaHtml}</div>`;
         })
         .join("");
