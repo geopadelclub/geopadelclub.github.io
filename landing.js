@@ -160,7 +160,6 @@ async function initHuecos() {
   }
   renderHuecos();
 }
-
 function initLanding() {
   const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1200));
   idle(
@@ -169,6 +168,7 @@ function initLanding() {
         cargarAntelacionLanding(),
         cargarTarifasLanding(),
         initHuecos(),
+        cargarResenasLanding(),
       ]);
     },
     { timeout: 3000 },
@@ -181,3 +181,39 @@ function initLanding() {
 if (document.readyState === "loading")
   document.addEventListener("DOMContentLoaded", initLanding);
 else initLanding();
+async function cargarResenasLanding() {
+  const grid = document.getElementById("resenasGrid");
+  if (!grid) return;
+  try {
+    const r = await fetch(SUPABASE_URL + "/rest/v1/rpc/get_resenas_index", {
+      method: "POST",
+      headers: { ...SB_HEADERS, "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const resenas = await r.json();
+    if (!resenas || !resenas.length) {
+      document.getElementById("resenas").hidden = true;
+      return;
+    }
+    grid.innerHTML = resenas
+      .map((r) => {
+        const estrellas =
+          "★".repeat(r.puntuacion) + "☆".repeat(5 - r.puntuacion);
+        return `
+        <div class="resena-card">
+          <div class="resena-estrellas" aria-label="${r.puntuacion} de 5 estrellas">${estrellas}</div>
+          <p class="resena-texto">"${esc(r.texto)}"</p>
+          <div class="resena-autor">
+            <div class="resena-avatar">${esc(r.nombre.charAt(0).toUpperCase())}</div>
+            <b>${esc(r.nombre)}</b>
+          </div>
+        </div>
+      `;
+      })
+      .join("");
+  } catch (e) {
+    console.error("Error cargando reseñas:", e);
+    document.getElementById("resenas").hidden = true;
+  }
+}

@@ -265,6 +265,10 @@ const I18N = {
     "tienda.foto.ver": "Ver foto de {titulo} más grande",
     "tienda.whatsapp.cta": "Preguntar por WhatsApp",
     "tienda.whatsapp.aria": "Preguntar por {titulo} por WhatsApp",
+    "resenas.titulo": "Lo que dicen nuestros jugadores",
+    "resenas.subtitulo":
+      "Las opiniones de quienes ya han jugado en nuestras pistas.",
+    "resenas.cta": "Ver todas las reseñas en Google",
   },
 
   en: {
@@ -525,6 +529,10 @@ const I18N = {
     "tienda.foto.ver": "See photo of {titulo} larger",
     "tienda.whatsapp.cta": "Ask on WhatsApp",
     "tienda.whatsapp.aria": "Ask about {titulo} on WhatsApp",
+    "resenas.titulo": "What our players say",
+    "resenas.subtitulo":
+      "Reviews from those who have already played on our courts.",
+    "resenas.cta": "See all reviews on Google",
   },
 };
 
