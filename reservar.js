@@ -490,7 +490,14 @@ function renderHuecos() {
             : libres === 2
               ? "libres-medio"
               : "libres-bajo";
-        return `<button type="button" class="cl-slot ${urgencia}${s.hora === sel.hora ? " active" : ""}" data-hora="${esc(s.hora)}" data-precio="${esc(s.op.precio)}" data-libres="${libres}" aria-pressed="${s.hora === sel.hora}">${esc(s.hora)}<span>${eur(s.op.precio)}${libresTxt}</span></button>`;
+
+        const isHH = s.op.happy_hour;
+        const hhClass = isHH ? " happy-hour" : "";
+        const hhIcon = isHH
+          ? `<span style="font-size:10px; font-weight:800; display:block; color:var(--orange-text); margin-bottom:2px; text-transform:uppercase;">${s.op.happy_hour_tipo === "ultima" ? "ÚLTIMA PISTA" : "HAPPY HOUR"}</span>`
+          : "";
+
+        return `<button type="button" class="cl-slot ${urgencia}${hhClass}${s.hora === sel.hora ? " active" : ""}" data-hora="${esc(s.hora)}" data-precio="${esc(s.op.precio)}" data-libres="${libres}" aria-pressed="${s.hora === sel.hora}">${hhIcon}${esc(s.hora)}<span>${eur(s.op.precio)}${libresTxt}</span></button>`;
       }
       return `<button type="button" class="cl-slot cl-slot-ocupado" data-espera-hora="${esc(s.hora)}" aria-label="${esc(t("reservar.waitlist.cta"))} ${esc(s.hora)}">${esc(s.hora)}<span>${t("reservar.waitlist.cta")}</span></button>`;
     })

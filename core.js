@@ -201,6 +201,7 @@ function mapearReserva(r) {
     notas: r.notas || "",
     origen: r.origen || "trabajador",
     tipoCobro: r.tipo_cobro || "unico",
+    esHappyHour: r.es_happy_hour || false,
   };
 }
 function marcarInicioSesion() {

@@ -638,6 +638,47 @@ async function conectarImpresoraUSB(silencioso = false) {
     actualizarEstadoImpresora();
     return false;
   }
+
+  const abrirYReclamar = async (dispositivo) => {
+    if (!dispositivo.opened) {
+      try {
+        await dispositivo.open();
+      } catch (e) {
+        if (!/already open|already opened/i.test(String(e.message || e)))
+          throw e;
+      }
+    }
+    if (dispositivo.configuration === null) {
+      try {
+        await dispositivo.selectConfiguration(1);
+      } catch (e) {
+        try {
+          await dispositivo.selectConfiguration(0);
+        } catch (e2) {}
+      }
+    }
+    let endpoint = null;
+    for (const iface of dispositivo.configuration.interfaces) {
+      for (const alt of iface.alternates) {
+        const ep = alt.endpoints.find((x) => x.direction === "out");
+        if (ep) {
+          try {
+            await dispositivo.claimInterface(iface.interfaceNumber);
+          } catch (e) {
+            if (!/already claimed/i.test(String(e.message || e))) {
+              throw e;
+            }
+          }
+          endpoint = ep.endpointNumber;
+          break;
+        }
+      }
+      if (endpoint) break;
+    }
+    if (!endpoint) throw new Error("No se encontró el puerto de salida");
+    return endpoint;
+  };
+
   try {
     if (usbDevice && usbEndpoint) {
       try {
@@ -661,37 +702,22 @@ async function conectarImpresoraUSB(silencioso = false) {
       }
       dispositivo = await navigator.usb.requestDevice({ filters: [] });
     }
+
     usbDevice = dispositivo;
-    if (!usbDevice.opened) {
-      await usbDevice.open();
-    }
-    if (usbDevice.configuration === null) {
+    let intentos = 0;
+    let exito = false;
+
+    while (intentos < 3 && !exito) {
       try {
-        await usbDevice.selectConfiguration(1);
-      } catch (e) {
-        console.warn("selectConfiguration(1) falló, probando(0)", e);
-        try {
-          await usbDevice.selectConfiguration(0);
-        } catch (e2) {}
+        usbEndpoint = await abrirYReclamar(dispositivo);
+        exito = true;
+      } catch (err) {
+        intentos++;
+        if (intentos >= 3) throw err;
+        await new Promise((r) => setTimeout(r, 500));
       }
     }
-    usbEndpoint = null;
-    for (const iface of usbDevice.configuration.interfaces) {
-      for (const alt of iface.alternates) {
-        const ep = alt.endpoints.find((x) => x.direction === "out");
-        if (ep) {
-          try {
-            await usbDevice.claimInterface(iface.interfaceNumber);
-          } catch (e) {
-            if (!/already claimed/i.test(String(e.message || e))) throw e;
-          }
-          usbEndpoint = ep.endpointNumber;
-          break;
-        }
-      }
-      if (usbEndpoint) break;
-    }
-    if (!usbEndpoint) throw new Error("No se encontró el puerto de salida");
+
     actualizarEstadoImpresora();
     if (!silencioso) toast("Impresora conectada correctamente", "ok");
     return true;

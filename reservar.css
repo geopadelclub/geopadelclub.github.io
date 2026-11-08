@@ -1116,3 +1116,21 @@
 [data-theme="dark"] .cl-slot.libres-alto:not(.active) {
   background: rgba(134, 212, 172, 0.12);
 }
+.cl-slot.happy-hour:not(.active) {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+  border-color: #ffc107;
+  color: #856404;
+  box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
+}
+.cl-slot.happy-hour:not(.active) span {
+  color: #b8860b;
+  font-weight: 800;
+}
+[data-theme="dark"] .cl-slot.happy-hour:not(.active) {
+  background: linear-gradient(135deg, #423619 0%, #5e4c1f 100%);
+  border-color: #8a6c1c;
+  color: #ffe08a;
+}
+[data-theme="dark"] .cl-slot.happy-hour:not(.active) span {
+  color: #ffd25c;
+}

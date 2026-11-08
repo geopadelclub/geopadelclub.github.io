@@ -21,7 +21,7 @@ async function cargarReservasHoy() {
       supabaseClient
         .from("reservas")
         .select(
-          "id, cliente, nombre_entidad, telefono, fecha, hora_inicio, duracion_min, pista, estado, pago_estado, tipo_reserva, jugadores, pagos_jugadores, precio, empleado, serie, notas, origen, tipo_cobro",
+          "id, cliente, nombre_entidad, telefono, fecha, hora_inicio, duracion_min, pista, estado, pago_estado, tipo_reserva, jugadores, pagos_jugadores, precio, empleado, serie, notas, origen, tipo_cobro, es_happy_hour",
         )
         .eq("fecha", iso)
         .or(FILTRO_NO_CANCELADA),
@@ -289,10 +289,17 @@ function renderizarCuadrantePlaytomic(reservas) {
           dots += `<span class="pago-dot ${ok ? "pagado" : "pendiente"}">${ok ? '<i class="ri-check-line" aria-hidden="true"></i>' : '<i class="ri-close-line" aria-hidden="true"></i>'}</span>`;
         }
         dots += "</div>";
+
+        const iconoOrigen = r.esHappyHour
+          ? '<i class="ri-sun-line" aria-hidden="true" style="color:#eab308;" title="Reserva con Happy Hour"></i>'
+          : r.origen === "web"
+            ? '<i class="ri-global-line" aria-hidden="true" title="Reserva hecha desde la web"></i>'
+            : "";
+
         card.innerHTML = `
 <div class="resize-handle resize-top" data-resize="top"></div>
 <div class="reserva-top">${badge}${dots}</div>
-<div class="reserva-title">${r.origen === "web" ? '<i class="ri-global-line" aria-hidden="true" title="Reserva hecha desde la web"></i>' : ""}${r.serie ? '<i class="ri-repeat-line" aria-hidden="true"></i>' : ""}${esc(r.nombreEntidad ? r.nombreEntidad : r.cliente)}</div>
+<div class="reserva-title">${iconoOrigen}${r.serie ? '<i class="ri-repeat-line" aria-hidden="true"></i>' : ""}${esc(r.nombreEntidad ? r.nombreEntidad : r.cliente)}</div>
 ${tieneNota && heightPx >= 150 ? `<div class="reserva-nota-txt">${esc(r.notas)}</div>` : ""}
 <div class="reserva-time"><span>${esc(r.horaInicio)} - ${minToTimeStr(iniMin + dur)}</span>${tieneNota ? '<span class="nota-flag"><i class="ri-sticky-note-fill" aria-hidden="true"></i>Nota</span>' : ""}</div>
 <div class="resize-handle resize-bottom" data-resize="bottom"></div>`;
@@ -805,7 +812,11 @@ async function moverReservaAccion(idRes, nuevaHora, nuevaPista) {
   const nuevoPrecio = tieneCobros
     ? null
     : precioParaFechaHora(t.fecha, nuevaHora, dur, t.tipoReserva);
-  const upd = { hora_inicio: nuevaHora, pista: nuevaPista };
+  const upd = {
+    hora_inicio: nuevaHora,
+    pista: nuevaPista,
+    es_happy_hour: false,
+  };
   if (
     nuevoPrecio != null &&
     Math.abs(nuevoPrecio - (Number(t.precio) || 0)) > 0.004
@@ -1608,6 +1619,7 @@ async function confirmarGuardarReserva() {
         ...payloadBase,
         fecha: iso,
         pista: pistasSel[0],
+        es_happy_hour: false,
       };
       if (notas !== String(reservaEnEdicion.notas || "").trim())
         upd.notas = notas;
