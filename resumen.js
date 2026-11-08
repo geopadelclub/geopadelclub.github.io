@@ -181,7 +181,7 @@ async function cargarHeatmap() {
 
 function dibujarHeatmap(datos) {
   const cont = $("heatmapContenido");
-  const dias = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+  const dias = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
   const horas = [8, 9, 10, 11, 12, 13, 17, 18, 19, 20, 21, 22];
 
   const mapa = {};
@@ -197,8 +197,10 @@ function dibujarHeatmap(datos) {
 
   horas.forEach((h) => {
     html += `<tr><th>${String(h).padStart(2, "0")}:00</th>`;
-    for (let d = 0; d <= 6; d++) {
-      const ocup = mapa[`${d}-${h}`] || 0;
+    for (let i = 0; i < 7; i++) {
+      const pgDow = (i + 1) % 7;
+      const ocup = mapa[`${pgDow}-${h}`] || 0;
+
       let color = "var(--surface-3)";
       let txtColor = "var(--muted)";
       if (ocup > 0) {
@@ -213,7 +215,7 @@ function dibujarHeatmap(datos) {
           ? "background: transparent; border: 1px dashed var(--border-strong);"
           : `background:${color};`;
 
-      html += `<td><div class="hm-cell${clase}" style="${bgStyle} color:${txtColor}" title="${dias[d]} a las ${h}:00 - Ocupación: ${ocup}%">${ocup > 0 ? ocup + "%" : "—"}</div></td>`;
+      html += `<td><div class="hm-cell${clase}" style="${bgStyle} color:${txtColor}" title="${dias[i]} a las ${h}:00 - Ocupación: ${ocup}%">${ocup > 0 ? ocup + "%" : "—"}</div></td>`;
     }
     html += "</tr>";
   });
