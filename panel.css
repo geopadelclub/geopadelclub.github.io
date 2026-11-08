@@ -3114,3 +3114,42 @@ body {
   margin: 0;
   font-size: 13px;
 }
+.hm-table {
+  border-collapse: separate;
+  border-spacing: 4px;
+  width: 100%;
+  min-width: 600px;
+}
+.hm-table th {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 700;
+  text-align: center;
+  padding: 4px;
+}
+.hm-table th:first-child {
+  text-align: right;
+  padding-right: 10px;
+}
+.hm-cell {
+  width: 50px;
+  height: 34px;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s;
+}
+.hm-cell:hover {
+  transform: scale(1.1);
+  z-index: 10;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+.hm-empty {
+  background: var(--surface-3) !important;
+  color: var(--muted) !important;
+}

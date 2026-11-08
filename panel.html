@@ -250,6 +250,36 @@
           <div id="resumenContenido">
             <p class="loading-placeholder">Cargando resumen del día...</p>
           </div>
+          <div class="card" id="cardHeatmap">
+            <div class="card-head">
+              <h3>
+                <i class="ri-fire-line" aria-hidden="true"></i>Mapa de Calor de
+                Ocupación
+              </h3>
+              <div style="display: flex; gap: 8px; align-items: center">
+                <select id="hmRango" class="toolbar-select" style="width: auto">
+                  <option value="30">Últimos 30 días</option>
+                  <option value="90" selected>Últimos 3 meses</option>
+                  <option value="180">Últimos 6 meses</option>
+                </select>
+                <button
+                  type="button"
+                  class="btn-add gray"
+                  id="btnActualizarHeatmap"
+                >
+                  Actualizar
+                </button>
+              </div>
+            </div>
+            <p class="limp-leyenda">
+              Las celdas más oscuras indican menos ocupación. Ideal para lanzar
+              promociones.
+            </p>
+            <div
+              id="heatmapContenido"
+              style="overflow-x: auto; padding-bottom: 10px"
+            ></div>
+          </div>
         </section>
         <section id="tab-reservas" class="tab-content">
           <div class="playtomic-header-bar">

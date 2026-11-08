@@ -15,6 +15,9 @@ async function entrarResumen() {
     console.error(e);
   }
   dibujarResumen();
+  if (typeof cargarHeatmap === "function") {
+    cargarHeatmap();
+  }
 }
 function resumenSaludo() {
   const h = ahoraMadrid().h;
@@ -149,4 +152,70 @@ async function recargarResumen() {
 
 if (typeof window.accion === "function") {
   window.accion("recargar-resumen", recargarResumen);
+}
+async function cargarHeatmap() {
+  const cont = $("heatmapContenido");
+  if (!cont) return;
+
+  const dias = parseInt($("hmRango").value, 10) || 90;
+  const hasta = fechaLocalISO();
+  const desde = fechaLocalISO(new Date(Date.now() - dias * 86400000));
+
+  cont.innerHTML = '<p class="limp-leyenda">Cargando datos...</p>';
+
+  try {
+    const { data, error } = await supabaseClient.rpc("gp_heatmap_ocupacion", {
+      p_desde: desde,
+      p_hasta: hasta,
+    });
+    if (error) throw error;
+    if (!data || !data.ok) throw new Error("Error de permisos");
+
+    dibujarHeatmap(data.data);
+  } catch (e) {
+    console.error(e);
+    cont.innerHTML =
+      '<p class="limp-leyenda" style="color:var(--red)">No se pudieron cargar los datos.</p>';
+  }
+}
+
+function dibujarHeatmap(datos) {
+  const cont = $("heatmapContenido");
+  const dias = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+  const horas = Array.from({ length: 15 }, (_, i) => i + 8); // 8 a 22h
+
+  const mapa = {};
+  datos.forEach((d) => {
+    mapa[`${d.dia}-${d.hora}`] = d.ocupacion;
+  });
+
+  let html = '<table class="hm-table"><thead><tr><th></th>';
+  dias.forEach((d) => {
+    html += `<th>${d}</th>`;
+  });
+  html += "</tr></thead><tbody>";
+
+  horas.forEach((h) => {
+    html += `<tr><th>${String(h).padStart(2, "0")}:00</th>`;
+    for (let d = 0; d <= 6; d++) {
+      const ocup = mapa[`${d}-${h}`] || 0;
+      let color = "var(--surface-3)";
+      let txtColor = "var(--muted)";
+      if (ocup > 0) {
+        const alpha = Math.max(0.15, ocup / 100);
+        color = `rgba(74, 120, 174, ${alpha})`;
+        txtColor = alpha > 0.5 ? "#fff" : "var(--text)";
+      }
+
+      const clase = ocup === 0 ? " hm-empty" : "";
+      html += `<td><div class="hm-cell${clase}" style="background:${color}; color:${txtColor}" title="${dias[d]} a las ${h}:00 - Ocupación: ${ocup}%">${ocup > 0 ? ocup + "%" : "—"}</div></td>`;
+    }
+    html += "</tr>";
+  });
+
+  html += "</tbody></table>";
+  cont.innerHTML = html;
+}
+if ($("btnActualizarHeatmap")) {
+  $("btnActualizarHeatmap").addEventListener("click", cargarHeatmap);
 }
