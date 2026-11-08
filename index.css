@@ -940,3 +940,6 @@ img {
   font-size: 14px;
   color: var(--heading, #33505a);
 }
+.cta-resenas {
+  margin-top: 30px;
+}
