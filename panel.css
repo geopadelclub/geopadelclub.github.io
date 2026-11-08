@@ -3118,7 +3118,8 @@ body {
   border-collapse: separate;
   border-spacing: 4px;
   width: 100%;
-  min-width: 600px;
+  table-layout: fixed;
+  min-width: 650px;
 }
 .hm-table th {
   font-size: 11px;
@@ -3128,11 +3129,12 @@ body {
   padding: 4px;
 }
 .hm-table th:first-child {
+  width: 60px;
   text-align: right;
   padding-right: 10px;
 }
 .hm-cell {
-  width: 50px;
+  width: 100%;
   height: 34px;
   border-radius: 6px;
   text-align: center;
@@ -3142,12 +3144,16 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.1s;
+  transition:
+    transform 0.1s,
+    filter 0.1s;
+  cursor: default;
 }
 .hm-cell:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
   z-index: 10;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  filter: brightness(1.1);
 }
 .hm-empty {
   background: var(--surface-3) !important;

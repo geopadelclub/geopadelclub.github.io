@@ -208,7 +208,12 @@ function dibujarHeatmap(datos) {
       }
 
       const clase = ocup === 0 ? " hm-empty" : "";
-      html += `<td><div class="hm-cell${clase}" style="background:${color}; color:${txtColor}" title="${dias[d]} a las ${h}:00 - Ocupación: ${ocup}%">${ocup > 0 ? ocup + "%" : "—"}</div></td>`;
+      const bgStyle =
+        ocup === 0
+          ? "background: transparent; border: 1px dashed var(--border-strong);"
+          : `background:${color};`;
+
+      html += `<td><div class="hm-cell${clase}" style="${bgStyle} color:${txtColor}" title="${dias[d]} a las ${h}:00 - Ocupación: ${ocup}%">${ocup > 0 ? ocup + "%" : "—"}</div></td>`;
     }
     html += "</tr>";
   });
