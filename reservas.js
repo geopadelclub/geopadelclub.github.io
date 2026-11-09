@@ -1308,11 +1308,59 @@ ${pagado ? `<button type="button" ${dis} data-j="${j}" data-m="0" class="btn-pay
   }
 }
 
+async function autoGuardarPrecio() {
+  if (!reservaEnEdicion || !reservaEnEdicion.id) return;
+  const inputPrecio = $("modalPrecio");
+  const nuevoPrecio = parseFloat(inputPrecio.value);
+
+  if (isNaN(nuevoPrecio) || nuevoPrecio < 0) return;
+  if (nuevoPrecio === parseFloat(reservaEnEdicion.precio)) return;
+  inputPrecio.style.borderColor = "var(--blue)";
+
+  try {
+    const { error } = await supabaseClient
+      .from("reservas")
+      .update({ precio: nuevoPrecio })
+      .eq("id", reservaEnEdicion.id);
+
+    if (error) throw error;
+
+    reservaEnEdicion.precio = nuevoPrecio;
+    actualizarVistasJugadoresSplit();
+    inputPrecio.style.borderColor = "var(--green)";
+    setTimeout(() => {
+      inputPrecio.style.borderColor = "";
+    }, 1500);
+  } catch (err) {
+    console.error(err);
+    inputPrecio.style.borderColor = "var(--red)";
+    if (
+      err.code === "P0001" ||
+      (err.message && err.message.includes("reserva_con_cobros"))
+    ) {
+      toast(
+        "No puedes cambiar el precio porque hay pagos registrados. Quita los pagos primero.",
+        "err",
+      );
+    } else {
+      toast("Error al guardar el precio: " + (err.message || err), "err");
+    }
+    inputPrecio.value = parseFloat(reservaEnEdicion.precio).toFixed(2);
+  }
+}
+
 $("splitJugadoresContainer").addEventListener("click", (e) => {
   const b = e.target.closest("button[data-j]");
   if (b && !b.disabled)
     cambiarPagoJugador(parseInt(b.dataset.j, 10), b.dataset.m, b);
 });
+
+if ($("modalPrecio")) {
+  $("modalPrecio").addEventListener(
+    "input",
+    debounce(() => autoGuardarPrecio(), 800),
+  );
+}
 
 async function cambiarPagoJugador(numJugador, nuevoMetodo, btn) {
   if (!reservaEnEdicion || !reservaEnEdicion.id) return;
