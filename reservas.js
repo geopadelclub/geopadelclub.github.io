@@ -2315,15 +2315,19 @@ function construirMensajeWhatsAppReserva(r) {
   return `Hola ${nombrePila}, tu reserva en Geopadel está confirmada:\n\n📅 ${fecha}\n🕒 ${r.horaInicio} – ${fin}\n📍 ${r.pista}\n💶 ${precio} (se paga en el club)\n\n¡Nos vemos en la pista!`;
 }
 function abrirWhatsAppReserva(r) {
-  if (!r || !r.telefono) return toast("El cliente no tiene teléfono", "warn");
+  if (!r || !r.telefono) {
+    toast("El cliente no tiene teléfono", "warn");
+    return;
+  }
   const tel = telWhatsApp(r.telefono);
-  if (!tel) return toast("El teléfono no es válido", "warn");
+  if (!tel || tel.length < 9) {
+    toast("El teléfono no es válido", "warn");
+    return;
+  }
   const msg = construirMensajeWhatsAppReserva(r);
-  window.open(
-    `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`,
-    "_blank",
-    "noopener,noreferrer",
-  );
+  const url = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
+
+  window.open(url, "_blank");
 }
 function actualizarBotonWhatsAppModal() {
   const btn = $("btnWhatsAppReserva");
@@ -2882,13 +2886,25 @@ function abrirModoEnvioPlantillas(plantillas) {
   }
   if ($("btnWhatsAppReserva")) {
     $("btnWhatsAppReserva").addEventListener("click", () => {
-      const id = $("modalReservaId").value;
-      if (!id) return;
-      const r = (datosLocales.reservas || []).find(
-        (x) => String(x.id) === String(id),
+      const tel = $("modalTelefono").value.trim();
+      if (!tel) {
+        alert("Por favor, escribe un teléfono antes de avisar.");
+        return;
+      }
+
+      const pistaSeleccionada = document.querySelector(
+        'input[name="chkPistasModal"]:checked',
       );
-      if (r) abrirWhatsAppReserva(r);
-      else toast("No se encontró la reserva", "err");
+
+      abrirWhatsAppReserva({
+        cliente: $("modalCliente").value.trim(),
+        telefono: tel,
+        pista: pistaSeleccionada ? pistaSeleccionada.value : "Pista",
+        fecha: $("modalFecha").value,
+        horaInicio: $("modalHora").value,
+        duracionMin: parseInt($("modalDuracion").value, 10) || 90,
+        precio: parseFloat($("modalPrecio").value) || 0,
+      });
     });
   }
   if ($("modalTelefono")) {
