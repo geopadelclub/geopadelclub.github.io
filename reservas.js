@@ -2884,32 +2884,6 @@ function abrirModoEnvioPlantillas(plantillas) {
       }
     });
   }
-  if ($("btnWhatsAppReserva")) {
-    $("btnWhatsAppReserva").addEventListener("click", () => {
-      const tel = $("modalTelefono").value.trim();
-      if (!tel) {
-        alert("Por favor, escribe un teléfono antes de avisar.");
-        return;
-      }
-
-      const pistaSeleccionada = document.querySelector(
-        'input[name="chkPistasModal"]:checked',
-      );
-
-      abrirWhatsAppReserva({
-        cliente: $("modalCliente").value.trim(),
-        telefono: tel,
-        pista: pistaSeleccionada ? pistaSeleccionada.value : "Pista",
-        fecha: $("modalFecha").value,
-        horaInicio: $("modalHora").value,
-        duracionMin: parseInt($("modalDuracion").value, 10) || 90,
-        precio: parseFloat($("modalPrecio").value) || 0,
-      });
-    });
-  }
-  if ($("modalTelefono")) {
-    $("modalTelefono").addEventListener("input", actualizarBotonWhatsAppModal);
-  }
 
   function cerrar() {
     overlay.remove();
@@ -2932,5 +2906,32 @@ function abrirModoEnvioPlantillas(plantillas) {
 
 if ($("btnGenerarPlantillas")) {
   $("btnGenerarPlantillas").addEventListener("click", generarPlantillasManana);
+}
+if ($("btnWhatsAppReserva")) {
+  $("btnWhatsAppReserva").addEventListener("click", () => {
+    const tel = $("modalTelefono").value.trim();
+    if (!tel) {
+      alert("Por favor, escribe un teléfono antes de avisar.");
+      return;
+    }
+
+    const pistaSeleccionada = document.querySelector(
+      'input[name="chkPistasModal"]:checked',
+    );
+
+    abrirWhatsAppReserva({
+      cliente: $("modalCliente").value.trim(),
+      telefono: tel,
+      pista: pistaSeleccionada ? pistaSeleccionada.value : "Pista",
+      fecha: $("modalFecha").value,
+      horaInicio: $("modalHora").value,
+      duracionMin: parseInt($("modalDuracion").value, 10) || 90,
+      precio: parseFloat($("modalPrecio").value) || 0,
+    });
+  });
+}
+
+if ($("modalTelefono")) {
+  $("modalTelefono").addEventListener("input", actualizarBotonWhatsAppModal);
 }
 aplicarEnterGuardar("modalReserva", "#btnGuardarReserva");
