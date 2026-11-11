@@ -537,36 +537,25 @@ window.addEventListener(
   grid.addEventListener("touchend", finTouch);
   grid.addEventListener("touchcancel", finTouch);
 })();
-
 (function iniciarResizeReservas() {
   const wrapper = $("gridWrapper");
   if (!wrapper) return;
 
   let resize = null;
+  let longPressTimer = null;
 
-  function onDown(ev) {
-    if (suprimirClick) return;
-    const handle = ev.target.closest(".resize-handle");
-    if (!handle) return;
-    const card = handle.closest(".reserva-card");
-    if (!card || card.classList.contains("card-bloqueo")) return;
-    const r = (datosLocales.reservas || []).find(
-      (x) => String(x.id) === card.dataset.id,
-    );
-    if (!r) return;
-    if (!puedeEditarReserva(r)) {
-      toast("Solo puedes ajustar tus propios entrenamientos", "warn");
-      return;
-    }
+  function iniciarResize(ev, handle, r) {
     ev.preventDefault();
     ev.stopPropagation();
-    const col = card.closest(".court-column");
-    const colTop = col.getBoundingClientRect().top;
+    const col = handle.closest(".court-column");
     const iniOriginal = timeToMin(r.horaInicio);
     const durOriginal = parseInt(r.duracionMin, 10) || 90;
     const clientY = ev.touches ? ev.touches[0].clientY : ev.clientY;
-    const wasDraggable = card.draggable;
+    const wasDraggable = handle.closest(".reserva-card").draggable;
+
+    const card = handle.closest(".reserva-card");
     card.draggable = false;
+
     resize = {
       card,
       tipo: handle.dataset.resize,
@@ -579,6 +568,7 @@ window.addEventListener(
       wasDraggable,
       preview: { ini: iniOriginal, dur: durOriginal },
     };
+
     card.classList.add("resizing");
     document.body.style.cursor = "ns-resize";
     document.addEventListener("mousemove", onMove);
@@ -588,6 +578,65 @@ window.addEventListener(
     document.addEventListener("touchcancel", onUp);
   }
 
+  function onDown(ev) {
+    if (suprimirClick) return;
+    const handle = ev.target.closest(".resize-handle");
+    if (!handle) return;
+    const card = handle.closest(".reserva-card");
+    if (!card || card.classList.contains("card-bloqueo")) return;
+
+    const r = (datosLocales.reservas || []).find(
+      (x) => String(x.id) === card.dataset.id,
+    );
+    if (!r) return;
+    if (!puedeEditarReserva(r)) {
+      toast("Solo puedes ajustar tus propios entrenamientos", "warn");
+      return;
+    }
+
+    if (ev.type === "touchstart") {
+      if (ev.touches.length !== 1) return;
+      const startY = ev.touches[0].clientY;
+
+      longPressTimer = setTimeout(() => {
+        longPressTimer = null;
+        if (navigator.vibrate) navigator.vibrate(30); // Vibración de aviso
+        iniciarResize(ev, handle, r);
+      }, 800);
+
+      const cancelarPorMovimiento = (e) => {
+        if (!longPressTimer) return;
+        const y = e.touches[0].clientY;
+        if (Math.abs(y - startY) > 10) {
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+          limpiarListenersTemporales();
+        }
+      };
+
+      const cancelarPorSoltar = () => {
+        if (!longPressTimer) return;
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+        limpiarListenersTemporales();
+      };
+
+      const limpiarListenersTemporales = () => {
+        document.removeEventListener("touchmove", cancelarPorMovimiento);
+        document.removeEventListener("touchend", cancelarPorSoltar);
+        document.removeEventListener("touchcancel", cancelarPorSoltar);
+      };
+
+      document.addEventListener("touchmove", cancelarPorMovimiento, {
+        passive: true,
+      });
+      document.addEventListener("touchend", cancelarPorSoltar);
+      document.addEventListener("touchcancel", cancelarPorSoltar);
+    } else {
+      iniciarResize(ev, handle, r);
+    }
+  }
+
   function onMove(ev) {
     if (!resize) return;
     ev.preventDefault();
@@ -595,6 +644,7 @@ window.addEventListener(
     const ppm = pxPorMin();
     const deltaMin = Math.round((y - resize.startY) / ppm / 30) * 30;
     const { iniOriginal, durOriginal, tipo } = resize;
+
     if (tipo === "top") {
       const ini = Math.max(
         horaInicioGrid * 60,
@@ -609,6 +659,7 @@ window.addEventListener(
       );
       resize.preview = { ini: iniOriginal, dur };
     }
+
     resize.card.style.top = `${(resize.preview.ini - horaInicioGrid * 60) * ppm}px`;
     resize.card.style.height = `${resize.preview.dur * ppm - 2}px`;
   }
@@ -634,11 +685,13 @@ window.addEventListener(
     const nuevaHora = minToTimeStr(r.preview.ini);
     const nuevaDur = r.preview.dur;
     const cierre = obtenerCierreMin(r.fecha);
+
     if (r.preview.ini + nuevaDur > cierre) {
       toast("Excede el cierre del día", "err");
       renderizarCuadrantePlaytomic(datosLocales.reservas);
       return;
     }
+
     const solapa = (datosLocales.reservas || []).find((x) => {
       if (String(x.id) === String(r.id)) return false;
       if (x.pista !== r.pista || x.fecha !== r.fecha) return false;
@@ -647,17 +700,20 @@ window.addEventListener(
       const b = a + (parseInt(x.duracionMin, 10) || 90);
       return r.preview.ini < b && r.preview.ini + nuevaDur > a;
     });
+
     if (solapa) {
       toast(`Solapa con ${solapa.cliente} (${solapa.horaInicio})`, "err");
       renderizarCuadrantePlaytomic(datosLocales.reservas);
       return;
     }
+
     const bloqueo = (datosLocales.bloqueos || []).find((b) => {
       if (b.pista !== r.pista || b.fecha !== r.fecha) return false;
       const a = timeToMin(b.hora_inicio);
       const bF = timeToMin(b.hora_fin);
       return r.preview.ini < bF && r.preview.ini + nuevaDur > a;
     });
+
     if (bloqueo) {
       toast("La pista está bloqueada en ese tramo", "err");
       renderizarCuadrantePlaytomic(datosLocales.reservas);
@@ -669,6 +725,7 @@ window.addEventListener(
     );
     const pagos = String(res?.pagosJugadores || "").split(",");
     const hayCobros = pagos.some((p) => p === "Efectivo" || p === "Tarjeta");
+
     if (hayCobros) {
       toast("Quita los pagos antes de cambiar la duración", "warn");
       renderizarCuadrantePlaytomic(datosLocales.reservas);
@@ -713,7 +770,6 @@ window.addEventListener(
   wrapper.addEventListener("mousedown", onDown);
   wrapper.addEventListener("touchstart", onDown, { passive: false });
 })();
-
 function horaDesdeTop(topPx) {
   const ppm = pxPorMin();
   let m = horaInicioGrid * 60 + Math.round(topPx / ppm / 30) * 30;
