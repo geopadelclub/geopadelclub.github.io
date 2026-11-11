@@ -1074,7 +1074,16 @@ $("btnUnicoTarjeta").addEventListener("click", () =>
   procesarPagoUnico("Tarjeta"),
 );
 $("btnUnicoReset").addEventListener("click", () => procesarPagoUnico("0"));
-
+function actualizarAvisoTituloReserva() {
+  if ($("modalReservaId").value) return;
+  const fechaModal = $("modalFecha").value;
+  if (fechaModal && fechaModal !== fechaLocalISO()) {
+    $("modalTitulo").innerHTML =
+      `Nueva reserva <span style="color:var(--orange-text); font-size:12px; font-weight:700; display:block; margin-top:2px;">(⚠️ Fecha seleccionada: ${fechaBonita(fechaModal)})</span>`;
+  } else {
+    $("modalTitulo").innerText = "Nueva reserva";
+  }
+}
 function abrirModalNuevaReserva(
   pistas = ["1 PADEL MASTER"],
   hora = "17:00",
@@ -1096,7 +1105,7 @@ function abrirModalNuevaReserva(
     notas: "",
   };
   _pendingPagoUnico = null;
-  $("modalTitulo").innerText = "Nueva reserva";
+  actualizarAvisoTituloReserva();
   $("modalReservaId").value = "";
   $("modalCliente").value = "";
   $("modalCliente").dataset.tipo = "Particular";
@@ -1238,6 +1247,7 @@ function duplicarReservaActual() {
     $("modalCliente").dataset.tipo = "Particular";
     $("modalTelefono").value = r.telefono || "";
     $("modalFecha").value = sumarDiasISO(r.fecha, 7);
+    actualizarAvisoTituloReserva();
     $("modalHora").value = r.horaInicio;
     const dur = String(r.duracionMin || 90);
     if (Array.from($("modalDuracion").options).some((o) => o.value === dur))
@@ -2933,5 +2943,8 @@ if ($("btnWhatsAppReserva")) {
 
 if ($("modalTelefono")) {
   $("modalTelefono").addEventListener("input", actualizarBotonWhatsAppModal);
+}
+if ($("modalFecha")) {
+  $("modalFecha").addEventListener("change", actualizarAvisoTituloReserva);
 }
 aplicarEnterGuardar("modalReserva", "#btnGuardarReserva");
