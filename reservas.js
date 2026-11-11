@@ -468,7 +468,8 @@ window.addEventListener(
         !card ||
         card.dataset.tipo === "Torneo" ||
         card.classList.contains("card-bloqueo") ||
-        e.touches.length !== 1
+        e.touches.length !== 1 ||
+        e.target.closest(".resize-handle")
       )
         return;
       const t = e.touches[0];
@@ -486,7 +487,7 @@ window.addEventListener(
         tdrag.rect = card.getBoundingClientRect();
         card.classList.add("dragging-touch");
         if (navigator.vibrate) navigator.vibrate(12);
-      }, 380);
+      }, 1000);
     },
     { passive: true },
   );
@@ -602,7 +603,7 @@ window.addEventListener(
         longPressTimer = null;
         if (navigator.vibrate) navigator.vibrate(30); // Vibración de aviso
         iniciarResize(ev, handle, r);
-      }, 800);
+      }, 500);
 
       const cancelarPorMovimiento = (e) => {
         if (!longPressTimer) return;
