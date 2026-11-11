@@ -16,6 +16,9 @@ async function cargarDatosGlobales() {
     toast("No se pudieron cargar los datos", "err");
     return;
   }
+  if (fechaReservas !== ($("fechaCuadrante")?.value || fechaLocalISO())) {
+    return;
+  }
   datosLocales.productos = data.productos || [];
   dibujarCatalogo(datosLocales.productos);
   if (typeof filtrarGestionCatalogo === "function") filtrarGestionCatalogo();

@@ -76,10 +76,15 @@ function inicializarFechaHoy() {
   $("fechaCuadrante").value = fechaLocalISO();
   actualizarLabelFecha();
 }
+let _timeoutReservas = null;
 function alCambiarFecha() {
   scrollAhoraPendiente = true;
   actualizarLabelFecha();
-  cargarReservasHoy();
+
+  clearTimeout(_timeoutReservas);
+  _timeoutReservas = setTimeout(() => {
+    cargarReservasHoy();
+  }, 250);
 }
 function irAFechaHoy() {
   inicializarFechaHoy();
@@ -162,6 +167,8 @@ function renderizarCuadrantePlaytomic(reservas) {
     prevScrollLeft = wrapper.scrollLeft;
   const ppm = pxPorMin();
   const isoGrid = $("fechaCuadrante").value || fechaLocalISO();
+  reservas = reservas.filter((r) => r.fecha === isoGrid);
+
   let rIni = APERT_MIN,
     rFin = obtenerCierreMin(isoGrid);
   reservas.forEach((r) => {
