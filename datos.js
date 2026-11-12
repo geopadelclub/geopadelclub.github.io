@@ -16,12 +16,15 @@ async function cargarDatosGlobales() {
     toast("No se pudieron cargar los datos", "err");
     return;
   }
+
   if (fechaReservas !== ($("fechaCuadrante")?.value || fechaLocalISO())) {
     return;
   }
+
   datosLocales.productos = data.productos || [];
   dibujarCatalogo(datosLocales.productos);
   if (typeof filtrarGestionCatalogo === "function") filtrarGestionCatalogo();
+
   const tf = {};
   const num = (v) =>
     v === null || v === undefined || v === "" ? null : Number(v);
@@ -39,15 +42,18 @@ async function cargarDatosGlobales() {
   datosLocales.tarifas = tf;
   if (typeof dibujarTarifas === "function")
     dibujarTarifas({ ...TARIFAS_DEFECTO, ...tf });
+
   (data.mesas || []).forEach((row) => {
     cuentasMesas[row.mesa] = Array.isArray(row.items) ? row.items : [];
   });
   if (typeof renderSelectorMesas === "function") renderSelectorMesas();
+
   datosLocales.bloqueos = data.bloqueos || [];
   datosLocales.reservas = (data.reservas || []).map(mapearReserva);
   if (typeof renderizarCuadrantePlaytomic === "function")
     renderizarCuadrantePlaytomic(datosLocales.reservas);
   if (typeof dibujarBloqueos === "function") dibujarBloqueos();
+
   datosLocales.caja = {
     totalEfectivo: redondear2(data.caja?.efectivo || 0),
     totalTarjeta: redondear2(data.caja?.tarjeta || 0),
@@ -57,16 +63,18 @@ async function cargarDatosGlobales() {
   };
   if (typeof dibujarCaja === "function") dibujarCaja(datosLocales.caja);
   if (typeof calcCierre === "function") calcCierre();
+
   if (typeof dibujarDeudas === "function") {
     deudas = data.deudas || [];
     const total = redondear2(
       deudas
-        .filter((d) => d.estado !== "Resuelta")
+        .filter((d) => d.estado !== "Resuelta" && d.estado !== "Anulada")
         .reduce((s, d) => s + (Number(d.importe) || 0), 0),
     );
     $("deudaTotal").innerText = eur(total);
     dibujarDeudas();
   }
+
   _ultimaCargaDatos = Date.now();
   if (typeof dibujarResumen === "function" && usuarioSesion) {
     const tabResumen = $("tab-resumen");
@@ -80,28 +88,34 @@ async function cargarDatosGlobales() {
   }
 }
 async function cargarFestivos() {
+  let cache = null;
+  try {
+    cache = JSON.parse(localStorage.getItem("gp_festivos_cache"));
+  } catch (e) {}
+
+  if (cache && cache.t && Date.now() - cache.t < 86400000 && cache.data) {
+    datosLocales.festivos = cache.data;
+    return;
+  }
+
   const { data, error } = await supabaseClient
     .from("dias_festivos")
     .select("fecha");
   if (error) {
     console.error("Error cargando festivos:", error);
-    datosLocales.festivos = [];
+    datosLocales.festivos = cache ? cache.data : [];
     return;
   }
-  datosLocales.festivos = (data || []).map((d) => d.fecha);
-}
-async function cargarClientes() {
-  const { data, error } = await conReintento(() =>
-    supabaseClient
-      .from("clientes")
-      .select("id, nombre, telefono, tipo_cliente, nombre_entidad")
-      .order("nombre"),
-  );
-  if (error) {
-    console.error(error);
-    return;
-  }
-  datosLocales.clientes = data || [];
+
+  const fechas = (data || []).map((d) => d.fecha);
+  datosLocales.festivos = fechas;
+
+  try {
+    localStorage.setItem(
+      "gp_festivos_cache",
+      JSON.stringify({ t: Date.now(), data: fechas }),
+    );
+  } catch (e) {}
 }
 async function cargarProductos() {
   const { data, error } = await conReintento(() =>

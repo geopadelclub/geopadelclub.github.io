@@ -467,11 +467,6 @@ function iniciarSuscripcionRealtime() {
     )
     .on(
       "postgres_changes",
-      { event: "*", schema: "public", table: "clientes" },
-      refrescar.clientes,
-    )
-    .on(
-      "postgres_changes",
       { event: "*", schema: "public", table: "bloqueos_pistas" },
       refrescar.reservas,
     )
