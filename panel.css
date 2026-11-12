@@ -463,8 +463,8 @@
   opacity: 0.5;
   z-index: 15;
   pointer-events: none;
+  top: var(--now-top, 0px);
 }
-
 .reserva-card {
   position: absolute;
   left: 2px;

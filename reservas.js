@@ -156,7 +156,6 @@ function actualizarDuracionesSelect(tipo) {
   if (actual && durs.includes(actual)) selDur.value = String(actual);
   else selDur.value = String(durs[0]);
 }
-
 function renderizarCuadrantePlaytomic(reservas) {
   const tabReservas = $("tab-reservas");
   if (!tabReservas || !tabReservas.classList.contains("active")) return;
@@ -218,6 +217,13 @@ function renderizarCuadrantePlaytomic(reservas) {
     if (minAhora >= minGridIni && minAhora <= minGridFin)
       topPxAhora = (minAhora - minGridIni) * ppm;
   }
+
+  if (topPxAhora >= 0) {
+    grid.style.setProperty("--now-top", `${topPxAhora}px`);
+  } else {
+    grid.style.setProperty("--now-top", `-100px`);
+  }
+
   frag.appendChild(colTime);
   let totalReservasPista = 0;
   listaPistas.forEach((pista) => {
@@ -236,7 +242,6 @@ function renderizarCuadrantePlaytomic(reservas) {
     if (topPxAhora >= 0) {
       const line = document.createElement("div");
       line.className = "court-line-now";
-      line.style.top = `${topPxAhora}px`;
       colPista.appendChild(line);
     }
     reservas
@@ -371,18 +376,15 @@ ${tieneNota && heightPx >= 150 ? `<div class="reserva-nota-txt">${esc(r.notas)}<
     wrapper.scrollLeft = prevScrollLeft;
   }
 }
-
 setInterval(() => {
   if (document.hidden || !usuarioSesion) return;
   if ($("fechaCuadrante").value !== fechaLocalISO()) return;
-  const lines = document.querySelectorAll(".court-line-now");
-  if (!lines.length) return;
+  const grid = $("playtomicGrid");
+  if (!grid || !grid.querySelector(".court-line-now")) return;
   const ppm = pxPorMin();
   const minAhora = new Date().getHours() * 60 + new Date().getMinutes();
   const top = (minAhora - horaInicioGrid * 60) * ppm;
-  lines.forEach((l) => {
-    l.style.top = `${top}px`;
-  });
+  grid.style.setProperty("--now-top", `${top}px`);
 }, 60000);
 
 window.addEventListener(
