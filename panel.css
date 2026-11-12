@@ -1918,6 +1918,7 @@ tr.deuda-resuelta td {
   font-size: 13px;
   font-weight: 700;
   color: var(--text);
+  text-decoration: none;
   transition:
     background 0.15s,
     transform 0.1s,
@@ -3165,4 +3166,61 @@ body {
   font-weight: 700;
   text-align: center;
   padding: 6px;
+}
+
+.input-tel-wrapper {
+  display: flex;
+  gap: 6px;
+  align-items: stretch;
+}
+.input-tel-wrapper input {
+  flex: 1;
+  min-width: 0;
+}
+.btn-copiar-tel-modal {
+  flex: 0 0 auto;
+  padding: 0 14px;
+}
+.repetir-info {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 6px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.mt-8 {
+  margin-top: 8px;
+}
+.tipo-pago-radios {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.cl-check-sm {
+  font-size: 14px;
+}
+.pago-unico-botones {
+  display: flex;
+  gap: 8px;
+}
+.btn-pay-flex {
+  flex: 1;
+  padding: 12px;
+}
+.btn-pay-flex-auto {
+  flex: 0 0 auto;
+  padding: 12px;
+}
+.msg-pago-unico {
+  text-align: center;
+  margin-top: 8px;
+  font-size: 12px;
+}
+.badge-precio-unitario {
+  font-size: 13px;
+  color: var(--blue);
+  font-weight: 800;
+}
+.ml-6 {
+  margin-left: 6px;
 }

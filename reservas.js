@@ -156,6 +156,7 @@ function actualizarDuracionesSelect(tipo) {
   if (actual && durs.includes(actual)) selDur.value = String(actual);
   else selDur.value = String(durs[0]);
 }
+
 function renderizarCuadrantePlaytomic(reservas) {
   const tabReservas = $("tab-reservas");
   if (!tabReservas || !tabReservas.classList.contains("active")) return;
@@ -603,7 +604,7 @@ window.addEventListener(
 
       longPressTimer = setTimeout(() => {
         longPressTimer = null;
-        if (navigator.vibrate) navigator.vibrate(30); // Vibración de aviso
+        if (navigator.vibrate) navigator.vibrate(30);
         iniciarResize(ev, handle, r);
       }, 500);
 
@@ -955,7 +956,7 @@ function recalcularPrecioSugerido(forzar = true) {
 }
 function actualizarRepetirPena() {
   const box = $("boxRepetir");
-  if (!box || box.style.display === "none") return;
+  if (!box || box.hidden) return;
   const info = $("modalRepetirInfo");
   if (!info) return;
   const fechaIni = $("modalFecha").value;
@@ -1012,12 +1013,12 @@ function alCambiarTipo() {
   const t = $("modalTipoReserva").value,
     nueva = !$("modalReservaId").value,
     tor = t === "Torneo";
-  $("boxTorneoDur").style.display = tor ? "block" : "none";
+  $("boxTorneoDur").hidden = !tor;
   const dispDur = tor ? "none" : "block";
   $("lblDur").style.display = dispDur;
   $("modalDuracion").style.display = dispDur;
   actualizarDuracionesSelect(t);
-  $("boxRepetir").style.display = t === "Pena" && nueva ? "block" : "none";
+  $("boxRepetir").hidden = !(t === "Pena" && nueva);
   if (t === "Pena" && nueva) {
     if (!$("modalRepetirFin").value) {
       const fechaIni = $("modalFecha").value || fechaLocalISO();
@@ -1041,11 +1042,11 @@ function alCambiarTipoPago() {
   );
   const tipo = radioSel ? radioSel.value : "unico";
   if (tipo === "unico") {
-    $("boxPagoUnico").style.display = "block";
-    $("boxCobroDividido").style.display = "none";
+    $("boxPagoUnico").hidden = false;
+    $("boxCobroDividido").hidden = true;
   } else {
-    $("boxPagoUnico").style.display = "none";
-    $("boxCobroDividido").style.display = "block";
+    $("boxPagoUnico").hidden = true;
+    $("boxCobroDividido").hidden = false;
     actualizarVistasJugadoresSplit();
   }
 }
@@ -1060,7 +1061,7 @@ async function procesarPagoUnico(metodo) {
       $("msgPagoUnico").innerText = "";
       $("btnUnicoEfectivo").classList.remove("active");
       $("btnUnicoTarjeta").classList.remove("active");
-      $("btnUnicoReset").style.display = "none";
+      $("btnUnicoReset").hidden = true;
       return;
     }
     _pendingPagoUnico = metodo;
@@ -1068,7 +1069,7 @@ async function procesarPagoUnico(metodo) {
     $("msgPagoUnico").innerText = `Se cobrará en ${metodo} al guardar`;
     $("btnUnicoEfectivo").classList.toggle("active", metodo === "Efectivo");
     $("btnUnicoTarjeta").classList.toggle("active", metodo === "Tarjeta");
-    $("btnUnicoReset").style.display = "inline-block";
+    $("btnUnicoReset").hidden = false;
     return;
   }
 
@@ -1106,7 +1107,7 @@ async function procesarPagoUnico(metodo) {
         "Pago eliminado. Reserva pendiente de cobro.";
       btnEf.classList.remove("active");
       btnTa.classList.remove("active");
-      btnRe.style.display = "none";
+      btnRe.hidden = true;
       document
         .querySelectorAll('input[name="modalTipoPago"]')
         .forEach((r) => (r.disabled = false));
@@ -1116,7 +1117,7 @@ async function procesarPagoUnico(metodo) {
         `✔ Cobrado ${eur(reservaEnEdicion.precio)} (${metodo})`;
       btnEf.classList.toggle("active", metodo === "Efectivo");
       btnTa.classList.toggle("active", metodo === "Tarjeta");
-      btnRe.style.display = "inline-block";
+      btnRe.hidden = false;
     }
     actualizarVistasJugadoresSplit();
   } catch (e) {
@@ -1185,11 +1186,11 @@ function abrirModalNuevaReserva(
   $("modalFecha").value = $("fechaCuadrante").value || fechaLocalISO();
   const fechaIniDefault = $("modalFecha").value || fechaLocalISO();
   $("modalRepetirFin").value = sumarDiasISO(fechaIniDefault, 11 * 7);
-  $("btnEliminarSerie").style.display = "none";
-  $("btnEliminarReserva").style.display = "none";
-  $("btnHistorialReserva").style.display = "none";
+  $("btnEliminarSerie").hidden = true;
+  $("btnEliminarReserva").hidden = true;
+  $("btnHistorialReserva").hidden = true;
   const _btnDup = $("btnDuplicarReserva");
-  if (_btnDup) _btnDup.style.display = "none";
+  if (_btnDup) _btnDup.hidden = true;
   $("modalNumJugadores").value = "4";
 
   document.querySelector('input[name="modalTipoPago"][value="unico"]').checked =
@@ -1238,11 +1239,11 @@ function abrirModalEditarReserva(res) {
   $("modalDuracionHoras").value = res.duracionMin / 60;
   $("modalTipoReserva").value = res.tipoReserva || "Normal";
   $("modalFecha").value = res.fecha;
-  $("btnEliminarSerie").style.display = res.serie ? "inline-block" : "none";
-  $("btnEliminarReserva").style.display = "inline-block";
-  $("btnHistorialReserva").style.display = "inline-block";
+  $("btnEliminarSerie").hidden = !res.serie;
+  $("btnEliminarReserva").hidden = false;
+  $("btnHistorialReserva").hidden = false;
   const _btnDup2 = $("btnDuplicarReserva");
-  if (_btnDup2) _btnDup2.style.display = "inline-block";
+  if (_btnDup2) _btnDup2.hidden = false;
   alCambiarTipo();
   $("modalNumJugadores").value = String(nJug);
   $("modalPrecio").value = parseFloat(res.precio || 0).toFixed(2);
@@ -1266,11 +1267,11 @@ function abrirModalEditarReserva(res) {
       $(
         pagados[0] === "Efectivo" ? "btnUnicoEfectivo" : "btnUnicoTarjeta",
       ).classList.add("active");
-      $("btnUnicoReset").style.display = "inline-block";
+      $("btnUnicoReset").hidden = false;
     } else {
       radios[1].checked = true;
       $("msgPagoUnico").innerText = "";
-      $("btnUnicoReset").style.display = "none";
+      $("btnUnicoReset").hidden = true;
     }
   } else {
     radios.forEach((r) => (r.disabled = false));
@@ -1283,16 +1284,12 @@ function abrirModalEditarReserva(res) {
     $("msgPagoUnico").innerText = "";
     $("btnUnicoEfectivo").classList.remove("active");
     $("btnUnicoTarjeta").classList.remove("active");
-    $("btnUnicoReset").style.display = "none";
+    $("btnUnicoReset").hidden = true;
   }
   alCambiarTipoPago();
   const ocultar = esEntrenador();
-  $("btnEliminarSerie").style.display = ocultar
-    ? "none"
-    : res.serie
-      ? "inline-block"
-      : "none";
-  $("btnHistorialReserva").style.display = ocultar ? "none" : "inline-block";
+  $("btnEliminarSerie").hidden = ocultar || !res.serie;
+  $("btnHistorialReserva").hidden = ocultar;
 
   actualizarVistasJugadoresSplit();
   resetBtnGuardar();
@@ -1471,7 +1468,7 @@ function cerrarModal() {
   _pendingPagoUnico = null;
   resetBtnGuardar();
   const _btnDup = $("btnDuplicarReserva");
-  if (_btnDup) _btnDup.style.display = "none";
+  if (_btnDup) _btnDup.hidden = true;
 }
 
 async function guardarClienteSilencioso(
@@ -2409,7 +2406,7 @@ function actualizarBotonWhatsAppModal() {
   if (!btn) return;
   const id = $("modalReservaId").value;
   const tel = ($("modalTelefono").value || "").trim();
-  btn.style.display = id && telefonoValido(tel) ? "" : "none";
+  btn.hidden = !(id && telefonoValido(tel));
 }
 async function anadirEsperaManual(e) {
   e.preventDefault();

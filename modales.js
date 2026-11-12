@@ -12,9 +12,9 @@ const HTML_MODAL_RESERVA = `
         <h5>Reserva</h5>
         <input type="hidden" id="modalReservaId" /><label for="modalCliente">Cliente</label>
         <input type="text" id="modalCliente" maxlength="80" placeholder="Escribe el nombre para buscar..." autocomplete="off" /><label for="modalTelefono">Teléfono</label>
-        <div style="display: flex; gap: 6px; align-items: stretch">
-          <input type="tel" id="modalTelefono" maxlength="20" placeholder="Escribe el teléfono para buscar..." autocomplete="off" style="flex: 1; min-width: 0" />
-          <button type="button" id="btnCopiarTelReserva" class="btn-add gray" style="flex: 0 0 auto; padding: 0 14px" aria-label="Copiar teléfono" title="Copiar teléfono"><i class="ri-file-copy-line" aria-hidden="true"></i></button>
+        <div class="input-tel-wrapper">
+          <input type="tel" id="modalTelefono" maxlength="20" placeholder="Escribe el teléfono para buscar..." autocomplete="off" />
+          <button type="button" id="btnCopiarTelReserva" class="btn-add gray btn-copiar-tel-modal" aria-label="Copiar teléfono" title="Copiar teléfono"><i class="ri-file-copy-line" aria-hidden="true"></i></button>
         </div>
         <label>Pistas</label>
         <div id="modalPistasContainer" class="pistas-checkbox-grid"></div>
@@ -39,16 +39,16 @@ const HTML_MODAL_RESERVA = `
           <option value="270">270 minutos (4.5 h)</option>
           <option value="300">300 minutos (5.0 h)</option>
         </select>
-        <div id="boxTorneoDur" style="display: none">
+        <div id="boxTorneoDur" hidden>
           <label for="modalDuracionHoras">Duración torneo (horas)</label>
           <input type="number" inputmode="decimal" id="modalDuracionHoras" min="0.5" max="16" step="0.5" value="8" data-oninput="recalcular-precio" />
         </div>
-        <div id="boxRepetir" style="display: none">
+        <div id="boxRepetir" hidden>
           <label for="modalRepetirFin">
             <i class="ri-repeat-line" aria-hidden="true"></i>Repetir peña hasta (fecha del último partido)
           </label>
           <input type="date" id="modalRepetirFin" />
-            <p id="modalRepetirInfo" style="font-size:12px;font-weight:600;margin-top:6px;color:var(--muted);line-height:1.4"></p>
+            <p id="modalRepetirInfo" class="repetir-info"></p>
         </div>
         <label for="modalNumJugadores">Número de jugadores</label>
         <select id="modalNumJugadores" data-onchange="actualizar-split"></select><label for="modalPrecio">Precio total pista (€)</label>
@@ -56,23 +56,23 @@ const HTML_MODAL_RESERVA = `
       </div>
       <div class="modal-col">
         <div class="modal-section-box">
-          <h5 style="margin-bottom: 8px">Método de cobro</h5>
-          <div style="display: flex; gap: 16px; margin-bottom: 12px">
-            <label class="cl-check" style="font-size: 14px"><input type="radio" name="modalTipoPago" value="unico" checked /> Pago único</label>
-            <label class="cl-check" style="font-size: 14px"><input type="radio" name="modalTipoPago" value="dividido" /> Pago dividido</label>
+          <h5 class="mt-8">Método de cobro</h5>
+          <div class="tipo-pago-radios">
+            <label class="cl-check cl-check-sm"><input type="radio" name="modalTipoPago" value="unico" checked /> Pago único</label>
+            <label class="cl-check cl-check-sm"><input type="radio" name="modalTipoPago" value="dividido" /> Pago dividido</label>
           </div>
           <div id="boxPagoUnico">
-            <div style="display: flex; gap: 8px">
-              <button type="button" class="btn-pay btn-cash" id="btnUnicoEfectivo" style="flex: 1; padding: 12px">Efectivo</button>
-              <button type="button" class="btn-pay btn-card" id="btnUnicoTarjeta" style="flex: 1; padding: 12px">Tarjeta</button>
-              <button type="button" class="btn-pay btn-pay-reset" id="btnUnicoReset" style="flex: 0 0 auto; padding: 12px; display: none" aria-label="Quitar pago"><i class="ri-close-line"></i></button>
+            <div class="pago-unico-botones">
+              <button type="button" class="btn-pay btn-cash btn-pay-flex" id="btnUnicoEfectivo">Efectivo</button>
+              <button type="button" class="btn-pay btn-card btn-pay-flex" id="btnUnicoTarjeta">Tarjeta</button>
+              <button type="button" class="btn-pay btn-pay-reset btn-pay-flex-auto" id="btnUnicoReset" hidden aria-label="Quitar pago"><i class="ri-close-line"></i></button>
             </div>
-            <p id="msgPagoUnico" class="msg-inline" style="text-align: center; margin-top: 8px; font-size: 12px"></p>
+            <p id="msgPagoUnico" class="msg-inline msg-pago-unico"></p>
           </div>
-          <div id="boxCobroDividido" style="display: none">
-            <h5>Cobro dividido <span id="badgePrecioUnitario" style="font-size: 13px; color: var(--blue); font-weight: 800;"></span></h5>
+          <div id="boxCobroDividido" hidden>
+            <h5>Cobro dividido <span id="badgePrecioUnitario" class="badge-precio-unitario"></span></h5>
             <div id="splitJugadoresContainer" class="jugadores-split-grid"></div>
-            <div class="estado-global">Estado global: <span id="badgeEstadoPagoGlobal" style="margin-left: 6px" class="badge-sin-pagar"><i class="ri-error-warning-line" aria-hidden="true"></i>Sin pagar</span></div>
+            <div class="estado-global">Estado global: <span id="badgeEstadoPagoGlobal" class="badge-sin-pagar ml-6"><i class="ri-error-warning-line" aria-hidden="true"></i>Sin pagar</span></div>
           </div>
         </div>
         <div class="modal-section-box nota-box">
@@ -83,11 +83,11 @@ const HTML_MODAL_RESERVA = `
     </div>
 <div class="modal-footer-bar">
   <button type="button" id="btnGuardarReserva" data-action="guardar-reserva" class="btn-add"><i class="ri-save-line" aria-hidden="true"></i>Guardar reserva</button>
-  <button type="button" id="btnEliminarSerie" data-action="eliminar-serie" class="btn-add danger-dark" style="display: none"><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar serie</button>
-  <button type="button" id="btnHistorialReserva" data-action="ver-historial" class="btn-add gray" style="display: none"><i class="ri-history-line" aria-hidden="true"></i>Historial</button>
-  <button type="button" id="btnEliminarReserva" data-action="eliminar-reserva" class="btn-add danger" style="display: none"><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar</button>
-  <button type="button" id="btnDuplicarReserva" class="btn-add blue" style="display: none"><i class="ri-file-copy-2-line" aria-hidden="true"></i>Duplicar</button>
-  <button type="button" id="btnWhatsAppReserva" class="btn-add wa" style="display:none"><i class="ri-whatsapp-line" aria-hidden="true"></i>Avisar por WhatsApp</button>
+  <button type="button" id="btnEliminarSerie" data-action="eliminar-serie" class="btn-add danger-dark" hidden><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar serie</button>
+  <button type="button" id="btnHistorialReserva" data-action="ver-historial" class="btn-add gray" hidden><i class="ri-history-line" aria-hidden="true"></i>Historial</button>
+  <button type="button" id="btnEliminarReserva" data-action="eliminar-reserva" class="btn-add danger" hidden><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar</button>
+  <button type="button" id="btnDuplicarReserva" class="btn-add blue" hidden><i class="ri-file-copy-2-line" aria-hidden="true"></i>Duplicar</button>
+  <button type="button" id="btnWhatsAppReserva" class="btn-add wa" hidden><i class="ri-whatsapp-line" aria-hidden="true"></i>Avisar por WhatsApp</button>
   <button type="button" data-action="cerrar-modal" class="btn-add gray">Cancelar</button>
 </div>
   </div>
