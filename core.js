@@ -118,7 +118,7 @@ async function cargarConfigPanel() {
   try {
     let cache = null;
     try {
-      cache = JSON.parse(localStorage.getItem("gp-panel-config") || "null");
+      cache = JSON.parse(storage.getItem("gp-panel-config") || "null");
     } catch (e) {}
     if (cache && cache.t && Date.now() - cache.t < 86400000 && cache.data) {
       aplicarConfigPanel(cache.data);
@@ -130,7 +130,7 @@ async function cargarConfigPanel() {
           if (r && r.data) {
             aplicarConfigPanel(r.data);
             try {
-              localStorage.setItem(
+              storage.setItem(
                 "gp-panel-config",
                 JSON.stringify({ t: Date.now(), data: r.data }),
               );
@@ -144,7 +144,7 @@ async function cargarConfigPanel() {
     if (error || !data) return;
     aplicarConfigPanel(data);
     try {
-      localStorage.setItem(
+      storage.setItem(
         "gp-panel-config",
         JSON.stringify({ t: Date.now(), data }),
       );
@@ -207,18 +207,18 @@ function mapearReserva(r) {
 function marcarInicioSesion() {
   try {
     const ahora = String(Date.now());
-    localStorage.setItem(CLAVE_SESION_INI, ahora);
-    localStorage.setItem(CLAVE_ULT_ACT, ahora);
+    storage.setItem(CLAVE_SESION_INI, ahora);
+    storage.setItem(CLAVE_ULT_ACT, ahora);
   } catch (e) {}
 }
 function renovarInactividad() {
   try {
-    localStorage.setItem(CLAVE_ULT_ACT, String(Date.now()));
+    storage.setItem(CLAVE_ULT_ACT, String(Date.now()));
   } catch (e) {}
 }
 function registrarActividad() {
   try {
-    localStorage.setItem(CLAVE_ULT_ACT, String(Date.now()));
+    storage.setItem(CLAVE_ULT_ACT, String(Date.now()));
   } catch (e) {}
 }
 ["click", "keydown", "scroll", "touchstart"].forEach((evt) => {
@@ -233,8 +233,8 @@ function msSesionRestante() {
   let ini = 0,
     ult = 0;
   try {
-    ini = parseInt(localStorage.getItem(CLAVE_SESION_INI), 10) || 0;
-    ult = parseInt(localStorage.getItem(CLAVE_ULT_ACT), 10) || ini;
+    ini = parseInt(storage.getItem(CLAVE_SESION_INI), 10) || 0;
+    ult = parseInt(storage.getItem(CLAVE_ULT_ACT), 10) || ini;
   } catch (e) {}
   const ahora = Date.now();
   const restanteMax = ini ? ini + SESION_MAX_MS - ahora : Infinity;
@@ -250,8 +250,8 @@ function iniciarVigilanciaSesion() {
     let ini = 0,
       ult = 0;
     try {
-      ini = parseInt(localStorage.getItem(CLAVE_SESION_INI), 10) || 0;
-      ult = parseInt(localStorage.getItem(CLAVE_ULT_ACT), 10) || ini;
+      ini = parseInt(storage.getItem(CLAVE_SESION_INI), 10) || 0;
+      ult = parseInt(storage.getItem(CLAVE_ULT_ACT), 10) || ini;
     } catch (e) {}
     const ahora = Date.now();
     const restanteMax = ini ? ini + SESION_MAX_MS - ahora : Infinity;

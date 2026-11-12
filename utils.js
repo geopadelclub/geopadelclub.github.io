@@ -1,4 +1,29 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
+const storage = {
+  get(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      return null;
+    }
+  },
+  set(key, value) {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  },
+  remove(key) {
+    try {
+      localStorage.removeItem(key);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  },
+};
 window.$ = (e) => document.getElementById(e);
 const esc = (e) =>
     String(e ?? "").replace(
@@ -129,7 +154,7 @@ function aplicarTema(e, t = !0) {
   document.documentElement.setAttribute("data-theme", e);
   if (t)
     try {
-      localStorage.setItem("gp-theme", e);
+      storage.setItem("gp-theme", e);
     } catch (e) {}
   const n = $("metaTheme");
   if (n) n.setAttribute("content", e === "dark" ? "#364650" : "#fcfdfc");
@@ -164,7 +189,7 @@ function iniciarTema() {
       t = (e) => {
         let t = null;
         try {
-          t = localStorage.getItem("gp-theme");
+          t = storage.getItem("gp-theme");
         } catch (e) {}
         if (!t) aplicarTema(e.matches ? "dark" : "light", !1);
       };

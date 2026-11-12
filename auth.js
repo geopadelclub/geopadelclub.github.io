@@ -32,7 +32,7 @@ async function inicializarSupabase() {
     SUPABASE_ANON_KEY,
     {
       auth: {
-        storage: window.localStorage,
+        storage: window.storage,
         persistSession: !0,
         autoRefreshToken: !0,
       },
@@ -51,14 +51,14 @@ let intentosFallidos = 0,
   tsLoginToken = "";
 function cargarIntentosLogin() {
   try {
-    const raw = localStorage.getItem(CLAVE_LOGIN_ATTEMPTS);
+    const raw = storage.getItem(CLAVE_LOGIN_ATTEMPTS);
     if (!raw) return;
     const o = JSON.parse(raw);
     if (!o || typeof o !== "object") return;
     const ahora = Date.now();
     const ultimo = Number(o.last) || 0;
     if (ultimo && ahora - ultimo > LOGIN_RESET_MS) {
-      localStorage.removeItem(CLAVE_LOGIN_ATTEMPTS);
+      storage.removeItem(CLAVE_LOGIN_ATTEMPTS);
       return;
     }
     intentosFallidos = Number(o.fails) || 0;
@@ -70,10 +70,10 @@ function guardarIntentosLogin() {
   try {
     if (bloqueoHasta && Date.now() >= bloqueoHasta) bloqueoHasta = 0;
     if (intentosFallidos === 0 && bloqueoHasta === 0) {
-      localStorage.removeItem(CLAVE_LOGIN_ATTEMPTS);
+      storage.removeItem(CLAVE_LOGIN_ATTEMPTS);
       return;
     }
-    localStorage.setItem(
+    storage.setItem(
       CLAVE_LOGIN_ATTEMPTS,
       JSON.stringify({
         fails: intentosFallidos,
@@ -138,7 +138,7 @@ async function cargarPerfil(e) {
 async function comprobarSesion() {
   let e = !1;
   try {
-    e = !!localStorage.getItem(CLAVE_SESION_INI);
+    e = !!storage.getItem(CLAVE_SESION_INI);
   } catch (e) {}
   if (!e) {
     mostrarLogin();
@@ -156,7 +156,7 @@ async function comprobarSesion() {
     if (sesionCaducada()) {
       await supabaseClient.auth.signOut();
       try {
-        localStorage.removeItem(CLAVE_SESION_INI);
+        storage.removeItem(CLAVE_SESION_INI);
       } catch (e) {}
       mostrarLogin();
       toast("La sesión ha caducado. Vuelve a entrar.", "warn");
@@ -165,7 +165,7 @@ async function comprobarSesion() {
     const n = await cargarPerfil(t.session.user);
     if (n) {
       usuarioSesion = n;
-      if (!localStorage.getItem(CLAVE_SESION_INI)) marcarInicioSesion();
+      if (!storage.getItem(CLAVE_SESION_INI)) marcarInicioSesion();
       mostrarPanelAdmin().catch((err) => {
         console.error(err);
         toast("Error al cargar el panel. Recarga la página.", "err");
@@ -186,8 +186,8 @@ async function cerrarSesion() {
   }
   if (supabaseClient) await supabaseClient.auth.signOut();
   try {
-    localStorage.removeItem(CLAVE_SESION_INI);
-    localStorage.removeItem(CLAVE_ULT_ACT);
+    storage.removeItem(CLAVE_SESION_INI);
+    storage.removeItem(CLAVE_ULT_ACT);
   } catch (e) {}
   usuarioSesion = null;
   $("password").value = "";

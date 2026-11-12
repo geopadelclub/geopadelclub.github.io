@@ -569,7 +569,7 @@ function setIdioma(lang) {
   if (!I18N[lang]) return;
   _idioma = lang;
   try {
-    localStorage.setItem("gp-lang", lang);
+    storage.setItem("gp-lang", lang);
   } catch (e) {}
   aplicarIdioma();
   document.dispatchEvent(new Event("idioma-cambiado"));
@@ -580,7 +580,7 @@ function alternarIdioma() {
 (function initIdioma() {
   let guardado = null;
   try {
-    guardado = localStorage.getItem("gp-lang");
+    guardado = storage.getItem("gp-lang");
   } catch (e) {}
   const urlLang = new URLSearchParams(location.search).get("lang");
   if (urlLang === "en" || urlLang === "es") _idioma = urlLang;
