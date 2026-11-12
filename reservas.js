@@ -2711,30 +2711,13 @@ function getDiaSemanaLargoPlantillas(iso) {
 }
 
 function copiarTextoPlantilla(texto, msgExito) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard
-      .writeText(texto)
-      .then(() => toast(msgExito || "Copiado", "ok"))
-      .catch(() => fallbackCopiarPlantilla(texto, msgExito));
-  } else {
-    fallbackCopiarPlantilla(texto, msgExito);
-  }
-}
-
-function fallbackCopiarPlantilla(texto, msgExito) {
-  const ta = document.createElement("textarea");
-  ta.value = texto;
-  ta.style.position = "fixed";
-  ta.style.left = "-9999px";
-  document.body.appendChild(ta);
-  ta.select();
-  try {
-    document.execCommand("copy");
-    toast(msgExito || "Copiado", "ok");
-  } catch (err) {
-    toast("No se pudo copiar", "err");
-  }
-  document.body.removeChild(ta);
+  copiarTexto(texto).then((ok) => {
+    if (ok) {
+      toast(msgExito || "Copiado", "ok");
+    } else {
+      toast("No se pudo copiar", "err");
+    }
+  });
 }
 
 async function generarPlantillasManana() {
@@ -2985,7 +2968,7 @@ if ($("btnWhatsAppReserva")) {
   $("btnWhatsAppReserva").addEventListener("click", () => {
     const tel = $("modalTelefono").value.trim();
     if (!tel) {
-      alert("Por favor, escribe un teléfono antes de avisar.");
+      toast("Por favor, escribe un teléfono antes de avisar.", "warn");
       return;
     }
 

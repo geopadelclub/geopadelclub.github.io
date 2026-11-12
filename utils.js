@@ -341,10 +341,6 @@ function enlazarBuscadorCliente(e, t, n) {
 function customConfirm(e, t = "Confirmación") {
   return new Promise((n) => {
     const r = $("modalConfirmDialog");
-    if (!r || typeof r.showModal !== "function") {
-      n(window.confirm(e));
-      return;
-    }
     r.returnValue = "";
     $("confirmDialogTitle").innerText = t;
     $("confirmDialogMessage").innerText = e;
@@ -373,10 +369,6 @@ function customConfirm(e, t = "Confirmación") {
 function customPrompt(e, t = "", n = "Entrada requerida") {
   return new Promise((r) => {
     const i = $("modalConfirmDialog");
-    if (!i || typeof i.showModal !== "function") {
-      r(window.prompt(e, t));
-      return;
-    }
     i.returnValue = "";
     $("confirmDialogTitle").innerText = n;
     $("confirmDialogMessage").innerText = e;
@@ -501,17 +493,7 @@ async function copiarTexto(texto) {
       await navigator.clipboard.writeText(t);
       return true;
     }
-  } catch (e) {}
-  try {
-    const ta = document.createElement("textarea");
-    ta.value = t;
-    ta.style.position = "fixed";
-    ta.style.left = "-9999px";
-    document.body.appendChild(ta);
-    ta.select();
-    const ok = document.execCommand("copy");
-    document.body.removeChild(ta);
-    return ok;
+    return false;
   } catch (e) {
     return false;
   }
