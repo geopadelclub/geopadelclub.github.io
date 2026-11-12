@@ -1363,8 +1363,7 @@ ${pagado ? `<button type="button" ${dis} data-j="${j}" data-m="0" class="btn-pay
   }
   if (sinId) {
     const nota = document.createElement("div");
-    nota.style.cssText =
-      "font-size:12px;color:var(--muted);font-weight:700;text-align:center;padding:6px";
+    nota.className = "split-nota";
     nota.textContent = "Guarda la reserva para poder registrar los cobros.";
     container.appendChild(nota);
   }
