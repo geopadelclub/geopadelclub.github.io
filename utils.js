@@ -455,8 +455,13 @@ _delegar("change", "data-onchange", !1);
 _delegar("submit", "data-onsubmit");
 window.addEventListener("unhandledrejection", (e) => {
   console.error("Unhandled promise rejection:", e.reason);
-  if (document.getElementById("toasts"))
-    toast("Ha ocurrido un error inesperado. Inténtalo de nuevo.", "err");
+  if (document.getElementById("toasts")) {
+    if (!navigator.onLine || esErrorRed(e.reason)) {
+      toast("Sin conexión a internet. Revisa tu red.", "err");
+    } else {
+      toast("Ha ocurrido un error inesperado. Inténtalo de nuevo.", "err");
+    }
+  }
 });
 window.addEventListener("error", (e) => {
   if (

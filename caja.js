@@ -91,6 +91,9 @@ function calcCierre() {
   $("cjResumen").innerHTML = partes.join("");
 }
 async function cerrarCajaHoy() {
+  if (!navigator.onLine) {
+    return toast("Sin conexión. No se puede cerrar la caja.", "err");
+  }
   const btn = $("btnCerrarCaja"),
     msg = $("msgCierre");
   const bil = parseFloat($("cjBilletes").value) || 0;

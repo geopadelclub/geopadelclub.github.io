@@ -1053,6 +1053,9 @@ function alCambiarTipoPago() {
 
 async function procesarPagoUnico(metodo) {
   if (!reservaEnEdicion) return;
+  if (!navigator.onLine) {
+    return toast("Sin conexión. No se puede procesar el cobro.", "err");
+  }
   const nJug = parseInt($("modalNumJugadores").value, 10) || 4;
 
   if (!reservaEnEdicion.id) {
@@ -1436,6 +1439,9 @@ if ($("modalPrecio")) {
 
 async function cambiarPagoJugador(numJugador, nuevoMetodo, btn) {
   if (!reservaEnEdicion || !reservaEnEdicion.id) return;
+  if (!navigator.onLine) {
+    return toast("Sin conexión. No se puede registrar el pago.", "err");
+  }
   document
     .querySelectorAll("#splitJugadoresContainer button")
     .forEach((x) => (x.disabled = true));
@@ -1564,6 +1570,12 @@ async function guardarClienteSilencioso(
 
 async function confirmarGuardarReserva() {
   if (_guardandoReserva) return;
+  if (!navigator.onLine) {
+    return toast(
+      "Estás sin conexión. Conéctate a internet para guardar la reserva.",
+      "err",
+    );
+  }
   const cliente = $("modalCliente").value.trim();
   if (!cliente) return toast("Introduce el nombre del cliente", "warn");
   const pistasSel = obtenerPistasSeleccionadasModal();
