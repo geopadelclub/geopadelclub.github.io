@@ -217,3 +217,45 @@ async function cargarResenasLanding() {
     document.getElementById("resenas").hidden = true;
   }
 }
+function calcularEstadoApertura() {
+  const ahora = ahoraMadrid();
+  const min = ahora.minutos;
+  const dow = new Date(Date.UTC(ahora.y, ahora.m - 1, ahora.d, 12)).getUTCDay();
+  const esFinde = dow === 0 || dow === 6;
+  const cierre = esFinde ? 22 * 60 : 23 * 60 + 30;
+  const mananaIni = 9 * 60;
+  const mananaFin = 14 * 60;
+  const tardeIni = 17 * 60;
+  const tardeFin = cierre;
+  if (min >= mananaIni && min < mananaFin)
+    return { abierto: true, tipo: "cierra", hora: mananaFin };
+  if (min >= tardeIni && min < tardeFin)
+    return { abierto: true, tipo: "cierra", hora: tardeFin };
+  if (min < mananaIni) return { abierto: false, tipo: "abre", hora: mananaIni };
+  if (min >= mananaFin && min < tardeIni)
+    return { abierto: false, tipo: "abre", hora: tardeIni };
+  return { abierto: false, tipo: "abre_manana", hora: mananaIni };
+}
+
+function pintarEstadoApertura() {
+  const el = document.getElementById("estadoApertura");
+  if (!el) return;
+  const st = calcularEstadoApertura();
+  const hora = minToTimeStr(st.hora);
+  const titulo = st.abierto ? t("apertura.abierto") : t("apertura.cerrado");
+  const detalle = t("apertura." + st.tipo, { hora });
+  el.className = "estado-apertura " + (st.abierto ? "abierto" : "cerrado");
+  el.innerHTML = `<span class="dot" aria-hidden="true"></span><b>${esc(titulo)}</b> · ${esc(detalle)}`;
+}
+
+function iniciarEstadoApertura() {
+  pintarEstadoApertura();
+  setInterval(pintarEstadoApertura, 60000);
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", iniciarEstadoApertura);
+} else {
+  iniciarEstadoApertura();
+}
+document.addEventListener("idioma-cambiado", pintarEstadoApertura);

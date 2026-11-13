@@ -83,6 +83,14 @@ function guardarIntentosLogin() {
     );
   } catch (e) {}
 }
+function _mostrarErrorTurnstile(texto) {
+  const msgEl = $("msgLogin");
+  if (msgEl) {
+    msgEl.className = "msg-error";
+    msgEl.innerText = texto;
+  }
+}
+
 function iniciarTurnstileLogin() {
   if (!TURNSTILE_SITEKEY || tsLoginId !== null) return;
   const e = $("cfLogin");
@@ -102,8 +110,11 @@ function iniciarTurnstileLogin() {
           tsLoginToken = "";
         },
       });
-    } catch (e) {
-      console.error("Error al renderizar Turnstile:", e);
+    } catch (err) {
+      console.error("Error al renderizar Turnstile:", err);
+      _mostrarErrorTurnstile(
+        "No se pudo cargar la verificación anti-spam. Recarga la página o usa otro navegador.",
+      );
     }
   };
   if (window.turnstile) {
@@ -113,9 +124,21 @@ function iniciarTurnstileLogin() {
   const n = document.createElement("script");
   n.src =
     "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-  n.async = !0;
+  n.async = true;
   n.onload = t;
+  n.onerror = () => {
+    _mostrarErrorTurnstile(
+      "No se pudo cargar la verificación anti-spam. Revisa tu conexión o prueba con otro navegador.",
+    );
+  };
   document.head.appendChild(n);
+  setTimeout(() => {
+    if (tsLoginId === null && !window.turnstile) {
+      _mostrarErrorTurnstile(
+        "La verificación anti-spam está tardando demasiado. Recarga la página.",
+      );
+    }
+  }, 15000);
 }
 function reiniciarTurnstileLogin() {
   tsLoginToken = "";
@@ -452,6 +475,29 @@ const refrescar = {
   limpiezas: debounce(() => cargarLimpiezas(!1), 500),
   clientes: debounce(() => cargarClientes(), 800),
 };
+const _cancelacionesAvisadas = new Set();
+function avisarCancelacionWeb(e) {
+  const nuevo = e && e.new;
+  if (!nuevo || nuevo.estado !== "Cancelada" || nuevo.origen !== "web") return;
+  if (!nuevo.fecha || nuevo.fecha < fechaLocalISO()) return;
+  if (_cancelacionesAvisadas.has(nuevo.id)) return;
+  _cancelacionesAvisadas.add(nuevo.id);
+  if (_cancelacionesAvisadas.size > 500) {
+    const arr = Array.from(_cancelacionesAvisadas).slice(-100);
+    _cancelacionesAvisadas.clear();
+    arr.forEach((x) => _cancelacionesAvisadas.add(x));
+  }
+  const msg = `Reserva web CANCELADA: ${nuevo.cliente || ""} · ${fechaBonita(nuevo.fecha)} ${String(nuevo.hora_inicio || "").slice(0, 5)}`;
+  const detalle = `${nuevo.pista || ""}${nuevo.precio ? " · " + eur(nuevo.precio) : ""}`;
+  let mostrada = false;
+  if (document.hidden && typeof mostrarNotificacion === "function")
+    mostrada = mostrarNotificacion(msg, { body: detalle });
+  if (!mostrada) toast(msg, "warn", 9e3);
+  pitar();
+  try {
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+  } catch (err) {}
+}
 function iniciarSuscripcionRealtime() {
   if (!supabaseClient) return;
   if (canalRealtime) {
@@ -469,6 +515,11 @@ function iniciarSuscripcionRealtime() {
       "postgres_changes",
       { event: "INSERT", schema: "public", table: "reservas" },
       avisarNuevaReservaWeb,
+    )
+    .on(
+      "postgres_changes",
+      { event: "UPDATE", schema: "public", table: "reservas" },
+      avisarCancelacionWeb,
     )
     .on(
       "postgres_changes",

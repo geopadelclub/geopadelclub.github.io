@@ -583,3 +583,60 @@ document.addEventListener("click", (e) => {
     if (!t.matches(":popover-open")) t.showPopover();
   } catch (e) {}
 })();
+function _focusablesDe(dlg) {
+  const sel =
+    'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  const all = Array.from(dlg.querySelectorAll(sel)).filter(
+    (el) => !el.hidden && el.offsetParent !== null,
+  );
+  const gruposRadio = new Map();
+  all.forEach((el) => {
+    if (el.type === "radio" && el.name) {
+      if (!gruposRadio.has(el.name)) gruposRadio.set(el.name, []);
+      gruposRadio.get(el.name).push(el);
+    }
+  });
+  return all.filter((el) => {
+    if (el.type !== "radio" || !el.name) return true;
+    const grupo = gruposRadio.get(el.name) || [];
+    const elegido = grupo.find((r) => r.checked) || grupo[0];
+    return el === elegido;
+  });
+}
+
+function initFocusTrap(dlg) {
+  if (!dlg || dlg.tagName !== "DIALOG" || dlg.dataset.focusTrapBound) return;
+  dlg.dataset.focusTrapBound = "1";
+  dlg.addEventListener("keydown", (e) => {
+    if (e.key !== "Tab") return;
+    const f = _focusablesDe(dlg);
+    if (!f.length) {
+      e.preventDefault();
+      return;
+    }
+    const primero = f[0];
+    const ultimo = f[f.length - 1];
+    const dentro = dlg.contains(document.activeElement);
+    if (e.shiftKey) {
+      if (!dentro || document.activeElement === primero) {
+        e.preventDefault();
+        ultimo.focus();
+      }
+    } else {
+      if (!dentro || document.activeElement === ultimo) {
+        e.preventDefault();
+        primero.focus();
+      }
+    }
+  });
+}
+
+function bindFocusTraps() {
+  document.querySelectorAll("dialog").forEach(initFocusTrap);
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", bindFocusTraps);
+} else {
+  bindFocusTraps();
+}

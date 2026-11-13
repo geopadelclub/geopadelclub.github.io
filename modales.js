@@ -206,7 +206,9 @@ function inyectarModal(id, htmlString) {
   if (!document.body) return;
   const div = document.createElement("div");
   div.innerHTML = htmlString.trim();
-  document.body.appendChild(div.firstChild);
+  const nodo = div.firstChild;
+  document.body.appendChild(nodo);
+  if (typeof initFocusTrap === "function") initFocusTrap(nodo);
 }
 
 function cargarModalReserva() {

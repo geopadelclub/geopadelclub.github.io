@@ -943,3 +943,47 @@ img {
 .cta-resenas {
   margin-top: 30px;
 }
+.estado-apertura {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 800;
+  margin-top: 8px;
+  line-height: 1.2;
+  border: 1px solid transparent;
+}
+.estado-apertura.abierto {
+  background: var(--green-soft);
+  color: var(--green-text);
+  border-color: var(--green);
+}
+.estado-apertura.cerrado {
+  background: var(--orange-soft);
+  color: var(--orange-text);
+  border-color: var(--orange);
+}
+.estado-apertura .dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: 0 0 auto;
+}
+.estado-apertura.abierto .dot {
+  animation: gp-pulse 1.6s ease-in-out infinite;
+}
+@keyframes gp-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}

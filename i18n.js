@@ -269,6 +269,11 @@ const I18N = {
     "resenas.subtitulo":
       "Las opiniones de quienes ya han jugado en nuestras pistas.",
     "resenas.cta": "Ver todas las reseñas en Google",
+    "apertura.abierto": "Abierto ahora",
+    "apertura.cerrado": "Cerrado ahora",
+    "apertura.cierra": "cierra a las {hora}",
+    "apertura.abre": "abre a las {hora}",
+    "apertura.abre_manana": "abre mañana a las {hora}",
   },
 
   en: {
@@ -533,6 +538,11 @@ const I18N = {
     "resenas.subtitulo":
       "Reviews from those who have already played on our courts.",
     "resenas.cta": "See all reviews on Google",
+    "apertura.abierto": "Open now",
+    "apertura.cerrado": "Closed now",
+    "apertura.cierra": "closes at {hora}",
+    "apertura.abre": "opens at {hora}",
+    "apertura.abre_manana": "opens tomorrow at {hora}",
   },
 };
 
