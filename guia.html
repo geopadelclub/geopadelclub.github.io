@@ -2225,7 +2225,9 @@ Miércoles 20:00 - 21:30
           <li>Reservas existentes (no solapa).</li>
           <li>Bloqueos de pista (torneo, mantenimiento…).</li>
           <li>
-            Horario de cierre: 22:00 en finde/festivo, 23:30 entre semana.
+            Horario de cierre:
+            <strong>22:00 viernes, sábado, domingo y festivos</strong>;
+            <strong>23:30 de lunes a jueves</strong>.
           </li>
           <li>Descanso de 14:00 a 17:00 entre semana.</li>
           <li>Antelación mínima (30 min).</li>
@@ -2268,6 +2270,41 @@ Miércoles 20:00 - 21:30
           bloqueados) o <strong>límite de 20 reservas futuras</strong>. Desde el
           panel sí se puede reservar en todos estos casos (con aviso), así que
           si el cliente insiste, resérvala tú desde el panel.
+        </div>
+
+        <h3>
+          13.8 Chip «Abierto ahora»
+          <span class="guia-badge guia-badge-nuevo">Nuevo</span>
+        </h3>
+
+        <p>
+          En la sección «¿Dónde estamos?» de la home aparece un chip que indica
+          en tiempo real si el club está abierto o cerrado, y a qué hora abre o
+          cierra:
+        </p>
+        <ul>
+          <li>
+            <strong>Chip verde</strong> con un punto que pulsa suavemente:
+            «Abierto ahora · cierra a las HH:MM».
+          </li>
+          <li>
+            <strong>Chip naranja</strong> con un punto estático: «Cerrado ahora
+            · abre a las HH:MM» o «abre mañana a las 09:00».
+          </li>
+        </ul>
+        <p>
+          Tiene en cuenta los festivos: si hoy es festivo, muestra el cierre de
+          fin de semana (22:00) aunque sea entre semana. También el viernes. Se
+          actualiza automáticamente cada minuto (no hace falta recargar). Se
+          traduce al inglés con el resto de la web.
+        </p>
+
+        <div class="guia-tip">
+          <i class="ri-lightbulb-line" aria-hidden="true"></i>
+          El chip lee los festivos de la misma tabla que usa el panel. Si añades
+          un festivo nuevo (o el sincronizador automático lo añade), el chip lo
+          refleja en menos de 1 hora. Mientras el club está abierto, el punto
+          verde pulsa; cuando está cerrado, el punto es estático.
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════ -->
@@ -3579,15 +3616,42 @@ Miércoles 20:00 - 21:30
           <li>Si falla el push (suscripción muerta), la elimina.</li>
         </ul>
 
-        <h3>29.4 Aviso de nueva reserva web (panel)</h3>
+        <h3>29.4 Avisos en tiempo real del panel</h3>
+
+        <p>
+          El panel te avisa en tiempo real de dos eventos que llegan desde la
+          web pública (o desde otro dispositivo del club):
+        </p>
         <ul>
           <li>
-            Cuando entra una reserva con origen «web», el panel reproduce un
-            sonido y muestra un toast (o notificación nativa si la pestaña está
-            en segundo plano).
+            <strong>Nueva reserva web</strong>: el panel reproduce un sonido y
+            muestra un toast con el cliente, la fecha, la hora, la pista y el
+            precio. Si la pestaña está en segundo plano, muestra una
+            notificación nativa del navegador (si las has activado con la
+            campana). También vibra si el dispositivo lo soporta.
           </li>
-          <li>También vibra si el dispositivo lo soporta.</li>
+          <li>
+            <strong>Cancelación de reserva web</strong>
+            <span class="guia-badge guia-badge-nuevo">Nuevo</span>: si un
+            cliente cancela una reserva futura desde la web, el panel lo avisa
+            con el mismo sonido y con un toast «Reserva web CANCELADA». Así
+            sabes al instante que se ha liberado una pista y puedes avisar a la
+            lista de espera (que se dispara automáticamente al eliminar la
+            reserva — ver 11.6).
+          </li>
         </ul>
+        <p>
+          Los avisos solo se disparan para reservas con origen «web» (las que
+          hace el cliente). Los cambios que hace el personal desde el panel no
+          generan aviso, porque ya estás viéndolo.
+        </p>
+
+        <div class="guia-tip">
+          <i class="ri-lightbulb-line" aria-hidden="true"></i>
+          Las reservas de días pasados no generan aviso de cancelación, aunque
+          lleguen por realtime. Así te ahorras toasts con reservas antiguas
+          cuando alguien limpia datos.
+        </div>
 
         <!-- ═══════════════════════════════════════════════════════════════ -->
         <h2 id="copia">30. Copia de seguridad</h2>
@@ -3964,6 +4028,22 @@ Miércoles 20:00 - 21:30
                 <td>«Demasiados intentos. Inténtalo en X min»</td>
                 <td>Bloqueo por seguridad (web login)</td>
                 <td>Espera o resetea el código.</td>
+              </tr>
+              <tr>
+                <td>«No se pudo cargar la verificación anti-spam»</td>
+                <td>El script de Cloudflare Turnstile no ha cargado</td>
+                <td>
+                  Revisa tu conexión y recarga. Si sigue, prueba con otro
+                  navegador o desactiva bloqueadores de anuncios (uBlock,
+                  AdGuard…).
+                </td>
+              </tr>
+              <tr>
+                <td>«La verificación anti-spam está tardando demasiado»</td>
+                <td>La carga del script de Turnstile se ha quedado colgada</td>
+                <td>
+                  Recarga la página. Si persiste, prueba con otro navegador.
+                </td>
               </tr>
               <tr>
                 <td>«No se pudo cargar la librería de base de datos»</td>

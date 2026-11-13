@@ -221,7 +221,9 @@ function calcularEstadoApertura() {
   const ahora = ahoraMadrid();
   const min = ahora.minutos;
   const dow = new Date(Date.UTC(ahora.y, ahora.m - 1, ahora.d, 12)).getUTCDay();
-  const esFinde = dow === 0 || dow === 6;
+  const festivos = Array.isArray(cfg.festivos) ? cfg.festivos : [];
+  const esFestivo = festivos.includes(ahora.fecha);
+  const esFinde = dow === 0 || dow === 5 || dow === 6 || esFestivo;
   const cierre = esFinde ? 22 * 60 : 23 * 60 + 30;
   const mananaIni = 9 * 60;
   const mananaFin = 14 * 60;
