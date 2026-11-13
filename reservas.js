@@ -1960,6 +1960,20 @@ async function eliminarReservaRPC(alcance) {
       ? "¿Eliminar esta reserva y todas las siguientes de la serie?"
       : "¿Eliminar esta reserva? Se devolverán los pagos registrados.";
   if (!(await customConfirm(msg))) return;
+
+  const reserva = (datosLocales.reservas || []).find(
+    (x) => String(x.id) === String(id),
+  );
+  const datosParaEspera = reserva
+    ? {
+        fecha: reserva.fecha,
+        horaInicio: reserva.horaInicio,
+        duracionMin: reserva.duracionMin,
+        cliente: reserva.cliente,
+        pista: reserva.pista,
+      }
+    : null;
+
   const { data, error } = await supabaseClient.rpc(
     "eliminar_reserva_con_devolucion",
     { p_reserva_id: id, p_alcance: alcance, p_empleado: nombreUsuario() },
@@ -1976,6 +1990,76 @@ async function eliminarReservaRPC(alcance) {
   toast(alcance === "serie" ? "Serie eliminada" : "Reserva eliminada");
   cargarReservasHoy();
   cargarCajaHoy();
+  if (datosParaEspera) await avisarListaEsperaSiCoincide(datosParaEspera);
+}
+
+async function buscarEnListaEsperaCoincidencias(fecha, hora, duracion) {
+  if (!fecha || !hora) return [];
+  const horaCorta = String(hora).slice(0, 5);
+  try {
+    await supabaseClient.rpc("gp_lista_espera_caducar");
+  } catch (e) {
+    console.warn("No se pudo caducar la lista de espera:", e);
+  }
+  const { data, error } = await supabaseClient
+    .from("lista_espera")
+    .select("id, telefono, fecha, hora, duracion")
+    .eq("estado", "pendiente")
+    .eq("fecha", fecha)
+    .eq("duracion", Number(duracion) || 90);
+  if (error) {
+    console.warn("No se pudo consultar la lista de espera:", error);
+    return [];
+  }
+  return (data || []).filter(
+    (x) => String(x.hora || "").slice(0, 5) === horaCorta,
+  );
+}
+
+async function avisarListaEsperaSiCoincide(reserva) {
+  if (!reserva || !reserva.fecha || !reserva.horaInicio) return;
+  const coincidencias = await buscarEnListaEsperaCoincidencias(
+    reserva.fecha,
+    reserva.horaInicio,
+    parseInt(reserva.duracionMin, 10) || 90,
+  );
+  if (!coincidencias.length) return;
+
+  const fechaTxt = fechaBonita(reserva.fecha);
+  const horaTxt = String(reserva.horaInicio).slice(0, 5);
+  const durTxt = (parseInt(reserva.duracionMin, 10) || 90) + " min";
+  const pistaTxt = reserva.pista ? ` · ${reserva.pista}` : "";
+
+  const abrirWhatsApp = (tel) => {
+    const t = telWhatsApp(tel);
+    const texto = `Hola, te escribimos de Geopadel. Se ha liberado un hueco que solicitaste: ${fechaTxt} a las ${horaTxt} para ${durTxt}. Si te interesa, puedes reservar en https://geopadelclub.com/reservar o respondiendo a este mensaje. ¡Un saludo!`;
+    window.open(
+      `https://wa.me/${t}?text=${encodeURIComponent(texto)}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  };
+
+  if (coincidencias.length === 1) {
+    const c = coincidencias[0];
+    const ok = await customConfirm(
+      `Se ha liberado este hueco:\n${fechaTxt} · ${horaTxt}${pistaTxt} · ${durTxt}\n\nEn lista de espera:\n${c.telefono}\n\n¿Quieres avisarle por WhatsApp?`,
+      "Cliente en lista de espera",
+    );
+    if (ok) abrirWhatsApp(c.telefono);
+    cargarListaEspera();
+    return;
+  }
+
+  const lista = coincidencias
+    .map((c, i) => `${i + 1}. ${c.telefono}`)
+    .join("\n");
+  const ok = await customConfirm(
+    `Se ha liberado este hueco:\n${fechaTxt} · ${horaTxt}${pistaTxt} · ${durTxt}\n\nHay ${coincidencias.length} clientes en lista de espera:\n${lista}\n\n¿Avisar al primero por WhatsApp?`,
+    "Clientes en lista de espera",
+  );
+  if (ok) abrirWhatsApp(coincidencias[0].telefono);
+  cargarListaEspera();
 }
 
 const confirmarEliminarSerie = () => eliminarReservaRPC("serie");
