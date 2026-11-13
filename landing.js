@@ -160,6 +160,73 @@ async function initHuecos() {
   }
   renderHuecos();
 }
+let _aperturaFestivos = [];
+let _aperturaFestivosCargados = false;
+
+async function cargarFestivosApertura() {
+  if (_aperturaFestivosCargados) return;
+  try {
+    const r = await fetch(SUPABASE_URL + "/rest/v1/rpc/web_config", {
+      method: "POST",
+      headers: { ...SB_HEADERS, "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d && Array.isArray(d.festivos)) {
+      _aperturaFestivos = d.festivos;
+      _aperturaFestivosCargados = true;
+      pintarEstadoApertura();
+    }
+  } catch (e) {
+    console.warn("No se pudieron cargar los festivos para el chip:", e);
+  }
+}
+
+function calcularEstadoApertura() {
+  const ahora = ahoraMadrid();
+  const min = ahora.minutos;
+  const dow = new Date(Date.UTC(ahora.y, ahora.m - 1, ahora.d, 12)).getUTCDay();
+  const esFestivo = _aperturaFestivos.includes(ahora.fecha);
+  const esFinde = dow === 0 || dow === 5 || dow === 6 || esFestivo;
+  const cierre = esFinde ? 22 * 60 : 23 * 60 + 30;
+  const mananaIni = 9 * 60;
+  const mananaFin = 14 * 60;
+  const tardeIni = 17 * 60;
+  const tardeFin = cierre;
+  if (min >= mananaIni && min < mananaFin)
+    return { abierto: true, tipo: "cierra", hora: mananaFin };
+  if (min >= tardeIni && min < tardeFin)
+    return { abierto: true, tipo: "cierra", hora: tardeFin };
+  if (min < mananaIni) return { abierto: false, tipo: "abre", hora: mananaIni };
+  if (min >= mananaFin && min < tardeIni)
+    return { abierto: false, tipo: "abre", hora: tardeIni };
+  return { abierto: false, tipo: "abre_manana", hora: mananaIni };
+}
+
+function pintarEstadoApertura() {
+  const el = document.getElementById("estadoApertura");
+  if (!el) return;
+  const st = calcularEstadoApertura();
+  const hora = minToTimeStr(st.hora);
+  const titulo = st.abierto ? t("apertura.abierto") : t("apertura.cerrado");
+  const detalle = t("apertura." + st.tipo, { hora });
+  el.className = "estado-apertura " + (st.abierto ? "abierto" : "cerrado");
+  el.innerHTML = `<span class="dot" aria-hidden="true"></span><b>${esc(titulo)}</b> · ${esc(detalle)}`;
+}
+
+function iniciarEstadoApertura() {
+  pintarEstadoApertura();
+  cargarFestivosApertura();
+  setInterval(pintarEstadoApertura, 60000);
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", iniciarEstadoApertura);
+} else {
+  iniciarEstadoApertura();
+}
+document.addEventListener("idioma-cambiado", pintarEstadoApertura);
 function initLanding() {
   const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1200));
   idle(
@@ -217,47 +284,3 @@ async function cargarResenasLanding() {
     document.getElementById("resenas").hidden = true;
   }
 }
-function calcularEstadoApertura() {
-  const ahora = ahoraMadrid();
-  const min = ahora.minutos;
-  const dow = new Date(Date.UTC(ahora.y, ahora.m - 1, ahora.d, 12)).getUTCDay();
-  const festivos = Array.isArray(cfg.festivos) ? cfg.festivos : [];
-  const esFestivo = festivos.includes(ahora.fecha);
-  const esFinde = dow === 0 || dow === 5 || dow === 6 || esFestivo;
-  const cierre = esFinde ? 22 * 60 : 23 * 60 + 30;
-  const mananaIni = 9 * 60;
-  const mananaFin = 14 * 60;
-  const tardeIni = 17 * 60;
-  const tardeFin = cierre;
-  if (min >= mananaIni && min < mananaFin)
-    return { abierto: true, tipo: "cierra", hora: mananaFin };
-  if (min >= tardeIni && min < tardeFin)
-    return { abierto: true, tipo: "cierra", hora: tardeFin };
-  if (min < mananaIni) return { abierto: false, tipo: "abre", hora: mananaIni };
-  if (min >= mananaFin && min < tardeIni)
-    return { abierto: false, tipo: "abre", hora: tardeIni };
-  return { abierto: false, tipo: "abre_manana", hora: mananaIni };
-}
-
-function pintarEstadoApertura() {
-  const el = document.getElementById("estadoApertura");
-  if (!el) return;
-  const st = calcularEstadoApertura();
-  const hora = minToTimeStr(st.hora);
-  const titulo = st.abierto ? t("apertura.abierto") : t("apertura.cerrado");
-  const detalle = t("apertura." + st.tipo, { hora });
-  el.className = "estado-apertura " + (st.abierto ? "abierto" : "cerrado");
-  el.innerHTML = `<span class="dot" aria-hidden="true"></span><b>${esc(titulo)}</b> · ${esc(detalle)}`;
-}
-
-function iniciarEstadoApertura() {
-  pintarEstadoApertura();
-  setInterval(pintarEstadoApertura, 60000);
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", iniciarEstadoApertura);
-} else {
-  iniciarEstadoApertura();
-}
-document.addEventListener("idioma-cambiado", pintarEstadoApertura);
