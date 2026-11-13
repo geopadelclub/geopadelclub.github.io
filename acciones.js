@@ -33,6 +33,11 @@
       typeof cobrarMesaActiva === "function" &&
       cobrarMesaActiva(el.dataset.metodo),
   );
+  A(
+    "aplicar-serie",
+    () =>
+      typeof aplicarSerieDesdeModal === "function" && aplicarSerieDesdeModal(),
+  );
   A("calc-cierre", () => typeof calcCierre === "function" && calcCierre());
   A(
     "cerrar-caja",
@@ -156,8 +161,8 @@
       typeof emitirJustificanteTPV === "function" && emitirJustificanteTPV(),
   );
   A(
-  "conectar-impresora",
-  () =>
-    typeof conectarImpresoraUSB === "function" && conectarImpresoraUSB(false),
-);
+    "conectar-impresora",
+    () =>
+      typeof conectarImpresoraUSB === "function" && conectarImpresoraUSB(false),
+  );
 })();

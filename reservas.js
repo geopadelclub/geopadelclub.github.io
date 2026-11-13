@@ -781,24 +781,22 @@ function horaDesdeTop(topPx) {
 }
 
 async function buscarConflicto({ pistas, fechas, iniMin, dur, excluirId }) {
-  const orden = [...fechas].sort();
+  if (!fechas.length) return null;
+  const fechasUnicas = [...new Set(fechas)].sort();
   const { data, error } = await leerTodo(() =>
     supabaseClient
       .from("reservas")
       .select("id, pista, fecha, hora_inicio, duracion_min, cliente")
       .in("pista", pistas)
-      .gte("fecha", orden[0])
-      .lte("fecha", orden[orden.length - 1])
+      .in("fecha", fechasUnicas)
       .or(FILTRO_NO_CANCELADA)
       .order("id"),
   );
   if (error) throw error;
-  const set = new Set(fechas),
-    fin = iniMin + dur;
+  const fin = iniMin + dur;
   return (
     (data || []).find((r) => {
       if (excluirId && String(r.id) === String(excluirId)) return false;
-      if (!set.has(r.fecha)) return false;
       const a = timeToMin(r.hora_inicio),
         b = a + (parseInt(r.duracion_min, 10) || 90);
       return iniMin < b && fin > a;
@@ -876,9 +874,30 @@ async function moverReservaAccion(idRes, nuevaHora, nuevaPista) {
   const tieneCobros = String(t.pagosJugadores || "")
     .split(",")
     .some((p) => p === "Efectivo" || p === "Tarjeta");
-  const nuevoPrecio = tieneCobros
-    ? null
-    : precioParaFechaHora(t.fecha, nuevaHora, dur, t.tipoReserva);
+
+  const precioBase = precioParaFechaHora(
+    t.fecha,
+    nuevaHora,
+    dur,
+    t.tipoReserva,
+  );
+
+  let nuevoPrecio = null;
+  let quitarHappy = false;
+  if (!tieneCobros) {
+    if (t.esHappyHour) {
+      const ok = await customConfirm(
+        `Esta reserva tenía Happy Hour o Última Pista aplicada.\nSi la mueves a otra hora, el descuento dejará de aplicar y el precio volverá al base (${eur(precioBase)}).\n\n¿Mover igualmente?`,
+        "Happy Hour aplicado",
+      );
+      if (!ok) return;
+      quitarHappy = true;
+      nuevoPrecio = precioBase;
+    } else {
+      nuevoPrecio = precioBase;
+    }
+  }
+
   const upd = {
     hora_inicio: nuevaHora,
     pista: nuevaPista,
@@ -919,6 +938,98 @@ async function moverReservaAccion(idRes, nuevaHora, nuevaPista) {
     }
     toast("Error al mover la reserva: " + (err.message || err), "err");
   }
+}
+
+async function aplicarCambiosSerie({
+  cambios,
+  offsetDias = 0,
+  desdeFecha = null,
+}) {
+  if (!reservaEnEdicion || !reservaEnEdicion.serie) {
+    return toast("Esta reserva no forma parte de una serie", "warn");
+  }
+  const serie = reservaEnEdicion.serie;
+
+  const ok = await customConfirm(
+    `Se aplicará el cambio a TODA la serie desde ${desdeFecha ? fechaBonita(desdeFecha) : "esta reserva"} en adelante.\n\nLas semanas donde haya conflicto (solape o bloqueo) se saltarán y te avisaremos.\n\n¿Continuar?`,
+    "Aplicar a toda la serie",
+  );
+  if (!ok) return;
+
+  const btn = $("btnAplicarSerie");
+  setBusy(
+    btn,
+    true,
+    '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Aplicando...',
+  );
+  try {
+    const { data, error } = await supabaseClient.rpc("aplicar_cambio_serie", {
+      p_serie: serie,
+      p_desde_fecha: desdeFecha,
+      p_cambios: cambios,
+      p_offset_dias: offsetDias,
+      p_saltar_conflictos: true,
+    });
+    if (error) throw error;
+    if (!data || data.ok === false)
+      throw new Error((data && data.error) || "No se pudo aplicar");
+
+    const aplicadas = data.aplicadas || 0;
+    const saltadas = data.saltadas || [];
+    if (saltadas.length === 0) {
+      toast(`${aplicadas} reservas actualizadas en la serie`, "ok", 5000);
+    } else {
+      const lista = saltadas
+        .map(
+          (s) =>
+            `${fechaCorta(s.fecha)}${s.pista ? " · " + s.pista : ""} (${s.motivo})`,
+        )
+        .join("\n");
+      await customConfirm(
+        `Se han actualizado ${aplicadas} reservas.\n\nNo se han podido cambiar ${saltadas.length} porque tienen conflicto:\n\n${lista}\n\nRevísalas y hazlo manualmente si quieres.`,
+        "Aplicado con saltos",
+      );
+    }
+    cerrarModal();
+    cargarReservasHoy();
+  } catch (err) {
+    console.error(err);
+    toast("No se pudo aplicar: " + (err.message || err), "err");
+  } finally {
+    setBusy(btn, false);
+  }
+}
+
+async function aplicarSerieDesdeModal() {
+  if (!reservaEnEdicion || !reservaEnEdicion.serie) return;
+  const iso = $("modalFecha").value;
+  const horaInicio = $("modalHora").value;
+  const duracionMin = parseInt($("modalDuracion").value, 10) || 90;
+  const importe = parseFloat($("modalPrecio").value);
+  const pistasSel = obtenerPistasSeleccionadasModal();
+  if (!iso || !horaInicio || !pistasSel.length)
+    return toast("Revisa fecha, hora y pista", "warn");
+
+  const cambios = {
+    hora_inicio: horaInicio,
+    duracion_min: duracionMin,
+    pista: pistasSel[0],
+  };
+  if (!isNaN(importe)) cambios.precio = importe;
+
+  const offsetDias = Math.round(
+    (new Date(iso + "T12:00:00") -
+      new Date(reservaEnEdicion.fecha + "T12:00:00")) /
+      86400000,
+  );
+  const desdeFecha =
+    iso < reservaEnEdicion.fecha ? iso : reservaEnEdicion.fecha;
+
+  await aplicarCambiosSerie({
+    cambios,
+    offsetDias,
+    desdeFecha,
+  });
 }
 
 function precioSugerido() {
@@ -1194,6 +1305,8 @@ function abrirModalNuevaReserva(
   $("btnHistorialReserva").hidden = true;
   const _btnDup = $("btnDuplicarReserva");
   if (_btnDup) _btnDup.hidden = true;
+  const _btnAplicarSerie = $("btnAplicarSerie");
+  if (_btnAplicarSerie) _btnAplicarSerie.hidden = true;
   $("modalNumJugadores").value = "4";
 
   document.querySelector('input[name="modalTipoPago"][value="unico"]').checked =
@@ -1293,6 +1406,8 @@ function abrirModalEditarReserva(res) {
   const ocultar = esEntrenador();
   $("btnEliminarSerie").hidden = ocultar || !res.serie;
   $("btnHistorialReserva").hidden = ocultar;
+  const _btnAplicarSerie = $("btnAplicarSerie");
+  if (_btnAplicarSerie) _btnAplicarSerie.hidden = ocultar || !res.serie;
 
   actualizarVistasJugadoresSplit();
   resetBtnGuardar();
@@ -1475,6 +1590,8 @@ function cerrarModal() {
   resetBtnGuardar();
   const _btnDup = $("btnDuplicarReserva");
   if (_btnDup) _btnDup.hidden = true;
+  const _btnAplicarSerie = $("btnAplicarSerie");
+  if (_btnAplicarSerie) _btnAplicarSerie.hidden = true;
 }
 
 async function guardarClienteSilencioso(
@@ -1631,11 +1748,10 @@ async function confirmarGuardarReserva() {
       { p_telefono: telefono },
     );
     if (errDeuda) console.warn("No se pudo comprobar la deuda:", errDeuda);
-    const deudaMax = 20;
     const deudaNum = Number(deuda) || 0;
-    if (deudaNum > deudaMax) {
+    if (deudaNum > 20) {
       const continuar = await customConfirm(
-        `Este cliente debe ${eur(deudaNum)} (límite web: ${eur(deudaMax)}).\n\nNo podrá reservar por la web hasta que resuelva la deuda, pero desde el panel sí se puede reservar.\n\n¿Crear la reserva igualmente?`,
+        `Este cliente debe ${eur(deudaNum)} (límite web: ${eur(20)}).\n\nNo podrá reservar por la web hasta que resuelva la deuda, pero desde el panel sí se puede reservar.\n\n¿Crear la reserva igualmente?`,
         "Cliente con deuda pendiente",
       );
       if (!continuar) return;
@@ -1656,7 +1772,19 @@ async function confirmarGuardarReserva() {
   const importe = parseFloat($("modalPrecio").value);
   if (isNaN(importe) || importe < 0)
     return toast("El precio no es válido", "warn");
+
   const idExistente = $("modalReservaId").value;
+  if (!idExistente) {
+    const sugerido = precioParaFechaHora(iso, horaInicio, duracionMin, tipo);
+    if (sugerido != null && importe < sugerido * 0.5) {
+      const ok = await customConfirm(
+        `El precio introducido (${eur(importe)}) es menos de la mitad del sugerido (${eur(sugerido)}).\n\n¿Guardar igualmente?`,
+        "Precio muy bajo",
+      );
+      if (!ok) return;
+    }
+  }
+
   let repetirSemanas = 1;
   if (tipo === "Pena" && !idExistente) {
     const fechaFin = $("modalRepetirFin").value;
@@ -1681,6 +1809,7 @@ async function confirmarGuardarReserva() {
     if (repetirSemanas > 52)
       return toast("La peña no puede repetirse más de 52 semanas", "warn");
   }
+
   const notas = $("modalNotas").value.trim();
   const btn = $("btnGuardarReserva");
   _guardandoReserva = true;
@@ -1708,11 +1837,38 @@ async function confirmarGuardarReserva() {
       empleado: nombreUsuario(),
       tipo_cobro: tipoPagoSeleccionado,
     };
+
+    let serieAplicar = null;
+    if (idExistente && reservaEnEdicion && reservaEnEdicion.serie) {
+      const telNuevo = telefono || null;
+      const telViejo =
+        normalizarTelefono(reservaEnEdicion.telefono || "") || null;
+      const entidadNueva = esPena ? cliente : null;
+      const entidadVieja = reservaEnEdicion.nombreEntidad || null;
+      const cambiaNombre = cliente !== reservaEnEdicion.cliente;
+      const cambiaTel = telNuevo !== telViejo;
+      const cambiaEntidad = entidadNueva !== entidadVieja;
+
+      if (cambiaNombre || cambiaTel || cambiaEntidad) {
+        const aplicar = await customConfirm(
+          "Esta reserva forma parte de una serie (peña).\n¿Aplicar el cambio de cliente y teléfono a TODA la serie?\nSi cancelas, solo se cambia en esta reserva.",
+          "Reserva recurrente",
+        );
+        if (aplicar) {
+          serieAplicar = {
+            serie: reservaEnEdicion.serie,
+            cliente,
+            telefono: telefono || null,
+            nombre_entidad: entidadNueva,
+          };
+        }
+      }
+    }
+
+    const filas = [];
     if (idExistente) {
       if (esEntrenador() && !puedeEditarReserva(reservaEnEdicion))
         return toast("No puedes editar esta reserva", "err");
-      if (pistasSel.length === 0)
-        return toast("Selecciona al menos una pista", "warn");
       if (esEntrenador() && pistasSel.length !== 1)
         return toast(
           "Al editar un entrenamiento selecciona una única pista",
@@ -1736,7 +1892,7 @@ async function confirmarGuardarReserva() {
         );
       }
       const conf = await buscarConflicto({
-        pistas: pistasSel,
+        pistas: [pistasSel[0]],
         fechas: [iso],
         iniMin,
         dur: duracionMin,
@@ -1747,7 +1903,9 @@ async function confirmarGuardarReserva() {
           `La pista '${pistasSel[0]}' ya está ocupada a las ${String(conf.hora_inicio).slice(0, 5)} por ${conf.cliente}`,
           "err",
         );
+
       const upd = {
+        id: idExistente,
         ...payloadBase,
         fecha: iso,
         pista: pistasSel[0],
@@ -1776,45 +1934,9 @@ async function confirmarGuardarReserva() {
           ? "Pagado"
           : "Sin pagar";
       }
-      upd.tipo_cobro = tipoPagoSeleccionado;
-      const { error } = await supabaseClient
-        .from("reservas")
-        .update(upd)
-        .eq("id", idExistente);
-      if (error) throw error;
-
-      if (reservaEnEdicion.serie) {
-        const telNuevo = telefono || null;
-        const telViejo =
-          normalizarTelefono(reservaEnEdicion.telefono || "") || null;
-        const entidadNueva = esPena ? cliente : null;
-        const entidadVieja = reservaEnEdicion.nombreEntidad || null;
-        const cambiaNombre = cliente !== reservaEnEdicion.cliente;
-        const cambiaTel = telNuevo !== telViejo;
-        const cambiaEntidad = entidadNueva !== entidadVieja;
-
-        if (cambiaNombre || cambiaTel || cambiaEntidad) {
-          const aplicar = await customConfirm(
-            "Esta reserva forma parte de una serie (peña).\n¿Aplicar el cambio de cliente y teléfono a TODA la serie?\nSi cancelas, solo se cambia en esta reserva.",
-            "Reserva recurrente",
-          );
-          if (aplicar) {
-            const { error: errSerie } = await supabaseClient
-              .from("reservas")
-              .update({
-                cliente,
-                nombre_entidad: entidadNueva,
-                telefono: telNuevo,
-              })
-              .eq("serie", reservaEnEdicion.serie);
-            if (errSerie) throw errSerie;
-          }
-        }
-      }
-
-      const pistasExtra = pistasSel.slice(1);
-      if (pistasExtra.length > 0) {
-        const filasNuevas = pistasExtra.map((p) => ({
+      filas.push(upd);
+      for (const p of pistasSel.slice(1)) {
+        filas.push({
           ...payloadBase,
           pista: p,
           fecha: iso,
@@ -1822,68 +1944,59 @@ async function confirmarGuardarReserva() {
           pago_estado: "Sin pagar",
           pagos_jugadores: Array(numJugadores).fill("0").join(","),
           notas: notas || null,
-        }));
-        const { error: errIns } = await supabaseClient
-          .from("reservas")
-          .insert(filasNuevas);
-        if (errIns) throw errIns;
+        });
       }
-
-      await guardarClienteSilencioso(cliente, telefono, tipoCli);
-      const extraMsg =
-        pistasExtra.length > 0
-          ? ` y ${pistasExtra.length} pista${pistasExtra.length === 1 ? "" : "s"} añadida${pistasExtra.length === 1 ? "" : "s"}`
-          : "";
-      toast(`Reserva actualizada${extraMsg}`);
-      cerrarModal();
-      cargarReservasHoy();
-      return;
-    }
-    const fechas = [];
-    for (let w = 0; w < repetirSemanas; w++)
-      fechas.push(sumarDiasISO(iso, w * 7));
-    const conf = await buscarConflicto({
-      pistas: pistasSel,
-      fechas,
-      iniMin,
-      dur: duracionMin,
-    });
-    if (conf) {
-      return toast(
-        `No se puede crear: '${conf.pista}' ya está ocupada el ${conf.fecha} (${String(conf.hora_inicio).slice(0, 5)}) por ${conf.cliente}`,
-        "err",
+    } else {
+      const fechas = [];
+      for (let w = 0; w < repetirSemanas; w++)
+        fechas.push(sumarDiasISO(iso, w * 7));
+      const conf = await buscarConflicto({
+        pistas: pistasSel,
+        fechas,
+        iniMin,
+        dur: duracionMin,
+      });
+      if (conf) {
+        return toast(
+          `No se puede crear: '${conf.pista}' ya está ocupada el ${conf.fecha} (${String(conf.hora_inicio).slice(0, 5)}) por ${conf.cliente}`,
+          "err",
+        );
+      }
+      const serieId = repetirSemanas > 1 ? "S_" + Date.now().toString(36) : "";
+      fechas.forEach((f) =>
+        pistasSel.forEach((p) =>
+          filas.push({
+            ...payloadBase,
+            pista: p,
+            fecha: f,
+            serie: serieId,
+            pago_estado: "Sin pagar",
+            pagos_jugadores: Array(numJugadores).fill("0").join(","),
+            notas: f === fechas[0] ? notas || null : null,
+          }),
+        ),
       );
     }
-    const serieId = repetirSemanas > 1 ? "S_" + Date.now().toString(36) : "";
-    const filas = [];
-    fechas.forEach((f) =>
-      pistasSel.forEach((p) =>
-        filas.push({
-          ...payloadBase,
-          pista: p,
-          fecha: f,
-          serie: serieId,
-          pago_estado: "Sin pagar",
-          pagos_jugadores: Array(numJugadores).fill("0").join(","),
-        }),
-      ),
+
+    const { data: rpcData, error: rpcErr } = await supabaseClient.rpc(
+      "guardar_reserva_panel",
+      {
+        p_id: idExistente ? Number(idExistente) : null,
+        p_filas: filas,
+        p_serie_aplicar: serieAplicar,
+      },
     );
-    if (notas)
-      filas.forEach((fila) => {
-        fila.notas = fila.fecha === fechas[0] ? notas : null;
-      });
+    if (rpcErr) throw rpcErr;
+    if (!rpcData || rpcData.ok === false)
+      throw new Error((rpcData && rpcData.error) || "No se pudo guardar");
 
-    const { data: insertData, error } = await supabaseClient
-      .from("reservas")
-      .insert(filas)
-      .select("id, jugadores, precio");
-    if (error) throw error;
+    const nuevosIds = rpcData.ids || [];
 
-    if (_pendingPagoUnico && insertData && insertData.length === 1) {
+    if (!idExistente && _pendingPagoUnico && nuevosIds.length === 1) {
       const { data: c, error: eC } = await supabaseClient.rpc(
         "cobrar_reserva_completa",
         {
-          p_reserva_id: insertData[0].id,
+          p_reserva_id: nuevosIds[0],
           p_metodo: _pendingPagoUnico,
           p_empleado: nombreUsuario(),
         },
@@ -1891,7 +2004,7 @@ async function confirmarGuardarReserva() {
       if (eC) throw eC;
       if (c && c.success === false)
         throw new Error(c.message || "No se pudo cobrar la reserva");
-    } else if (_pendingPagoUnico && insertData && insertData.length > 1) {
+    } else if (!idExistente && _pendingPagoUnico && nuevosIds.length > 1) {
       toast(
         "Reservas creadas sin cobrar. Cóbralas una a una para evitar errores en series largas.",
         "warn",
@@ -1901,7 +2014,7 @@ async function confirmarGuardarReserva() {
 
     await guardarClienteSilencioso(cliente, telefono, tipoCli);
     const avisarPorWA =
-      telefono && telefonoValido(telefono) && insertData && insertData[0];
+      !idExistente && telefono && telefonoValido(telefono) && nuevosIds[0];
     const datosAviso = {
       cliente,
       telefono,
@@ -1913,7 +2026,11 @@ async function confirmarGuardarReserva() {
     };
 
     toast(
-      filas.length > 1 ? `${filas.length} reservas creadas` : "Reserva creada",
+      idExistente
+        ? "Reserva actualizada"
+        : filas.length > 1
+          ? `${filas.length} reservas creadas`
+          : "Reserva creada",
     );
     cerrarModal();
     cargarReservasHoy();
@@ -1930,7 +2047,6 @@ async function confirmarGuardarReserva() {
         }
       }, 250);
     }
-    return;
   } catch (err) {
     console.error(err);
     if (err && err.code === "23P01") {
@@ -1943,6 +2059,10 @@ async function confirmarGuardarReserva() {
     }
     if (err && err.code === "23P02") {
       toast("La pista está bloqueada en ese horario", "err");
+      return;
+    }
+    if (err && err.code === "23P05") {
+      toast("Horario no permitido para este tipo de reserva", "err");
       return;
     }
     toast("Error al guardar la reserva: " + (err.message || err), "err");
@@ -1964,15 +2084,19 @@ async function eliminarReservaRPC(alcance) {
   const reserva = (datosLocales.reservas || []).find(
     (x) => String(x.id) === String(id),
   );
-  const datosParaEspera = reserva
-    ? {
-        fecha: reserva.fecha,
-        horaInicio: reserva.horaInicio,
-        duracionMin: reserva.duracionMin,
-        cliente: reserva.cliente,
-        pista: reserva.pista,
-      }
-    : null;
+
+  let reservasAfectadas = [];
+  if (alcance === "serie" && reserva && reserva.serie) {
+    reservasAfectadas = (datosLocales.reservas || []).filter(
+      (x) =>
+        x.serie === reserva.serie &&
+        `${x.fecha}T${x.horaInicio}` >=
+          `${reserva.fecha}T${reserva.horaInicio}` &&
+        (x.estado || "") !== "Cancelada",
+    );
+  } else if (reserva) {
+    reservasAfectadas = [reserva];
+  }
 
   const { data, error } = await supabaseClient.rpc(
     "eliminar_reserva_con_devolucion",
@@ -1990,7 +2114,16 @@ async function eliminarReservaRPC(alcance) {
   toast(alcance === "serie" ? "Serie eliminada" : "Reserva eliminada");
   cargarReservasHoy();
   cargarCajaHoy();
-  if (datosParaEspera) await avisarListaEsperaSiCoincide(datosParaEspera);
+
+  for (const r of reservasAfectadas) {
+    await avisarListaEsperaSiCoincide({
+      fecha: r.fecha,
+      horaInicio: r.horaInicio,
+      duracionMin: r.duracionMin,
+      cliente: r.cliente,
+      pista: r.pista,
+    });
+  }
 }
 
 async function buscarEnListaEsperaCoincidencias(fecha, hora, duracion) {

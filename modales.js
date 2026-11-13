@@ -83,6 +83,7 @@ const HTML_MODAL_RESERVA = `
 <div class="modal-footer-bar">
   <button type="button" id="btnGuardarReserva" data-action="guardar-reserva" class="btn-add"><i class="ri-save-line" aria-hidden="true"></i>Guardar reserva</button>
   <button type="button" id="btnEliminarSerie" data-action="eliminar-serie" class="btn-add danger-dark" hidden><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar serie</button>
+  <button type="button" id="btnAplicarSerie" data-action="aplicar-serie" class="btn-add blue" hidden><i class="ri-repeat-line" aria-hidden="true"></i>Aplicar a toda la serie</button>
   <button type="button" id="btnHistorialReserva" data-action="ver-historial" class="btn-add gray" hidden><i class="ri-history-line" aria-hidden="true"></i>Historial</button>
   <button type="button" id="btnEliminarReserva" data-action="eliminar-reserva" class="btn-add danger" hidden><i class="ri-delete-bin-line" aria-hidden="true"></i>Eliminar</button>
   <button type="button" id="btnDuplicarReserva" class="btn-add blue" hidden><i class="ri-file-copy-2-line" aria-hidden="true"></i>Duplicar</button>
