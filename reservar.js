@@ -1179,7 +1179,7 @@ function dibujarMisReservas(data) {
           const entidad =
             g.nombre_entidad || (g.cliente && g.cliente !== data.nombre);
           const entidadChip = entidad
-            ? `<span class="chip" style="background:var(--amber-soft);color:var(--orange-text);border-color:var(--amber)"><i class="ri-group-line" aria-hidden="true"></i>${esc(g.nombre_entidad || g.cliente)}</span>`
+            ? `<span class="chip chip-entidad"><i class="ri-group-line" aria-hidden="true"></i>${esc(g.nombre_entidad || g.cliente)}</span>`
             : "";
           const confirmada = `<span class="badge-confirmada"><i class="ri-check-line" aria-hidden="true"></i>${t("mis-reservas.confirmada")}</span>`;
           let fechaTxt = esc(fechaWeb(g.fecha));
@@ -1194,7 +1194,7 @@ function dibujarMisReservas(data) {
                 idx = i;
             }
             const repetir = `<button type="button" class="btn-add gray" data-repetir="${esc(g.id)}" data-fecha="${esc(g.fecha)}" data-hora="${esc(g.hora)}" data-dur="${esc(g.duracion)}"><i class="ri-repeat-line" aria-hidden="true"></i>${t("mis-reservas.repetir")}</button>`;
-            fechaTxt = `<span style="display:inline-flex;align-items:center;gap:4px"><i class="ri-repeat-line" style="color:var(--primary)"></i> ${t("mis-reservas.todos")} ${fechas.length} semanas</span>`;
+            fechaTxt = `<span class="repetir-fechas-txt"><i class="ri-repeat-line repetir-icon"></i> ${t("mis-reservas.todos")} ${fechas.length} semanas</span>`;
             acciones =
               idx >= 0
                 ? `<div class="cl-res-acciones"><button type="button" class="btn-add danger" data-cancelar="${esc(ids[idx])}"><i class="ri-delete-bin-line" aria-hidden="true"></i>${t("mis-reservas.cancelar")} (${esc(fechaWeb(fechas[idx]))})</button>${repetir}</div><p class="cl-hint">${t("mis-reservas.recurrente", { n: fechas.length })}</p>`

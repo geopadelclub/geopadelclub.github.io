@@ -1134,3 +1134,18 @@
 [data-theme="dark"] .cl-slot.happy-hour:not(.active) span {
   color: #ffd25c;
 }
+.chip-entidad {
+  background: var(--amber-soft);
+  color: var(--orange-text);
+  border-color: var(--amber);
+}
+
+.repetir-fechas-txt {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.repetir-icon {
+  color: var(--primary);
+}

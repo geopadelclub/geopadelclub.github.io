@@ -1,5 +1,4 @@
 /* © Geopadel · Todos los derechos reservados. Queda prohibida la reproducción total o parcial sin autorización. */
-
 const HTML_MODAL_RESERVA = `
 <dialog id="modalReserva" class="modal-overlay" aria-labelledby="modalTitulo">
   <div class="modal-card-double">
@@ -141,13 +140,13 @@ const HTML_MODAL_ARTICULO = `
         <label for="artFoto">Foto</label>
         <div id="artFotoPreview" class="art-preview"></div>
         <input type="file" id="artFoto" accept="image/*" />
-        <button type="button" class="btn-add gray" id="btnArtQuitarFoto" style="margin-top: 8px" hidden><i class="ri-delete-bin-line" aria-hidden="true"></i>Quitar foto</button>
-        <p class="limp-leyenda" style="margin-top: 6px">Se reduce y se convierte a WebP automáticamente para que pese poco.</p>
+        <button type="button" class="btn-add gray mt-8" id="btnArtQuitarFoto" hidden><i class="ri-delete-bin-line" aria-hidden="true"></i>Quitar foto</button>
+        <p class="limp-leyenda mt-6">Se reduce y se convierte a WebP automáticamente para que pese poco.</p>
       </div>
       <div class="form-group"><label for="artTitulo">Título</label><input type="text" id="artTitulo" maxlength="80" placeholder="Ej. Pala Bullpadel Vertex" /></div>
       <div class="form-group"><label for="artDescripcion">Descripción</label><textarea id="artDescripcion" class="art-textarea" maxlength="600" rows="4" placeholder="Opcional: marca, medidas, colores..."></textarea></div>
       <div class="form-group"><label for="artPrecio">Precio (€)</label><input type="number" inputmode="decimal" id="artPrecio" step="0.01" min="0" placeholder="0,00" /></div>
-      <label class="cl-check" style="margin: 0"><input type="checkbox" id="artVisible" checked /><span>Visible para los clientes</span></label>
+      <label class="cl-check m-0"><input type="checkbox" id="artVisible" checked /><span>Visible para los clientes</span></label>
       <div id="msgArticulo" class="msg-inline" aria-live="polite"></div>
     </div>
     <div class="modal-footer-bar">
@@ -168,15 +167,15 @@ const HTML_MODAL_CONTRATO = `
     <div class="modal-single-body">
       <p id="ctObligatorio" class="aviso-limpieza" hidden><i class="ri-information-line" aria-hidden="true"></i>Antes de fichar por primera vez necesitamos saber tu contrato.</p>
       <p class="limp-leyenda">Indica lo que figura en tu contrato firmado. Sirve para comparar tu jornada con tus fichajes. Si cambia, vuelve a entrar aquí y guárdalo de nuevo: se conserva el histórico. No sustituye a tu contrato.</p>
-      <div class="form-inline" style="margin: 12px 0">
+      <div class="form-inline my-12">
         <label>Horas semanales del contrato<input type="number" inputmode="decimal" id="ctHoras" step="0.5" min="0.5" max="48" placeholder="Ej. 14" /></label>
         <label>Vigente desde<input type="date" id="ctDesde" /></label>
       </div>
       <div class="ct-cab"><span>Día</span><span>Tramo 1 / Horas</span><span>Tramo 2 (opcional)</span><span>Horario</span></div>
       <div id="ctFilas"></div>
-      <p id="ctCalculo" class="limp-leyenda" style="font-weight: 700; margin-top: 10px" aria-live="polite"></p>
-      <div class="form-group" style="margin-top: 10px">
-        <label for="ctNotas" style="display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 6px;">Observaciones (opcional)</label>
+      <p id="ctCalculo" class="limp-leyenda text-bold mt-10" aria-live="polite"></p>
+      <div class="form-group mt-10">
+        <label for="ctNotas" class="ct-notas-label">Observaciones (opcional)</label>
         <input type="text" id="ctNotas" maxlength="300" placeholder="Ej. turnos rotativos, horario variable en sábados..." />
       </div>
       <div id="msgContrato" class="msg-inline" aria-live="polite"></div>
@@ -196,7 +195,7 @@ const HTML_MODAL_HISTORIAL = `
       <h4><span class="gp-modal-brand">GEOPADEL</span> · <span id="histTitulo">Historial de cambios</span></h4>
       <button type="button" class="modal-close" data-action="cerrar-historial" aria-label="Cerrar"><i class="ri-close-line" aria-hidden="true"></i></button>
     </div>
-    <div class="modal-single-body" id="histCuerpo"><p style="color: var(--muted)">Cargando...</p></div>
+    <div class="modal-single-body" id="histCuerpo"><p class="text-muted">Cargando...</p></div>
     <div class="modal-footer-bar"><button type="button" data-action="cerrar-historial" class="btn-add gray">Cerrar</button></div>
   </div>
 </dialog>
