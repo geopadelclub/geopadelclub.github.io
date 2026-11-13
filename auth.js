@@ -136,45 +136,80 @@ async function cargarPerfil(e) {
   return { id: t.id, user: t.usuario, nombre: t.nombre, rol: t.rol };
 }
 async function comprobarSesion() {
-  let e = !1;
+  const ov = document.getElementById("loadingOverlay");
+
+  let e = false;
   try {
-    e = !!storage.getItem(CLAVE_SESION_INI);
-  } catch (e) {}
+    e = !!localStorage.getItem(CLAVE_SESION_INI);
+  } catch (err) {}
+
   if (!e) {
     mostrarLogin();
+    if (ov) {
+      ov.style.opacity = "0";
+      setTimeout(() => ov.remove(), 200);
+    }
     return;
   }
+
   try {
     await inicializarSupabase();
-  } catch (e) {
-    console.error(e);
+  } catch (err) {
+    console.error(err);
     mostrarLogin();
+    if (ov) {
+      ov.style.opacity = "0";
+      setTimeout(() => ov.remove(), 200);
+    }
     return;
   }
-  const { data: t } = await supabaseClient.auth.getSession();
-  if (t && t.session) {
-    if (sesionCaducada()) {
+
+  try {
+    const { data: t } = await supabaseClient.auth.getSession();
+    if (t && t.session) {
+      if (sesionCaducada()) {
+        await supabaseClient.auth.signOut();
+        try {
+          localStorage.removeItem(CLAVE_SESION_INI);
+        } catch (err) {}
+        mostrarLogin();
+        if (ov) {
+          ov.style.opacity = "0";
+          setTimeout(() => ov.remove(), 200);
+        }
+        toast("La sesión ha caducado. Vuelve a entrar.", "warn");
+        return;
+      }
+
+      const n = await cargarPerfil(t.session.user);
+      if (n) {
+        usuarioSesion = n;
+        marcarInicioSesion();
+
+        mostrarPanelAdmin()
+          .catch((err) => {
+            console.error(err);
+            toast("Error al cargar el panel. Recarga la página.", "err");
+          })
+          .finally(() => {
+            if (ov) {
+              ov.style.opacity = "0";
+              setTimeout(() => ov.remove(), 200);
+            }
+          });
+        return;
+      }
       await supabaseClient.auth.signOut();
-      try {
-        storage.removeItem(CLAVE_SESION_INI);
-      } catch (e) {}
-      mostrarLogin();
-      toast("La sesión ha caducado. Vuelve a entrar.", "warn");
-      return;
     }
-    const n = await cargarPerfil(t.session.user);
-    if (n) {
-      usuarioSesion = n;
-      if (!storage.getItem(CLAVE_SESION_INI)) marcarInicioSesion();
-      mostrarPanelAdmin().catch((err) => {
-        console.error(err);
-        toast("Error al cargar el panel. Recarga la página.", "err");
-      });
-      return;
-    }
-    await supabaseClient.auth.signOut();
+  } catch (err) {
+    console.error("Error al comprobar sesión:", err);
   }
+
   mostrarLogin();
+  if (ov) {
+    ov.style.opacity = "0";
+    setTimeout(() => ov.remove(), 200);
+  }
 }
 async function cerrarSesion() {
   detenerVigilanciaSesion();
