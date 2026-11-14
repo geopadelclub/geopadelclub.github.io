@@ -3247,4 +3247,28 @@ if ($("modalTelefono")) {
 if ($("modalFecha")) {
   $("modalFecha").addEventListener("change", actualizarAvisoTituloReserva);
 }
+if ($("btnRefrescarReservas")) {
+  $("btnRefrescarReservas").addEventListener("click", async () => {
+    const btn = $("btnRefrescarReservas");
+    const icon = btn.querySelector("i");
+
+    if (icon) icon.classList.add("ri-spin");
+    btn.disabled = true;
+
+    try {
+      await cargarReservasHoy();
+      if (typeof cargarListaEspera === "function") {
+        await cargarListaEspera();
+      }
+
+      toast("Reservas actualizadas", "ok", 2000);
+    } catch (e) {
+      console.error(e);
+      toast("Error al recargar", "err");
+    } finally {
+      if (icon) icon.classList.remove("ri-spin");
+      btn.disabled = false;
+    }
+  });
+}
 aplicarEnterGuardar("modalReserva", "#btnGuardarReserva");
