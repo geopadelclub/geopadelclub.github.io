@@ -2650,7 +2650,7 @@ async function cargarListaEspera() {
       );
       const botonAvisar = hayHueco
         ? `<button type="button" class="btn-add gray" data-espera-avisar="${esc(x.id)}"><i class="ri-whatsapp-line" aria-hidden="true"></i>Avisar (WhatsApp)</button>`
-        : `<button type="button" class="btn-add gray" disabled title="No hay pista libre en ese día, hora y duración"><i class="ri-whatsapp-line" aria-hidden="true"></i>Sin hueco</button>`;
+        : `<button type="button" class="btn-add gray btn-sin-hueco" aria-disabled="true" title="No hay pista libre en ese día, hora y duración"><i class="ri-whatsapp-line" aria-hidden="true"></i>Sin hueco</button>`;
       return `
         <tr>
             <td><b>${esc(fmtF(x.fecha))}</b></td>
