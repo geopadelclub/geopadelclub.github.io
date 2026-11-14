@@ -2555,6 +2555,40 @@ function cerrarHistorial() {
   cerrarOverlay("modalHistorial");
 }
 
+async function comprobarDisponibilidadListaEspera(lista) {
+  if (!lista || !lista.length) return {};
+  const fechas = [...new Set(lista.map((x) => x.fecha))];
+  const resultados = {};
+  await Promise.all(
+    fechas.map(async (fecha) => {
+      try {
+        const { data, error } = await supabaseClient.rpc("web_disponibilidad", {
+          p_fecha: fecha,
+        });
+        if (!error && data && data.ok) {
+          resultados[fecha] = data.slots || [];
+        } else {
+          resultados[fecha] = null;
+        }
+      } catch (e) {
+        resultados[fecha] = null;
+      }
+    }),
+  );
+  return resultados;
+}
+
+function hayPistaLibre(disponibilidad, fecha, hora, duracion) {
+  const slots = disponibilidad[fecha];
+  if (!slots) return true;
+  const horaCorta = String(hora || "").slice(0, 5);
+  const slot = slots.find((s) => s.hora === horaCorta);
+  if (!slot) return false;
+  const op = (slot.opciones || []).find((o) => o.dur === Number(duracion));
+  if (!op) return false;
+  return Number(op.libres) > 0;
+}
+
 async function cargarListaEspera() {
   const tb = $("listaEsperaBody");
   if (!tb) return;
@@ -2598,26 +2632,38 @@ async function cargarListaEspera() {
     return;
   }
 
+  const disponibilidad =
+    await comprobarDisponibilidadListaEspera(listaEsperaCache);
+
   const fmtF = (iso) => {
     const [y, m, d] = String(iso).split("-");
     return `${d}/${m}/${y}`;
   };
 
   tb.innerHTML = listaEsperaCache
-    .map(
-      (x) => `
+    .map((x) => {
+      const hayHueco = hayPistaLibre(
+        disponibilidad,
+        x.fecha,
+        x.hora,
+        x.duracion,
+      );
+      const botonAvisar = hayHueco
+        ? `<button type="button" class="btn-add gray" data-espera-avisar="${esc(x.id)}"><i class="ri-whatsapp-line" aria-hidden="true"></i>Avisar (WhatsApp)</button>`
+        : `<button type="button" class="btn-add gray" disabled title="No hay pista libre en ese día, hora y duración"><i class="ri-whatsapp-line" aria-hidden="true"></i>Sin hueco</button>`;
+      return `
         <tr>
             <td><b>${esc(fmtF(x.fecha))}</b></td>
             <td>${x.hora ? esc(String(x.hora).slice(0, 5)) : '<span style="color:var(--muted)">—</span>'}</td>
             <td>${x.duracion} min</td>
             <td><a href="tel:${esc(x.telefono)}" style="color:var(--blue);font-weight:700">${esc(x.telefono)}</a>${botonCopiarTel(x.telefono)}</td>
             <td>
-                <button type="button" class="btn-add gray" data-espera-avisar="${esc(x.id)}"><i class="ri-whatsapp-line" aria-hidden="true"></i>Avisar (WhatsApp)</button>
+                ${botonAvisar}
                 <button type="button" class="btn-add danger" data-espera-borrar="${esc(x.id)}"><i class="ri-delete-bin-line" aria-hidden="true"></i>Quitar</button>
             </td>
         </tr>
-    `,
-    )
+    `;
+    })
     .join("");
 }
 
@@ -2639,7 +2685,26 @@ function construirMensajeWhatsAppReserva(r) {
       .split(" ")[0] || "cliente";
   const fecha = fechaBonita(r.fecha, true);
   const precio = eur(r.precio);
-  return `Hola ${nombrePila}, tu reserva en Geopadel está confirmada:\n\n📅 ${fecha}\n🕒 ${r.horaInicio} – ${fin}\n📍 ${r.pista}\n💶 ${precio} (se paga en el club)\n\n¡Nos vemos en la pista!`;
+  return (
+    "Hola " +
+    nombrePila +
+    ", tu reserva en Geopadel esta confirmada:\n\n" +
+    "Fecha: " +
+    fecha +
+    "\n" +
+    "Hora: " +
+    r.horaInicio +
+    " - " +
+    fin +
+    "\n" +
+    "Pista: " +
+    r.pista +
+    "\n" +
+    "Precio: " +
+    precio +
+    " (se paga en el club)\n\n" +
+    "¡Nos vemos en la pista!"
+  );
 }
 function abrirWhatsAppReserva(r) {
   if (!r || !r.telefono) {
