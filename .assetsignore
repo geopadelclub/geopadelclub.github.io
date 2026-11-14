@@ -12,3 +12,8 @@ bump-sw.js
 *.sh
 *.md
 .env*
+.vscode
+.idea
+dist
+.DS_Store
+Thumbs.db
