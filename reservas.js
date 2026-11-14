@@ -13,6 +13,15 @@ function resetBtnGuardar() {
   delete btn.dataset.txt;
   _guardandoReserva = false;
 }
+function tieneDeudaPendiente(telefono) {
+  if (!telefono || typeof deudas === "undefined" || !Array.isArray(deudas))
+    return false;
+  const telNorm = normalizarTelefono(telefono);
+  return deudas.some(
+    (d) =>
+      d.estado === "Pendiente" && normalizarTelefono(d.telefono) === telNorm,
+  );
+}
 async function cargarReservasHoy() {
   const iso = $("fechaCuadrante").value || fechaLocalISO();
   const miReq = ++reqReservas;
@@ -309,9 +318,14 @@ function renderizarCuadrantePlaytomic(reservas) {
             ? '<i class="ri-global-line" aria-hidden="true" title="Reserva hecha desde la web"></i>'
             : "";
 
+        const tieneDeuda = tieneDeudaPendiente(r.telefono);
+        const iconoDeuda = tieneDeuda
+          ? '<span class="badge-deuda-reserva" title="Atención: cliente con deuda pendiente"><i class="ri-error-warning-line" aria-hidden="true"></i> Deuda</span>'
+          : "";
+
         card.innerHTML = `
 <div class="resize-handle resize-top" data-resize="top"></div>
-<div class="reserva-top">${badge}${dots}</div>
+<div class="reserva-top">${badge}${iconoDeuda}${dots}</div>
 <div class="reserva-title">${iconoOrigen}${r.serie ? '<i class="ri-repeat-line" aria-hidden="true"></i>' : ""}${esc(r.nombreEntidad ? r.nombreEntidad : r.cliente)}</div>
 ${tieneNota && heightPx >= 150 ? `<div class="reserva-nota-txt">${esc(r.notas)}</div>` : ""}
 <div class="reserva-time"><span>${esc(r.horaInicio)} - ${minToTimeStr(iniMin + dur)}</span>${tieneNota ? '<span class="nota-flag"><i class="ri-sticky-note-fill" aria-hidden="true"></i>Nota</span>' : ""}</div>
@@ -883,7 +897,6 @@ async function moverReservaAccion(idRes, nuevaHora, nuevaPista) {
   );
 
   let nuevoPrecio = null;
-  let quitarHappy = false;
   if (!tieneCobros) {
     if (t.esHappyHour) {
       const ok = await customConfirm(
@@ -891,7 +904,6 @@ async function moverReservaAccion(idRes, nuevaHora, nuevaPista) {
         "Happy Hour aplicado",
       );
       if (!ok) return;
-      quitarHappy = true;
       nuevoPrecio = precioBase;
     } else {
       nuevoPrecio = precioBase;
@@ -2087,13 +2099,27 @@ async function eliminarReservaRPC(alcance) {
 
   let reservasAfectadas = [];
   if (alcance === "serie" && reserva && reserva.serie) {
-    reservasAfectadas = (datosLocales.reservas || []).filter(
-      (x) =>
-        x.serie === reserva.serie &&
-        `${x.fecha}T${x.horaInicio}` >=
-          `${reserva.fecha}T${reserva.horaInicio}` &&
-        (x.estado || "") !== "Cancelada",
-    );
+    const { data: serieData, error: errSerie } = await supabaseClient
+      .from("reservas")
+      .select("id, pista, fecha, hora_inicio, duracion_min, cliente")
+      .eq("serie", reserva.serie)
+      .or(FILTRO_NO_CANCELADA);
+    if (errSerie) {
+      console.error("No se pudieron leer las reservas de la serie:", errSerie);
+    }
+    reservasAfectadas = (serieData || [])
+      .filter(
+        (x) =>
+          `${x.fecha}T${String(x.hora_inicio).slice(0, 5)}` >=
+          `${reserva.fecha}T${reserva.horaInicio}`,
+      )
+      .map((x) => ({
+        fecha: x.fecha,
+        horaInicio: String(x.hora_inicio).slice(0, 5),
+        duracionMin: x.duracion_min,
+        cliente: x.cliente,
+        pista: x.pista,
+      }));
   } else if (reserva) {
     reservasAfectadas = [reserva];
   }

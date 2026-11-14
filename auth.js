@@ -587,8 +587,17 @@ function pitar() {
 function avisarNuevaReservaWeb(e) {
   const t = e && e.new;
   if (!t || t.origen !== "web") return;
-  const n = `Nueva reserva web: ${t.cliente || ""} · ${fechaBonita(t.fecha)} ${String(t.hora_inicio || "").slice(0, 5)}`,
-    r = `${t.pista || ""}${t.precio ? " · " + eur(t.precio) : ""}`;
+
+  let n = `Nueva reserva web: ${t.cliente || ""} · ${fechaBonita(t.fecha)} ${String(t.hora_inicio || "").slice(0, 5)}`;
+  const r = `${t.pista || ""}${t.precio ? " · " + eur(t.precio) : ""}`;
+
+  if (
+    typeof tieneDeudaPendiente === "function" &&
+    tieneDeudaPendiente(t.telefono)
+  ) {
+    n += " · ⚠️ TIENE DEUDA";
+  }
+
   let i = !1;
   if (document.hidden && typeof mostrarNotificacion === "function")
     i = mostrarNotificacion(n, { body: r });
