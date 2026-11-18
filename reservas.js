@@ -158,12 +158,20 @@ function actualizarDuracionesSelect(tipo) {
   const selDur = $("modalDuracion");
   const actual = parseInt(selDur.value, 10);
   const durs =
-    tipo === "Entrenamiento" ? DURACIONES_ENTRENO : DURACIONES_NORMAL;
+    tipo === "Entrenamiento" ? [...DURACIONES_ENTRENO] : [...DURACIONES_NORMAL];
+  if (actual && !durs.includes(actual)) {
+    durs.push(actual);
+    durs.sort((a, b) => a - b);
+  }
+
   selDur.innerHTML = durs
     .map((d) => `<option value="${d}">${labelDur(d)}</option>`)
     .join("");
-  if (actual && durs.includes(actual)) selDur.value = String(actual);
-  else selDur.value = String(durs[0]);
+  if (actual && durs.includes(actual)) {
+    selDur.value = String(actual);
+  } else {
+    selDur.value = "90";
+  }
 }
 
 function renderizarCuadrantePlaytomic(reservas) {
