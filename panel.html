@@ -982,6 +982,42 @@
                 </table>
               </div>
             </div>
+            <div class="card" id="cardVentasProducto">
+              <div class="card-head">
+                <h3>
+                  <i class="ri-shopping-bag-line" aria-hidden="true"></i>Ventas
+                  por artículo específico
+                </h3>
+              </div>
+              <p class="limp-leyenda">
+                Consulta cuánto se ha vendido un artículo concreto (Ej.
+                "Coca-Cola", "Pala") en el rango de fechas seleccionado en el
+                bloque de arriba.
+              </p>
+              <div class="toolbar">
+                <input
+                  type="text"
+                  id="prodVentaInput"
+                  list="dlProductosVenta"
+                  class="toolbar-input"
+                  placeholder="Escribe o selecciona un artículo..."
+                  style="flex: 1; max-width: 400px"
+                />
+                <datalist id="dlProductosVenta"></datalist>
+                <button
+                  type="button"
+                  class="btn-add blue"
+                  id="btnBuscarVentaProd"
+                >
+                  <i class="ri-search-line" aria-hidden="true"></i>Buscar ventas
+                </button>
+              </div>
+              <div id="ventaProdResultado" class="mt-14">
+                <p class="limp-leyenda">
+                  Selecciona un artículo y pulsa Buscar.
+                </p>
+              </div>
+            </div>
             <div class="card" id="cardCopia">
               <h3>
                 <i class="ri-database-2-line" aria-hidden="true"></i>Exportar y

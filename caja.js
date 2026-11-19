@@ -255,12 +255,13 @@ function dibujarDesgloseTipos(ventas, totales) {
   if (!tiposBody) return;
 
   const TIPO_LABELS = {
-    Bebidas: "Bebidas",
-    Comida: "Comida",
+    Bebidas: "Bar",
+    Comida: "Bar",
     Tienda: "Tienda",
+    Pista: "Tienda",
     Pistas: "Pistas",
     "Devolución Pistas": "Pistas",
-    Bar: "Bar (histórico)",
+    Bar: "Bar (ANTIGUO)",
   };
 
   const agrupado = {};
@@ -342,6 +343,7 @@ function entrarCaja() {
   if (hasta && !hasta.value) hasta.value = fechaLocalISO();
   cargarCajaHoy();
   cargarHistorialCaja();
+  cargarSelectVentasProducto();
 }
 $("histCajaBody").addEventListener("click", (e) => {
   const b = e.target.closest("button[data-reabrir]");
@@ -521,3 +523,87 @@ window.addEventListener("afterprint", () => {
     if (a) a.innerHTML = "";
   }, 1000);
 });
+function cargarSelectVentasProducto() {
+  const dl = $("dlProductosVenta");
+  if (!dl) return;
+  const prods = [
+    ...new Set((datosLocales.productos || []).map((p) => p.nombre)),
+  ].sort();
+  dl.innerHTML = prods.map((p) => `<option value="${esc(p)}">`).join("");
+}
+
+async function buscarVentaProducto() {
+  const prod = $("prodVentaInput").value.trim();
+  if (!prod) return toast("Escribe o selecciona un artículo", "warn");
+
+  const btn = $("btnBuscarVentaProd");
+  const cont = $("ventaProdResultado");
+  const desde = $("histCajaDesde").value;
+  const hasta = $("histCajaHasta").value;
+
+  if (desde > hasta) {
+    return toast("El rango de fechas no es válido", "warn");
+  }
+
+  setBusy(
+    btn,
+    true,
+    '<i class="ri-loader-4-line ri-spin" aria-hidden="true"></i>Buscando...',
+  );
+  cont.innerHTML = '<p class="limp-leyenda">Buscando...</p>';
+
+  try {
+    const { data, error } = await supabaseClient.rpc(
+      "informe_ventas_producto",
+      {
+        p_desde: desde,
+        p_hasta: hasta,
+        p_producto: prod,
+      },
+    );
+    if (error) throw error;
+    if (!data || !data.ok) throw new Error("Error al buscar");
+
+    const d = data.data;
+    if (d.cantidad === 0) {
+      cont.innerHTML = `<p class="limp-leyenda" style="color:var(--muted)">No se han encontrado ventas de "${esc(prod)}" en este periodo.</p>`;
+      return;
+    }
+
+    cont.innerHTML = `
+      <div class="kpi-row">
+        <div class="kpi ef">
+          <span>Efectivo</span>
+          <p class="kpi-value">${eur(d.efectivo)}</p>
+        </div>
+        <div class="kpi ta">
+          <span>Tarjeta</span>
+          <p class="kpi-value">${eur(d.tarjeta)}</p>
+        </div>
+        <div class="kpi">
+          <span>Total recaudado</span>
+          <p class="kpi-value">${eur(d.total)}</p>
+        </div>
+        <div class="kpi" style="border-color:var(--primary)">
+          <span>Veces vendido</span>
+          <p class="kpi-value">${d.cantidad}</p>
+        </div>
+      </div>
+    `;
+  } catch (e) {
+    console.error(e);
+    cont.innerHTML = `<p class="limp-leyenda" style="color:var(--red)">Error: ${esc(e.message || e)}</p>`;
+  } finally {
+    setBusy(btn, false);
+  }
+}
+
+if ($("btnBuscarVentaProd")) {
+  $("btnBuscarVentaProd").addEventListener("click", buscarVentaProducto);
+  $("prodVentaInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      buscarVentaProducto();
+    }
+  });
+}
