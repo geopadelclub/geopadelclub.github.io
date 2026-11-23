@@ -244,23 +244,17 @@ function enlazarBuscadorCliente(e, t, n) {
       .replace(/\s+/g, " ")
       .trim();
   const soloDig = (s) => String(s || "").replace(/\D/g, "");
-  const cache = new Map();
+  let ignorarInput = false;
 
   async function buscar(q, qTel) {
-    const key = q + "|" + qTel;
-    if (cache.has(key)) return cache.get(key);
-    let query = supabaseClient
-      .from("clientes")
-      .select("id, nombre, telefono, tipo_cliente, nombre_entidad")
-      .limit(20);
-    if (q) query = query.ilike("nombre", "%" + q + "%");
-    if (qTel) query = query.ilike("telefono", "%" + qTel + "%");
-    const { data, error } = await query;
+    const { data, error } = await supabaseClient.rpc("gp_buscar_clientes", {
+      p_q: q || "",
+      p_tel: qTel || "",
+    });
     if (error) {
       console.error("Error buscando clientes:", error);
       return [];
     }
-    cache.set(key, data || []);
     return data || [];
   }
 
@@ -268,6 +262,7 @@ function enlazarBuscadorCliente(e, t, n) {
     if (i.dataset.cliBound) return;
     i.dataset.cliBound = "1";
     if (!i.parentNode) return;
+    const esTel = i === t;
     const wrap = document.createElement("div");
     wrap.className = "cli-wrap";
     i.parentNode.insertBefore(wrap, i);
@@ -295,23 +290,24 @@ function enlazarBuscadorCliente(e, t, n) {
         .forEach((el, k) => el.classList.toggle("on", k === idx));
 
     function elegir(c) {
+      ignorarInput = true;
       e.value = c.nombre_entidad ? c.nombre_entidad : c.nombre;
       t.value = c.telefono || "";
       e.dataset.tipo = c.tipo_cliente || "Particular";
+      t.dispatchEvent(new Event("input", { bubbles: true }));
+      ignorarInput = false;
       cerrar();
       if (n) n(c);
     }
 
     async function ejecutar() {
-      const q = norm(e.value);
-      const qTel = soloDig(t.value);
-      const hasQ = q.length >= 2;
-      const hasTel = qTel.length >= 3;
-      if (!hasQ && !hasTel) {
+      const q = esTel ? "" : norm(e.value);
+      const qTel = esTel ? soloDig(t.value) : "";
+      if ((!esTel && q.length < 2) || (esTel && qTel.length < 3)) {
         cerrar();
         return;
       }
-      lista = await buscar(hasQ ? q : "", hasTel ? qTel : "");
+      lista = await buscar(q, qTel);
       if (!lista.length) {
         cerrar();
         return;
@@ -320,7 +316,10 @@ function enlazarBuscadorCliente(e, t, n) {
         .map((c, k) => {
           const esPena = c.tipo_cliente === "Peña" || c.nombre_entidad;
           const badge = esPena ? '<span class="badge-pena">PEÑA</span>' : "";
-          return `<div class="cli-op" role="option" data-i="${k}"><b>${esc(c.nombre_entidad || c.nombre)} ${badge}</b><small>${c.telefono ? esc(c.telefono) : "Sin teléfono"}</small></div>`;
+          const blq = c.bloqueado
+            ? ' <span class="badge-pena" style="background:var(--red,#dc2626);color:#fff">BLOQUEADO</span>'
+            : "";
+          return `<div class="cli-op" role="option" data-i="${k}"><b>${esc(c.nombre_entidad || c.nombre)} ${badge}${blq}</b><small>${c.telefono ? esc(c.telefono) : "Sin teléfono"}</small></div>`;
         })
         .join("");
       idx = -1;
@@ -329,6 +328,7 @@ function enlazarBuscadorCliente(e, t, n) {
     }
 
     i.addEventListener("input", () => {
+      if (ignorarInput) return;
       clearTimeout(tmr);
       tmr = setTimeout(ejecutar, 300);
     });
